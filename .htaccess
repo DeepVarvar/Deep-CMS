@@ -1,0 +1,68 @@
+
+
+
+#
+# nginx format configuration example:
+#
+#   server {
+#
+#       listen 80;
+#
+#       server_name yourdomain.tdl www.yourdomain.tdl.ru;
+#       charset utf-8;
+#
+#       access_log /home/user/htdocs/yourdomain.tdl/logs/access.log;
+#       error_log  /home/user/htdocs/yourdomain.tdl/logs/error.log;
+#
+#       if ($host != 'www.yourdomain.tdl.ru') {
+#           rewrite ^(.*)$ http://www.yourdomain.tdl.ru$1 permanent;
+#       }
+#
+#       set $root_path '/home/user/htdocs/yourdomain.tdl/public_html';
+#
+#       root $root_path;
+#       index index.php index.html;
+#
+#       location / {
+#
+#           error_page 404 = @main;
+#
+#           if (!-f $request_filename) {
+#               return 404;
+#           }
+#
+#           location ~ /\.ht {
+#               return 404;
+#           }
+#
+#           location /application {
+#               return 404;
+#           }
+#
+#           location ~ \.php$ {
+#               return 404;
+#           }
+#
+#       }
+#
+#       location @main {
+#
+#           fastcgi_pass 127.0.0.1:9000;
+#           include /etc/nginx/fastcgi.conf;
+#           fastcgi_param SCRIPT_FILENAME $root_path/index.php;
+#           fastcgi_intercept_errors on;
+#
+#       }
+#
+#   }
+#
+
+
+AddDefaultCharset utf-8
+
+RewriteEngine on
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?$1 [L,QSA]
+
