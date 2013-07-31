@@ -1,0 +1,78 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/reset" onclick="return confirmation('<?=view::$language->preferences_global_reset_confirm?>');"><?=view::$language->preferences_global_reset?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/recalculate"><?=view::$language->permissions_recalculate?></a></h3>
+
+
+    <form action="<?=$_config->site->admin_tools_link?>/preferences" method="post">
+        <div class="form">
+
+            <div class="label mt-20">Description:</div>
+            <div class="elem mt-20">
+                <input type="text" name="site[default_description]" value="<?=$_config->site->default_description?>" />
+            </div>
+            <div class="label">Keywords:</div>
+            <div class="elem">
+                <input type="text" name="site[default_keywords]" value="<?=$_config->site->default_keywords?>" />
+            </div>
+
+            <div class="label mt-20"><?=view::$language->theme_of_site?>:</div>
+            <div class="elem mt-20">
+
+                <select class="required" name="site[theme]">
+                    <?=htmlHelper::drawOptionList($themes)?>
+                </select>
+
+            </div>
+            <div class="label"><?=view::$language->default_language?>:</div>
+            <div class="elem">
+
+                <select class="required" name="site[default_language]">
+                    <?=htmlHelper::drawOptionList($languages)?>
+                </select>
+                <span class="info">(<?=view::$language->default?>)</span>
+
+            </div>
+
+            <div class="label mt-20"><?=view::$language->admin_tools_link?>:</div>
+            <div class="elem mt-20"><input class="required" type="text" name="site[admin_tools_link]" value="<?=$_config->site->admin_tools_link?>" /></div>
+
+            <div class="label mt-20"><?=view::$language->priority_range_of_groups?>:</div>
+            <div class="elem mt-20">
+                <input class="required" type="text" name="system[max_group_priority_number]" value="<?=$_config->system->max_group_priority_number?>" />
+                <span class="info">(min 2 max 1000)</span>
+            </div>
+            <div class="label"><?=view::$language->cookie_expires_time?> (<?=view::$language->sec?>):</div>
+            <div class="elem">
+                <input class="required" type="text" name="system[cookie_expires_time]" value="<?=$_config->system->cookie_expires_time?>" />
+                <span class="info">(min 300 max ~<?=(2147483646 - time())?>)</span>
+            </div>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20">
+
+                <div class="inputbox" title=" <?=view::$language->debug_mode_on?> ">
+                    <div class="blend"></div>
+                    <input type="checkbox" name="system[debug_mode]"<?=$debug_mode_on?' checked="checked"':''?> /> - <?=view::$language->debug_mode_on?>
+                </div>
+
+            </div>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
+            <div class="label">&nbsp;</div>
+            <div class="elem">
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+            </div>
+
+            <div class="clear"></div>
+
+        </div>
+    </form>
+
+
+<?php require $_config->layouts->footer; ?>

@@ -1,0 +1,72 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+    <form action="<?=$_config->site->admin_tools_link?>/users/create" method="post">
+        <div class="form">
+
+            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem">&nbsp;</div>
+
+            <div class="label mt-20"><?=view::$language->group?>:</div>
+            <div class="elem mt-20">
+
+                <select class="required" name="group_id">
+                    <?=htmlHelper::drawOptionList($grouplist)?>
+                </select>
+
+            </div>
+
+            <div class="label"><?=view::$language->user_status?>:</div>
+            <div class="elem">
+
+                <select class="required" name="status">
+                    <?=htmlHelper::drawOptionList($statuslist)?>
+                </select>
+
+            </div>
+
+            <div class="label"><?=view::$language->language?>:</div>
+            <div class="elem">
+
+                <select name="language">
+                    <?=htmlHelper::drawOptionList($languages)?>
+                </select>
+
+            </div>
+
+            <div class="label mt-20"><?=view::$language->nickname?>:</div>
+            <div class="elem mt-20"><input class="required" type="text" name="login" value="" /></div>
+
+            <div class="label"><?=view::$language->email?>:</div>
+            <div class="elem"><input class="required" type="text" name="email" value="" /></div>
+
+            <div class="label mt-20"><?=view::$language->password?>:</div>
+            <div class="elem mt-20">
+                <input class="required" id="password" after="clean" type="text" name="password" value="" />
+                <a href="#generate" class="info" onclick="return generatePassword();"><?=view::$language->generate?></a>
+            </div>
+
+            <div class="label"><?=view::$language->password_confirm?>:</div>
+            <div class="elem">
+                <input class="required" id="confirmpassword" after="clean" type="text" name="confirmpassword" value="" />
+            </div>
+
+            <div class="label mt-20"><?=view::$language->user_about?>:</div>
+            <div class="elem mt-20"><textarea rows="4" name="about"></textarea></div>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
+            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem">
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+            </div>
+
+            <div class="clear"></div>
+
+        </div>
+    </form>
+
+
+<?php require $_config->layouts->footer; ?>

@@ -1,0 +1,22 @@
+
+
+        </div>
+
+        <div class="menu">
+
+            <?php foreach (dataHelper::getMenuItems(2) as $item) { ?>
+                <a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a>
+            <?php } ?>
+
+        </div>
+
+        <div id="counters">
+            MySQL: <strong><?=db::sumQCount()?></strong> <?=helper::plural(db::sumQCount(), "транзакция", "транзакции", "транзакций")?>.
+            <?=view::$language->generation_time?> <?=helper::getGenerationTime()?> <?=view::$language->sec?>.
+            <?=view::$language->memory_usage?>: <?=helper::getMemoryUsage()?>.
+        </div>
+
+    </div>
+
+</body>
+</html>

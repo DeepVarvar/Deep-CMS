@@ -1,0 +1,108 @@
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    line-height: 19px;
+    font-family: Verdana;
+    font-size: 14px;
+    color: #000000;
+    background: #ffffff;
+}
+
+a {
+    outline: none;
+    text-decoration: none;
+    color: #4a4a4a;
+    text-shadow: 0 1px 2px #808080;
+    transition: all ease-out 0.3s;
+}
+
+a:hover {
+    color: #0a0a0a;
+}
+
+.center {
+    text-align: center;
+}
+
+.clear {
+    clear: both;
+}
+
+#container {
+    margin: 40px auto;
+    width: 920px;
+}
+
+.menu {
+    margin: 4px 0 0 0;
+}
+
+.menu a {
+    margin: 0 0 0 1px;
+    padding: 6px 10px 6px 10px;
+    text-shadow: 0 0 20px #000000;
+}
+
+.menu a:hover {
+    color: #00009f;
+    text-shadow: 0 0 20px #0000ff;
+}
+
+#content {
+    margin: 20px 0 0 0;
+    padding: 20px 30px 70px 30px;
+    box-shadow: 0 0 10px #a2a2a2;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+}
+
+#content a {
+    text-decoration: underline;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+    color: #000040;
+}
+
+h1 {
+    padding: 20px 0 20px 0;
+    font-size: 24px;
+}
+
+h2 {
+    padding: 20px 0 17px 0;
+    font-size: 18px;
+}
+
+h3 {
+    padding: 20px 0 14px 0;
+    font-size: 16px;
+    font-style: italic;
+}
+
+p {
+    padding: 0 0 20px 0;
+}
+
+ul, ol {
+    padding: 0 0 20px 40px;
+}
+
+#counters {
+    padding: 10px;
+    font-size: 10px;
+    text-align: center;
+    color: #606060;
+    text-shadow: 0 0 1px #ffffff;
+}
+
+

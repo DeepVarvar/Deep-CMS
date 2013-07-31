@@ -1,0 +1,59 @@
+<?php
+
+
+
+/**
+ * admin submodule, site events history
+ */
+
+class events extends baseController {
+
+
+    /**
+     * set permissions for this controller
+     */
+
+    public function setPermissions() {
+
+
+        $this->permissions = array(
+
+            array(
+
+                "action" => null,
+                "permission" => "events_view",
+                "description" => view::$language->permission_events_view
+
+            )
+
+        );
+
+
+    }
+
+
+    public function index() {
+
+
+        $events = @ file_get_contents(APPLICATION . app::config()->path->logs . "main.log");
+
+        if (!$events) {
+            $events = array();
+        } else {
+            $events = array_reverse(json_decode("[" . $events . "]", true));
+        }
+
+
+        view::assign("page_title", view::$language->events);
+        view::assign("events", $events);
+
+        $this->setProtectedLayout("events.html");
+
+
+    }
+
+
+}
+
+
+

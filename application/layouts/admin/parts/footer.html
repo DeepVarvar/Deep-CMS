@@ -1,0 +1,74 @@
+
+
+                        <div class="blank"></div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="bottom-status-block">
+
+        <div class="left-place">
+            <a href="<?=$_config->site->admin_tools_link?>/events" title=" <?=view::$language->events?> "><?=view::$language->events?></a>
+        </div>
+
+        <div class="right-place r">
+
+            <p><?=view::$language->sql_count_read?>: <b><?=db::readQCount()?></b></p>
+            <p><?=view::$language->sql_count_cache?>: <b><?=db::readCacheQCount()?></b></p>
+            <p><?=view::$language->sql_count_change?>: <b><?=db::changeQCount()?></b></p>
+            <p><?=view::$language->sql_count_sum?>: <b><?=db::sumQCount()?></b></p>
+
+        </div>
+
+        <div class="clear"></div>
+
+    </div>
+
+    <div id="footer">
+
+        <div class="left-item">
+
+            <p>
+                DEEP-CMS IS FREE SOFTWARE. YOU CAN REDISTRIBUTE IT AND/OR MODIFY IT UNDER THE TERMS OF THE GNU
+                LESSER GENERAL PUBLIC LICENSE AS PUBLISHED BY THE FREE SOFTWARE FOUNDATION.
+                EITHER VERSION 2.0 OF THE LICENSE, OR ANY LATER VERSION.
+            </p>
+            <p>
+                Copyleft &copy; 2011-<?=date("Y")?>.
+                Nikitin Iliya aka <a target="_blank" href="http://www.deepserver.ru/">Deep</a> and
+                Kashuba Dmitry aka <a target="_blank" href="http://www.kashoobazz.com/">KASHOOBAZz</a>.
+            </p>
+
+        </div>
+
+        <div class="right-item r">
+            <p>Update and support: <a target="_blank" href="http://www.deep-cms.ru/">WWW.DEEP-CMS.RU</a></p>
+        </div>
+
+        <div class="clear"></div>
+
+    </div>
+
+    <div class="time-counter c">
+        <?=view::$language->generation_time?> <?=helper::getGenerationTime()?> <?=view::$language->sec?>.
+        <?=view::$language->memory_usage?>: <?=helper::getMemoryUsage()?>
+    </div>
+
+</div>
+
+<div id="notifier">
+    <div class="notify">
+
+        <h3></h3>
+        <p></p>
+
+    </div>
+</div>
+
+</body>
+</html>

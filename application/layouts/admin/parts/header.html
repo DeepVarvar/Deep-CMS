@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <?=view::getRefreshMetaData()?>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="<?=$_config->site->admin_resources?>styles/main.css" type="text/css" />
+
+    <script type="text/javascript" src="<?=$_config->site->admin_tools_link?>/variables.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/ckeditor/ckeditor.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/ckeditor/filemanager/filemanager.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/common.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/main.js"></script>
+
+    <title><?=view::$language->admin_tools . " :: " . $page_title?></title>
+
+</head>
+<body>
+
+<div id="container">
+
+    <div class="top-line">
+
+        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/administration-tools.html" title=" <?=view::$language->help?> ">?</a></div>
+        <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
+        <div class="left-item-last">&nbsp;</div>
+
+        <div class="right-item-last">&nbsp;</div>
+        <div class="right-item"><a href="<?=$_config->site->admin_tools_link?>/logout" title=" <?=view::$language->logout?> "><?=view::$language->logout?></a></div>
+        <div class="right-item-separator">&nbsp;</div>
+        <div class="right-item"><a target="_blank" href="/" title=" <?=view::$language->go_to_site?> "><?=view::$language->go_to_site?></a></div>
+        <div class="right-item-first">&nbsp;</div>
+
+    </div>
+
+    <div class="top-status-line">
+        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><?=view::$language->hello?>, <b><?=$_member['login']?></b></div>
+        <div class="right-item up"><a class="screw" href="<?=$_config->site->admin_tools_link?>/preferences" title=" <?=view::$language->preferences_global?> "><?=view::$language->preferences_global?></a></div>
+    </div>
+
+
+    <?php require $_config->layouts->parts . "menu.html"; ?>
+
+
+    <div id="outer-place">
+
+        <div class="outer-box">
+            <div class="blue-border">
+                <div class="sky-border">
+
+                    <div id="place">
+
+
+

@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="<?=$_config->site->admin_resources?>styles/main.css" type="text/css" />
+
+    <title><?=$language->installation?> (<?=$language->install_step?> <?=$_SESSION['step']?> <?=$language->install_of?> 4)</title>
+
+</head>
+<body>
+
+<div id="container">
+
+    <div class="top-line">
+
+        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/administration-tools.html" title=" <?=$language->install_help?> ">?</a></div>
+        <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
+        <div class="left-item-last">&nbsp;</div>
+
+    </div>
+
+    <div class="top-status-line">
+        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><b><?=$language->installation?> (<?=$language->install_step?> <?=$_SESSION['step']?> <?=$language->install_of?> 4)</b></div>
+    </div>
+
+
+    <ul id="menu"></ul>
+
+
+    <div id="outer-place">
+
+        <div class="outer-box">
+            <div class="blue-border">
+                <div class="sky-border">
+
+                    <div id="place">
+
+
+                        <h1><?=$language->installation?> (<?=$language->install_step?> <?=$_SESSION['step']?> <?=$language->install_of?> 4)</h1>
+
+
+                        <form action="/" method="post">
+                            <div class="form">
+
+                                <div class="h-20"></div>
+
+                                <?php if ($_SESSION['step'] == 1) { ?>
+
+                                    <h3 class="c"><?=$language->install_system_check?></h3>
+
+                                    <table class="list" cellspacing="2" cellpadding="0">
+
+                                        <tr class="caption">
+                                            <td><?=$language->install_server_settings?></td>
+                                            <td width="100"><?=$language->install_required?></td>
+                                            <td width="160"><?=$language->install_current_value?></td>
+                                            <td width="60">&nbsp;</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$language->install_php_version?></td>
+                                            <td><?=$language->install_php_52_or_later?></td>
+                                            <td><?=$currentPhpVersion?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkPhpVersion?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$language->install_memory_limit?></td>
+                                            <td>8M</td>
+                                            <td><?=$currentMemoryLimit?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkMemoryLimit?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$language->install_file_uploads?></td>
+                                            <td><?=$language->install_enabled?></td>
+                                            <td><?=$fileUploads?$language->install_enabled:$language->install_disabled?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$fileUploads?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$language->install_upload_max_file_size?></td>
+                                            <td>8M</td>
+                                            <td><?=$currentUploadMaxFileSize?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$uploadMaxFileSize?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Magic quotes GPC</td>
+                                            <td><?=$language->install_disabled?></td>
+                                            <td><?=$checkMQGPCEnabled?$language->install_enabled:$language->install_disabled?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkMQGPCEnabled?'err':'ok'?>.png" /></td>
+                                        </tr>
+
+                                    </table>
+
+                                    <table class="list" cellspacing="2" cellpadding="0">
+
+                                        <tr class="caption">
+                                            <td><?=$language->install_mods_n_ext?></td>
+                                            <td width="60">&nbsp;</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Mysqli</td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkMysqli?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>DOMImplementation</td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkDOMImpl?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>DOMDocument</td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkDOMDoc?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$language->install_gd?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkGD?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                    </table>
+
+                                    <table class="list" cellspacing="2" cellpadding="0">
+
+                                        <tr class="caption">
+                                            <td><?=$language->install_writable_permission?></td>
+                                            <td width="60">&nbsp;</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$autorunAfterDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkAutorunAfterDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$autorunBeforeDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkAutorunBeforeDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$cacheDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkCacheDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$configDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkConfigDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$languagesDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLanguagesDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$libraryDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLibraryDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$logsDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLogsDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$metadataDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkMetadataDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$modulesDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkModulesDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$resourcesDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkResourcesDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$tmpDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkTmpDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$uploadDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkUploadDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                    </table>
+
+                                <?php } ?>
+
+
+                                <?php if ($_SESSION['step'] == 2) { ?>
+
+                                    <h3 class="c"><?=$language->install_db_create?></h3>
+
+                                    <div class="label mt-20"><?=$language->install_db_host?>:</div>
+                                    <div class="elem mt-20"><input id="host" class="required" type="text" name="host" value="<?=$_SESSION['db']['host']?>" /></div>
+
+                                    <div class="label"><?=$language->install_db_port?>:</div>
+                                    <div class="elem"><input class="required mini" type="text" name="port" value="<?=$_SESSION['db']['port']?>" /></div>
+
+                                    <!--div class="label"><?=$language->install_db_prefix?>:</div>
+                                    <div class="elem"><input class="mini" type="text" name="prefix" value="<?=$_SESSION['db']['prefix']?>" /></div-->
+
+                                    <div class="label"><?=$language->install_db_name?>:</div>
+                                    <div class="elem"><input class="required" type="text" name="name" value="<?=$_SESSION['db']['name']?>" /></div>
+
+                                    <div class="label"><?=$language->install_db_user?>:</div>
+                                    <div class="elem"><input class="required" type="text" name="user" value="<?=$_SESSION['db']['user']?>" /></div>
+
+                                    <div class="label"><?=$language->install_db_password?>:</div>
+                                    <div class="elem"><input class="required mini" type="text" name="password" value="<?=$_SESSION['db']['password']?>" /></div>
+
+                                    <div class="label mt-20">&nbsp;</div>
+                                    <div class="elem mt-20">
+
+                                        <div class="inputbox" title=" <?=$language->install_add_extended_demo?> ">
+                                            <div class="blend"></div>
+                                            <input type="checkbox" name="addextended"<?=$_SESSION['db']['addextended']?' checked="checked"':''?> /> - <?=$language->install_add_extended_demo?>
+                                        </div>
+
+                                    </div>
+
+                                    <script type="text/javascript">
+                                        document.getElementById("host").focus();
+                                    </script>
+
+                                <?php } ?>
+
+
+                                <?php if ($_SESSION['step'] == 3) { ?>
+
+                                    <h3 class="c"><?=$language->install_root_create?></h3>
+
+                                    <div class="label mt-20"><?=$language->install_root_login?>:</div>
+                                    <div class="elem mt-20">
+                                        <input id="rootlogin" class="required" type="text" name="rootlogin" value="<?=$_SESSION['settings']['rootlogin']?>" />
+                                    </div>
+
+                                    <div class="label"><?=$language->install_root_password?>:</div>
+                                    <div class="elem">
+
+                                        <script type="text/javascript">
+
+                                            document.getElementById("rootlogin").focus();
+
+                                            function generateRootPass() {
+
+                                                var inp = document.getElementById("rootpass"), result = "";
+                                                var words = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+                                                var max_position = words.length - 1;
+                                                var len = Math.floor( Math.random() * 10 ) + 14;
+
+                                                for (var i = 0; i < len; ++i) {
+                                                    position = Math.floor( Math.random() * max_position );
+                                                    result += words.substring(position, position + 1);
+                                                }
+
+                                                inp.value = result;
+                                                return false;
+
+                                            }
+
+                                        </script>
+
+                                        <input id="rootpass" class="required short" type="text" name="rootpassword" value="<?=$_SESSION['settings']['rootpassword']?>" />
+                                        <a href="#generate" class="info" onclick="return generateRootPass();"><?=$language->install_generate?></a>
+                                    </div>
+                                    <div class="longblock">
+                                        <p class="installinfo"><?=$language->install_root_is?></p>
+                                    </div>
+
+                                    <div class="label mt-20">&nbsp;</div>
+                                    <div class="elem mt-20">
+
+                                        <div class="inputbox" title=" <?=$language->install_debug_mode_on?> ">
+                                            <div class="blend"></div>
+                                            <input type="checkbox" name="debugmode"<?=$_SESSION['settings']['debugmode']?' checked="checked"':''?> /> - <?=$language->install_debug_mode_on?>
+                                        </div>
+
+                                    </div>
+
+                                <?php } ?>
+
+
+                                <?php if ($_SESSION['step'] == 4) { ?>
+
+                                    <div class="longblock">
+
+                                        <p class="installinfo"><?=$language->install_full?></p>
+
+                                    </div>
+
+                                <?php } ?>
+
+
+                                <div class="longblock mt-20">
+                                    <?php foreach ($_SESSION['report'] as $message) { ?>
+
+                                        <div class="installerror"><?=$message?></div>
+
+                                    <?php } ?>
+                                </div>
+
+
+                                <div class="clear h-20">&nbsp;</div>
+                                <div class="c" style="margin: 0 auto; width: 280px;">
+
+                                    <?php if ($_SESSION['step'] < 4 and !$_SESSION['errors']) { ?>
+                                        <input style="float: right;" type="submit" name="next" value=" <?=$language->install_next?> &raquo;&raquo; " />
+                                    <?php } ?>
+
+                                    <?php if ($_SESSION['step'] > 1) { ?>
+                                        <input style="float: left;" type="submit" name="prev" value=" &laquo;&laquo; <?=$language->install_prev?> " />
+                                    <?php } ?>
+
+                                    <div class="clear"></div>
+
+                                </div>
+
+                            </div>
+                        </form>
+
+                        <div class="blank"></div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="footer">
+
+        <div class="left-item">
+
+            <p>
+                DEEP-CMS IS FREE SOFTWARE. YOU CAN REDISTRIBUTE IT AND/OR MODIFY IT UNDER THE TERMS OF THE GNU
+                LESSER GENERAL PUBLIC LICENSE AS PUBLISHED BY THE FREE SOFTWARE FOUNDATION.
+                EITHER VERSION 2.0 OF THE LICENSE, OR ANY LATER VERSION.
+            </p>
+            <p>
+                Copyleft &copy; 2011-<?=date("Y")?>.
+                Nikitin Iliya aka <a target="_blank" href="http://www.deepserver.ru/">Deep</a> and
+                Kashuba Dmitry aka <a target="_blank" href="http://www.kashoobazz.com/">KASHOOBAZz</a>.
+            </p>
+
+        </div>
+
+        <div class="right-item r">
+            <p>Update and support: <a target="_blank" href="http://www.deep-cms.ru/">WWW.DEEP-CMS.RU</a></p>
+        </div>
+
+        <div class="clear"></div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

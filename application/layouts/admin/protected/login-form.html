@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="<?=$_config->site->admin_resources?>styles/main.css" type="text/css" />
+
+    <title><?=view::$language->admin_tools?></title>
+
+</head>
+<body>
+
+<div id="login-container">
+
+    <div class="top-line">
+
+        <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
+        <div class="left-item-last">&nbsp;</div>
+
+        <div class="right-item-last">&nbsp;</div>
+        <div class="right-item"><a href="/" title=" <?=view::$language->logout?> "><?=view::$language->logout?></a></div>
+        <div class="right-item-first">&nbsp;</div>
+
+    </div>
+
+    <div class="top-status-line">
+        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/<?=$login_image?>.png" /><b><?=$login_message?>!</b></div>
+    </div>
+
+    <div class="login-place r">
+        <form action="<?=$_config->site->admin_tools_link?>" method="post">
+
+            <div class="half-height"><input type="hidden" name="sign_in" value="" /></div>
+            <div><?=view::$language->nickname_or_email?>: <input id="login" type="text" name="login" value="" autocomplete="off" /></div>
+            <div><?=view::$language->password?>: <input type="password" name="password" value="" autocomplete="off" /></div>
+            <div><input type="submit" name="submit" value=" <?=view::$language->sign_in?> " /></div>
+
+            <script type="text/javascript">
+                document.getElementById("login").focus();
+            </script>
+
+        </form>
+    </div>
+
+    <div class="login-bottom-blue"></div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/documents/create?parent=<?=$document['parent_id']?>" method="post">
+        <div class="form">
+
+            <div class="label mt-20">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem mt-20">
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+            </div>
+
+            <div id="showpagename" class="longblock mt-20 c"></div>
+
+            <div class="label mt-20"><?=view::$language->document_name?>:</div>
+            <div class="elem mt-20">
+                <input id="documentid" type="hidden" name="id" value="new" />
+                <input id="pagename" class="required" type="text" name="page_name" value="" />
+                <a class="toggler" href="#seoparams">SEO+</a>
+            </div>
+
+            <div class="longblock">
+                <div class="toggleme seoparams">
+
+                    <div class="label mt-20"><?=view::$language->document_h1?>:</div>
+                    <div class="elem mt-20"><input type="text" name="page_h1" value="" /></div>
+
+                    <div class="label"><?=view::$language->document_title?>:</div>
+                    <div class="elem"><input type="text" name="page_title" value="" /></div>
+
+                    <div class="label"><?=view::$language->document_keywords?>:</div>
+                    <div class="elem"><input type="text" name="meta_keywords" value="" /></div>
+
+                    <div class="label"><?=view::$language->document_description?>:</div>
+                    <div class="elem"><input type="text" name="meta_description" value="" /></div>
+
+                    <div class="label mt-20"><?=view::$language->document_change_freq?>:</div>
+                    <div class="elem mt-20">
+                        <select name="change_freq">
+                            <?=htmlHelper::drawOptionList($change_freq)?>
+                        </select>
+                    </div>
+
+                    <div class="label"><?=view::$language->document_search_priority?>:</div>
+                    <div class="elem">
+                        <select name="search_priority">
+                            <?=htmlHelper::drawOptionList($search_priority)?>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="label mt-20"><?=view::$language->document_type?>:</div>
+            <div class="elem mt-20">
+                <select id="prototype" class="required" name="prototype" data-confirmation="<?=$confirmation?>">
+                    <?=htmlHelper::drawOptionList($prototypes)?>
+                </select>
+            </div>
+
+            <div class="label"><?=view::$language->document_type_of_children?>:</div>
+            <div class="elem">
+                <select class="required" name="c_prototype">
+                    <?=htmlHelper::drawOptionList($children_prototypes)?>
+                </select>
+                <span class="info">(<?=view::$language->default?>)</span>
+            </div>
+
+            <div class="label mt-20"><?=view::$language->document_parent?>:</div>
+            <div class="elem mt-20">
+                <input id="parentid" type="hidden" name="parent_id" value="<?=$document['parent_id']?>" />
+                <span id="parentname"><?=$document['parent_name']?></span>
+                <span id="parentalias" class="hide"><?=$document['parent_alias']?></span>
+                <a id="getparent" class="toggler" href="#parentlist"><?=view::$language->change_it?></a>
+            </div>
+
+            <div class="longblock mt-20 wrapper">
+
+                <div id="parentlist" class="toggleme parentlist">
+
+                    <ul class="node">
+
+                        <li>
+
+                            <a class="name selectme" href="/" title=" <?=view::$language->document_set_as_parent?> " data-id="0">
+                                <div class="blend"></div>
+                                <span><?=view::$language->root_of_site?></span>
+                            </a>
+
+                            <?php if ($children) { ?>
+
+                                <ul>
+
+                                    <?php foreach ($children as $item) { ?>
+
+                                        <li>
+
+                                            <?php if ($item['is_off'] == 0 and $item['children'] > 0) { ?>
+                                                <a class="expander" href="<?=$_config->site->admin_tools_link?>/documents/get-available-parents?branch_id=<?=$item['id']?>&id=new" title=" <?=view::$language->document_tree_expand_collapse?> "></a>
+                                            <?php } else { ?>
+                                                <a class="noexpand" name="<?=microtime(true)?>"></a>
+                                            <?php } ?>
+
+
+                                            <?php if ($item['is_off'] > 0) { ?>
+
+                                                <a class="name off" name="<?=microtime(true)?>" data-id="<?=$item['id']?>">
+                                                    <div class="blend"></div>
+                                                    <span><?=$item['page_name']?></span>
+                                                </a>
+
+                                            <?php } else { ?>
+
+                                                <a class="name selectme" href="<?=$item['page_alias']?>" title=" <?=view::$language->document_set_as_parent?> " data-id="<?=$item['id']?>">
+                                                    <div class="blend"></div>
+                                                    <span><?=$item['page_name']?></span>
+                                                </a>
+
+                                            <?php } ?>
+
+                                        </li>
+
+                                    <?php } ?>
+
+                                </ul>
+
+                            <?php } ?>
+
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+            <div class="label mt-20"><?=view::$language->publish?>:</div>
+            <div class="elem mt-20"><input type="checkbox" name="is_publish" checked="checked" /></div>
+
+            <div class="label"><?=view::$language->document_in_sitemap?>:</div>
+            <div class="elem"><input type="checkbox" name="in_sitemap" /></div>
+
+            <div class="label mt-20"><?=view::$language->document_in_menu?>:</div>
+            <div class="elem mt-20">
+
+            <?php foreach ($in_menu as $checkbox) { ?>
+
+                <div class="inputbox" title=" <?=$checkbox['description']?> ">
+                    <div class="blend"></div>
+                    <input type="checkbox" name="<?=$checkbox['name']?>"<?=$checkbox['checked']?' checked="checked"':''?> /> - <?=$checkbox['description']?>
+                </div>
+
+            <?php } ?>
+
+            <?php if (!$in_menu) { ?>
+                <span class="info">(<?=view::$language->menu_not_available_items?>)</span>
+            <?php } ?>
+
+            </div>
+
+            <?php if (sizeof($in_menu) > 1) { ?>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20">
+                <div class="inputbox"><input class="primarychecker" type="checkbox" name="checkallmenu" /> - [<?=view::$language->select_all?>]</div>
+            </div>
+
+            <?php } ?>
+
+            <div class="label mt-20"><?=view::$language->sort?>:</div>
+            <div class="elem mt-20">
+                <input class="mini" type="text" name="sort" value="<?=$document['sort']?>" />
+                <span class="info">(<?=view::$language->show_order?>)</span>
+            </div>
+
+            <div class="label mt-20"><?=view::$language->document_alias?>:</div>
+            <div class="elem mt-20"><input id="pagealias" class="required" type="text" name="page_alias" value="" /></div>
+
+            <div class="label"><?=view::$language->permanent_redirect?>:</div>
+            <div class="elem">
+                <input type="text" name="permanent_redirect" value="" />
+                <span class="info">(<?=view::$language->if_not_empty?>)</span>
+            </div>
+
+            <div class="label mt-20"><?=view::$language->document_view_template?>:</div>
+            <div class="elem mt-20">
+                <select class="required" name="layout">
+                    <?=htmlHelper::drawOptionList($layouts)?>
+                </select>
+            </div>
+
+            <div class="label mt-20"><?=view::$language->images_attached?>:</div>
+            <div class="elem mt-20">
+                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$document['id']?>"><?=view::$language->show_it?></a>
+            </div>
+
+            <div class="label"><?=view::$language->document_features?>:</div>
+            <div class="elem">
+                <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$document['id']?>"><?=view::$language->show_it?></a>
+            </div>
+
+            <div class="longblock mt-30"></div>
+            <div id="dynamicprops">
+
+                <?php foreach ($dynamic_properties as $property) { ?>
+
+                    <?php if ($property['editor']) { ?>
+
+                        <div class="label mt-10"><?=$property['description']?>:</div>
+                        <div class="elem mt-10">&nbsp;</div>
+                        <div class="longblock">
+
+                            <?=htmlHelper::drawElement($property['field'])?>
+
+                            <script type="text/javascript">
+                                CKEDITOR.replace('<?=$property['field']['id']?>');
+                                filemanager.bind({target: "<?=$property['field']['id']?>", lang: "<?=$_member['language']?>"});
+                            </script>
+
+                        </div>
+
+                    <?php } else { ?>
+
+                        <div class="label"><?=$property['description']?>:</div>
+                        <div class="elem"><?=htmlHelper::drawElement($property['field'])?></div>
+
+                    <?php } ?>
+
+                <?php } ?>
+
+            </div>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
+            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem">
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+            </div>
+
+            <div class="clear"></div>
+
+        </div>
+    </form>
+
+
+<?php require $_config->layouts->footer; ?>

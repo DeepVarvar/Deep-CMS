@@ -1,0 +1,15 @@
+
+
+    <ul id="menu">
+
+    <?php foreach (adminHelper::getMenuItems() as $item) { ?>
+
+        <li<?=strstr(request::getURI(), $item['link'])?' class="current"':''?>>
+            <a href="<?=$_config->site->admin_tools_link . $item['link']?>" title=" <?=view::$language->{$item['name']}?> "><?=view::$language->{$item['name']}?></a>
+        </li>
+
+    <?php } ?>
+
+    </ul>
+
+

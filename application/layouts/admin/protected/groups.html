@@ -1,0 +1,47 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <h3><a href="<?=$_config->site->admin_tools_link?>/groups/create"><?=view::$language->group_create_new?></a></h3>
+
+
+    <table class="list" cellspacing="2" cellpadding="0">
+
+        <tr class="caption">
+            <td width="86"><?=view::$language->priority?></td>
+            <td><?=view::$language->group_name?></td>
+            <td colspan="2"><?=view::$language->actions?></td>
+        </tr>
+
+        <?php foreach ($grouplist as $group) { ?>
+
+        <tr>
+            <td class="r"><b><?=$group['priority']?></b></td>
+            <td><b><?=$group['name']?></b></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/groups/edit?id=<?=$group['id']?>"><?=view::$language->edit_now?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/groups/delete?id=<?=$group['id']?>" onclick="return confirmation('<?=view::$language->group_delete_confirm?>');"><?=view::$language->delete_now?></a></td>
+        </tr>
+
+        <?php } ?>
+
+        <?php if (!$grouplist) { ?>
+            <tr><td colspan="4" class="action"><h3>[<?=view::$language->empty_data?>]</h3></td></tr>
+        <?php } ?>
+
+    </table>
+
+
+    <div class="paginator">
+
+        <?php foreach ($pages as $item) { ?>
+
+            <a<?=$item['current']?' class="current"':''?> href="<?=helper::changeOriginURL(array("page" => $item['number']))?>"><?=$item['number']?></a>
+
+        <?php } ?>
+
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

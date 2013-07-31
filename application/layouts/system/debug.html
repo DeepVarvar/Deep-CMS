@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <?=view::getRefreshMetaData()?>
+
+    <meta http-equiv="Content-language" content="en" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title><?=$exception['title']?> :: <?=$exception['message']?></title>
+
+</head>
+
+<body>
+
+    <style type="text/css">
+
+        html, body {
+            color: #888;
+            background: #111;
+        }
+
+        #container {
+            margin: 0 auto;
+            padding: 80px 0;
+            width: 60%;
+            font-size: 13px;
+        }
+
+        h1 {
+            padding-left: 36px;
+        }
+
+        pre {
+            line-height: 20px;
+            font-size: 10px;
+        }
+
+        #sign {
+            position: absolute;
+            margin-top: -56px;
+            font-size: 32px;
+            color: #900;
+        }
+
+    </style>
+
+    <div id="container">
+
+        <h1><?=$exception['title']?></h1>
+        <div id="sign"><?="\342\226\266"?></div>
+
+        <h4><?=$exception['code']?>: <?=$exception['message']?></h4>
+
+        <?php if ($exception['initiator_id'] !== null) { ?>
+            <h4>Initiator: <?=$exception['initiator']?> (#<?=$exception['initiator_id']?>)</h4>
+        <?php } ?>
+
+        <p>Throw in <i><?=$exception['file']?></i> on line <b><?=$exception['line']?></b></p>
+
+
+        <?php if (sizeof($exception['trace']) > 0) { ?>
+
+            <h3>Stacktrace:</h3>
+
+<pre>
+<?php print_r($exception['trace']); ?>
+</pre>
+
+        <?php } ?>
+
+    </div>
+
+</body>
+</html>

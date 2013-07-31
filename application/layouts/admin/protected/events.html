@@ -1,0 +1,40 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <table class="list events" cellspacing="2" cellpadding="0">
+
+        <tr class="caption">
+            <td width="140"><?=view::$language->datetime?></td>
+            <td><?=view::$language->event?></td>
+            <td width="100"><?=view::$language->initiator?></td>
+            <td width="80">IP</td>
+            <td>URI</td>
+        </tr>
+
+        <?php foreach ($events as $event) { ?>
+
+            <?php if (member::isRoot() or member::getPriority() >= $event['initiator_group_priority']) { ?>
+
+                <tr<?=$event['type']=="error"?' class="error"':""?>>
+                    <td><?=$event['datetime']?></td>
+                    <td><?=$event['message']?></td>
+                    <td><?=$event['initiator']?></td>
+                    <td><?=$event['ip']?></td>
+                    <td><i><?=$event['url']?></i></td>
+                </tr>
+
+            <?php } ?>
+
+        <?php } ?>
+
+        <?php if (!$events) { ?>
+            <tr><td colspan="6" class="action"><h3>[<?=view::$language->empty_data?>]</h3></td></tr>
+        <?php } ?>
+
+    </table>
+
+
+<?php require $_config->layouts->footer; ?>

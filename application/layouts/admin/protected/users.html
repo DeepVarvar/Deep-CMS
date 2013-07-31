@@ -1,0 +1,51 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <h3><a href="<?=$_config->site->admin_tools_link?>/users/create"><?=view::$language->user_create_new?></a></h3>
+
+
+    <table class="list" cellspacing="2" cellpadding="0">
+
+        <tr class="caption">
+            <td><?=view::$language->nickname?></td>
+            <td><?=view::$language->email?></td>
+            <td><?=view::$language->group?></td>
+            <td>IP</td>
+            <td colspan="2"><?=view::$language->actions?></td>
+        </tr>
+
+        <?php foreach ($users as $user) { ?>
+
+        <tr>
+            <td><b><?=$user['login']?></b></td>
+            <td><?=$user['email']?></td>
+            <td><b><?=$user['groupname']?></b></td>
+            <td><?=$user['last_ip']?></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/users/edit?id=<?=$user['id']?>"><?=view::$language->edit_now?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/users/delete?id=<?=$user['id']?>" onclick="return confirmation('<?=view::$language->user_delete_confirm?>');"><?=view::$language->delete_now?></a></td>
+        </tr>
+
+        <?php } ?>
+
+        <?php if (!$users) { ?>
+            <tr><td colspan="6" class="action"><h3>[<?=view::$language->empty_data?>]</h3></td></tr>
+        <?php } ?>
+
+    </table>
+
+
+    <div class="paginator">
+
+        <?php foreach ($pages as $item) { ?>
+
+            <a<?=$item['current']?' class="current"':''?> href="<?=helper::changeOriginURL(array("page" => $item['number']))?>"><?=$item['number']?></a>
+
+        <?php } ?>
+
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

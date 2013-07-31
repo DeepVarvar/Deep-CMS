@@ -1,0 +1,63 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <form action="<?=$_config->site->admin_tools_link?>/groups/create" method="post">
+        <div class="form">
+
+            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem">&nbsp;</div>
+
+            <div class="label mt-20"><?=view::$language->group_name?>:</div>
+            <div class="elem mt-20"><input class="required" type="text" name="name" value="" /></div>
+
+            <div class="label"><?=view::$language->priority?>:</div>
+            <div class="elem">
+
+                <select class="numbers required" name="priority">
+                    <?=htmlHelper::drawOptionList($priority)?>
+                </select>
+
+                <span class="info">(<?=view::$language->priority_info?>)</span>
+
+            </div>
+
+            <div class="label mt-20"><?=view::$language->group_permissions?>:</div>
+            <div class="elem mt-20">
+
+            <?php foreach ($permissions as $checkbox) { ?>
+
+                <div class="inputbox" title=" <?=$checkbox['description']?> ">
+                    <div class="blend"></div>
+                    <input type="checkbox" name="<?=$checkbox['name']?>"<?=$checkbox['checked']?' checked="checked"':''?> /> - <?=$checkbox['description']?>
+                </div>
+
+            <?php } ?>
+
+            </div>
+
+            <?php if ($permissions) { ?>
+
+                <div class="label mt-20">&nbsp;</div>
+                <div class="elem mt-20">
+                    <div class="inputbox"><input class="primarychecker" type="checkbox" name="checkallpermissions" /> - [<?=view::$language->select_all?>]</div>
+                </div>
+
+            <?php } ?>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
+            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem">
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+            </div>
+
+            <div class="clear"></div>
+
+        </div>
+    </form>
+
+
+<?php require $_config->layouts->footer; ?>
