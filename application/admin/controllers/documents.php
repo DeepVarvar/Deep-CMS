@@ -2166,6 +2166,7 @@ class documents extends baseController {
 
         $attachedImages = array();
         foreach (member::getStorageData($this->storageImagesKey) as $k => $v) {
+            $k = db::escapeString($k);
             array_push($attachedImages, "(NULL, {$newDocument['id']}, {$v['is_master']}, '{$k}')");
         }
 
@@ -2201,9 +2202,8 @@ class documents extends baseController {
 
         if ($fNames) {
 
-            $fNames = join(",", $fNames);
             $existsFeatures = db::query(
-                "SELECT id,name FROM features WHERE name IN({$fNames})"
+                "SELECT id,name FROM features WHERE name IN(%s)", $fNames
             );
 
         }
