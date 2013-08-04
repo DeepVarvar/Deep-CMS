@@ -10,6 +10,79 @@ abstract class dataHelper {
 
 
     /**
+     * return document data with ID
+     */
+
+    public static function getDocument($id, $more = array(), $with = DATA_WITHOUT_ALL) {
+
+
+        /**
+         * validate input data
+         */
+
+        if (!utils::isNumber($id)) {
+            throw new systemErrorException("Helper error", "Document ID is not number");
+        }
+
+        if (!is_array($more)) {
+            throw new systemErrorException("Helper error", "More data names is not array");
+        }
+
+        if (!utils::isNumber($with)) {
+            throw new systemErrorException("Helper error", "Extended data type is not number");
+        }
+
+
+        /**
+         * get document data
+         */
+
+        $noImg = app::config()->site->no_image;
+        $document = db::query("
+
+            SELECT
+
+                d.id,
+                d.parent_id,
+                d.prototype,
+                d.props_id,
+                IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
+                d.page_alias,
+                d.page_name,
+                d.page_h1,
+                d.page_title,
+                d.author author_id,
+                u.login author_name,
+                d.last_modified,
+                d.creation_date,
+                p.sys_name
+
+            FROM documents d
+            JOIN prototypes p ON p.id = d.prototype
+            LEFT JOIN users u ON u.id = d.author
+            LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
+
+            WHERE d.is_publish = 1 AND d.id = %u
+
+            ",
+
+            $id
+
+        );
+
+
+        if ($document) {
+
+            self::joinExtendedItemsData($document, $more, $with);
+            return $document[0];
+
+        }
+
+
+    }
+
+
+    /**
      * return children array from document ID
      */
 
