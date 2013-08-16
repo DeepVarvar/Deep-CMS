@@ -291,14 +291,14 @@ class filter {
              */
 
             $this->output[$k] = preg_replace_callback("/<\w+([^>]*)\/{0,1}>/u", "cleanRichTextCallback", $item);
-            $this->output[$k] = preg_replace("/<scr.*ipt>/s", "", $this->output[$k]);
+            $this->output[$k] = preg_replace("/<scr.*ipt>/is", "", $this->output[$k]);
 
 
             /**
              * mozilla firefox drag-n-drop base64
              */
 
-            $this->output[$k] = preg_replace('/src="data:.+"/s', 'src=""', $this->output[$k]);
+            $this->output[$k] = preg_replace('/src="data:.+"/is', 'src=""', $this->output[$k]);
 
 
         }
