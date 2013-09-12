@@ -1,7 +1,7 @@
 Deep-CMS
 ========
 
-Current version: 0.0.902-RC-GUI
+Version on this branch: Deep-CMS-1.0.0alpha
 
 
 Official project website (RU): <a href="http://www.deep-cms.ru/">www.deep-cms.ru</a>
