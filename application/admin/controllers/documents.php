@@ -790,6 +790,10 @@ class documents extends baseController {
 
         );
 
+        foreach ($branchChildren as $k => $v) {
+            $branchChildren[$k]['page_alias'] = rawurldecode($v['page_alias']);
+        }
+
 
         /**
          * assign into view
@@ -1309,8 +1313,11 @@ class documents extends baseController {
 
 
         /**
-         * fix page alias and redirect URL values
+         * fix parent alias, page alias and redirect URL values
          */
+
+        $existsDocument['parent_alias']
+            = rawurldecode($existsDocument['parent_alias']);
 
         $existsDocument['page_alias']
             = rawurldecode($existsDocument['page_alias']);
@@ -1414,7 +1421,9 @@ class documents extends baseController {
             }
 
 
+            $existsParent['parent_alias'] = rawurldecode($existsParent['parent_alias']);
             $existsParent['c_prototype'] = $defaultPrototype['id'];
+
             $newDocument += $existsParent;
 
 
