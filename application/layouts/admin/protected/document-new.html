@@ -215,8 +215,15 @@
                             <?=htmlHelper::drawElement($property['field'])?>
 
                             <script type="text/javascript">
+
                                 CKEDITOR.replace('<?=$property['field']['id']?>');
-                                filemanager.bind({target: "<?=$property['field']['id']?>", lang: "<?=$_member['language']?>"});
+                                fm.bind({
+                                    targetObj  : CKEDITOR.instances["<?=$property['field']['id']?>"],
+                                    targetName : "<?=$property['field']['id']?>",
+                                    fmUrl      : "<?=$_config->site->admin_tools_link?>/document-images?target=<?=$document['id']?>",
+                                    language   : "<?=$_member['language']?>"
+                                });
+
                             </script>
 
                         </div>

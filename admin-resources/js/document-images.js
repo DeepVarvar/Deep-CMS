@@ -37,7 +37,7 @@ $(function(){
 
             output += ' <div class="image' + isMaster + '"> ';
                 output += ' <div class="imagewrapper"> ';
-                    output += ' <a target="_blank" href="/upload/' + images[i].name + '"> ';
+                    output += ' <a class="selectme" target="_blank" href="/upload/' + images[i].name + '"> ';
                         output += ' <img alt="" src="/upload/thumb_' + images[i].name + '" /> ';
                     output += ' </a> ';
                 output += ' </div> ';
@@ -101,6 +101,22 @@ $(function(){
 
 
             var item = $(this);
+
+
+            if (document.location.href.indexOf("CKEditor=") >= 0) {
+
+                item.find("a.selectme").click(function(){
+
+                    window.top.opener['CKEDITOR'].tools.callFunction(1, $(this).attr("href"), "");
+                    window.top.close();
+                    window.top.opener.focus();
+
+                    return false;
+
+                });
+
+            }
+
 
             item.find("a.deleteaction").click(function(){
 
