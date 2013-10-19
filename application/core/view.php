@@ -794,6 +794,7 @@ abstract class view {
             "author_id"          => 0,
             "author_name"        => "[module]",
             "page_id"            => 0,
+            "parent_id"          => 0,
             "page_is_module"     => "1",
 
         );
