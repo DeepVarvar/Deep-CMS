@@ -520,6 +520,23 @@ abstract class member {
 
 
     /**
+     * return existst of one permission
+     */
+
+    public static function isPermission($name) {
+
+        foreach (self::$permissions as $item) {
+            if ($item['name'] == $name) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+
+    /**
      * return auth status of member
      */
 
