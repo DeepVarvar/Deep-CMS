@@ -123,39 +123,18 @@ abstract class helper {
         $branch = array();
         if ($lineArray) {
 
-
             foreach ($lineArray as $k => $item) {
-
 
                 if ($item['parent_id'] == $parent) {
 
-
-                    /**
-                     * unset array item
-                     */
-
-                    unset($lineArray[$k]);
-
-
-                    $current = array(
-
-                        "children"   => self::makeTreeArray($lineArray, $item['id']),
-                        "page_alias" => $item['page_alias'],
-                        "page_name"  => $item['page_name']
-
-                    );
-
-
-                    array_push($branch, $current);
-
+                    $item['children'] = self::makeTreeArray($lineArray, $item['id']);
+                    array_push($branch, $item);
 
                 }
 
             }
 
-
         }
-
 
         return $branch;
 
