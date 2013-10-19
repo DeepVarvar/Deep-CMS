@@ -537,7 +537,7 @@ class users extends baseController {
 
         $userData['login']
             = filter::input($userData['login'])
-                ->lettersOnly()
+                ->stripTags()
                 ->getData();
 
         if (!$userData['login']) {
