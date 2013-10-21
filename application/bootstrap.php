@@ -107,10 +107,8 @@ $dirs = array(
     "languages",
     "library",
     "logs",
-    "metadata",
     "modules",
     "resources",
-    "tmp",
     "upload"
 
 );

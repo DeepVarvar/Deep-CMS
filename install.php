@@ -1932,11 +1932,6 @@ try {
                 $_SESSION['errors'] = true;
             }
 
-            $metadataDir = APPLICATION . "metadata";
-            if (!$checkMetadataDir = checkPath($metadataDir)) {
-                $_SESSION['errors'] = true;
-            }
-
             $modulesDir = APPLICATION . "modules";
             if (!$checkModulesDir = checkPath($modulesDir)) {
                 $_SESSION['errors'] = true;
@@ -1944,11 +1939,6 @@ try {
 
             $resourcesDir = APPLICATION . "resources";
             if (!$checkResourcesDir = checkPath($resourcesDir)) {
-                $_SESSION['errors'] = true;
-            }
-
-            $tmpDir = APPLICATION . "tmp";
-            if (!$checkTmpDir = checkPath($tmpDir)) {
                 $_SESSION['errors'] = true;
             }
 
