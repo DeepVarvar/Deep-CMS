@@ -1,0 +1,26 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+
+    <form action="/search" method="get">
+        <input type="text" name="searchwords" value="<?=$searchwords?>" autocomplete="off" placeholder="<?=view::$language->simple_search_placeholder?>" />
+        <input type="submit" value="<?=view::$language->simple_search_search_now?>" />
+    </form>
+
+    <?php foreach ($search_result as $item) { ?>
+
+        <div>
+            <h3><?=$item['page_name']?></h3>
+            <div><?=helper::contentPreview($item['page_text'], 200)?></div>
+            <div><a href="<?=$item['page_alias']?>"><?=view::$language->simple_search_more?></a></div>
+        </div>
+
+    <?php } ?>
+
+    <?php foreach ($pages as $item) { ?>
+        <a<?=$item['current']?' class="current"':''?> href="<?=helper::changeOriginURL(array("page" => $item['number']))?>"><?=$item['number']?></a>
+    <?php } ?>
+
+
+<?php require $_config->layouts->footer; ?>

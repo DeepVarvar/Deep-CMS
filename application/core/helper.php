@@ -161,6 +161,20 @@ abstract class helper {
 
 
     /**
+     * content preview, text limiter
+     */
+
+    public static function contentPreview($inputString, $limit = 200) {
+
+        $inputString = strip_tags($inputString);
+        return preg_match("#^(.{{$limit},}?)\s+#su", $inputString, $match)
+                    ? "{$match[1]}..." : $inputString;
+
+    }
+
+
+
+    /**
      * change original ULR string with input parameters
      */
 

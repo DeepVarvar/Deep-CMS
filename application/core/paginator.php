@@ -88,6 +88,7 @@ class paginator {
     public function __construct($sourceQuery) {
 
 
+        $sourceQuery = str_replace("%", "%%", $sourceQuery);
         $this->sourceQuery = $sourceQuery;
         $this->countQuery  = $sourceQuery;
 
