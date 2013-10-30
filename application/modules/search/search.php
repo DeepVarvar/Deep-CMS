@@ -74,10 +74,16 @@ class search extends baseController {
         if ($searchParts) {
 
 
-            $searchParts = "(p.page_text LIKE '%%"
-                . join("%%' OR p.page_text LIKE '%%", $searchParts) . "%%')";
+            $searchCondition = array(
+
+                "d.page_name LIKE '%%" . join("%%' OR d.page_name LIKE '%%", $searchParts) . "%%'",
+                "p.page_text LIKE '%%" . join("%%' OR p.page_text LIKE '%%", $searchParts) . "%%'"
+            );
+
+            $searchCondition = "(" . join(" OR ", $searchCondition) . ")";
 
 
+            $noImage = app::config()->site->no_image;
             $searchQuery = db::buildQueryString("
 
                 SELECT DISTINCT
@@ -86,14 +92,18 @@ class search extends baseController {
                     d.parent_id,
                     d.page_name,
                     d.page_alias,
-                    p.page_text
+                    p.page_text,
+                    IF(i.name IS NOT NULL,i.name,'{$noImage}') image
 
                 FROM documents d
 
                 INNER JOIN props_simple_pages p
                     ON (p.id = d.props_id AND d.prototype = 10)
 
-                WHERE d.is_publish = 1 AND {$searchParts}
+                LEFT JOIN images i
+                    ON i.document_id = d.id AND i.is_master = 1
+
+                WHERE d.is_publish = 1 AND {$searchCondition}
 
             ");
 
