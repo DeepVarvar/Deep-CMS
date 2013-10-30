@@ -66,7 +66,9 @@ abstract class request {
          * block prefetch requests
          */
 
-        if (isset($_SERVER['HTTP_X_MOZ']) and $_SERVER['HTTP_X_MOZ'] == "prefetch") {
+        if (app::config()->system->block_prefetch_requests
+                and isset($_SERVER['HTTP_X_MOZ'])
+                and $_SERVER['HTTP_X_MOZ'] == "prefetch") {
 
 
 	        self::addHeader("HTTP/1.1 403 Prefetching Forbidden");
