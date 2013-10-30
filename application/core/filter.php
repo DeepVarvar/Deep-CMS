@@ -231,6 +231,21 @@ class filter {
 
 
     /**
+     * typograph
+     */
+
+    public function typoGraph() {
+
+        foreach ($this->output as $k => $item) {
+            $this->output[$k] = preg_replace_callback("/>([^<>]+)</u", "typoGraphCallback", $item);
+        }
+
+        return $this;
+
+    }
+
+
+    /**
      * normalize inner data format
      */
 
@@ -322,6 +337,39 @@ class filter {
 function cleanRichTextCallback($args) {
     preg_match_all("/\s+(id|class|name|type|value|alt|title|src|href|allowfullscreen|allowscriptaccess|frameborder|scrolling|height|width|target|style)=\"[^\"]+\"/u", $args[1], $sub);
     return str_replace($args[1], join($sub[0]), $args[0]);
+}
+
+
+/**
+ * typograph callback,
+ * use function because need compatible
+ * for php versions older than 5.2.3
+ */
+
+function typoGraphCallback($args) {
+
+
+    // replace double quotes type 1
+    $args[0] = preg_replace("/(?:\"([^\"]+)\")/u", "«$1»", $args[0]);
+
+    // replace double quotes type 2
+    $args[0] = preg_replace("/(?:“([^“”]+)”)/u", "«$1»", $args[0]);
+
+    // erase fragmentation quotes
+    $args[0] = preg_replace("/[\"“”]/u", "", $args[0]);
+
+    // replace mdash
+    $args[0] = preg_replace("/\s+-\s+/u", " — ", $args[0]);
+
+    // sticky first short word
+    $args[0] = preg_replace("/(\s)([^\s—«»]{1,2})\s/u", "$1$2&nbsp;", $args[0]);
+
+    // sticky pre first short word
+    $args[0] = preg_replace("/(&nbsp;)([^\s—«»]{1,2})\s/u", "$1$2&nbsp;", $args[0]);
+
+    return $args[0];
+
+
 }
 
 
