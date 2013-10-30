@@ -1888,6 +1888,10 @@ try {
                 $_SESSION['errors'] = true;
             }
 
+            if (!$checkFilterVar = function_exists("filter_var")) {
+                $_SESSION['errors'] = true;
+            }
+
             // finfo and mime fix
             $checkFinfo = function_exists("finfo_open");
             $checkMime  = function_exists("mime_content_type");
