@@ -1954,7 +1954,7 @@ class documents extends baseController {
 
 
                 case ($property['field_type'] == "textarea" or $property['editor'] == 1):
-                    $filter->cleanRichText();
+                    $filter->cleanRichText()->typoGraph();
                 break;
 
 
