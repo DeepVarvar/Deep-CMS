@@ -1805,13 +1805,21 @@ try {
 
             }
 
-            if ($up > 0) {
-                $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
+            if ($phpValue > 0) {
+
+                if ($up > 0) {
+                    $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
+                }
+
+                if (!$checkMemoryLimit = $myValue <= ($phpValue * $up)) {
+                    $_SESSION['errors'] = true;
+                }
+
+            } else {
+                $checkMemoryLimit   = true;
+                $currentMemoryLimit = "unlimited";
             }
 
-            if (!$checkMemoryLimit = $myValue <= ($phpValue * $up)) {
-                $_SESSION['errors'] = true;
-            }
 
             if (!$fileUploads = !!ini_get("file_uploads")) {
                 $_SESSION['errors'] = true;
@@ -1968,6 +1976,7 @@ try {
  * show installation progress
  */
 
+header("Content-Type: text/html; charset=utf-8");
 require $layout;
 
 
