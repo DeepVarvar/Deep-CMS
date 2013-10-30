@@ -1855,12 +1855,19 @@ try {
 
             }
 
-            if ($up > 0) {
-                $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
-            }
+            if ($phpValue > 0) {
 
-            if (!$uploadMaxFileSize = $myValue <= ($phpValue * $up)) {
-                $_SESSION['errors'] = true;
+                if ($up > 0) {
+                    $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
+                }
+
+                if (!$uploadMaxFileSize = $myValue <= ($phpValue * $up)) {
+                    $_SESSION['errors'] = true;
+                }
+
+            } else {
+                $uploadMaxFileSize        = true;
+                $currentUploadMaxFileSize = "unlimited";
             }
 
 
