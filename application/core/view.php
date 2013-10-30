@@ -552,6 +552,13 @@ abstract class view {
 
 
                         /**
+                         * add utf-8 header
+                         */
+
+                        request::addHeader("Content-Type: text/html; charset=utf-8");
+
+
+                        /**
                          * normalize page variables
                          * add required environment
                          */
@@ -750,6 +757,10 @@ abstract class view {
 
             case "xml":
                 request::addHeader("Content-Type: application/xml");
+            break;
+
+            default:
+                request::addHeader("Content-Type: text/html; charset=utf-8");
             break;
 
         }
