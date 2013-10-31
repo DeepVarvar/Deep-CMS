@@ -202,7 +202,7 @@ abstract class view {
 
 
     /**
-     * return available output contexts array
+     * save available output contexts array
      */
 
     public static function getAvailableOutputContexts() {
@@ -215,7 +215,7 @@ abstract class view {
 
         }
 
-        return self::$availableOutputContexts;
+        return sizeof(self::$availableOutputContexts);
 
     }
 
