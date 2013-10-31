@@ -337,7 +337,7 @@ abstract class dataHelper {
 
         foreach ($more as $item) {
 
-            if (!utils::likeString($item)) {
+            if (!validate::likeString($item)) {
                 throw new systemErrorException("Data helper error", "Extended (more) name is not string");
             }
 

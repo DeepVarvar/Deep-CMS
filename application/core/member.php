@@ -441,7 +441,7 @@ abstract class member {
     public static function getStorageData($key) {
 
 
-        if (!utils::likeString($key)) {
+        if (!validate::likeString($key)) {
             throw new systemErrorException("Member error", "Storage data key is not string");
         }
 
@@ -464,7 +464,7 @@ abstract class member {
     public static function setStorageData($key, $data) {
 
 
-        if (!utils::likeString($key)) {
+        if (!validate::likeString($key)) {
             throw new systemErrorException("Member error", "Storage data key is not string");
         }
 

@@ -402,7 +402,7 @@ class preferences extends baseController {
          * validate theme (metapackage view templates)
          */
 
-        if (!utils::likeString($preferences['site']['theme'])) {
+        if (!validate::likeString($preferences['site']['theme'])) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -425,7 +425,7 @@ class preferences extends baseController {
          * validate default_language
          */
 
-        if (!utils::likeString($preferences['site']['default_language'])) {
+        if (!validate::likeString($preferences['site']['default_language'])) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 

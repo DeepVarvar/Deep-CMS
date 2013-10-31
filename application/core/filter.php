@@ -255,7 +255,7 @@ class filter {
         foreach ($this->output as $k => $item) {
 
 
-            if (!utils::likeString($item)) {
+            if (!validate::likeString($item)) {
                 $item = null;
             }
 

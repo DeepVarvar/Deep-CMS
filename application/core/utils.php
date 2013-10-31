@@ -564,7 +564,7 @@ abstract class utils {
                 throw new systemErrorException("Schema XML error", "Value of schema element can't be declared with children");
             }
 
-            if (!self::likeString($value)) {
+            if (!validate::likeString($value)) {
                 throw new systemErrorException("Schema XML error", "Value of schema element is not string");
             }
 

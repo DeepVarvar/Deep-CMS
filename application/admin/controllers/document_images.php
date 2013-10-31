@@ -1038,7 +1038,7 @@ class document_images extends baseController {
          * data is not string
          */
 
-        if (!utils::likeString($input)) {
+        if (!validate::likeString($input)) {
             $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
         }
 

@@ -500,7 +500,7 @@ class users extends baseController {
 
         foreach ($requiredParams as $strKey) {
 
-            if (!utils::likeString($userData[$strKey])) {
+            if (!validate::likeString($userData[$strKey])) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
