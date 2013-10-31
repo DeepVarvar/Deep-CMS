@@ -400,7 +400,7 @@ class document_images extends baseController {
              * validate input image ID
              */
 
-            if (!utils::isNumber($targetImage)) {
+            if (!validate::isNumber($targetImage)) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
@@ -511,7 +511,7 @@ class document_images extends baseController {
              * validate target image ID
              */
 
-            if (!utils::isNumber($targetImage)) {
+            if (!validate::isNumber($targetImage)) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
@@ -945,7 +945,7 @@ class document_images extends baseController {
         if ($target !== "new") {
 
 
-            if (!utils::isNumber($target)) {
+            if (!validate::isNumber($target)) {
                 $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
             }
 
@@ -986,7 +986,7 @@ class document_images extends baseController {
 
             if ($this->uploadActionType !== "add") {
 
-                if (!utils::isNumber($target)) {
+                if (!validate::isNumber($target)) {
                     $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
                 }
 
@@ -1126,7 +1126,7 @@ class document_images extends baseController {
             break;
 
 
-            case (utils::isNumber($targetDocument)):
+            case (validate::isNumber($targetDocument)):
                 $this->storageMode = false;
             break;
 

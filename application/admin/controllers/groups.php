@@ -149,7 +149,7 @@ class groups extends baseController {
          */
 
         $group_id = request::shiftParam("id");
-        if (!utils::isNumber($group_id)) {
+        if (!validate::isNumber($group_id)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -240,7 +240,7 @@ class groups extends baseController {
          */
 
         $group_id = request::shiftParam("id");
-        if (!utils::isNumber($group_id)) {
+        if (!validate::isNumber($group_id)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -352,7 +352,7 @@ class groups extends baseController {
          * check priority format
          */
 
-        if (!utils::isNumber($required['priority'])) {
+        if (!validate::isNumber($required['priority'])) {
             throw new memberErrorException(view::$language->error, view::$language->group_priority_invalid_format);
         }
 

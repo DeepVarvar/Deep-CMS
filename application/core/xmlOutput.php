@@ -118,7 +118,7 @@ abstract class xmlOutput {
                  * name of element can't is numeric
                  */
 
-                if (!utils::isNumber($key)) {
+                if (!validate::isNumber($key)) {
 
                     $currentSchema['name'] = $key;
                     $isNumericItems = false;

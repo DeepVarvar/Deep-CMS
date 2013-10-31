@@ -86,7 +86,7 @@ class document_features extends baseController {
 
             $targetDocument = request::shiftParam("target");
 
-            if (!utils::isNumber($targetDocument)) {
+            if (!validate::isNumber($targetDocument)) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
@@ -265,7 +265,7 @@ class document_features extends baseController {
          * validate target document ID
          */
 
-        if (!$this->storageMode and !utils::isNumber($data['document_id'])) {
+        if (!$this->storageMode and !validate::isNumber($data['document_id'])) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -333,11 +333,11 @@ class document_features extends baseController {
         } else {
 
 
-            if (!utils::isNumber($documentID)) {
+            if (!validate::isNumber($documentID)) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
-            if (!$this->storageMode and !utils::isNumber($featureID)) {
+            if (!$this->storageMode and !validate::isNumber($featureID)) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 

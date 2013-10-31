@@ -20,7 +20,7 @@ abstract class dataHelper {
          * validate input data
          */
 
-        if (!utils::isNumber($id)) {
+        if (!validate::isNumber($id)) {
             throw new systemErrorException("Helper error", "Document ID is not number");
         }
 
@@ -28,7 +28,7 @@ abstract class dataHelper {
             throw new systemErrorException("Helper error", "More data names is not array");
         }
 
-        if (!utils::isNumber($with)) {
+        if (!validate::isNumber($with)) {
             throw new systemErrorException("Helper error", "Extended data type is not number");
         }
 
@@ -93,7 +93,7 @@ abstract class dataHelper {
          * validate input data
          */
 
-        if (!utils::isNumber($id)) {
+        if (!validate::isNumber($id)) {
             throw new systemErrorException("Helper error", "Document ID is not number");
         }
 
@@ -101,11 +101,11 @@ abstract class dataHelper {
             throw new systemErrorException("Helper error", "More data names is not array");
         }
 
-        if (!utils::isNumber($with)) {
+        if (!validate::isNumber($with)) {
             throw new systemErrorException("Helper error", "Extended data type is not number");
         }
 
-        if (!utils::isNumber($limit)) {
+        if (!validate::isNumber($limit)) {
             throw new systemErrorException("Helper error", "Limit is not number");
         }
 
@@ -175,7 +175,7 @@ abstract class dataHelper {
          * validate input data
          */
 
-        if (!utils::isNumber($id)) {
+        if (!validate::isNumber($id)) {
             throw new systemErrorException("Helper error", "Menu ID is not number");
         }
 
@@ -183,7 +183,7 @@ abstract class dataHelper {
             throw new systemErrorException("Helper error", "More data names is not array");
         }
 
-        if (!utils::isNumber($with)) {
+        if (!validate::isNumber($with)) {
             throw new systemErrorException("Helper error", "Extended data type is not number");
         }
 
@@ -250,7 +250,7 @@ abstract class dataHelper {
          * validate input ID
          */
 
-        if (!utils::isNumber($documentID)) {
+        if (!validate::isNumber($documentID)) {
             throw new systemErrorException("Helper error", "Document ID is not number");
         }
 
@@ -278,7 +278,7 @@ abstract class dataHelper {
     public static function getDocumentFeatures($documentID) {
 
 
-        if (!utils::isNumber($documentID)) {
+        if (!validate::isNumber($documentID)) {
             throw new systemErrorException("Helper error", "Document ID is not number");
         }
 

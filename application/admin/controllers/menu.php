@@ -132,7 +132,7 @@ class menu extends baseController {
          */
 
         $menu_id = request::shiftParam("id");
-        if (!utils::isNumber($menu_id)) {
+        if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -182,7 +182,7 @@ class menu extends baseController {
          */
 
         $menu_id = request::shiftParam("id");
-        if (!utils::isNumber($menu_id)) {
+        if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 

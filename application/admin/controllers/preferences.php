@@ -363,7 +363,7 @@ class preferences extends baseController {
          * validate max_group_priority_number
          */
 
-        if (!utils::isNumber($preferences['system']['max_group_priority_number'])) {
+        if (!validate::isNumber($preferences['system']['max_group_priority_number'])) {
             throw new memberErrorException(view::$language->error, view::$language->priority_need_is_number);
         }
 
@@ -380,7 +380,7 @@ class preferences extends baseController {
          * validate cookie_expires_time
          */
 
-        if (!utils::isNumber($preferences['system']['cookie_expires_time'])) {
+        if (!validate::isNumber($preferences['system']['cookie_expires_time'])) {
             throw new memberErrorException(view::$language->error, view::$language->cookie_expires_need_is_number);
         }
 

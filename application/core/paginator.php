@@ -106,7 +106,7 @@ class paginator {
     public function setCurrentPage($number) {
 
 
-        if (!utils::isNumber($number)) {
+        if (!validate::isNumber($number)) {
             throw new systemErrorException("Pagination error", "Current page is not number");
         }
 
@@ -129,7 +129,7 @@ class paginator {
     public function setItemsPerPage($number) {
 
 
-        if (!utils::isNumber($number)) {
+        if (!validate::isNumber($number)) {
             throw new systemErrorException("Pagination error", "Items per page is not number");
         }
 
@@ -151,7 +151,7 @@ class paginator {
     public function setSliceSizeByPages($number) {
 
 
-        if (!utils::isNumber($number)) {
+        if (!validate::isNumber($number)) {
             throw new systemErrorException("Pagination error", "Slice size by pages is not number");
         }
 

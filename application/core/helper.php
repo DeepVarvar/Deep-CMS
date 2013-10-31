@@ -45,7 +45,7 @@ abstract class helper {
     public static function strfTime($format, $string) {
 
 
-        if (!utils::isNumber($string)) {
+        if (!validate::isNumber($string)) {
 
             if (!$string = @ strtotime($string)) {
                 throw new systemErrorException("Helper error", "String is not date or time");
@@ -54,7 +54,7 @@ abstract class helper {
         }
 
 
-        if (!utils::isNumber($string)) {
+        if (!validate::isNumber($string)) {
             throw new systemErrorException("Helper error", "Timestamp is not number");
         }
 
@@ -149,7 +149,7 @@ abstract class helper {
     public static function plural($n, $f1, $f3, $f5) {
 
 
-        if (!utils::isNumber($n)) {
+        if (!validate::isNumber($n)) {
             throw new systemErrorException("Helper error", "Plural argument is not number");
         }
 

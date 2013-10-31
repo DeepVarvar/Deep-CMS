@@ -165,7 +165,7 @@ class users extends baseController {
          */
 
         $user_id = request::shiftParam("id");
-        if (!utils::isNumber($user_id)) {
+        if (!validate::isNumber($user_id)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -272,7 +272,7 @@ class users extends baseController {
          */
 
         $user_id = request::shiftParam("id");
-        if (!utils::isNumber($user_id)) {
+        if (!validate::isNumber($user_id)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -511,7 +511,7 @@ class users extends baseController {
          * check user status type
          */
 
-        if (!utils::isNumber($userData['status']) or $userData['status'] > 3) {
+        if (!validate::isNumber($userData['status']) or $userData['status'] > 3) {
             throw new memberErrorException(view::$language->error, view::$language->user_status_invalid_format);
         }
 
@@ -601,7 +601,7 @@ class users extends baseController {
         } else {
 
 
-            if (!utils::isNumber($userData['group_id'])) {
+            if (!validate::isNumber($userData['group_id'])) {
                 throw new memberErrorException(view::$language->error, view::$language->group_id_invalid_format);
             }
 

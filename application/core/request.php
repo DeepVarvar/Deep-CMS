@@ -530,7 +530,7 @@ abstract class request {
 
             if ($currentPage !== null) {
 
-                if (!utils::isNumber($currentPage)) {
+                if (!validate::isNumber($currentPage)) {
                     throw new systemErrorException("Request error", "Current page is not number");
                 }
 

@@ -155,7 +155,7 @@ class documents extends baseController {
         if ($newTarget !== null) {
 
 
-            if (!utils::isNumber($newTarget)) {
+            if (!validate::isNumber($newTarget)) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
@@ -244,7 +244,7 @@ class documents extends baseController {
             }
 
 
-            if (!$isAllParents and !utils::isNumber($target[$key])) {
+            if (!$isAllParents and !validate::isNumber($target[$key])) {
                 throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
             }
 
@@ -282,7 +282,7 @@ class documents extends baseController {
          */
 
         $targetID = request::shiftParam("id");
-        if (!utils::isNumber($targetID)) {
+        if (!validate::isNumber($targetID)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -454,7 +454,7 @@ class documents extends baseController {
          */
 
         $documentID = request::shiftParam("id");
-        if (!utils::isNumber($documentID)) {
+        if (!validate::isNumber($documentID)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -496,7 +496,7 @@ class documents extends baseController {
          */
 
         $parentID = request::shiftParam("parent");
-        if (!utils::isNumber($parentID)) {
+        if (!validate::isNumber($parentID)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -565,7 +565,7 @@ class documents extends baseController {
          * check document ID
          */
 
-        if (!$isNewDocument and !utils::isNumber($documentID)) {
+        if (!$isNewDocument and !validate::isNumber($documentID)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -574,7 +574,7 @@ class documents extends baseController {
          * check prototype ID
          */
 
-        if (!utils::isNumber($prototypeID)) {
+        if (!validate::isNumber($prototypeID)) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -1068,7 +1068,7 @@ class documents extends baseController {
          * without changed prototype
          */
 
-        if (!$isChangedPrototype and utils::isNumber($document['id'])) {
+        if (!$isChangedPrototype and validate::isNumber($document['id'])) {
 
 
             $propsFields = join(",", $propsFields);
@@ -1465,7 +1465,7 @@ class documents extends baseController {
 
             foreach ($menuList as $k => $appendix) {
 
-                if (!utils::isNumber($k)) {
+                if (!validate::isNumber($k)) {
                     throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
                 }
 
@@ -1627,7 +1627,7 @@ class documents extends baseController {
          * validate parent ID
          */
 
-        if (!utils::isNumber($inputDocument['parent_id'])) {
+        if (!validate::isNumber($inputDocument['parent_id'])) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -1636,11 +1636,11 @@ class documents extends baseController {
          * validate object ID and children objets ID
          */
 
-        if (!utils::isNumber($inputDocument['prototype'])) {
+        if (!validate::isNumber($inputDocument['prototype'])) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
-        if (!utils::isNumber($inputDocument['c_prototype'])) {
+        if (!validate::isNumber($inputDocument['c_prototype'])) {
             throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
         }
 
@@ -1688,7 +1688,7 @@ class documents extends baseController {
          */
 
         $inputDocument['sort'] = filter::input($inputDocument['sort'])->getData();
-        if (!utils::isNumber($inputDocument['sort'])) {
+        if (!validate::isNumber($inputDocument['sort'])) {
             throw new memberErrorException(view::$language->error, view::$language->document_sort_invalid_format);
         }
 
