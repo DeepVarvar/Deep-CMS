@@ -49,19 +49,13 @@ function dump() {
 }
 
 
-$install = PUBLIC_HTML . "install.php";
+/**
+ * install/reinstall mode
+ */
 
-if (file_exists($install)) {
-
-
-    /**
-     * install/reinstall
-     */
-
-    require_once $install;
+if (!file_exists(APPLICATION . "config/main.json")) {
+    require_once "install.php";
     exit();
-
-
 }
 
 
