@@ -317,7 +317,7 @@
                                         <input style="float: right;" type="submit" name="next" value=" <?=$language->install_next?> &raquo;&raquo; " />
                                     <?php } ?>
 
-                                    <?php if ($_SESSION['step'] > 1) { ?>
+                                    <?php if ($_SESSION['step'] > 1 and $_SESSION['step'] < 4) { ?>
                                         <input style="float: left;" type="submit" name="prev" value=" &laquo;&laquo; <?=$language->install_prev?> " />
                                     <?php } ?>
 
