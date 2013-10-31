@@ -140,14 +140,12 @@ if ($config->system->debug_mode) {
 
     ini_set("display_errors", "On");
     ini_set("html_errors", "On");
-
     error_reporting(E_ALL | E_STRICT);
 
 } else {
 
     ini_set("display_errors", "Off");
     ini_set("html_errors", "Off");
-
     error_reporting(0);
 
 }
