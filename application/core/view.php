@@ -27,7 +27,14 @@ abstract class view {
 
 
         /**
-         * output context type
+         * all available output contexts
+         */
+
+        $availableOutputContexts = array(),
+
+
+        /**
+         * current output context type
          */
 
         $outputContext = null,
@@ -158,7 +165,7 @@ abstract class view {
             throw new systemErrorException("View error", "Attempt change locked output context");
         }
 
-        if (!in_array($type, self::getAvailableOutputContexts())) {
+        if (!in_array($type, self::$availableOutputContexts)) {
             throw new systemErrorException("View error", "Unavailable output context");
         }
 
@@ -200,16 +207,15 @@ abstract class view {
 
     public static function getAvailableOutputContexts() {
 
-        $contexts = array();
         foreach ((array) app::config()->output_contexts as $context) {
 
             if ($context->enabled === true) {
-                array_push($contexts, $context->name);
+                array_push(self::$availableOutputContexts, $context->name);
             }
 
         }
 
-        return $contexts;
+        return self::$availableOutputContexts;
 
     }
 
