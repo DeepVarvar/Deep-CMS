@@ -26,7 +26,7 @@ abstract class commandLine {
 
     public static function init() {
         $config = app::config();
-        exit("Sorry, {$config->application->name} {$config->application->version} don't support CLI mode" . EOL);
+        exit("Sorry, {$config->application->name} {$config->application->version} don't support CLI mode" . PHP_EOL);
     }
 
 

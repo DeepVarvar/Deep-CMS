@@ -62,16 +62,18 @@ abstract class app {
          * get config
          */
 
-        $generatedConfig = CONFIG . "{$name}.generated";
-        $config = file_exists($generatedConfig) ? $generatedConfig : CONFIG . $name;
+        $configDir = APPLICATION . "config/";
+        $generatedConfig = $configDir . $name . ".generated";
 
+        $config = file_exists($generatedConfig)
+            ? $generatedConfig : $configDir . $name;
 
         if (!file_exists($config)) {
-            exit("Configuration file $config not found" . EOL);
+            exit("Configuration file $config not found" . PHP_EOL);
         }
 
         if (!is_readable($config)) {
-            exit("Configuration file $config don't have readable permission" . EOL);
+            exit("Configuration file $config don't have readable permission" . PHP_EOL);
         }
 
         $configData = file_get_contents($config);
@@ -80,7 +82,7 @@ abstract class app {
         $configData = preg_replace($patterns, "", $configData);
 
         if (!$configData = @ json_decode($configData)) {
-            exit("Configuration file $config is broken or have syntax error" . EOL);
+            exit("Configuration file $config is broken or have syntax error" . PHP_EOL);
         }
 
 
@@ -125,7 +127,7 @@ abstract class app {
     public static function changeConfig($name, $newData) {
 
         if (!array_key_exists($name, self::$configs)) {
-            exit("Application [{$name}] cofiguration is not loaded" . EOL);
+            exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
         }
 
         self::mergeConfigData(self::$configs[$name], $newData);
@@ -141,12 +143,12 @@ abstract class app {
 
 
         if (!array_key_exists($name, self::$configs)) {
-            exit("Application [{$name}] cofiguration is not loaded" . EOL);
+            exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
         }
 
 
         $configString = json_encode(self::$configs[$name]);
-        file_put_contents(CONFIG . "{$name}.generated", $configString);
+        file_put_contents(APPLICATION . "config/{$name}.generated", $configString);
 
 
     }
@@ -169,7 +171,7 @@ abstract class app {
 
 
         if (!array_key_exists($name, self::$configs)) {
-            exit("Application [{$name}] cofiguration is not loaded" . EOL);
+            exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
         }
 
         return self::$configs[$name];

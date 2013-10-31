@@ -106,7 +106,7 @@ class preferences extends baseController {
          * delete main.json.generated file
          */
 
-        $generatedConfig = CONFIG . "main.json.generated";
+        $generatedConfig = APPLICATION . "config/main.json.generated";
 
         if (file_exists($generatedConfig)) {
             unlink($generatedConfig);

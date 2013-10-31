@@ -6,9 +6,6 @@
  * defined main environment
  */
 
-define("EOL", PHP_EOL);
-define("CONFIG", APPLICATION . "config/");
-
 define("ERROR_EXCEPTION",    0);
 define("SUCCESS_EXCEPTION",  1);
 
@@ -23,11 +20,10 @@ define("DATA_WITH_ALL",      3);
  * WARNING! set path's without default value of get_include_path()
  */
 
-$core = APPLICATION . "core/";
-$lib  = APPLICATION . "library/";
-
 set_include_path(
-    APPLICATION . PATH_SEPARATOR . $core . PATH_SEPARATOR . $lib
+    APPLICATION . join(PATH_SEPARATOR . APPLICATION, array(
+        "core/", "library/"
+    ))
 );
 
 
@@ -119,11 +115,11 @@ foreach ($dirs as $dir) {
     $dir = ($dir == "upload" ? PUBLIC_HTML : APPLICATION) . $dir;
 
     if (!is_dir($dir)) {
-        exit("Core dependency target $dir is not directory" . EOL);
+        exit("Core dependency target $dir is not directory" . PHP_EOL);
     }
 
     if (!is_writable($dir)) {
-        exit("Core dependency directory $dir don't have writable permission" . EOL);
+        exit("Core dependency directory $dir don't have writable permission" . PHP_EOL);
     }
 
 
@@ -165,7 +161,7 @@ if ($config->system->debug_mode) {
 
 $availableContexts = utils::getAvailableOutputContexts();
 if (!$availableContexts) {
-    exit("Output contexts is not available" . EOL);
+    exit("Output contexts is not available" . PHP_EOL);
 }
 
 

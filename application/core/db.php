@@ -179,7 +179,7 @@ abstract class db {
         if (self::$showQuery) {
 
             self::$showQuery = false;
-            echo EOL . $queryString . EOL;
+            echo "\n\n {$queryString} \n\n";
 
         }
 

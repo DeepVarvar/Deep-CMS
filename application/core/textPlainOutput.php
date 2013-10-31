@@ -39,7 +39,7 @@ abstract class textPlainOutput {
 
 
             $k = (utils::isNumber($k)) ? "" : ($k . ": ");
-            $output .= EOL . $leftPad . str_pad($k, $currentPad, " ", STR_PAD_RIGHT);
+            $output .= PHP_EOL . $leftPad . str_pad($k, $currentPad, " ", STR_PAD_RIGHT);
 
             if (is_array($v)) {
                 $output .= self::buildString($v, $currentPad);

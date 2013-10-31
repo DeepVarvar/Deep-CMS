@@ -467,7 +467,7 @@ abstract class utils {
             $existsLog = true;
 
             if (!is_writable($logFile)) {
-                exit("Log file $logFile don't have writable permission" . EOL);
+                exit("Log file $logFile don't have writable permission" . PHP_EOL);
             }
 
 
@@ -646,7 +646,7 @@ abstract class utils {
             if ($config->system->debug_mode) {
                 dump($report);
             } else {
-                echo "Unexpected system {$report['type']} exception inside catch context" . EOL;
+                echo "Unexpected system {$report['type']} exception inside catch context" . PHP_EOL;
             }
 
 
@@ -656,7 +656,7 @@ abstract class utils {
             if ($config->system->debug_mode) {
                 dump($e->getMessage(), $e->getTrace());
             } else {
-                echo "Unexpected exception inside catch context" . EOL;
+                echo "Unexpected exception inside catch context" . PHP_EOL;
             }
 
 
