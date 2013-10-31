@@ -156,7 +156,7 @@ if ($config->system->debug_mode) {
  * check for enabled output contexts
  */
 
-if (!view::getAvailableOutputContexts()) {
+if (!$availableContexts = view::getAvailableOutputContexts()) {
     exit("Output contexts is not available" . PHP_EOL);
 }
 
@@ -259,9 +259,7 @@ try {
      */
 
     $pageOnCache = false;
-
     if ($config->system->cache_enabled === true) {
-
 
         $cachedPage = md5(request::getOriginURL());
         $availableContexts = join(",", $availableContexts);
@@ -270,7 +268,6 @@ try {
             $cachedPage = basename($items[0]);
             $pageOnCache = true;
         }
-
 
     }
 

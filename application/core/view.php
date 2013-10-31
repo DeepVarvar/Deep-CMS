@@ -215,7 +215,7 @@ abstract class view {
 
         }
 
-        return sizeof(self::$availableOutputContexts);
+        return self::$availableOutputContexts;
 
     }
 
