@@ -22,9 +22,12 @@ define("DATA_WITH_ALL",      3);
  */
 
 set_include_path(
-    APPLICATION . join(PATH_SEPARATOR . APPLICATION, array(
+
+    APPLICATION . PATH_SEPARATOR . APPLICATION .
+    join(PATH_SEPARATOR . APPLICATION, array(
         "core/", "library/"
     ))
+
 );
 
 
