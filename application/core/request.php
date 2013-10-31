@@ -415,6 +415,15 @@ abstract class request {
             ? strip_tags($_SERVER['HTTP_REFERER']) : "";
 
 
+        /**
+         * chrome 30.0.1599.101 m always send referer without www\.
+         * even when it's there..
+         */
+
+        $c->site->domain = preg_replace("/^www\./", "", $c->site->domain);
+        $currentReferer  = preg_replace("/(\/\/)www\./", "$1", $currentReferer);
+
+
         if (!$useExpression) {
 
             $ref = "{$c->site->protocol}://{$c->site->domain}{$referer}";
