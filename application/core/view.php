@@ -158,7 +158,7 @@ abstract class view {
             throw new systemErrorException("View error", "Attempt change locked output context");
         }
 
-        if (!in_array($type, utils::getAvailableOutputContexts())) {
+        if (!in_array($type, self::getAvailableOutputContexts())) {
             throw new systemErrorException("View error", "Unavailable output context");
         }
 
