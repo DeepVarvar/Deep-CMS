@@ -155,7 +155,7 @@ if ($config->system->debug_mode) {
  * check for enabled output contexts
  */
 
-$availableContexts = utils::getAvailableOutputContexts();
+$availableContexts = view::getAvailableOutputContexts();
 if (!$availableContexts) {
     exit("Output contexts is not available" . PHP_EOL);
 }

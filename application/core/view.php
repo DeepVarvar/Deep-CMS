@@ -154,7 +154,6 @@ abstract class view {
 
     public static function setOutputContext($type) {
 
-
         if (self::$lockedOutputContext) {
             throw new systemErrorException("View error", "Attempt change locked output context");
         }
@@ -163,9 +162,7 @@ abstract class view {
             throw new systemErrorException("View error", "Unavailable output context");
         }
 
-
         self::$outputContext = $type;
-
 
     }
 
@@ -203,7 +200,6 @@ abstract class view {
 
     public static function getAvailableOutputContexts() {
 
-
         $contexts = array();
         foreach ((array) app::config()->output_contexts as $context) {
 
@@ -213,9 +209,7 @@ abstract class view {
 
         }
 
-
         return $contexts;
-
 
     }
 
