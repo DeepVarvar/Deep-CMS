@@ -141,15 +141,14 @@ abstract class app {
 
     public static function saveConfig($name) {
 
-
         if (!array_key_exists($name, self::$configs)) {
             exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
         }
 
-
         $configString = json_encode(self::$configs[$name]);
-        file_put_contents(APPLICATION . "config/{$name}.generated", $configString);
-
+        file_put_contents(
+            APPLICATION . "config/{$name}.generated", $configString, LOCK_EX
+        );
 
     }
 

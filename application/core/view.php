@@ -699,7 +699,13 @@ abstract class view {
             }
 
             if ($match) {
-                file_put_contents(APPLICATION . "{$config->path->cache}{$outputContext}---" . md5($URL), $layoutContent);
+                file_put_contents(
+
+                    APPLICATION . "{$config->path->cache}{$outputContext}---" . md5($URL),
+                    $layoutContent,
+                    LOCK_EX
+
+                );
             }
 
         }
