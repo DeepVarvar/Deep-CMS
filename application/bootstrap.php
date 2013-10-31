@@ -74,14 +74,14 @@ if ((float) $version < 5.2) {
  * autoload function
  */
 
-function singleAutoload($fileName) {
+function DeepCmsSimpleAutoload($fileName) {
 
     $file = "{$fileName}.php";
     require_once $file;
 
 }
 
-spl_autoload_register("singleAutoload", false);
+spl_autoload_register("DeepCmsSimpleAutoload", false);
 
 
 /**
