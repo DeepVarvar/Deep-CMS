@@ -1,7 +1,7 @@
 Deep-CMS
 ========
 
-Version on this branch: Deep-CMS-1.0.2
+Version on this branch: Deep-CMS-2.0.0
 
 
 Official project website (RU): <a href="http://www.deep-cms.ru/">www.deep-cms.ru</a>
