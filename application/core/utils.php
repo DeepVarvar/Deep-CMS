@@ -258,29 +258,6 @@ abstract class utils {
 
 
     /**
-     * return available output contexts array
-     */
-
-    public static function getAvailableOutputContexts() {
-
-
-        $contexts = array();
-        foreach ((array) app::config()->output_contexts as $context) {
-
-            if ($context->enabled === true) {
-                array_push($contexts, $context->name);
-            }
-
-        }
-
-
-        return $contexts;
-
-
-    }
-
-
-    /**
      * check for exists and callable action
      */
 
