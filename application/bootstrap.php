@@ -264,7 +264,12 @@ try {
         $cachedPage = md5(request::getOriginURL());
         $availableContexts = join(",", $availableContexts);
 
-        if ($items = glob(APPLICATION . $config->path->cache . "{{$availableContexts}}---$cachedPage", GLOB_BRACE)) {
+        $items = utils::glob(
+            APPLICATION . $config->path->cache . "{{$availableContexts}}---$cachedPage",
+            GLOB_BRACE
+        );
+
+        if ($items) {
             $cachedPage = basename($items[0]);
             $pageOnCache = true;
         }
