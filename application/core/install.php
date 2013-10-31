@@ -549,6 +549,9 @@ function getInstallationQueryString($prefix = "") {
 
             id                  BIGINT(20)  NOT NULL AUTO_INCREMENT,
             parent_id           BIGINT(20)  NOT NULL,
+            lvl                 TINYINT(3)  UNSIGNED NOT NULL,
+            lk                  BIGINT(20)  UNSIGNED NOT NULL,
+            rk                  BIGINT(20)  UNSIGNED NOT NULL,
             prototype           BIGINT(20)  NOT NULL,
             c_prototype         BIGINT(20)  NOT NULL,
             props_id            BIGINT(20)  NOT NULL DEFAULT '0',
@@ -572,6 +575,9 @@ function getInstallationQueryString($prefix = "") {
             PRIMARY KEY (id),
 
             KEY parent_id  (parent_id),
+            KEY lvl        (lvl),
+            KEY lk         (lk),
+            KEY rk         (rk),
             KEY prototype  (prototype),
             KEY props_id   (props_id),
             KEY is_publish (is_publish),
