@@ -6,6 +6,7 @@
  * defined main environment
  */
 
+define("FAST_RUNNING",   false);
 define("ERROR_EXCEPTION",    0);
 define("SUCCESS_EXCEPTION",  1);
 
@@ -85,37 +86,40 @@ spl_autoload_register("DeepCmsSimpleAutoload", false);
 
 
 /**
+ * slow running mode,
  * check writable permissions
  */
 
-$dirs = array(
+if (!FAST_RUNNING) {
 
-    "autorun/after",
-    "autorun/before",
-    "cache",
-    "config",
-    "languages",
-    "library",
-    "logs",
-    "modules",
-    "resources",
-    "upload"
+    $dirs = array(
 
-);
+        "autorun/after",
+        "autorun/before",
+        "cache",
+        "config",
+        "languages",
+        "library",
+        "logs",
+        "modules",
+        "resources",
+        "upload"
 
-foreach ($dirs as $dir) {
+    );
 
+    foreach ($dirs as $dir) {
 
-    $dir = ($dir == "upload" ? PUBLIC_HTML : APPLICATION) . $dir;
+        $dir = ($dir == "upload" ? PUBLIC_HTML : APPLICATION) . $dir;
 
-    if (!is_dir($dir)) {
-        exit("Core dependency target $dir is not directory" . PHP_EOL);
+        if (!is_dir($dir)) {
+            exit("Core dependency target $dir is not directory" . PHP_EOL);
+        }
+
+        if (!is_writable($dir)) {
+            exit("Core dependency directory $dir don't have writable permission" . PHP_EOL);
+        }
+
     }
-
-    if (!is_writable($dir)) {
-        exit("Core dependency directory $dir don't have writable permission" . PHP_EOL);
-    }
-
 
 }
 
