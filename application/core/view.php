@@ -142,7 +142,7 @@ abstract class view {
 
     public static function setXSDSchema($schema) {
 
-        utils::validateXmlSchemaElement($schema);
+        xmlValidator::validateXmlSchemaElement($schema);
         self::$XSDSchema = $schema;
 
     }

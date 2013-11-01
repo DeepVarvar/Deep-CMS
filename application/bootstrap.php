@@ -163,7 +163,7 @@ if (!$availableContexts = view::getAvailableOutputContexts()) {
     exit("Output contexts is not available" . PHP_EOL);
 }
 
-dump(helper::getMemoryUsage());
+
 /**
  * start application
  */
