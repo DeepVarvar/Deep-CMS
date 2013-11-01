@@ -1819,17 +1819,20 @@ class documents extends baseController {
         if ($documentID) {
 
 
-            db::set("SET max_sp_recursion_depth = 10000");
-            db::query(
+            $currentKeys = db::normalizeQuery(
+                "SELECT lk, rk FROM documents WHERE id = {$documentID}"
+            );
 
-                "CALL check_parent_candidate(%u,%u,@status);",
-                $documentID,
-                $inputDocument['parent_id']
+            $isBrokenParent = db::query(
+
+                "SELECT (1) ex FROM documents
+                    WHERE lk > %u AND rk < %u LIMIT 1",
+
+                $currentKeys['lk'],
+                $currentKeys['rk']
 
             );
 
-
-            $isBrokenParent = db::normalizeQuery("SELECT @status");
             if ($isBrokenParent) {
                 throw new memberErrorException(view::$language->error, view::$language->document_cant_itchild_parent);
             }
