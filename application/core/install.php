@@ -1476,41 +1476,7 @@ try {
 
 
                 /**
-                 * check available for create procedures
-                 */
-
-                if (!$_SESSION['errors']) {
-
-                    db::query("
-
-                        SET @status = 0;
-
-                        DROP PROCEDURE IF EXISTS check_avCP;
-                        CREATE DEFINER = CURRENT_USER PROCEDURE check_avCP(INOUT status TINYINT(1))
-                            READS SQL DATA
-                            BEGIN
-                                SET status = 1;
-                            END;
-
-                        CALL check_avCP(@status);
-                        SELECT @status;
-
-                    ");
-
-                }
-
-
-                /**
-                 * delete check procedure
-                 */
-
-                if (!$_SESSION['errors']) {
-                    db::query("DROP PROCEDURE IF EXISTS check_avCP;");
-                }
-
-
-                /**
-                 * full database installation
+                 * database installation
                  */
 
                 if (!$_SESSION['errors']) {
