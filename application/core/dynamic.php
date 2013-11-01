@@ -41,6 +41,9 @@ abstract class dynamic {
 
                 d.id page_id,
                 d.parent_id,
+                d.lvl,
+                d.lk,
+                d.rk,
                 ('0') page_is_module,
                 d.page_name,
                 d.page_alias,
