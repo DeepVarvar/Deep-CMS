@@ -318,10 +318,8 @@ class documents extends baseController {
 
 
         /**
-         * delete object data from dynamic properties,
-         * documents and menu_items.
-         *
-         * set new parent ID for children of target
+         * delete object data
+         * from dynamic properties and menu_items
          */
 
         db::set("
@@ -330,22 +328,47 @@ class documents extends baseController {
         ");
 
         db::set("
-            DELETE FROM documents
-            WHERE id = {$target['id']}
-        ");
-
-        db::set("
             DELETE FROM menu_items
             WHERE document_id = {$target['id']}
         ");
 
-        db::set("
 
-            UPDATE documents
-            SET parent_id = 0
-            WHERE parent_id = {$target['id']}
+        /**
+         * get nested set keys for branch deleting
+         */
 
-        ");
+        $nestedSetKeys = db::normalizeQuery(
+            "SELECT lk, rk, (rk - lk + 1) gap
+                FROM documents WHERE id = {$target['id']}"
+        );
+
+
+        /**
+         * delete branch
+         */
+
+        db::set(
+            "DELETE FROM documents WHERE lk BETWEEN %u AND %u",
+            $nestedSetKeys['lk'],
+            $nestedSetKeys['rk']
+        );
+
+
+        /**
+         * update keys for other documents
+         */
+
+        db::set(
+            "UPDATE documents SET rk = rk - %u WHERE rk > %u",
+            $nestedSetKeys['gap'],
+            $nestedSetKeys['rk']
+        );
+
+        db::set(
+            "UPDATE documents SET lk = lk - %u WHERE lk > %u",
+            $nestedSetKeys['gap'],
+            $nestedSetKeys['rk']
+        );
 
 
         /**
@@ -1836,6 +1859,119 @@ class documents extends baseController {
 
 
     /**
+     * update all nested set keys on database for edited document
+     */
+
+    private function moveNestedSetKeys($documentID, $newParentID) {
+
+
+        $currentPos = db::normalizeQuery(
+            "SELECT lvl, lk, rk, parent_id
+                FROM documents WHERE id = %u", $documentID
+        );
+
+
+        /**
+         * not need update keys
+         */
+
+        if ($currentPos['parent_id'] == $newParentID) {
+            return true;
+        }
+
+
+        /**
+         * right key near and parent level
+         */
+
+        $newParentKeys = db::normalizeQuery(
+            "SELECT lvl, (rk - 1) rk
+                FROM documents WHERE id = %u", $newParentID
+        );
+
+        $newParentKeys['lvl'] = !isset($newParentKeys['lvl'])
+            ? 0 : ((int) $newParentKeys['lvl']);
+
+        $newParentKeys['rk'] = isset($newParentKeys['rk'])
+            ? ((int) $newParentKeys['rk'])
+            : db::normalizeQuery("SELECT rk FROM documents ORDER BY rk DESC LIMIT 1");
+
+
+        $skewLevel = $newParentKeys['lvl'] - $currentPos['lvl'] + 1;
+        $skewTree  = $currentPos['rk'] - $currentPos['lk'] + 1;
+
+
+        if ($newParentKeys['rk'] < $currentPos['rk']) {
+
+
+            $skewEdit = $newParentKeys['rk'] - $currentPos['lk'] + 1;
+            db::set("
+
+                UPDATE documents SET
+
+                    rk = IF(lk >= %u, rk + (%s), IF(rk < %u, rk + (%s), rk)),
+                    lvl = IF(lk >= %u, lvl + (%s), lvl),
+                    lk = IF(lk >= %u, lk + (%s), IF(lk > %u, lk + (%s), lk))
+
+                WHERE rk > %u AND lk < %u
+
+                ",
+
+                $currentPos['lk'],
+                $skewEdit,
+                $currentPos['lk'],
+                $skewTree,
+                $currentPos['lk'],
+                $skewLevel,
+                $currentPos['lk'],
+                $skewEdit,
+                $newParentKeys['rk'],
+                $skewTree,
+                $newParentKeys['rk'],
+                $currentPos['rk']
+
+            );
+
+
+        } else {
+
+
+            $skewEdit = $newParentKeys['rk'] - $currentPos['lk'] + 1 - $skewTree;
+            db::set("
+
+                UPDATE documents SET
+
+                    lk=IF(rk <= %u, lk + (%s), IF(lk > %u, lk - (%s), lk)),
+                    lvl=IF(rk <= %u, lvl + (%s), lvl),
+                    rk=IF(rk <= %u, rk + (%s), IF(rk <= %u, rk - (%s), rk))
+
+                WHERE rk > %u AND lk <= %u
+
+                ",
+
+                $currentPos['rk'],
+                $skewEdit,
+                $currentPos['rk'],
+                $skewTree,
+                $currentPos['rk'],
+                $skewLevel,
+                $currentPos['rk'],
+                $skewEdit,
+                $newParentKeys['rk'],
+                $skewTree,
+                $currentPos['lk'],
+                $newParentKeys['rk']
+
+            );
+
+
+        }
+
+
+    }
+
+
+    /**
      * save menu items
      */
 
@@ -2082,6 +2218,40 @@ class documents extends baseController {
 
 
         /**
+         * get nested set keys for new inserted document
+         */
+
+        $nestedSetKeys = db::normalizeQuery(
+            "SELECT lk, lvl FROM documents WHERE id = %u",
+            $newDocument['parent_id']
+        );
+
+        if (!$nestedSetKeys) {
+
+            $nestedSetKeys['lvl'] = 0;
+            $nestedSetKeys['lk']  = db::normalizeQuery(
+                "SELECT MAX(rk) rk FROM documents"
+            );
+
+        }
+
+
+        /**
+         * update nested set keys before insert new document
+         */
+
+        db::set(
+            "UPDATE documents SET lk = lk + 2 WHERE lk > %u",
+            $nestedSetKeys['lk']
+        );
+
+        db::set(
+            "UPDATE documents SET rk = rk + 2 WHERE rk > %u",
+            $nestedSetKeys['lk']
+        );
+
+
+        /**
          * insert all static data into documents,
          * get last insert ID for other transactions
          */
@@ -2092,6 +2262,9 @@ class documents extends baseController {
 
                 id,
                 parent_id,
+                lvl,
+                lk,
+                rk,
                 prototype,
                 c_prototype,
                 props_id,
@@ -2122,6 +2295,9 @@ class documents extends baseController {
                 %u,
                 %u,
                 %u,
+                %u,
+                %u,
+                %u,
                '%s',
                '%s',
                '%s',
@@ -2139,6 +2315,9 @@ class documents extends baseController {
             )",
 
             $newDocument['parent_id'],
+            $nestedSetKeys['lvl'] + 1,
+            $nestedSetKeys['lk'] + 1,
+            $nestedSetKeys['lk'] + 2,
             $newDocument['prototype'],
             $newDocument['c_prototype'],
             $newDocument['props_id'],
@@ -2391,6 +2570,15 @@ class documents extends baseController {
         if ($this->saveDynamicProperties($updateDocument)) {
             $updateDocument['props_id'] = db::lastID();
         }
+
+
+        /**
+         * move nested set keys for updated document
+         */
+
+        $this->moveNestedSetKeys(
+            $updateDocument['id'], $updateDocument['parent_id']
+        );
 
 
         /**
