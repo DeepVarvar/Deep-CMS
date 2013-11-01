@@ -68,10 +68,6 @@ abstract class app {
         $config = file_exists($generatedConfig)
             ? $generatedConfig : $configDir . $name;
 
-        if (!file_exists($config)) {
-            exit("Configuration file $config not found" . PHP_EOL);
-        }
-
         if (!is_readable($config)) {
             exit("Configuration file $config don't have readable permission" . PHP_EOL);
         }

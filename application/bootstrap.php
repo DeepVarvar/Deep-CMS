@@ -133,7 +133,7 @@ if (!FAST_RUNNING) {
 
 $config = app::loadConfig();
 
-
+dump(helper::getMemoryUsage());
 /**
  * exception details mode,
  * enable/disable errors and notices
