@@ -44,6 +44,9 @@ abstract class dataHelper {
 
                 d.id,
                 d.parent_id,
+                d.lvl,
+                d.lk,
+                d.rk,
                 d.prototype,
                 d.props_id,
                 IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
@@ -124,6 +127,9 @@ abstract class dataHelper {
 
                 d.id,
                 d.parent_id,
+                d.lvl,
+                d.lk,
+                d.rk,
                 d.prototype,
                 d.props_id,
                 IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
@@ -199,6 +205,9 @@ abstract class dataHelper {
 
                 d.id,
                 d.parent_id,
+                d.lvl,
+                d.lk,
+                d.rk,
                 d.prototype,
                 d.props_id,
                 IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
@@ -313,6 +322,7 @@ abstract class dataHelper {
 
                     d.id,
                     d.parent_id,
+                    d.lvl,
                     d.page_name,
                     d.page_alias
 
