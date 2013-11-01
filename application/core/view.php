@@ -374,7 +374,7 @@ abstract class view {
                  * delete all public vars from output
                  */
 
-                self::setXSDSchema(self::$defaultXSDSchema);
+                $XSDSchema = self::$defaultXSDSchema;
                 self::$vars = array();
 
 
@@ -405,8 +405,8 @@ abstract class view {
 
                     if ($e instanceof systemErrorException) {
 
-                        $report['code'] = 404;
-                        $report['title'] = view::$language->error . " 404";
+                        $report['code']    = 404;
+                        $report['title']   = view::$language->error . " 404";
                         $report['message'] = view::$language->page_not_found;
 
                     }
