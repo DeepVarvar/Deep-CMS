@@ -6,6 +6,7 @@ $(function(){
 
     var coverblur = $("#coverblur");
     var popupformwrapper = $("#popupformwrapper");
+    var popupchooseimage = $("#popupchooseimage");
 
     var attachedimageswrapper = $("#attachedimageswrapper");
     var uploadform = $("#uploadform");
@@ -107,9 +108,34 @@ $(function(){
 
                 item.find("a.selectme").click(function(){
 
-                    window.top.opener['CKEDITOR'].tools.callFunction(1, $(this).attr("href"), "");
-                    window.top.close();
-                    window.top.opener.focus();
+                    var imageLink = $(this).attr("href");
+
+                    coverblur.show();
+                    popupchooseimage.show();
+                    popupchooseimage.find("a").off().on("click", function() {
+
+                        var type = $(this).attr("data-type");
+                        if (type == "thumbnail") {
+
+                            imageLink = imageLink.replace(/[^\/]+$/, function(filename) {
+                                return "thumb_" + filename;
+                            });
+
+                        } else if (type == "middle") {
+
+                            imageLink = imageLink.replace(/[^\/]+$/, function(filename) {
+                                return "middle_" + filename;
+                            });
+
+                        }
+
+                        window.top.opener['CKEDITOR'].tools.callFunction(1, imageLink, "");
+                        window.top.close();
+                        window.top.opener.focus();
+
+                        return false;
+
+                    });
 
                     return false;
 

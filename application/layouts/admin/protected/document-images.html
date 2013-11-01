@@ -75,7 +75,7 @@
     <form id="uploadform" action="<?=$_config->site->admin_tools_link?>/document-images/upload" enctype="multipart/form-data" method="post">
 
         <div class="r b">
-            <a id="closepopupform" href="#close">✖</a>
+            <a class="closepopupform" href="#close">✖</a>
         </div>
 
         <h3 id="uploadcaption"></h3>
@@ -127,6 +127,22 @@
         <div class="clear"></div>
 
     </form>
+
+</div>
+
+<div id="popupchooseimage">
+
+    <div class="r b">
+        <a class="closepopupform" href="#close">✖</a>
+    </div>
+
+    <h3><?=view::$language->select_it?></h3>
+
+    <div id="chooseimagesize">
+        <a href="#" data-type="original"><?=view::$language->image_original?></a>
+        <a href="#" data-type="middle"><?=view::$language->image_middle?></a>
+        <a href="#" data-type="thumbnail"><?=view::$language->image_thumbnail?></a>
+    </div>
 
 </div>
 

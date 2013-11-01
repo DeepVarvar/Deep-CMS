@@ -321,7 +321,7 @@ a.showpopupform {
     position: relative;
     margin: 14px 0 0 6px;
     overflow: hidden;
-    width: 92px;
+    width: 96px;
     height: 24px;
 }
 
@@ -350,6 +350,40 @@ a.showpopupform {
     height: 24px;
     line-height: 32px;
     text-align: center;
+}
+
+#popupchooseimage {
+    position: fixed;
+    z-index: 1001;
+    top: 100px;
+    left: 50%;
+    margin-left: -90px;
+    padding: 0 10px;
+    width: 180px;
+    height: 180px;
+    background: #ffffff;
+    border: solid 1px #d2d2d2;
+}
+
+#popupchooseimage h3 {
+    margin: 0 0 6px 0;
+    text-align: center;
+}
+
+#chooseimagesize {
+    padding: 10px;
+    text-align: center;
+}
+
+#chooseimagesize a {
+    display: block;
+    margin: 0 0 6px 0;
+    padding: 4px 0;
+    border: solid 1px #ddd;
+}
+
+#chooseimagesize a:hover {
+    color: #0000ff;
 }
 
 #innerdata {

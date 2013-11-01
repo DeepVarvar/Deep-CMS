@@ -237,13 +237,19 @@ $(function(){
 
     var coverblur = $("#coverblur");
     var popupformwrapper = $("#popupformwrapper");
+    var popupchooseimage = $("#popupchooseimage");
 
     popupformwrapper.click(function(e){
         e.stopPropagation();
     });
 
-    $("a#closepopupform").click(function(){
+    popupchooseimage.click(function(e){
+        e.stopPropagation();
+    });
 
+    $("a.closepopupform").click(function(){
+
+        popupchooseimage.hide();
         popupformwrapper.hide();
         coverblur.hide();
 
@@ -252,10 +258,12 @@ $(function(){
     });
 
     $("body").click(function(){
+        popupchooseimage.hide();
         popupformwrapper.hide();
         coverblur.hide();
     });
 
+    popupchooseimage.hide();
     popupformwrapper.hide();
     coverblur.hide();
 
