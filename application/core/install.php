@@ -692,63 +692,6 @@ function getInstallationQueryString($prefix = "") {
         ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
-        DROP PROCEDURE IF EXISTS check_parent_candidate;
-        CREATE DEFINER = CURRENT_USER PROCEDURE check_parent_candidate(IN main_id BIGINT(20), IN candidate_parent_id BIGINT(20), OUT status TINYINT(1))
-
-            BEGIN
-
-                DECLARE i BIGINT(20);
-                DECLARE c BIGINT(20);
-                DECLARE candidate BIGINT(20);
-
-                DECLARE children CURSOR FOR SELECT id FROM {$prefix}documents WHERE parent_id = main_id;
-
-                SET status = 0;
-                SELECT COUNT(1) INTO c FROM {$prefix}documents WHERE parent_id = main_id;
-
-                IF c > 0 THEN
-
-                    SET i = 0;
-                    OPEN children;
-                    search : WHILE i < c DO
-
-                        FETCH children INTO candidate;
-
-                        IF candidate = candidate_parent_id THEN
-                            SET status = 1;
-                            LEAVE search;
-                        END IF;
-
-                        SET i = i + 1;
-
-                    END WHILE search;
-                    CLOSE children;
-
-                    IF status = 0 THEN
-
-                        SET i = 0;
-                        OPEN children;
-                        subsearch : WHILE i < c DO
-
-                        FETCH children INTO candidate;
-
-                            CALL check_parent_candidate(candidate, candidate_parent_id, status);
-                            IF status = 1 THEN
-                                LEAVE subsearch;
-                            END IF;
-
-                            SET i = i + 1;
-
-                        END WHILE subsearch;
-                        CLOSE children;
-
-                    END IF;
-
-                END IF;
-
-            END;
-
-
         DROP PROCEDURE IF EXISTS get_breadcrumbs;
         CREATE DEFINER = CURRENT_USER PROCEDURE get_breadcrumbs(IN current_id BIGINT(20), show_home TINYINT(1))
 
@@ -819,61 +762,6 @@ function getInstallationQueryString($prefix = "") {
 
             END;
 
-
-        DROP PROCEDURE IF EXISTS get_chain_children;
-        CREATE DEFINER = CURRENT_USER PROCEDURE get_chain_children(IN parent_id BIGINT(20), children_prototype BIGINT(20))
-
-            BEGIN
-
-
-                DECLARE c BIGINT(20);
-                DECLARE done_search TINYINT(1);
-
-
-                CREATE TEMPORARY TABLE IF NOT EXISTS children (id BIGINT(20)) ENGINE = MEMORY;
-                CREATE TEMPORARY TABLE IF NOT EXISTS buffered_children (id BIGINT(20)) ENGINE = MEMORY;
-                CREATE TEMPORARY TABLE IF NOT EXISTS executable_children (id BIGINT(20)) ENGINE = MEMORY;
-
-                TRUNCATE TABLE children;
-                TRUNCATE TABLE buffered_children;
-                TRUNCATE TABLE executable_children;
-
-
-                INSERT INTO executable_children (id) VALUES (parent_id);
-                SET done_search = 0;
-
-
-                findchildren : WHILE done_search = 0 DO
-
-
-                    INSERT INTO children SELECT id FROM executable_children;
-
-
-                    SELECT COUNT(1) INTO c FROM {$prefix}documents d
-                        WHERE d.prototype = children_prototype
-                            AND d.parent_id IN(SELECT id FROM executable_children);
-
-
-                    IF c = 0 THEN
-                        LEAVE findchildren;
-                    END IF;
-
-
-                    INSERT INTO buffered_children SELECT d.id FROM {$prefix}documents d
-                        WHERE d.prototype = children_prototype
-                            AND d.parent_id IN(SELECT id FROM executable_children);
-
-
-                    TRUNCATE TABLE executable_children;
-                    INSERT INTO executable_children SELECT id FROM buffered_children;
-                    TRUNCATE buffered_children;
-
-
-                END WHILE findchildren;
-
-                SELECT id FROM children;
-
-            END;
 
 INSTALLATIONSTRING;
 
