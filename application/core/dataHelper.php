@@ -305,7 +305,40 @@ abstract class dataHelper {
      */
 
     public static function getBreadcrumbs($documentID, $showHome = false) {
-        return db::query("CALL get_breadcrumbs(%u,%u);", $documentID, ($showHome ? 1 : 0));
+
+
+        return db::query("
+
+                SELECT
+
+                    d.id,
+                    d.parent_id,
+                    d.page_name,
+                    d.page_alias
+
+                FROM (
+                    SELECT lk, rk, page_alias FROM documents WHERE id = %u
+                ) t
+
+                INNER JOIN documents d ON (
+
+                    d.lk < t.lk AND d.rk > t.rk AND d.is_publish = 1
+                        OR d.id = %u OR d.page_alias = IF(%u = 0, '', '/')
+
+                )
+
+                ORDER BY d.lvl ASC;
+
+
+            ",
+
+            $documentID,
+            $documentID,
+            ($showHome ? 1 : 0)
+
+        );
+
+
     }
 
 
