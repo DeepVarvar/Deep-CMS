@@ -51,7 +51,7 @@ abstract class view {
          * current XSD-schema for XML generation
          */
 
-        $XSDSchema = null,
+        $XSDSchema = array("name" => "response"),
 
 
         /**
@@ -131,13 +131,6 @@ abstract class view {
 
         self::setOutputContext($config->system->default_output_context);
         self::setLanguage($config->site->default_language);
-
-
-        /**
-         * set default XSD schema
-         */
-
-        self::setXSDSchema(self::$defaultXSDSchema);
 
 
     }

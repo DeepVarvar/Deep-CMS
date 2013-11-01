@@ -133,7 +133,7 @@ if (!FAST_RUNNING) {
 
 $config = app::loadConfig();
 
-dump(helper::getMemoryUsage());
+
 /**
  * exception details mode,
  * enable/disable errors and notices
@@ -163,7 +163,7 @@ if (!$availableContexts = view::getAvailableOutputContexts()) {
     exit("Output contexts is not available" . PHP_EOL);
 }
 
-
+dump(helper::getMemoryUsage());
 /**
  * start application
  */
