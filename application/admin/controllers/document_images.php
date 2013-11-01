@@ -1155,9 +1155,10 @@ class document_images extends baseController {
          * WARNING! need stored member cache before exit!
          */
 
-        storage::write("admin-attached-images-exception", func_get_args());
-        member::storeData();
+        $args = func_get_args();
+        storage::write("admin-attached-images-exception", $args);
 
+        member::storeData();
         exit();
 
 

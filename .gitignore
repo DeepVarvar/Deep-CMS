@@ -2,6 +2,7 @@
 
 
 application/logs/*
+application/cache/*
 application/config/*
 
 
