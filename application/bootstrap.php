@@ -25,7 +25,7 @@ set_include_path(
 
     APPLICATION . PATH_SEPARATOR . APPLICATION .
     join(PATH_SEPARATOR . APPLICATION, array(
-        "core/", "library/"
+        "core/", "library/", "prototypes/"
     ))
 
 );
@@ -173,7 +173,7 @@ try {
 
     /**
      * CLI mode for example:
-     * ~$ php /path/do/public_html/index.php -r[--request] /a/b/c?z=x&q=w -p[--post] r=1&s=2
+     * ~$ php /path/do/htdocs/index.php -r[--request] /a/b/c?z=x&q=w -p[--post] r=1&s=2
      *
      * NOT WORKING NOW!
      * exit application
@@ -268,8 +268,12 @@ try {
         $availableContexts = join(",", $availableContexts);
 
         $items = utils::glob(
-            APPLICATION . $config->path->cache . "{{$availableContexts}}---$cachedPage",
+
+            APPLICATION . $config->path->cache
+                . "{{$availableContexts}}---$cachedPage",
+
             GLOB_BRACE
+
         );
 
         if ($items) {

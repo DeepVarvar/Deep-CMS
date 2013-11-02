@@ -818,7 +818,7 @@ abstract class view {
 
             "page_text"          => "",
             "image"              => $config->site->no_image,
-            "page_name"          => "[module]",
+            "node_name"          => "[module]",
             "page_h1"            => "",
             "page_title"         => "",
             "meta_description"   => $config->site->default_description,
@@ -864,7 +864,7 @@ abstract class view {
          */
 
         if (!self::$vars['page_h1']) {
-            self::$vars['page_h1'] = self::$vars['page_name'];
+            self::$vars['page_h1'] = self::$vars['node_name'];
         }
 
         if (!self::$vars['page_title']) {

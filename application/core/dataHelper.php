@@ -47,21 +47,15 @@ abstract class dataHelper {
                 d.lvl,
                 d.lk,
                 d.rk,
-                d.prototype,
-                d.props_id,
                 IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
                 d.page_alias,
-                d.page_name,
-                d.page_h1,
-                d.page_title,
+                d.node_name,
                 d.author author_id,
                 u.login author_name,
                 d.last_modified,
-                d.creation_date,
-                p.sys_name
+                d.creation_date
 
             FROM documents d
-            JOIN prototypes p ON p.id = d.prototype
             LEFT JOIN users u ON u.id = d.author
             LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
 
@@ -76,7 +70,7 @@ abstract class dataHelper {
 
         if ($document) {
 
-            self::joinExtendedItemsData($document, $more, $with);
+            //self::joinExtendedItemsData($document, $more, $with);
             return $document[0];
 
         }
@@ -118,7 +112,7 @@ abstract class dataHelper {
          */
 
         $limit = $limit == 0 ? "" : "LIMIT {$limit}";
-        $orderBy = $orderBy !== null ? $orderBy : "d.sort ASC";
+        $orderBy = $orderBy !== null ? $orderBy : "d.lk ASC";
         $noImg = app::config()->site->no_image;
 
         $items = db::query("
@@ -130,21 +124,15 @@ abstract class dataHelper {
                 d.lvl,
                 d.lk,
                 d.rk,
-                d.prototype,
-                d.props_id,
                 IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
                 d.page_alias,
-                d.page_name,
-                d.page_h1,
-                d.page_title,
+                d.node_name,
                 d.author author_id,
                 u.login author_name,
                 d.last_modified,
-                d.creation_date,
-                p.sys_name
+                d.creation_date
 
             FROM documents d
-            JOIN prototypes p ON p.id = d.prototype
             LEFT JOIN users u ON u.id = d.author
             LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
 
@@ -163,7 +151,7 @@ abstract class dataHelper {
          * join extendeded (more) data of items
          */
 
-        self::joinExtendedItemsData($items, $more, $with);
+        //self::joinExtendedItemsData($items, $more, $with);
         return $items;
 
 
@@ -208,27 +196,21 @@ abstract class dataHelper {
                 d.lvl,
                 d.lk,
                 d.rk,
-                d.prototype,
-                d.props_id,
                 IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
                 d.page_alias,
-                d.page_name,
-                d.page_h1,
-                d.page_title,
+                d.node_name,
                 d.author author_id,
                 u.login author_name,
                 d.last_modified,
-                d.creation_date,
-                p.sys_name
+                d.creation_date
 
             FROM menu_items mi
             JOIN documents d ON d.id = mi.document_id
-            JOIN prototypes p ON p.id = d.prototype
             LEFT JOIN users u ON u.id = d.author
             LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
 
             WHERE d.is_publish = 1 AND mi.menu_id = %u
-            ORDER BY d.sort ASC
+            ORDER BY d.lk ASC
 
             ",
 
@@ -241,7 +223,7 @@ abstract class dataHelper {
          * join extendeded (more) data of items
          */
 
-        self::joinExtendedItemsData($items, $more, $with);
+        //self::joinExtendedItemsData($items, $more, $with);
         return $items;
 
 
@@ -323,7 +305,7 @@ abstract class dataHelper {
                     d.id,
                     d.parent_id,
                     d.lvl,
-                    d.page_name,
+                    d.node_name,
                     d.page_alias
 
                 FROM (

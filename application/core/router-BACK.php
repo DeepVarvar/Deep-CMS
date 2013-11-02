@@ -69,6 +69,10 @@ abstract class router {
         }
 
 
+        $path = APPLICATION . (!self::isAdmin()
+                    ? $config->path->modules : "") . "{$module}/";
+
+
         /**
          * throw for show new messages,
          * WARNING! this throw can only after check admin mode!
@@ -80,17 +84,9 @@ abstract class router {
             extract(storage::shift("__message"));
 
             if ($type == SUCCESS_EXCEPTION) {
-
-                throw new memberRefreshSuccessException(
-                    $title, $message, $refresh_location
-                );
-
+                throw new memberRefreshSuccessException($title, $message, $refresh_location);
             } else {
-
-                throw new memberRefreshErrorException(
-                    $title, $message, $refresh_location
-                );
-
+                throw new memberRefreshErrorException($title, $message, $refresh_location);
             }
 
 
@@ -99,143 +95,17 @@ abstract class router {
 
         /**
          * messages not found,
-         * working more, load dynamic pages
+         * working more,
+         * load module or dynamic page
          */
 
-        if (!$module) {
-
-            $loadedPage = db::query(
-
-                "SELECT id, prototype FROM documents WHERE
-                    page_alias = '%s' AND is_publish = 1",
-                        request::getURI()
-
-            );
-
-
-        } else {
-
-            $loadedPage = db::query(
-
-                "SELECT id, prototype FROM documents WHERE
-                    page_alias IN('%s','%s') AND is_publish = 1",
-                        $module, request::getURI()
-
-            );
-
-        }
-
-        if (!$loadedPage) {
-
-            throw new memberErrorException(
-                404, view::$language->error
-                . " 404", view::$language->page_not_found
-            );
-
-        }
-
-
-        /**
-         * get correctly page type from result
-         */
-
-        $pageIsModule = false;
-        if ($module) {
-
-            if (sizeof($loadedPage) > 1) {
-
-                foreach ($loadedPage as $k => $item) {
-                    if ($item['prototype'] == "mainModule") {
-                        $pageIsModule = true;
-                        break;
-                    }
-                }
-
-                $loadedPage = $pageIsModule
-                    ? $loadedPage[$k] : array_pop($loadedPage);
-
-            } else {
-
-                $loadedPage = $loadedPage[0];
-                if ($loadedPage['prototype'] == "mainModule") {
-                    $pageIsModule = true;
-                }
-
-            }
-
-        } else {
-            $loadedPage = $loadedPage[0];
-        }
-
-
-        /**
-         * load module or page
-         */
-
-        if ($pageIsModule) {
-
-            self::loadPageData($loadedPage);
-            view::assign("page_is_module", 1);
-
-            $path = self::isAdmin() ? "" : $config->path->modules;
-            self::loadModule(
-                APPLICATION . $path . $module . "/", $module
-            );
-
+        if (file_exists($path . "{$module}.php")) {
+            self::loadModule($path, $module);
         } else {
 
             self::$params = array();
-            self::loadPageData($loadedPage);
-            view::assign("page_is_module", 0);
+            dynamic::loadPage();
 
-        }
-
-
-    }
-
-
-    /**
-     * assign into view all page data
-     */
-
-    private static function loadPageData($loadedPage) {
-
-
-        $config  = app::config();
-        $noImage = $config->site->no_image;
-
-        $pagePrototype   = new $loadedPage['prototype'];
-        $prototypeFields = join(",d.", $pagePrototype->getPublicFields());
-
-        $pageData = db::normalizeQuery("
-
-            SELECT
-
-                d.{$prototypeFields},
-                u1.id author_id,
-                u1.login author_name,
-                u2.id modifier_id,
-                u2.login modifier_name,
-                IF(i.name IS NOT NULL,i.name,'{$noImage}') image
-
-            FROM documents d
-
-            LEFT JOIN users u1 ON u1.id = d.author
-            LEFT JOIN users u2 ON u2.id = d.modified_author
-            LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
-
-            WHERE d.id = %u", $loadedPage['id']
-
-        );
-
-        $pm = "permanent_redirect";
-        if (array_key_exists($pm, $pageData) and $pageData[$pm]) {
-            request::redirect($pageData[$pm]);
-        }
-
-        view::assign($pageData);
-        if (array_key_exists("layout", $pageData)) {
-            view::setLayout($config->layouts->public . $pageData['layout']);
         }
 
 
@@ -256,11 +126,7 @@ abstract class router {
          */
 
         if (self::getParamsCount() > 2) {
-
-            throw new systemErrorException(
-                "Load module error", "Request of parameters too long"
-            );
-
+            throw new systemErrorException("Load module error", "Request of parameters too long");
         }
 
 

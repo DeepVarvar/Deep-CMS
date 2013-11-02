@@ -1,0 +1,33 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <?php /*foreach (dataHelper::getBreadcrumbs($page_id, true) as $item) { ?>
+
+        <?php if (request::getURI() != "/") { ?>
+            &raquo; <a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a>
+        <?php } ?>
+
+    <?php }*/ ?>
+
+
+    <h1><?=$page_h1?></h1>
+    <div><?=$page_text?></div>
+
+    <?php /*foreach (dataHelper::getAttachedImages($page_id) as $image) { ?>
+        <a target="_blank" href="/upload/<?=$image?>"><img alt="" src="/upload/thumb_<?=$image?>" /></a>
+    <?php }*/ ?>
+
+    <?php /*foreach (dataHelper::getDocumentFeatures($page_id) as $feature) { ?>
+        <h3><?=$feature['name']?>: <?=$feature['value']?></h3>
+    <?php }*/ ?>
+
+    <ul>
+
+        <?php /*foreach (dataHelper::getDocumentChildren($page_id) as $item) { ?>
+            <li><a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a></li>
+        <?php }*/ ?>
+
+    </ul>
+
+
+<?php require $_config->layouts->footer; ?>
