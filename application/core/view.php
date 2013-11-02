@@ -430,7 +430,7 @@ abstract class view {
                     }
 
                     $basedReport['page_title'] = $report['title'];
-                    $basedReport['page_name']  = $report['title'];
+                    $basedReport['node_name']  = $report['title'];
 
 
                     self::assign("exception", $basedReport);
@@ -816,19 +816,12 @@ abstract class view {
 
         $requiredVariables = array(
 
+            "node_name"          => "[This page is not a node]",
             "page_text"          => "",
-            "image"              => $config->site->no_image,
-            "node_name"          => "[module]",
             "page_h1"            => "",
             "page_title"         => "",
             "meta_description"   => $config->site->default_description,
-            "meta_keywords"      => $config->site->default_keywords,
-            "permanent_redirect" => "",
-            "author_id"          => 0,
-            "author_name"        => "[module]",
-            "page_id"            => 0,
-            "parent_id"          => 0,
-            "page_is_module"     => "1",
+            "meta_keywords"      => $config->site->default_keywords
 
         );
 
@@ -840,20 +833,19 @@ abstract class view {
 
         }
 
-        $currentDateTime = date("Y-m-d H:i:s");
         $unchangedVariables = array(
 
             "page_alias"    => request::getURI(),
-            "last_modified" => $currentDateTime,
-            "creation_date" => $currentDateTime,
-            "layout"        => self::getCurrentLayout(),
+            "last_modified" => date("Y-m-d H:i:s"),
+            "layout"        => self::getCurrentLayout()
 
         );
 
-        foreach ($unchangedVariables as $key => $value) {
+        foreach ($unchangedVariables as $k => $value) {
 
-            if (self::$vars['page_is_module'] or !self::$vars[$key]) {
-                self::$vars[$key] = $value;
+            $exists = (array_key_exists($k, self::$vars) and self::$vars[$k]);
+            if ($exists) {
+                self::$vars[$k] = $value;
             }
 
         }

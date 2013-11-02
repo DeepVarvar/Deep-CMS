@@ -1,33 +1,34 @@
 <?php require $_config->layouts->header; ?>
 
 
-    <?php /*foreach (dataHelper::getBreadcrumbs($page_id, true) as $item) { ?>
-
-        <?php if (request::getURI() != "/") { ?>
-            &raquo; <a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a>
-        <?php } ?>
-
-    <?php }*/ ?>
-
-
     <h1><?=$page_h1?></h1>
     <div><?=$page_text?></div>
 
-    <?php /*foreach (dataHelper::getAttachedImages($page_id) as $image) { ?>
-        <a target="_blank" href="/upload/<?=$image?>"><img alt="" src="/upload/thumb_<?=$image?>" /></a>
-    <?php }*/ ?>
+    <p>&nbsp;</p>
 
-    <?php /*foreach (dataHelper::getDocumentFeatures($page_id) as $feature) { ?>
-        <h3><?=$feature['name']?>: <?=$feature['value']?></h3>
-    <?php }*/ ?>
+    <div><img alt="" src="/upload/middle_<?=$image?>" /></div>
+    <p>&nbsp;</p>
 
-    <ul>
+    <div>ID: <?=$id?></div>
+    <div>Parent ID: <?=$parent_id?></div>
+    <div>Level: <?=$lvl?></div>
+    <div>Page alias (URL link): <?=$page_alias?></div>
+    <p>&nbsp;</p>
 
-        <?php /*foreach (dataHelper::getDocumentChildren($page_id) as $item) { ?>
-            <li><a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a></li>
-        <?php }*/ ?>
+    <div>Node name: <?=$node_name?></div>
+    <div>Page title: <?=$page_title?></div>
+    <div>Page h1: <?=$page_h1?></div>
+    <div>Meta keywords: <?=$meta_keywords?></div>
+    <div>Meta description: <?=$meta_description?></div>
+    <p>&nbsp;</p>
 
-    </ul>
+    <div>Creation date: <?=$creation_date?></div>
+    <div>Author: <a href="/users?id=<?=$author_id?>"><?=$author_name?></a></div>
+    <p>&nbsp;</p>
+
+    <div>Last modified: <?=$last_modified?></div>
+    <div>Modifier: <a href="/users?id=<?=$modifier_id?>"><?=$modifier_name?></a></div>
+    <p>&nbsp;</p>
 
 
 <?php require $_config->layouts->footer; ?>

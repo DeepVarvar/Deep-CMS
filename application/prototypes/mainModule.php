@@ -17,11 +17,16 @@ class mainModule extends baseTreeNode {
         "lvl",
         "prototype",
         "creation_date",
-        "last_modified",
         "node_name",
 
         // individual
-        "page_alias"
+        "page_alias",
+
+        // SEO
+        "page_title",
+        "page_h1",
+        "meta_keywords",
+        "meta_description"
 
     );
 
