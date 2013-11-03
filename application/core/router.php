@@ -125,46 +125,62 @@ abstract class router {
 
         }
 
-        if (!$loadedPage) {
 
-            throw new memberErrorException(
-                404, view::$language->error
-                . " 404", view::$language->page_not_found
+        if (self::isAdmin()) {
+
+
+            $pageIsModule = true;
+            $loadedPage   = array(
+                "id" => 0, "prototype" => "mainModule"
             );
 
-        }
+
+        } else {
 
 
-        /**
-         * get correctly page type from result
-         */
+            if (!$loadedPage) {
 
-        $pageIsModule = false;
-        if ($module) {
-
-            if (sizeof($loadedPage) > 1) {
-
-                foreach ($loadedPage as $k => $item) {
-                    if ($item['prototype'] == "mainModule") {
-                        $pageIsModule = true;
-                        break;
-                    }
-                }
-
-                $loadedPage = $pageIsModule
-                    ? $loadedPage[$k] : array_pop($loadedPage);
-
-            } else {
-
-                $loadedPage = $loadedPage[0];
-                if ($loadedPage['prototype'] == "mainModule") {
-                    $pageIsModule = true;
-                }
+                throw new memberErrorException(
+                    404, view::$language->error
+                    . " 404", view::$language->page_not_found
+                );
 
             }
 
-        } else {
-            $loadedPage = $loadedPage[0];
+
+            /**
+             * get correctly page type from result
+             */
+
+            $pageIsModule = false;
+            if ($module) {
+
+                if (sizeof($loadedPage) > 1) {
+
+                    foreach ($loadedPage as $k => $item) {
+                        if ($item['prototype'] == "mainModule") {
+                            $pageIsModule = true;
+                            break;
+                        }
+                    }
+
+                    $loadedPage = $pageIsModule
+                        ? $loadedPage[$k] : array_pop($loadedPage);
+
+                } else {
+
+                    $loadedPage = $loadedPage[0];
+                    if ($loadedPage['prototype'] == "mainModule") {
+                        $pageIsModule = true;
+                    }
+
+                }
+
+            } else {
+                $loadedPage = $loadedPage[0];
+            }
+
+
         }
 
 
@@ -174,10 +190,13 @@ abstract class router {
 
         if ($pageIsModule) {
 
-            self::loadPageData($loadedPage);
-            view::assign("page_is_module", 1);
+            if (!self::isAdmin()) {
+                self::loadPageData($loadedPage);
+            }
 
             $path = self::isAdmin() ? "" : $config->path->modules;
+            view::assign("page_is_module", 1);
+
             self::loadModule(
                 APPLICATION . $path . $module . "/", $module
             );

@@ -21,7 +21,7 @@
                     <a class="levelup" title=" <?=view::$language->document_tree_level_up?> " href="<?=$_config->site->admin_tools_link?>/documents/branch?id=<?=$node['parent_id']?>"></a>
                     <a class="name<?=$node['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/documents/edit?id=<?=$node['id']?>" title=" <?=view::$language->edit_now?> ">
                         <div class="blend"></div>
-                        <span><?=$node['page_name']?></span>
+                        <span><?=$node['node_name']?></span>
                     </a>
 
                 <?php } else { ?>
@@ -29,7 +29,7 @@
                     <a class="noexpandnode" name="noexpandnode"></a>
                     <a class="name" name="root">
                         <div class="blend"></div>
-                        <span><?=$node['page_name']?></span>
+                        <span><?=$node['node_name']?></span>
                     </a>
 
                 <?php } ?>
@@ -56,7 +56,7 @@
 
                             <a class="name<?=$c['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/documents/edit?id=<?=$c['id']?>" title=" <?=view::$language->edit_now?> ">
                                 <div class="blend"></div>
-                                <span><?=$c['page_name']?></span>
+                                <span><?=$c['node_name']?></span>
                             </a>
 
                             <?php if ($c['children'] > 0) { ?>

@@ -42,7 +42,7 @@ function getBranchTreeItem(item) {
     var iname = ' <a class="name' + isOff + '" href="'
             + editLink + '" title=" ' + language.edit_now
             + ' "> ' + blend + ' <span> '
-            + item.page_name + ' </span> ' + ' </a> ';
+            + item.node_name + ' </span> ' + ' </a> ';
 
 
     /**
@@ -130,7 +130,7 @@ function getBranchParentlistItem(item, doc_id) {
 
     var dName = ' <a class="name' + isOff + '"'
             + iName + iLink + iTitle + dataID + '>' + blend
-            + ' <span> ' + item.page_name + ' </span> ' + ' </a> ';
+            + ' <span> ' + item.node_name + ' </span> ' + ' </a> ';
 
 
     return ' <li> ' + expander + dName + ' </li> ';
