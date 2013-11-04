@@ -36,6 +36,10 @@ class simplePage extends baseTreeNode {
 
     );
 
+    public function getHumanityName() {
+        return view::$language->simple_page_prototype_name;
+    }
+
 
 }
 

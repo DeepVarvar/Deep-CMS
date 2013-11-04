@@ -31,6 +31,11 @@ class mainModule extends baseTreeNode {
     );
 
 
+    public function getHumanityName() {
+        return view::$language->main_module_prototype_name;
+    }
+
+
 }
 
 

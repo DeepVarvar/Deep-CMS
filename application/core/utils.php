@@ -98,15 +98,45 @@ abstract class utils {
 
 
     /**
-     * return all available prototypes
+     * return options array
      */
 
-    public static function getAvailablePrototypes() {
+    public static function makeOptionsArray($inputArr, $value = null) {
 
-        return db::cachedQuery("
-            SELECT id, sys_name, name
-            FROM prototypes ORDER BY id ASC
-        ");
+        $options = array();
+        foreach ($inputArr as $item) {
+
+            $option = array("value" => $item, "description" => $item);
+            if ($value == $item) {
+                $option['selected'] = true;
+            }
+
+            array_push($options, $option);
+
+        }
+
+        return $options;
+
+    }
+
+
+    /**
+     * get default field element array
+     */
+
+    public static function getDefaultField($value) {
+
+        return array(
+
+            "sort"        => 0,
+            "required"    => false,
+            "editor"      => 0,
+            "description" => "Unnamed text field",
+            "type"        => "text",
+            "selector"    => "f" . md5(mt_rand() . microtime(true)),
+            "value"       => $value
+
+        );
 
     }
 
@@ -145,6 +175,30 @@ abstract class utils {
         return $layouts;
 
 
+    }
+
+
+    /**
+     * return array list of available
+     * frequency values for sitemap (SEO)
+     */
+
+    public static function getAvailableChangeFreq() {
+        return array(
+            "---","never","yearly","monthly","weekly","daily","hourly","always"
+        );
+    }
+
+
+    /**
+     * return array list of available
+     * priority range values for sitemap (SEO)
+     */
+
+    public static function getAvailableSearchPriority() {
+        return array(
+            "---","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"
+        );
     }
 
 

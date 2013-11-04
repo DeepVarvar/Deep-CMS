@@ -233,9 +233,9 @@ abstract class view {
         $languageDir = APPLICATION . "{$config->path->languages}{$name}";
         $cachedLang  = APPLICATION . "{$config->path->cache}{$name}_lang";
 
-        if (file_exists($cachedLang)) {
+        /*if (file_exists($cachedLang)) {
             self::$language = unserialize(file_get_contents($cachedLang));
-        } else if ($name != self::$currentLanguageName and is_dir($languageDir)) {
+        } else*/ if ($name != self::$currentLanguageName and is_dir($languageDir)) {
 
             foreach (utils::glob($languageDir . "/*.php") as $lang) {
 
@@ -249,7 +249,7 @@ abstract class view {
             self::$currentLanguageName = $name;
             self::$language = (object) self::$language;
 
-            file_put_contents($cachedLang, serialize(self::$language), LOCK_EX);
+            //file_put_contents($cachedLang, serialize(self::$language), LOCK_EX);
 
 
         }

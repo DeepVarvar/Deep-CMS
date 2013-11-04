@@ -39,40 +39,17 @@ class documents extends baseController {
 
 
         /**
-         * available change frequency values for sitemap (SEO)
+         * available prototypes array
          */
 
-        $availableChangefreq = array(
-
-            "---",
-            "never",
-            "yearly",
-            "monthly",
-            "weekly",
-            "daily",
-            "hourly",
-            "always"
-
-        ),
-
+        $availableProtoTypes = null,
 
 
         /**
-         *  available priority range values for sitemap (SEO)
+         * default selected prototype
          */
 
-        $searchPriorityRange = array(
-            "---", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"
-        );
-
-
-    /**
-     * override run before action
-     */
-
-    public function runBefore() {
-        $this->root['node_name'] = view::$language->root_of_site;
-    }
+        $defaultProtoType = "simplePage";
 
 
     /**
@@ -156,7 +133,12 @@ class documents extends baseController {
 
 
             if (!validate::isNumber($newTarget)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->data_invalid_format
+                );
+
             }
 
             $target = $newTarget;
@@ -194,42 +176,49 @@ class documents extends baseController {
 
 
     /**
-     * view create new document form
+     * view create new node form
      */
 
     public function create() {
 
 
         /**
-         * get parent ID
+         * get parent ID and prototype name
          */
 
         $parentID = request::shiftParam("parent");
         if (!validate::isNumber($parentID)) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+        $protoName = request::shiftParam("prototype");
+        if ($protoName === null) {
+            $protoName = $this->defaultProtoType;
         }
 
 
         /**
-         * save new document, THROW inside, not working more
+         * save new node, THROW inside, not working more
          */
 
         if (request::getPostParam("save") !== null) {
-            $this->saveNewDocument();
+            $this->saveNewNode();
         }
 
 
         /**
-         * view new document form,
+         * view new node form,
          * assign data into view
          */
 
-        //$newDocument = $this->getNewDocumentProperties($parentID);
-        //$this->assignDocumentPropertiesIntoView($newDocument);
-
+        $this->assignNewNodeIntoView($parentID, $protoName);
+        $this->setProtectedLayout("document-new.html");
 
         view::assign("node_name", view::$language->document_create_new);
-        $this->setProtectedLayout("document-new.html");
 
 
     }
@@ -246,7 +235,10 @@ class documents extends baseController {
 
 
         if ($target == 0) {
+
             $node = $this->root;
+            $node['node_name'] = view::$language->root_of_site;
+
         } else {
 
 
@@ -254,7 +246,7 @@ class documents extends baseController {
 
                 SELECT
 
-                    ('document') type,
+                    ('node') type,
                     d.is_publish,
                     d.id,
                     d.parent_id,
@@ -284,8 +276,14 @@ class documents extends baseController {
          */
 
         if (!$node) {
+
             storage::remove("__branchParent");
-            throw new memberErrorException(view::$language->error, view::$language->branch_documents_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->branch_documents_not_found
+            );
+
         }
 
 
@@ -306,7 +304,7 @@ class documents extends baseController {
 
             SELECT
 
-                ('document') type,
+                ('node') type,
                 c.is_publish,
                 c.id,
                 c.parent_id,
@@ -327,6 +325,345 @@ class documents extends baseController {
 
         );
 
+
+    }
+
+
+    /**
+     * chech for exists and available prototype,
+     * return ptototype object
+     */
+
+    private function getProtoType($protoName) {
+
+
+        $protoName = $protoName !== null
+            ? $protoName : $this->defaultProtoType;
+
+        if (!preg_match("/^[a-z]+$/i", $protoName)) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+        if ($this->availableProtoTypes === null) {
+            $this->getAvailableProtoTypes();
+        }
+
+        if (!array_key_exists($protoName, $this->availableProtoTypes)) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->prototype_not_found
+            );
+
+        }
+
+        return $this->availableProtoTypes[$protoName];
+
+
+    }
+
+
+    /**
+     * build/rebuild main prototypes array
+     */
+
+    private function getAvailableProtoTypes() {
+
+
+        $this->availableProtoTypes = array();
+        $path = APPLICATION . "prototypes/*.php";
+
+        foreach (utils::glob($path) as $item) {
+
+            $protoName = basename($item, ".php");
+            if (preg_match("/ProtoModel$/", $protoName)) {
+                continue;
+            }
+
+            $this->availableProtoTypes[$protoName] = new $protoName;
+
+        }
+
+
+    }
+
+
+    /**
+     * return array list of prototypes
+     */
+
+    private function getProtoTypesList($current) {
+
+
+        if ($this->availableProtoTypes === null) {
+            $this->getAvailableProtoTypes();
+        }
+
+        if (!$this->availableProtoTypes) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->prototypes_not_available
+            );
+
+        }
+
+
+        $prototypes = array(
+            array("value" => "---", "description" => "---")
+        );
+
+        foreach ($this->availableProtoTypes as $k => $item) {
+
+
+            $prototype = array(
+                "value" => $k, "description" => $item->getHumanityName()
+            );
+
+            if ($current == $k) {
+                $prototype['selected'] = true;
+            }
+
+            array_push($prototypes, $prototype);
+
+
+        }
+
+        return $prototypes;
+
+
+    }
+
+
+    /**
+     * check and prepare new node properties
+     */
+
+    private function assignNewNodeIntoView($parentID, $protoName) {
+
+
+        /**
+         * set defaults
+         */
+
+        $parentNode = array();
+        $newNode = array(
+
+            "id"                 => "new",
+            "parent_id"          => $parentID,
+            "prototype"          => $protoName,
+            "children_prototype" => $this->defaultProtoType,
+            "is_publish"         => 1,
+            "node_name"          => "",
+            "parent_alias"       => "/"
+
+        );
+
+
+        /**
+         * set different values
+         */
+
+        if ($parentID == 0) {
+
+            $newNode['parent_name']  = view::$language->root_of_site;
+
+        } else {
+
+
+            /**
+             * get exists parent
+             */
+
+            $parentNode = db::normalizeQuery(
+
+                "SELECT node_name, prototype,
+                    children_prototype cpt, page_alias
+                        FROM documents WHERE id = %u", $newNode['parent_id']
+
+            );
+
+            if (!$parentNode) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->document_parent_not_found
+                );
+
+            }
+
+            $newNode['prototype']          = $parentNode['cpt'];
+            $newNode['children_prototype'] = $parentNode['cpt'];
+            $newNode['parent_name']        = $parentNode['node_name'];
+
+
+            /**
+             * get parent alias
+             */
+
+            $parentProto  = $this->getProtoType($parentNode['prototype']);
+            $parentFields = $parentProto->getPublicFields();
+
+            if (in_array("page_alias", $parentFields, true)) {
+
+                $newNode['parent_alias'] = rawurldecode(
+                    $parentNode['page_alias']
+                );
+
+            }
+
+
+        }
+
+
+        /**
+         * join new node prototype properties,
+         * join required node properties,
+         * assign data into view
+         */
+
+        $this->buildNodeProperties($newNode);
+        $this->joinRequiredNodeProperties($newNode);
+
+        dump($newNode);
+
+        view::assign("node", $newNode);
+
+
+    }
+
+
+    /**
+     * get node prototype model
+     */
+
+    private function getNodeProtoModel($protoName) {
+
+        $protoModel = $protoName . "ProtoModel";
+        return (new $protoModel);
+
+    }
+
+
+    /**
+     * build default node properties
+     */
+
+    private function getNodeProps($nodeProps) {
+
+
+        $mainProperties = array();
+        $fieldedProperties = array(
+            "parent_id",
+            "node_name",
+            "prototype",
+            "children_prototype",
+            "is_publish"
+        );
+
+        foreach ($fieldedProperties as $iterator => $k) {
+
+            $mainProperties[$k] = utils::getDefaultField($nodeProps[$k]);
+            $mainProperties[$k]['required'] = true;
+            $mainProperties[$k]['sort'] = $iterator;
+
+        }
+
+
+        /**
+         * parent_id field values
+         */
+
+        $mainProperties['parent_id']['type'] = "hidden";
+        unset($mainProperties['parent_id']['description']);
+        unset($mainProperties['parent_id']['editor']);
+
+
+        /**
+         * node_name field values
+         */
+
+        $mainProperties['node_name']['description']
+            = view::$language->document_name;
+
+
+        /**
+         * prototype field values
+         */
+
+        $mainProperties['prototype']['type'] = "select";
+        $mainProperties['prototype']['description']
+            = view::$language->document_type;
+
+        $mainProperties['prototype']['value'] = $this->getProtoTypesList(
+            $mainProperties['prototype']['value']
+        );
+
+
+        /**
+         * children_prototype field values
+         */
+
+        $chpt = "children_prototype";
+        $mainProperties[$chpt]['type'] = "select";
+        $mainProperties[$chpt]['description']
+            = view::$language->document_type_of_children;
+
+        $mainProperties[$chpt]['value'] = $this->getProtoTypesList(
+            $mainProperties[$chpt]['value']
+        );
+
+
+        /**
+         * is_publish field values
+         */
+
+        $mainProperties['is_publish']['required'] = false;
+        $mainProperties['is_publish']['type'] = "checkbox";
+        $mainProperties['is_publish']['description']
+            = view::$language->publish;
+
+
+        /**
+         * return all builded main properties
+         */
+
+        return $mainProperties;
+
+
+    }
+
+
+    /**
+     * build all node properties
+     */
+
+    private function buildNodeProperties( & $node, $nodeID = null) {
+
+        $protoModel = $this->getNodeProtoModel($node['prototype']);
+        $node = array_merge(
+            $this->getNodeProps($node), $protoModel->getProperties($nodeID)
+        );
+
+    }
+
+
+    /**
+     * join required properties of node
+     */
+
+    private function joinRequiredNodeProperties( & $node) {
+
+        $node['prototypes'] = $this->getProtoTypesList(
+            $node['prototype']
+        );
+
+        $node['children_prototypes'] = $this->getProtoTypesList(
+            $node['children_prototype']
+        );
 
     }
 

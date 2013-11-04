@@ -10,6 +10,10 @@ class baseTreeNode {
         return $this->publicFields;
     }
 
+    public function getHumanityName() {
+        return "Unnamed node type";
+    }
+
 }
 
 
