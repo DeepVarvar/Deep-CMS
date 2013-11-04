@@ -4,7 +4,7 @@
     <h1><?=$page_title?></h1>
 
 
-    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/documents/edit?id=<?=$node['id']?>" method="post">
+    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/documents/edit?id=<?=$node['id']['value']?>" method="post">
         <div class="form">
 
             <div class="label mt-20">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
@@ -12,6 +12,7 @@
                 <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
                 <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
             </div>
+
 
             <div id="showpagename" class="longblock mt-20 c"></div>
 
@@ -49,12 +50,12 @@
 
             <div class="label mt-20"><?=view::$language->images_attached?>:</div>
             <div class="elem mt-20">
-                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']?>"><?=view::$language->show_it?></a>
+                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
 
             <div class="label"><?=view::$language->document_features?>:</div>
             <div class="elem">
-                <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$node['id']?>"><?=view::$language->show_it?></a>
+                <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
 
 

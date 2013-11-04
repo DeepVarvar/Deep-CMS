@@ -274,6 +274,25 @@ class documents extends baseController {
 
 
     /**
+     * save new node data
+     */
+
+    public function saveNewNode() {
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/documents/create\?parent=\d+", true
+        );
+
+
+    }
+
+
+    /**
      * MORE DOWN ONLY PRIVATE FUNCTIONS
      *
      *

@@ -117,7 +117,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function page_textGetData( & $f) {
 
-        $f['top']         = 10;
+        $f['top']         = 20;
         $f['node_id']     = ($this->nodeID?$this->nodeID:"new");
         $f['type']        = "textarea";
         $f['editor']      = true;
