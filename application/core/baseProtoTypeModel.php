@@ -76,8 +76,41 @@ class baseProtoTypeModel {
     }
 
 
-    public function getPropKeys() {
-        return array_keys($this->returnedFields);
+    public function getPreparedProperties() {
+
+
+        $preparedProperties = array();
+        $mainProperties = array_keys($this->returnedFields);
+
+        foreach ($mainProperties as $key) {
+
+            $setter = $key . "Prepare";
+            $preparedProperties[$key] = request::getPostParam($key);
+
+            if (method_exists($this, $setter)) {
+                $this->{$setter}($preparedProperties[$key]);
+            } else {
+
+                if ($preparedProperties[$key] === null) {
+
+                    throw new memberErrorException(
+                        view::$language->error,
+                        view::$language->data_not_enough
+                    );
+
+                }
+
+                $preparedProperties[$key] = filter::input(
+                    $preparedProperties[$key])->stripTags()->getData();
+
+            }
+
+        }
+
+
+        return $preparedProperties;
+
+
     }
 
 

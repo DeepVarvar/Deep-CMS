@@ -27,7 +27,7 @@
 
                     <div class="inputbox" title=" <?=$checkbox['description']?> ">
                         <div class="blend"></div>
-                        <input type="checkbox" name="<?=$checkbox['name']?>"<?=$checkbox['checked']?' checked="checked"':''?> /> - <?=$checkbox['description']?>
+                        <input type="checkbox" name="<?=$checkbox['name']?>"<?=(isset($checkbox['checked']) && $checkbox['checked'])?' checked="checked"':''?> /> - <?=$checkbox['description']?>
                     </div>
 
                 <?php } ?>

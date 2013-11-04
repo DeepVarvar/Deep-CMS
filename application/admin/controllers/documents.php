@@ -274,55 +274,6 @@ class documents extends baseController {
 
 
     /**
-     * save new node data
-     */
-
-    public function saveNewNode() {
-
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/documents/create\?parent=\d+", true
-        );
-
-
-        /**
-         * get and check filtered data of new node
-         */
-
-        $newNode = $this->getFilteredRequiredInputData();
-
-
-        dump(__FILE__ . ":" . __LINE__);
-
-
-        /**
-         * get nested set keys for new inserted node
-         * check for exists parent
-         */
-
-        $nestedSetKeys = db::normalizeQuery(
-            "SELECT lk, lvl FROM documents WHERE id = %u",
-            $newDocument['parent_id']
-        );
-
-        if (!$nestedSetKeys) {
-
-            $nestedSetKeys['lvl'] = 0;
-            $nestedSetKeys['lk']  = db::normalizeQuery(
-                "SELECT MAX(rk) rk FROM documents"
-            );
-
-        }
-
-
-    }
-
-
-    /**
      * MORE DOWN ONLY PRIVATE FUNCTIONS
      *
      *
@@ -939,46 +890,17 @@ class documents extends baseController {
          * required properties
          */
 
-        $autoParams = array(
-
-            "id",
-            "lvl",
-            "lk",
-            "rk",
-            "author",
-            "modified_author",
-            "creation_date",
-            "last_modified",
-            "is_publish"
-
-        );
-
         $requiredParams = array(
             "parent_id", "prototype", "children_prototype", "node_name"
         );
 
 
         /**
-         * dynamic properties
+         * fragmentation form data?
          */
 
-        $mainProtoName = (string) request::getPostParam("prototype");
-        $this->getPrototype($mainProtoName);
-
-        $mainProtoModelName = $mainProtoName . "ProtoModel";
-        $mainProtoModel = new $mainProtoModelName;
-        $mainParams = $mainProtoModel->getPropKeys();
-
-
-        dump($autoParams, $requiredParams, $mainParams);
-
-
-        /**
-         * fragmentation form data
-         */
-
-        $inputData = request::getRequiredPostParams($requiredParams);
-        if ($inputData === null) {
+        $requiredData = request::getRequiredPostParams($requiredParams);
+        if ($requiredData === null) {
 
             throw new memberErrorException(
                 view::$language->error, view::$language->data_not_enough
@@ -991,20 +913,41 @@ class documents extends baseController {
          * validate parent ID
          */
 
-        if (!validate::isNumber($inputData['parent_id'])) {
+        if (!validate::isNumber($requiredData['parent_id'])) {
 
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid_format
             );
 
         }
+
+
+        /**
+         * validate node prototype
+         */
+
+        $requiredData['prototype']
+            = (string) $requiredData['prototype'];
+
+        if (!$requiredData['prototype']) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+        $this->getPrototype($requiredData['prototype']);
 
 
         /**
          * validate node children prototype
          */
 
-        if (!validate::likeString($inputData['children_prototype'])) {
+        $requiredData['children_prototype']
+            = (string) $requiredData['children_prototype'];
+
+        if (!$requiredData['children_prototype']) {
 
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid_format
@@ -1012,18 +955,18 @@ class documents extends baseController {
 
         }
 
-        // TODO - надо как-то не костыльно проверять наличие прототипа
-        $this->getPrototype($inputData['children_prototype']);
+        $this->getPrototype($requiredData['children_prototype']);
 
 
         /**
          * validate name of node
          */
 
-        $inputData['node_name'] = filter::input(
-            $inputData['node_name'])->textOnly()->getData();
+        $requiredData['node_name'] = filter::input(
+            $requiredData['node_name'])
+                ->stripTags()->typoGraph(true)->getData();
 
-        if (!$inputData['node_name']) {
+        if (!$requiredData['node_name']) {
 
             throw new memberErrorException(
                 view::$language->error,
@@ -1031,6 +974,242 @@ class documents extends baseController {
             );
 
         }
+
+
+        /**
+         * check for exists parent
+         */
+
+        if ($requiredData['parent_id'] > 0) {
+
+
+            /**
+             * check exists parent
+             */
+
+            $existsParent = db::normalizeQuery(
+
+                "SELECT (1) ex FROM documents
+                    WHERE id = %u", $requiredData['parent_id']
+
+            );
+
+            if (!$existsParent) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->document_parent_not_found
+                );
+
+            }
+
+
+        }
+
+
+        /**
+         * check for correct parent (1)
+         */
+
+        if ($nodeID !== null and $nodeID == $requiredData['parent_id']) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->document_cant_itself_parent
+            );
+
+        }
+
+
+        /**
+         * check for exists and valid node,
+         * check for correct parent (2)
+         */
+
+        if ($nodeID) {
+
+
+            /**
+             * node is exists?
+             */
+
+            $currentKeys = db::normalizeQuery(
+
+                "SELECT lk, rk FROM documents
+                    WHERE id = %u", $nodeID
+
+            );
+
+            if (!$currentKeys) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->document_cant_itchild_parent
+                );
+
+            }
+
+
+            /**
+             * children is parent?
+             */
+
+            $isBrokenParent = db::query(
+
+                "SELECT (1) ex FROM documents
+                    WHERE lk > %u AND rk < %u LIMIT 1",
+                        $currentKeys['lk'], $currentKeys['rk']
+
+            );
+
+            if ($isBrokenParent) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->document_cant_itchild_parent
+                );
+
+            }
+
+
+        }
+
+
+        /**
+         * add is_publish property
+         */
+
+        $requiredData['is_publish']
+            = request::getPostParam("is_publish") ? 1 : 0;
+
+
+        /**
+         * get main prototype model,
+         * get main properties
+         */
+
+        $mainProtoModelName = $requiredData['prototype'] . "ProtoModel";
+        $mainProtoModel = new $mainProtoModelName;
+
+        $requiredData = array_merge(
+            $requiredData, $mainProtoModel->getPreparedProperties()
+        );
+
+        return $requiredData;
+
+
+    }
+
+
+    /**
+     * save new node data
+     */
+
+    private function saveNewNode() {
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/documents/create\?parent=\d+", true
+        );
+
+
+        /**
+         * get and check filtered data of new node
+         */
+
+        $newNode = $this->getFilteredRequiredInputData();
+
+
+        /**
+         * get nested set keys for new inserted node
+         * check for exists parent
+         */
+
+        $nestedSetKeys = db::normalizeQuery(
+            "SELECT lk, lvl FROM documents WHERE id = %u",
+            $newNode['parent_id']
+        );
+
+        if (!$nestedSetKeys) {
+
+            $nestedSetKeys['lvl'] = 0;
+            $nestedSetKeys['lk']  = db::normalizeQuery(
+                "SELECT MAX(rk) rk FROM documents"
+            );
+
+        }
+
+
+        /**
+         * set auto properties for new node
+         */
+
+        $newNode['lvl'] = $nestedSetKeys['lvl'] + 1;
+        $newNode['lk']  = $nestedSetKeys['lk']  + 1;
+        $newNode['rk']  = $nestedSetKeys['lk']  + 2;
+
+        $newNode['modified_author']
+            = $newNode['author'] = member::getID();
+
+        $newNode['last_modified']
+            = $newNode['creation_date'] = db::normalizeQuery("SELECT NOW()");
+
+
+        /**
+         * build inserted query string
+         */
+
+        $insertQuery = "INSERT INTO documents ("
+            . join(",", array_keys($newNode)) . ") VALUES (";
+
+        $insertedValues = array();
+        foreach ($newNode as $item) {
+
+            if ($item != "NULL" and !validate::isNumber($item)) {
+                $item = "'" . db::escapeString($item) . "'";
+            }
+
+            array_push($insertedValues, $item);
+
+        }
+
+        $insertQuery .= join(",", $insertedValues) . ")";
+
+
+        /**
+         * update nested set keys before insert new node
+         */
+
+        db::set(
+            "UPDATE documents SET lk = lk + 2 WHERE lk > %u",
+            $nestedSetKeys['lk']
+        );
+
+        db::set(
+            "UPDATE documents SET rk = rk + 2 WHERE rk > %u",
+            $nestedSetKeys['lk']
+        );
+
+
+        /**
+         * insert all static data into documents,
+         * get last insert ID for other transactions
+         */
+
+        db::set($insertQuery);
+
+
+        /**
+         * get last insert ID of NEW DOCUMENT,
+         * save menu items
+         */
+
+        $newNode['id'] = db::lastID();
+        //$this->saveMenuItems($newNode['id']);
 
 
     }

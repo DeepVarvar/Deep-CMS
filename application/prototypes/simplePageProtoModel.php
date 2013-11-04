@@ -27,6 +27,10 @@ class simplePageProtoModel extends baseProtoTypeModel {
     );
 
 
+    /**
+     * data getters
+     */
+
     protected function in_sitemapGetData( & $f) {
 
         $f['description'] = view::$language->simple_page_in_sitemap;
@@ -123,6 +127,111 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $f['editor']      = true;
         $f['description'] = view::$language->simple_page_page_text;
 
+    }
+
+
+    /**
+     * data preparation
+     */
+
+    protected function in_sitemapPrepare( & $data) {
+        $data = !$data ? 0 : 1;
+    }
+
+    protected function page_aliasPrepare( & $data) {
+
+        $data = (string) $data;
+        if (!$data) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->simple_page_page_alias_invalid
+            );
+
+        }
+
+        $data = utils::normalizeInputUrl(
+            $data, view::$language->simple_page_page_alias_invalid
+        );
+
+    }
+
+    protected function permanent_redirectPrepare( & $data) {
+
+        $data = (string) $data;
+        if ($data) {
+
+            $data = utils::normalizeInputUrl(
+                $data, view::$language->permanent_redirect_invalid
+            );
+
+        }
+
+    }
+
+    protected function layoutPrepare( & $data) {
+
+        $data = (string) $data;
+        if (!in_array($data, utils::getAvailablePublicLayouts())) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->layout_not_found
+            );
+
+        }
+
+    }
+
+    protected function page_h1Prepare( & $data) {
+        $data = filter::input($data)->stripTags()->typoGraph(true)->getData();
+    }
+
+    protected function page_titlePrepare( & $data) {
+        $data = filter::input($data)->stripTags()->typoGraph(true)->getData();
+    }
+
+    protected function meta_keywordsPrepare( & $data) {
+        $data = filter::input($data)->stripTags()->typoGraph(true)->getData();
+    }
+
+    protected function meta_descriptionPrepare( & $data) {
+        $data = filter::input($data)->stripTags()->typoGraph(true)->getData();
+    }
+
+    protected function change_freqPrepare( & $data) {
+
+        $data = (string) $data;
+        if ($data == "---") {
+            $data = "NULL";
+        } else if (!in_array($data, utils::getAvailableChangeFreq(), true)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->cf_invalid_format
+            );
+
+        }
+
+    }
+
+    protected function search_priorityPrepare( & $data) {
+
+        $data = (string) $data;
+        if ($data == "---") {
+            $data = "NULL";
+        } else if (!in_array($data, utils::getAvailableChangeFreq(), true)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->sp_invalid_format
+            );
+
+        }
+
+    }
+
+    protected function page_textPrepare( & $data) {
+        $data = filter::input($data)->cleanRichText()->typoGraph()->getData();
     }
 
 

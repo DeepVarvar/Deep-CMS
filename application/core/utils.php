@@ -121,6 +121,77 @@ abstract class utils {
 
 
     /**
+     * normalize URL string
+     */
+
+    public static function normalizeInputUrl($url, $errorMessage) {
+
+
+        if ($url and $url != "/") {
+
+            $patterns = array("/['\"\\\]+/", "/[-\s]+/");
+            $replace  = array("", "-");
+            $url = substr(preg_replace($patterns, $replace, $url), 0, 255);
+
+            $domain = "(?P<domain>(?:(?:f|ht)tps?:\/\/[-a-z0-9]+(?:\.[-a-z0-9]+)*)?)";
+            $path   = "(?P<path>(?:[^\?]*)?)";
+            $params = "(?P<params>(?:\?[^=&]+=[^=&]+(?:&[^=&]+=[^=&]+)*)?)";
+            $hash   = "(?P<hash>(?:#.*)?)";
+
+            preg_match("/^{$domain}\/{$path}{$params}{$hash}$/s", $url, $m);
+
+            if (!$m) {
+
+                throw new memberErrorException(
+                    view::$language->error, $errorMessage
+                );
+
+            }
+
+            $cParts = array();
+            $sParts = trim(preg_replace("/\/+/", "/", $m['path']), "/");
+
+            foreach (explode("/", $sParts) as $part) {
+                array_push($cParts, rawurlencode($part));
+            }
+
+            $m['path'] = "/" . join("/" , $cParts);
+
+            $confDomain = app::config()->site->domain;
+            if ($m['domain'] and stristr($confDomain, $m['domain'])) {
+                $m['domain'] = "";
+            }
+
+            if ($m['params'] and $m['domain']) {
+
+                $cParts = array();
+                $sParts = trim(preg_replace("/&+/", "&", $m['params']), "&");
+
+                foreach (explode("&", $sParts) as $part) {
+                    array_push($cParts, rawurlencode($part));
+                }
+
+                $m['params'] = "?" . join("&" , $cParts);
+
+            } else {
+                $m['params'] = "";
+            }
+
+            if ($m['hash']) {
+                $m['hash'] = rawurlencode(trim($m['hash'], "#"));
+            }
+
+            $url = $m['domain'] . $m['path'] . $m['params'] . $m['hash'];
+
+        }
+
+        return $url;
+
+
+    }
+
+
+    /**
      * get default field element array
      */
 

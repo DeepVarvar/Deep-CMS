@@ -23,6 +23,12 @@ return array(
     "simple_page_meta_description"    =>  "Description",
     "simple_page_page_text"           =>  "Содержимое страницы",
 
+    "simple_page_page_alias_invalid"  =>  "Некорректно указан URL документа",
+    "permanent_redirect_invalid"      =>  "Некорректный URL для редиректа",
+    "cf_invalid_format"               =>  "Некорректно указана частота изменений документа",
+    "sp_invalid_format"               =>  "Некорректно указан приоритет для поисковиков",
+
+
 
 );
 
