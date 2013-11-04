@@ -14,34 +14,18 @@
 
             <div id="showpagename" class="longblock mt-20 c"></div>
 
-            <div class="label mt-20">Название пункта:</div>
-            <div class="elem mt-20">
-                <input class="selector required" type="text" name="key" value="value" />
-            </div>
 
-            <div class="label mt-20">Название пункта:</div>
-            <div class="elem mt-20">
-                <select class="selector required" name="change_freq">
-                    <?=htmlHelper::drawOptionList($change_freq)?>
-                </select>
-            </div>
-
-            <div class="label mt-20">Название пункта:</div>
-            <div class="elem mt-20">
-                <input class="selector required" type="checkbox" name="is_publish" checked="checked" />
-            </div>
+            <?=adminHelper::getForm($node)?>
 
 
-
-            <!-- IN MENU BEGIN -->
-            <div class="label mt-20"><?=view::$language->document_in_menu?>:</div>
-            <div class="elem mt-20">
+            <div class="label mt-30"><?=view::$language->document_in_menu?>:</div>
+            <div class="elem mt-30">
 
                 <?php foreach ($in_menu as $checkbox) { ?>
 
                     <div class="inputbox" title=" <?=$checkbox['description']?> ">
                         <div class="blend"></div>
-                        <input type="checkbox" name="<?=$checkbox['name']?>"<?=$checkbox['checked']?' checked="checked"':''?> /> - <?=$checkbox['description']?>
+                        <input type="checkbox" name="<?=$checkbox['name']?>"<?=(isset($checkbox['checked']) && $checkbox['checked'])?' checked="checked"':''?> /> - <?=$checkbox['description']?>
                     </div>
 
                 <?php } ?>
@@ -60,44 +44,17 @@
                 </div>
 
             <?php } ?>
-            <!-- IN MENU END -->
 
 
-
-            <!-- ATTACHES BEGIN -->
             <div class="label mt-20"><?=view::$language->images_attached?>:</div>
             <div class="elem mt-20">
-                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']?>"><?=view::$language->show_it?></a>
+                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
 
             <div class="label"><?=view::$language->document_features?>:</div>
             <div class="elem">
-                <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$node['id']?>"><?=view::$language->show_it?></a>
+                <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
-            <!-- ATTACHES END -->
-
-
-
-            <div class="label mt-10">Название пункта:</div>
-            <div class="elem mt-10">&nbsp;</div>
-            <div class="longblock">
-
-                <?=htmlHelper::drawElement($property['field'])?>
-
-                <script type="text/javascript">
-
-                    CKEDITOR.replace('<?=$property['field']['id']?>');
-                    fm.bind({
-                        targetObj  : CKEDITOR.instances["<?=$property['field']['id']?>"],
-                        targetName : "<?=$property['field']['id']?>",
-                        fmUrl      : "<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']?>",
-                        language   : "<?=$_member['language']?>"
-                    });
-
-                </script>
-
-            </div>
-
 
 
             <div class="label mt-20">&nbsp;</div>

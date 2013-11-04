@@ -9,18 +9,19 @@
 class simplePageProtoModel extends baseProtoTypeModel {
 
 
+    protected $nodeID = null;
     protected $returnedFields = array(
 
         "in_sitemap"         => 0,
-        "layout"             => "",
         "page_alias"         => "",
         "permanent_redirect" => "",
-        "change_freq"        => "",
-        "search_priority"    => "",
-        "page_title"         => "",
+        "layout"             => "",
         "page_h1"            => "",
+        "page_title"         => "",
         "meta_keywords"      => "",
         "meta_description"   => "",
+        "change_freq"        => "",
+        "search_priority"    => "",
         "page_text"          => ""
 
     );
@@ -35,6 +36,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function layoutGetData( & $f) {
 
+        $f['top']         = 20;
         $f['required']    = true;
         $f['type']        = "select";
         $f['description'] = view::$language->simple_page_layout;
@@ -46,6 +48,8 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function page_aliasGetData( & $f) {
 
+        $f['top']         = 20;
+        $f['selector']    = "pagealias";
         $f['required']    = true;
         $f['value']       = rawurldecode($f['value']);
         $f['type']        = "longtext";
@@ -63,6 +67,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function change_freqGetData( & $f) {
 
+        $f['top']         = 20;
         $f['type']        = "select";
         $f['description'] = view::$language->simple_page_change_freq;
         $f['value']       = utils::makeOptionsArray(
@@ -90,6 +95,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function page_h1GetData( & $f) {
 
+        $f['top']         = 20;
         $f['type']        = "longtext";
         $f['description'] = view::$language->simple_page_page_h1;
 
@@ -111,6 +117,8 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function page_textGetData( & $f) {
 
+        $f['top']         = 10;
+        $f['node_id']     = ($this->nodeID?$this->nodeID:"new");
         $f['type']        = "textarea";
         $f['editor']      = true;
         $f['description'] = view::$language->simple_page_page_text;

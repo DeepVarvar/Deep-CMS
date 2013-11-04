@@ -10,6 +10,7 @@
 class baseProtoTypeModel {
 
 
+    protected $nodeID = null;
     protected $returnedFields = array();
 
 
@@ -52,6 +53,7 @@ class baseProtoTypeModel {
     public function getProperties($nodeID) {
 
 
+        $this->nodeID = $nodeID;
         $nodeProps = $this->getValues($nodeID);
         $mainProperties = array();
         $iterator = 0;

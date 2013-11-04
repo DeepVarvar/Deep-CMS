@@ -439,6 +439,54 @@ class documents extends baseController {
 
 
     /**
+     * return array list of available menu
+     */
+
+    private function getAvailableMenuList($current = -1) {
+
+
+        $menuItems = array();
+        $menu = db::query("SELECT id,name FROM menu");
+
+        if ($current < 1) {
+            $inMenu = array();
+        } else {
+
+            $inMenu = db::query("
+                SELECT menu_id FROM menu_items
+                WHERE document_id = $current
+            ");
+
+        }
+
+        foreach ($menu as $item) {
+
+            $checked = false;
+            foreach ($inMenu as $exists) {
+
+                if ($exists['menu_id'] == $item['id']) {
+                    $checked = true;
+                    break;
+                }
+
+            }
+
+            $elem = array(
+                "name" => "menu[{$item['id']}]", "description" => $item['name']
+            );
+
+            if ($checked) $elem['checked'] = $checked;
+            array_push($menuItems, $elem);
+
+        }
+
+        return $menuItems;
+
+
+    }
+
+
+    /**
      * check and prepare new node properties
      */
 
@@ -528,8 +576,7 @@ class documents extends baseController {
         $this->buildNodeProperties($newNode);
         $this->joinRequiredNodeProperties($newNode);
 
-        dump($newNode);
-
+        view::assign("in_menu", $this->getAvailableMenuList());
         view::assign("node", $newNode);
 
 
@@ -557,7 +604,9 @@ class documents extends baseController {
 
         $mainProperties = array();
         $fieldedProperties = array(
+            "id",
             "parent_id",
+            "parent_alias",
             "node_name",
             "prototype",
             "children_prototype",
@@ -574,6 +623,16 @@ class documents extends baseController {
 
 
         /**
+         * id field values
+         */
+
+        $mainProperties['id']['type'] = "hidden";
+        $mainProperties['id']['selector'] = "documentid";
+        unset($mainProperties['id']['description']);
+        unset($mainProperties['id']['editor']);
+
+
+        /**
          * parent_id field values
          */
 
@@ -583,9 +642,22 @@ class documents extends baseController {
 
 
         /**
+         * parent_alias field values
+         */
+
+        $mainProperties['parent_alias']['type'] = "hidden";
+        $mainProperties['parent_alias']['selector'] = "parentalias";
+        unset($mainProperties['parent_alias']['description']);
+        unset($mainProperties['parent_alias']['editor']);
+
+
+        /**
          * node_name field values
          */
 
+        $mainProperties['node_name']['top']  = 20;
+        $mainProperties['node_name']['type'] = "longtext";
+        $mainProperties['node_name']['selector'] = "pagename";
         $mainProperties['node_name']['description']
             = view::$language->document_name;
 
@@ -594,6 +666,7 @@ class documents extends baseController {
          * prototype field values
          */
 
+        $mainProperties['prototype']['top']  = 20;
         $mainProperties['prototype']['type'] = "select";
         $mainProperties['prototype']['description']
             = view::$language->document_type;
@@ -621,6 +694,7 @@ class documents extends baseController {
          * is_publish field values
          */
 
+        $mainProperties['is_publish']['top']  = 20;
         $mainProperties['is_publish']['required'] = false;
         $mainProperties['is_publish']['type'] = "checkbox";
         $mainProperties['is_publish']['description']
@@ -643,10 +717,15 @@ class documents extends baseController {
 
     private function buildNodeProperties( & $node, $nodeID = null) {
 
+
         $protoModel = $this->getNodeProtoModel($node['prototype']);
         $node = array_merge(
             $this->getNodeProps($node), $protoModel->getProperties($nodeID)
         );
+
+        utils::loadSortArrays();
+        uasort($node, "sortArrays");
+
 
     }
 
@@ -657,13 +736,15 @@ class documents extends baseController {
 
     private function joinRequiredNodeProperties( & $node) {
 
-        $node['prototypes'] = $this->getProtoTypesList(
+        /*$node['prototypes'] = $this->getProtoTypesList(
             $node['prototype']
         );
 
         $node['children_prototypes'] = $this->getProtoTypesList(
             $node['children_prototype']
         );
+
+        array_multisort($node, SORT_ASC);*/
 
     }
 

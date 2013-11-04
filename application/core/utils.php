@@ -128,6 +128,7 @@ abstract class utils {
 
         return array(
 
+            "top"         => 0,
             "sort"        => 0,
             "required"    => false,
             "editor"      => 0,
@@ -565,6 +566,25 @@ abstract class utils {
     }
 
 
+    /**
+     * this function exists only for autoload call
+     * and compatible php version older than 5.2.3
+     */
+
+    public static function loadSortArrays() {}
+
+
+}
+
+
+/**
+ * sort arrays callback,
+ * use function because need compatible
+ * for php versions older than 5.2.3
+ */
+
+function sortArrays($a, $b) {
+    return $a['sort'] == $b['sort'] ? 0 : ($a['sort'] < $b['sort'] ? -1 : 1);
 }
 
 
