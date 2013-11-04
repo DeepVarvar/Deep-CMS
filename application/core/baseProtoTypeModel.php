@@ -76,6 +76,11 @@ class baseProtoTypeModel {
     }
 
 
+    public function getPropKeys() {
+        return array_keys($this->returnedFields);
+    }
+
+
 }
 
 

@@ -289,6 +289,36 @@ class documents extends baseController {
         );
 
 
+        /**
+         * get and check filtered data of new node
+         */
+
+        $newNode = $this->getFilteredRequiredInputData();
+
+
+        dump(__FILE__ . ":" . __LINE__);
+
+
+        /**
+         * get nested set keys for new inserted node
+         * check for exists parent
+         */
+
+        $nestedSetKeys = db::normalizeQuery(
+            "SELECT lk, lvl FROM documents WHERE id = %u",
+            $newDocument['parent_id']
+        );
+
+        if (!$nestedSetKeys) {
+
+            $nestedSetKeys['lvl'] = 0;
+            $nestedSetKeys['lk']  = db::normalizeQuery(
+                "SELECT MAX(rk) rk FROM documents"
+            );
+
+        }
+
+
     }
 
 
@@ -893,6 +923,114 @@ class documents extends baseController {
 
         utils::loadSortArrays();
         uasort($node, "sortArrays");
+
+
+    }
+
+
+    /**
+     * return filtered required input form data of saved node
+     */
+
+    private function getFilteredRequiredInputData($nodeID = null) {
+
+
+        /**
+         * required properties
+         */
+
+        $autoParams = array(
+
+            "id",
+            "lvl",
+            "lk",
+            "rk",
+            "author",
+            "modified_author",
+            "creation_date",
+            "last_modified",
+            "is_publish"
+
+        );
+
+        $requiredParams = array(
+            "parent_id", "prototype", "children_prototype", "node_name"
+        );
+
+
+        /**
+         * dynamic properties
+         */
+
+        $mainProtoName = (string) request::getPostParam("prototype");
+        $this->getPrototype($mainProtoName);
+
+        $mainProtoModelName = $mainProtoName . "ProtoModel";
+        $mainProtoModel = new $mainProtoModelName;
+        $mainParams = $mainProtoModel->getPropKeys();
+
+
+        dump($autoParams, $requiredParams, $mainParams);
+
+
+        /**
+         * fragmentation form data
+         */
+
+        $inputData = request::getRequiredPostParams($requiredParams);
+        if ($inputData === null) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_not_enough
+            );
+
+        }
+
+
+        /**
+         * validate parent ID
+         */
+
+        if (!validate::isNumber($inputData['parent_id'])) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+
+        /**
+         * validate node children prototype
+         */
+
+        if (!validate::likeString($inputData['children_prototype'])) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+        // TODO - надо как-то не костыльно проверять наличие прототипа
+        $this->getPrototype($inputData['children_prototype']);
+
+
+        /**
+         * validate name of node
+         */
+
+        $inputData['node_name'] = filter::input(
+            $inputData['node_name'])->textOnly()->getData();
+
+        if (!$inputData['node_name']) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->document_name_invalid_format
+            );
+
+        }
 
 
     }
