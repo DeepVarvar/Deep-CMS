@@ -225,6 +225,55 @@ class documents extends baseController {
 
 
     /**
+     * view edit node form
+     */
+
+    public function edit() {
+
+
+        /**
+         * get node ID and prototype name
+         */
+
+        $nodeID = request::shiftParam("id");
+        if (!validate::isNumber($nodeID)) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+        $protoName = request::shiftParam("prototype");
+        if ($protoName === null) {
+            $protoName = $this->defaultProtoType;
+        }
+
+
+        /**
+         * save new node, THROW inside, not working more
+         */
+
+        if (request::getPostParam("save") !== null) {
+            $this->saveEditedNode();
+        }
+
+
+        /**
+         * view edited node form,
+         * assign data into view
+         */
+
+        $this->assignEditedNodeIntoView($nodeID, $protoName);
+        $this->setProtectedLayout("document-edit.html");
+
+        view::assign("node_name", view::$language->document_edit_exists);
+
+
+    }
+
+
+    /**
      * MORE DOWN ONLY PRIVATE FUNCTIONS
      *
      *
@@ -487,7 +536,8 @@ class documents extends baseController {
 
 
     /**
-     * check and prepare new node properties
+     * check, prepare and assign
+     * into view new node properties
      */
 
     private function assignNewNodeIntoView($parentID, $protoName) {
@@ -568,16 +618,115 @@ class documents extends baseController {
 
 
         /**
-         * join new node prototype properties,
-         * join required node properties,
+         * build new node prototype properties,
          * assign data into view
          */
 
         $this->buildNodeProperties($newNode);
-        $this->joinRequiredNodeProperties($newNode);
 
         view::assign("in_menu", $this->getAvailableMenuList());
         view::assign("node", $newNode);
+
+
+    }
+
+
+    /**
+     * check, prepare and assign
+     * into view edited node properties
+     */
+
+    private function assignEditedNodeIntoView($nodeID, $protoName) {
+
+
+        /**
+         * get defaults
+         */
+
+        $editedNode = db::normalizeQuery("
+
+            SELECT
+
+                d.id,
+                d.parent_id,
+                d.prototype,
+                d.children_prototype,
+                d.is_publish,
+                d.node_name,
+                p.prototype parent_prototype,
+                p.page_alias parent_alias,
+                p.node_name parent_name
+
+            FROM documents d
+            LEFT JOIN documents p ON p.id = d.parent_id
+            WHERE d.id = %u
+
+            ",
+
+            $nodeID
+
+        );
+
+        if (!$editedNode) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->document_not_found
+            );
+
+        }
+
+
+        /**
+         * set different values
+         */
+
+        if ($editedNode['parent_id'] == 0) {
+
+            $editedNode['parent_alias'] = "/";
+            $editedNode['parent_name']  = view::$language->root_of_site;
+
+        } else {
+
+
+            /**
+             * get parent alias
+             */
+
+            if (!$editedNode['parent_prototype']) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->document_parent_not_found
+                );
+
+            }
+
+            $parentProto = $this->getProtoType(
+                $editedNode['parent_prototype']
+            );
+
+            $parentFields = $parentProto->getPublicFields();
+            if (in_array("page_alias", $parentFields, true)) {
+
+                $editedNode['parent_alias'] = rawurldecode(
+                    $editedNode['parent_alias']
+                );
+
+            }
+
+
+        }
+
+
+        /**
+         * build edited node prototype properties,
+         * assign data into view
+         */
+
+        $this->buildNodeProperties($editedNode, $nodeID);
+
+        view::assign("in_menu", $this->getAvailableMenuList($nodeID));
+        view::assign("node", $editedNode);
 
 
     }
@@ -726,25 +875,6 @@ class documents extends baseController {
         utils::loadSortArrays();
         uasort($node, "sortArrays");
 
-
-    }
-
-
-    /**
-     * join required properties of node
-     */
-
-    private function joinRequiredNodeProperties( & $node) {
-
-        /*$node['prototypes'] = $this->getProtoTypesList(
-            $node['prototype']
-        );
-
-        $node['children_prototypes'] = $this->getProtoTypesList(
-            $node['children_prototype']
-        );
-
-        array_multisort($node, SORT_ASC);*/
 
     }
 

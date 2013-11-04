@@ -4,7 +4,7 @@
     <h1><?=$page_title?></h1>
 
 
-    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/documents/create?parent=<?=$node['parent_id']?>" method="post">
+    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/documents/create?parent=<?=$node['parent_id']['value']?>" method="post">
         <div class="form">
 
             <div class="label mt-20">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
