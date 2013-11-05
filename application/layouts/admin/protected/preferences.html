@@ -41,14 +41,9 @@
             <div class="label mt-20"><?=view::$language->admin_tools_link?>:</div>
             <div class="elem mt-20"><input class="required" type="text" name="site[admin_tools_link]" value="<?=$_config->site->admin_tools_link?>" /></div>
 
-            <div class="label mt-20"><?=view::$language->priority_range_of_groups?>:</div>
-            <div class="elem mt-20">
-                <input class="required" type="text" name="system[max_group_priority_number]" value="<?=$_config->system->max_group_priority_number?>" />
-                <span class="info">(min 2 max 1000)</span>
-            </div>
             <div class="label"><?=view::$language->cookie_expires_time?> (<?=view::$language->sec?>):</div>
             <div class="elem">
-                <input class="required" type="text" name="system[cookie_expires_time]" value="<?=$_config->system->cookie_expires_time?>" />
+                <input class="short required" type="text" name="system[cookie_expires_time]" value="<?=$_config->system->cookie_expires_time?>" />
                 <span class="info">(min 300 max ~<?=(2147483646 - time())?>)</span>
             </div>
 

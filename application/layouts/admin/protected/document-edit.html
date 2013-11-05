@@ -20,7 +20,7 @@
             <?=adminHelper::getForm($node)?>
 
 
-            <div class="label mt-20"><?=view::$language->document_in_menu?>:</div>
+            <div class="label mt-20"><?=view::$language->show_in_menu?>:</div>
             <div class="elem mt-20">
 
                 <?php foreach ($in_menu as $checkbox) { ?>
@@ -53,7 +53,7 @@
                 <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
 
-            <div class="label"><?=view::$language->document_features?>:</div>
+            <div class="label"><?=view::$language->features?>:</div>
             <div class="elem">
                 <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>

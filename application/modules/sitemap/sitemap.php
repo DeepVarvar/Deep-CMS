@@ -23,7 +23,12 @@ class sitemap extends baseController {
         $layoutName = "sitemap.html";
 
         if (!utils::isExistsProtectedLayout($layoutName)) {
-            throw new memberErrorException("Sitemap error", "Dependency protected layout {$layoutName} is not exists");
+
+            throw new systemErrorException(
+                "Sitemap error",
+                    "Dependency protected layout {$layoutName} is not exists"
+            );
+
         }
 
 
@@ -35,15 +40,15 @@ class sitemap extends baseController {
 
             SELECT
 
-                d.id,
-                d.parent_id,
-                d.page_name,
-                d.page_alias
+                id,
+                parent_id,
+                node_name,
+                page_alias
 
-            FROM documents d
+            FROM documents
 
-            WHERE d.is_publish = 1 AND d.in_sitemap = 1
-            ORDER BY d.parent_id ASC, d.sort ASC, d.creation_date ASC
+            WHERE is_publish = 1 AND in_sitemap = 1
+            ORDER BY lk ASC
 
         ");
 
@@ -53,8 +58,8 @@ class sitemap extends baseController {
          * assign data into view
          */
 
-        view::assign("sitemap", helper::makeTreeArray($documents));
-        view::assign("page_name", view::$language->sitemap);
+        //view::assign("sitemap", helper::makeTreeArray($documents));
+        view::assign("node_name", view::$language->sitemap);
 
         $this->setProtectedLayout($layoutName);
 

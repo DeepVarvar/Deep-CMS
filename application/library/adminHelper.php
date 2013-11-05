@@ -31,7 +31,7 @@ abstract class adminHelper {
         return array(
 
             array(
-                "name" => "document_tree",
+                "name" => "documents_tree",
                 "link" => "/documents"
             ),
 

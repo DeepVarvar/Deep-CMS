@@ -366,7 +366,13 @@ abstract class router {
          */
 
         if (self::isDenyAction($action)) {
-            throw new systemErrorException("Execute action error", "Public action $action of controller $controller set is denied");
+
+            throw new systemErrorException(
+                "Execute action error",
+                    "Public action $action of controller "
+                        . "$controller set is denied"
+            );
+
         }
 
 
@@ -375,7 +381,12 @@ abstract class router {
          */
 
         if ($action == "index") {
-            throw new systemErrorException("Execute action error", "Action index of controller $controller is denied");
+
+            throw new systemErrorException(
+                "Execute action error",
+                    "Action index of controller $controller is denied"
+            );
+
         }
 
 
@@ -410,7 +421,12 @@ abstract class router {
      */
 
     private static function isDenyAction($action, $actionList = null) {
-        return in_array($action, is_array($actionList) ? $actionList : self::$deniedPublicActions);
+
+        $actionList = is_array($actionList)
+            ? $actionList : self::$deniedPublicActions;
+
+        return in_array($action, $actionList);
+
     }
 
 
@@ -455,7 +471,10 @@ abstract class router {
      */
 
     public static function shiftParam() {
-        return (self::$params) ? self::normalize(array_shift(self::$params)) : null;
+
+        return (self::$params)
+            ? self::normalize(array_shift(self::$params)) : null;
+
     }
 
 
@@ -464,7 +483,10 @@ abstract class router {
      */
 
     public static function shiftLastParam() {
-        return (self::$params) ? self::normalize(array_pop(self::$params)) : null;
+
+        return (self::$params)
+            ? self::normalize(array_pop(self::$params)) : null;
+
     }
 
 
@@ -473,7 +495,10 @@ abstract class router {
      */
 
     public static function getParam() {
-        return (self::$params) ? self::normalize(current(self::$params)) : null;
+
+        return (self::$params)
+            ? self::normalize(current(self::$params)) : null;
+
     }
 
 
@@ -483,7 +508,6 @@ abstract class router {
 
     public static function getLastParam() {
 
-
         if (!self::$params) {
             return null;
         }
@@ -491,7 +515,6 @@ abstract class router {
         $end = end(self::$params);
         reset(self::$params);
         return self::normalize($end);
-
 
     }
 
@@ -506,7 +529,9 @@ abstract class router {
             return null;
         }
 
-        $name = str_replace(array("_", "-", "."), array(md5(microtime(true)), "_", "_"), $name);
+        $name = str_replace(array("_", "-", "."),
+                    array(md5(microtime(true)), "_", "_"), $name);
+
         return $name;
 
     }

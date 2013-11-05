@@ -106,7 +106,6 @@ abstract class member {
                 self::cookieAuth();
             break;
 
-
         }
 
 
@@ -129,7 +128,6 @@ abstract class member {
 
         }
 
-
         return $attempt;
 
 
@@ -150,7 +148,7 @@ abstract class member {
 
         $login = filter::input((string) $_POST['login'])
             ->htmlSpecialChars()
-            ->getData();
+                ->getData();
 
         $password = helper::getHash((string) $_POST['password']);
 
@@ -232,26 +230,41 @@ abstract class member {
 
         }
 
-
         self::$profile['auth'] = true;
         self::$profile['hash'] = self::getMainHash();
 
         self::setPermissions();
-        storage::write("__member_cache", json_decode($data['working_cache'], true));
-
+        storage::write(
+            "__member_cache", json_decode($data['working_cache'], true)
+        );
 
         $c = app::config();
-
         if ($c->system->cookie_expires_time >= 2147483646) {
-            throw new systemErrorException(view::$language->error, view::$language->cookie_expires_is_too_long);
+
+            throw new systemErrorException(
+                view::$language->error,
+                    view::$language->cookie_expires_is_too_long
+            );
+
         }
 
         $featureTime = time() + $c->system->cookie_expires_time;
         if ($featureTime >= 2147483646) {
-            throw new systemErrorException(view::$language->error, view::$language->cookie_expires_is_too_long);
+
+            throw new systemErrorException(
+                view::$language->error,
+                    view::$language->cookie_expires_is_too_long
+            );
+
         }
 
-        setcookie("{$c->system->session_name}member", self::$profile['hash'], $featureTime, "/");
+        setcookie(
+
+            "{$c->system->session_name}member",
+                self::$profile['hash'],
+                    $featureTime, "/"
+
+        );
 
 
         /**
@@ -278,16 +291,13 @@ abstract class member {
 
     private static function getMainHash() {
 
-
         $p = self::$profile;
-
         return helper::getHash(
 
             $p['id'] . $p['login'] . $p['password'] .
             $p['group_id'] . $p['group_priority'] . $p['email']
 
         );
-
 
     }
 
@@ -298,10 +308,7 @@ abstract class member {
 
     private static function setPermissions() {
 
-
         if (self::$profile['group_id'] !== null) {
-
-
             self::$permissions = db::query("
 
                 SELECT
@@ -317,10 +324,7 @@ abstract class member {
                 self::$profile['group_id']
 
             );
-
-
         }
-
 
     }
 
@@ -361,7 +365,10 @@ abstract class member {
 
             ",
 
-            htmlspecialchars((string) $_COOKIE[app::config()->system->session_name . "member"])
+            htmlspecialchars(
+                (string) $_COOKIE[app::config()
+                    ->system->session_name . "member"]
+            )
 
         );
 
@@ -408,7 +415,6 @@ abstract class member {
 
         if (self::$profile['auth']) {
 
-
             db::set("
 
                 UPDATE users SET
@@ -427,7 +433,6 @@ abstract class member {
 
             );
 
-
         }
 
 
@@ -442,14 +447,17 @@ abstract class member {
 
 
         if (!validate::likeString($key)) {
-            throw new systemErrorException("Member error", "Storage data key is not string");
-        }
 
+            throw new systemErrorException(
+                "Member error",
+                    "Storage data key is not string"
+            );
+
+        }
 
         $cache = storage::read(self::$storageKey);
 
         return $cache
-
             ? ( array_key_exists($key, $cache) ? $cache[$key] : array() )
             : array();
 
@@ -465,12 +473,15 @@ abstract class member {
 
 
         if (!validate::likeString($key)) {
-            throw new systemErrorException("Member error", "Storage data key is not string");
+
+            throw new systemErrorException(
+                "Member error",
+                    "Storage data key is not string"
+            );
+
         }
 
-
         $cache = storage::read(self::$storageKey);
-
         if (!$cache) {
             $cache = array();
         }
@@ -487,7 +498,12 @@ abstract class member {
      */
 
     public static function logout() {
-        setcookie(app::config()->system->session_name . "member", "", -1, "/");
+
+        setcookie(
+            app::config()->system->session_name
+                . "member", "", -1, "/"
+        );
+
     }
 
 
@@ -559,7 +575,10 @@ abstract class member {
      */
 
     public static function getPriority() {
-        return self::$profile['group_priority'] !== null ? self::$profile['group_priority'] : 1001;
+
+        return self::$profile['group_priority'] !== null
+                ? self::$profile['group_priority'] : 1001;
+
     }
 
 

@@ -35,7 +35,7 @@ class baseProtoTypeModel {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_dyn_props_not_found
+                        view::$language->node_properties_not_found
                 );
 
             }
@@ -95,7 +95,7 @@ class baseProtoTypeModel {
 
                     throw new memberErrorException(
                         view::$language->error,
-                        view::$language->data_not_enough
+                            view::$language->data_not_enough
                     );
 
                 }
@@ -106,7 +106,6 @@ class baseProtoTypeModel {
             }
 
         }
-
 
         return $preparedProperties;
 

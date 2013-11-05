@@ -44,7 +44,12 @@ class search extends baseController {
         $layoutName = "simple-search.html";
 
         if (!utils::isExistsProtectedLayout($layoutName)) {
-            throw new memberErrorException("Simple search module error", "Dependency protected layout {$layoutName} is not exists");
+
+            throw new systemErrorException(
+                "Simple search module error",
+                    "Dependency protected layout {$layoutName} is not exists"
+            );
+
         }
 
 
@@ -70,14 +75,21 @@ class search extends baseController {
             }
         }
 
-        $searchParts = array_slice($searchParts, 0, $this->maxSearWordsLength);
+        $searchParts = array_slice(
+            $searchParts, 0, $this->maxSearWordsLength
+        );
+
         if ($searchParts) {
 
 
             $searchCondition = array(
 
-                "d.page_name LIKE '%%" . join("%%' OR d.page_name LIKE '%%", $searchParts) . "%%'",
-                "p.page_text LIKE '%%" . join("%%' OR p.page_text LIKE '%%", $searchParts) . "%%'"
+                "d.page_name LIKE '%%"
+                    . join("%%' OR d.page_name LIKE '%%", $searchParts) . "%%'",
+
+                "p.page_text LIKE '%%"
+                    . join("%%' OR p.page_text LIKE '%%", $searchParts) . "%%'"
+
             );
 
             $searchCondition = "(" . join(" OR ", $searchCondition) . ")";
@@ -113,8 +125,8 @@ class search extends baseController {
 
                 $paginator->setCurrentPage(request::getCurrentPage())
                     ->setItemsPerPage($this->itemsPerPage)
-                    ->setSliceSizeByPages($this->sliceSizeByPages)
-                    ->getResult();
+                        ->setSliceSizeByPages($this->sliceSizeByPages)
+                            ->getResult();
 
 
             $searchResult = $paginator['items'];
@@ -135,7 +147,7 @@ class search extends baseController {
         view::assign("search_result", $searchResult);
         view::assign("searchwords",   $searchwords);
 
-        view::assign("page_name", view::$language->simple_search_of_site);
+        view::assign("node_name", view::$language->search_of_site);
         $this->setProtectedLayout($layoutName);
 
 

@@ -35,61 +35,55 @@ abstract class utils {
 
 
         /**
-         * required directories and files for theme
+         * required directories and files for theme,
+         * each and check required directories and files for theme
          */
 
         $required = array(
 
-            "parts" => array(
-                "header.html",
-                "footer.html"
-            ),
-
-            "protected" => array(
-                "exception.html"
-            ),
-
-            "public" => array(
-                "page.html"
-            )
+            "parts"     => array("header.html", "footer.html"),
+            "protected" => array("exception.html"),
+            "public"    => array("page.html")
 
         );
 
-
-
-        /**
-         * each and check required directories and files for theme
-         */
-
         foreach ($required as $dir => $files) {
-
 
             $path = $theme . $dir;
             if (!file_exists($path)) {
-                throw new memberErrorException(view::$language->error, view::$language->required_directory_not_found . ": {$path}");
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->required_directory_not_found
+                            . ": {$path}"
+                );
+
             }
 
             if (!is_dir($path)) {
-                throw new memberErrorException(view::$language->error, view::$language->path_is_not_a_directory . ": {$path}");
-            }
 
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->path_is_not_a_directory
+                            . ": {$path}"
+                );
+
+            }
 
             foreach ($files as $name) {
 
-
                 $file = $path . "/" . $name;
-                if (!file_exists($file)) {
-                    throw new memberErrorException(view::$language->error,  view::$language->required_file_not_found . ": {$file}");
-                }
-
                 if (!is_file($file)) {
-                    throw new memberErrorException(view::$language->error, view::$language->path_is_not_a_file . ": {$file}");
+
+                    throw new memberErrorException(
+                        view::$language->error,
+                            view::$language->required_file_not_found
+                                . ": {$file}"
+                    );
+
                 }
-
-
 
             }
-
 
         }
 
@@ -133,7 +127,9 @@ abstract class utils {
             $replace  = array("", "-");
             $url = substr(preg_replace($patterns, $replace, $url), 0, 255);
 
-            $domain = "(?P<domain>(?:(?:f|ht)tps?:\/\/[-a-z0-9]+(?:\.[-a-z0-9]+)*)?)";
+            $domain = "(?P<domain>(?:(?:f|ht)tps?"
+                            . ":\/\/[-a-z0-9]+(?:\.[-a-z0-9]+)*)?)";
+
             $path   = "(?P<path>(?:[^\?]*)?)";
             $params = "(?P<params>(?:\?[^=&]+=[^=&]+(?:&[^=&]+=[^=&]+)*)?)";
             $hash   = "(?P<hash>(?:#.*)?)";
@@ -221,7 +217,8 @@ abstract class utils {
 
         $c = app::config();
         return file_exists(
-            APPLICATION . $c->layouts->themes . $c->site->theme . "/protected/" . $name
+            APPLICATION . $c->layouts->themes
+                . $c->site->theme . "/protected/" . $name
         );
 
     }
@@ -233,11 +230,12 @@ abstract class utils {
 
     public static function getAvailablePublicLayouts() {
 
-
         $c = app::config();
         $layouts = array();
 
-        $layoutsPath = $c->layouts->themes . $c->site->theme . "/" . $c->layouts->public;
+        $layoutsPath = $c->layouts->themes
+            . $c->site->theme . "/" . $c->layouts->public;
+
         $layoutsPath = APPLICATION . $layoutsPath . "*.html";
 
         foreach (self::glob($layoutsPath) as $item) {
@@ -245,7 +243,6 @@ abstract class utils {
         }
 
         return $layouts;
-
 
     }
 
@@ -286,13 +283,9 @@ abstract class utils {
 
         foreach (self::glob($themesPath) as $theme) {
 
-
             if (is_dir($theme)) {
 
-
                 self::validateTheme($theme . "/");
-
-
                 $name = basename($theme);
                 $option = array(
 
@@ -302,15 +295,11 @@ abstract class utils {
 
                 );
 
-
                 array_push($themes, $option);
-
 
             }
 
-
         }
-
 
         return $themes;
 
@@ -328,12 +317,17 @@ abstract class utils {
         $languages = array();
         $langPath = APPLICATION . app::config()->path->languages . "/*";
 
-        foreach (self::glob($langPath, GLOB_ONLYDIR | GLOB_NOSORT) as $language) {
-
+        $langGlobDir = self::glob($langPath, GLOB_ONLYDIR | GLOB_NOSORT);
+        foreach ($langGlobDir as $language) {
 
             $language = basename($language);
             if (!preg_match("/^[a-z-]+$/", $language)) {
-                throw new systemErrorException("Language error", "Unexpected name $name");
+
+                throw new systemErrorException(
+                    "Language error",
+                        "Unexpected name $name"
+                );
+
             }
 
             $option = array(
@@ -344,12 +338,9 @@ abstract class utils {
 
             );
 
-
             array_push($languages, $option);
 
-
         }
-
 
         return $languages;
 
@@ -361,29 +352,33 @@ abstract class utils {
      * check for exists and callable action
      */
 
-    public static function checkAllow($controller, & $action, & $argument = null) {
+    public static function checkAllow($c, & $action, & $argument = null) {
 
 
         /**
          * check for exists action
          */
 
-        if (!method_exists($controller, $action)) {
+        if (!method_exists($c, $action)) {
 
 
             /**
              * check for available overloading
              */
 
-            if (method_exists($controller, "__call")) {
+            if (method_exists($, "__call")) {
 
                 $argument = $action;
                 $action = "__call";
 
             } else {
-                throw new systemErrorException("Controller error", "Action $action of $controller controller not found");
-            }
 
+                throw new systemErrorException(
+                    "Controller error",
+                        "Action $action of $c controller not found"
+                );
+
+            }
 
         }
 
@@ -392,9 +387,14 @@ abstract class utils {
          * check for callable action
          */
 
-        $checkMethod = new ReflectionMethod($controller, $action);
+        $checkMethod = new ReflectionMethod($c, $action);
         if (!$checkMethod->isPublic()) {
-            throw new systemErrorException("Controller error", "Method $action of $controller controller is not public");
+
+            throw new systemErrorException(
+                "Controller error",
+                    "Method $action of $c controller is not public"
+            );
+
         }
 
 
@@ -407,16 +407,18 @@ abstract class utils {
 
     public static function globRecursive($path, $mask = "*") {
 
-
         $items = self::glob($path . $mask);
         $dirs = self::glob($path . "*", GLOB_ONLYDIR | GLOB_NOSORT);
 
         foreach ($dirs as $dir) {
-            $items = array_merge($items, self::globRecursive($dir . "/", $mask));
+
+            $items = array_merge(
+                $items, self::globRecursive($dir . "/", $mask)
+            );
+
         }
 
         return $items;
-
 
     }
 
@@ -437,9 +439,16 @@ abstract class utils {
          * get from admin module if need get all controllers
          */
 
-        $existsTargets = self::globRecursive(APPLICATION . app::config()->path->modules, "*.php");
-        $existsTargets = array_merge($existsTargets, self::globRecursive(APPLICATION . app::config()->path->admin, "*.php"));
+        $existsTargets = self::globRecursive(
+            APPLICATION . app::config()->path->modules, "*.php"
+        );
 
+        $existsTargets = array_merge(
+            $existsTargets,
+            self::globRecursive(
+                APPLICATION . app::config()->path->admin, "*.php"
+            )
+        );
 
         foreach ($existsTargets as $item) {
 
@@ -449,7 +458,6 @@ abstract class utils {
 
         }
 
-
         return $controllers;
 
 
@@ -457,19 +465,14 @@ abstract class utils {
 
 
     /**
-     * check permission access for action of controller
+     * check permission access for action of controller,
+     * auto check permissions method
      */
 
     public static function checkPermissionAccess($controller, $action) {
 
-
-        /**
-         * auto check permissions
-         */
-
         $permissions = node::call($controller)->getPermissions();
         self::initCheckPermissionAccess($permissions, $action);
-
 
     }
 
@@ -478,11 +481,11 @@ abstract class utils {
      * check permission worker
      */
 
-    public static function initCheckPermissionAccess($controllerPermissions, $action) {
+    public static function initCheckPermissionAccess($cp, $action) {
 
 
         $memberPermissions = member::getPermissions();
-        foreach ($controllerPermissions as $item) {
+        foreach ($cp as $item) {
 
             if ($item['action'] == $action) {
 
@@ -492,7 +495,11 @@ abstract class utils {
                     }
                 }
 
-                throw new memberErrorException(403, view::$language->error, view::$language->action_denied);
+                throw new memberErrorException(
+                    403,
+                        view::$language->error,
+                            view::$language->action_denied
+                );
 
             }
 
@@ -506,8 +513,8 @@ abstract class utils {
      * recursive change array key case
      */
 
-    public static function arrayChangeKeyCaseRecursive($arr, $type = CASE_LOWER) {
-
+    public static function
+        arrayChangeKeyCaseRecursive($arr, $type = CASE_LOWER) {
 
         foreach ($arr as $k => $item) {
 
@@ -517,15 +524,14 @@ abstract class utils {
 
         }
 
-
         return array_change_key_case($arr, $type);
-
 
     }
 
 
     /**
-     * write log file
+     * write log file,
+     * fucking windows can't use ":" for timestamp
      */
 
     public static function writeLog($item) {
@@ -537,35 +543,30 @@ abstract class utils {
         $logDir = APPLICATION . $config->path->logs;
         $logFile = $logDir . "main.log";
 
-
         if (file_exists($logFile)) {
 
-
             $existsLog = true;
-
             if (!is_writable($logFile)) {
-                exit("Log file $logFile don't have writable permission" . PHP_EOL);
-            }
 
+                exit(
+                    "Log file $logFile don't have writable permission"
+                        . PHP_EOL
+                );
+
+            }
 
             if (filesize($logFile) > $config->system->log_file_max_size) {
 
+                $fixedName = str_replace(
+                    array(":", " "), array(".", "_"), $item['datetime']
+                );
 
-                /**
-                 * fucking windows can't use ":" for timestamp
-                 */
-
-                $fixedName = str_replace(array(":", " "), array(".", "_"), $item['datetime']);
                 rename($logFile, $logDir . "main_" . $fixedName . ".log");
-
                 $existsLog = false;
-
 
             }
 
-
         }
-
 
         $item = json_encode(self::arrayChangeKeyCaseRecursive($item));
         file_put_contents(
@@ -577,7 +578,8 @@ abstract class utils {
 
 
     /**
-     * unexpected exception wrapper
+     * unexpected exception wrapper,
+     * exit application
      */
 
     public static function takeUnexpectedException($e) {
@@ -585,25 +587,16 @@ abstract class utils {
 
         if ($e instanceof systemException) {
 
-
-            /**
-             * save report into log file,
-             * exit application
-             */
-
             $report = $e->getReport();
             $config = app::config();
-
-
             if ($config->system->debug_mode) {
                 dump($report);
             } else {
-                echo "Unexpected system {$report['type']} exception inside catch context" . PHP_EOL;
+                echo "Unexpected system {$report['type']} "
+                        . "exception inside catch context" . PHP_EOL;
             }
 
-
         } else {
-
 
             if ($config->system->debug_mode) {
                 dump($e->getMessage(), $e->getTrace());
@@ -611,8 +604,8 @@ abstract class utils {
                 echo "Unexpected exception inside catch context" . PHP_EOL;
             }
 
-
         }
+
 
     }
 
@@ -623,7 +616,6 @@ abstract class utils {
 
     public static function clearMainCache() {
 
-
         $cacheDir = APPLICATION . app::config()->path->cache . "*";
         foreach (self::glob($cacheDir) as $item) {
 
@@ -632,7 +624,6 @@ abstract class utils {
             }
 
         }
-
 
     }
 
@@ -655,7 +646,10 @@ abstract class utils {
  */
 
 function sortArrays($a, $b) {
-    return $a['sort'] == $b['sort'] ? 0 : ($a['sort'] < $b['sort'] ? -1 : 1);
+
+    return $a['sort'] == $b['sort']
+        ? 0 : ($a['sort'] < $b['sort'] ? -1 : 1);
+
 }
 
 
