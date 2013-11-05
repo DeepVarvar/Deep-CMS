@@ -16,7 +16,7 @@
 
             <li>
 
-                <?php if ($node['type'] == 'document') { ?>
+                <?php if ($node['type'] == 'node') { ?>
 
                     <a class="levelup" title=" <?=view::$language->document_tree_level_up?> " href="<?=$_config->site->admin_tools_link?>/documents/branch?id=<?=$node['parent_id']?>"></a>
                     <a class="name<?=$node['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/documents/edit?id=<?=$node['id']?>" title=" <?=view::$language->edit_now?> ">
@@ -36,7 +36,7 @@
 
                 <a class="create" href="<?=$_config->site->admin_tools_link?>/documents/create?parent=<?=$node['id']?>" title=" <?=view::$language->document_create_new?> "></a>
 
-                <?php if ($node['type'] == 'document') { ?>
+                <?php if ($node['type'] == 'node') { ?>
                     <a class="delete" href="<?=$_config->site->admin_tools_link?>/documents/delete?id=<?=$node['id']?>" title=" <?=view::$language->delete_now?> " onclick="return confirmation('<?=view::$language->document_delete_confirm?>');"></a>
                 <?php } ?>
 

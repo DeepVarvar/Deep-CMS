@@ -203,7 +203,8 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $data = (string) $data;
         if ($data == "---") {
             $data = "NULL";
-        } else if (!in_array($data, utils::getAvailableChangeFreq(), true)) {
+        } else if (
+            !in_array($data, utils::getAvailableChangeFreq(), true)) {
 
             throw new memberErrorException(
                 view::$language->error,
@@ -218,8 +219,11 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         $data = (string) $data;
         if ($data == "---") {
+
             $data = "NULL";
-        } else if (!in_array($data, utils::getAvailableChangeFreq(), true)) {
+
+        } else if (
+            !in_array($data, utils::getAvailableSearchPriority(), true)) {
 
             throw new memberErrorException(
                 view::$language->error,

@@ -255,7 +255,7 @@ class documents extends baseController {
          */
 
         if (request::getPostParam("save") !== null) {
-            $this->saveEditedNode();
+            $this->saveEditedNode($nodeID);
         }
 
 
@@ -1044,7 +1044,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_cant_itchild_parent
+                    view::$language->document_not_found
                 );
 
             }
@@ -1102,6 +1102,199 @@ class documents extends baseController {
 
 
     /**
+     * return array of selected menu
+     * from input data for save changes
+     */
+
+    private function getInMenuList() {
+
+        $menuList = request::getPostParam("menu");
+        $inMenu = array();
+
+        if ($menuList !== null) {
+
+            if (!is_array($menuList)) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->data_invalid_format
+                );
+
+            }
+
+            foreach ($menuList as $k => $appendix) {
+
+                if (!validate::isNumber($k)) {
+
+                    throw new memberErrorException(
+                        view::$language->error,
+                        view::$language->data_invalid_format
+                    );
+
+                }
+
+                array_push($inMenu, $k);
+
+            }
+
+        }
+
+        return $inMenu;
+
+    }
+
+
+    /**
+     * save menu items
+     */
+
+    private function saveMenuItems($nodeID) {
+
+
+        /**
+         * delete exists rows from menu_items,
+         * insert new inMenu data
+         */
+
+        db::set("
+            DELETE FROM menu_items
+            WHERE document_id = %u", $nodeID
+        );
+
+        if ($inMenu = $this->getInMenuList()) {
+
+            $insertedRows = array();
+            foreach ($inMenu as $menuID) {
+                array_push($insertedRows, "($menuID, $nodeID)");
+            }
+
+            if ($insertedRows) {
+
+                $insertedRows = join(",", $insertedRows);
+                db::set("
+                    INSERT INTO menu_items (menu_id,document_id)
+                    VALUES {$insertedRows}"
+                );
+
+            }
+
+        }
+
+    }
+
+
+    /**
+     * update all nested set keys on database for edited node
+     */
+
+    private function moveNestedSetKeys($nodeID, $newParentID) {
+
+
+        $currentPos = db::normalizeQuery(
+            "SELECT lvl, lk, rk, parent_id
+                FROM documents WHERE id = %u", $nodeID
+        );
+
+
+        /**
+         * not need update keys
+         */
+
+        if ($currentPos['parent_id'] == $newParentID) {
+            return true;
+        }
+
+
+        /**
+         * right key near and parent level
+         */
+
+        $newParentKeys = db::normalizeQuery(
+            "SELECT lvl, (rk - 1) rk
+                FROM documents WHERE id = %u", $newParentID
+        );
+
+        $newParentKeys['lvl'] = !isset($newParentKeys['lvl'])
+            ? 0 : ((int) $newParentKeys['lvl']);
+
+        $newParentKeys['rk'] = isset($newParentKeys['rk'])
+            ? ((int) $newParentKeys['rk'])
+            : db::normalizeQuery(
+                "SELECT rk FROM documents ORDER BY rk DESC LIMIT 1"
+            );
+
+        $skewLevel = $newParentKeys['lvl'] - $currentPos['lvl'] + 1;
+        $skewTree  = $currentPos['rk'] - $currentPos['lk'] + 1;
+
+        if ($newParentKeys['rk'] < $currentPos['rk']) {
+
+            $skewEdit = $newParentKeys['rk'] - $currentPos['lk'] + 1;
+            db::set("
+
+                UPDATE documents SET
+
+                    rk = IF(lk >= %u, rk + (%s), IF(rk < %u, rk + (%s), rk)),
+                    lvl = IF(lk >= %u, lvl + (%s), lvl),
+                    lk = IF(lk >= %u, lk + (%s), IF(lk > %u, lk + (%s), lk))
+
+                WHERE rk > %u AND lk < %u
+
+                ",
+
+                $currentPos['lk'],
+                $skewEdit,
+                $currentPos['lk'],
+                $skewTree,
+                $currentPos['lk'],
+                $skewLevel,
+                $currentPos['lk'],
+                $skewEdit,
+                $newParentKeys['rk'],
+                $skewTree,
+                $newParentKeys['rk'],
+                $currentPos['rk']
+
+            );
+
+        } else {
+
+            $skewEdit = $newParentKeys['rk']
+                - $currentPos['lk'] + 1 - $skewTree;
+
+            db::set("
+
+                UPDATE documents SET
+
+                    lk=IF(rk <= %u, lk + (%s), IF(lk > %u, lk - (%s), lk)),
+                    lvl=IF(rk <= %u, lvl + (%s), lvl),
+                    rk=IF(rk <= %u, rk + (%s), IF(rk <= %u, rk - (%s), rk))
+
+                WHERE rk > %u AND lk <= %u
+
+                ",
+
+                $currentPos['rk'],
+                $skewEdit,
+                $currentPos['rk'],
+                $skewTree,
+                $currentPos['rk'],
+                $skewLevel,
+                $currentPos['rk'],
+                $skewEdit,
+                $newParentKeys['rk'],
+                $skewTree,
+                $currentPos['lk'],
+                $newParentKeys['rk']
+
+            );
+
+        }
+
+
+    }
+
+
+    /**
      * save new node data
      */
 
@@ -1113,7 +1306,8 @@ class documents extends baseController {
          */
 
         request::validateReferer(
-            app::config()->site->admin_tools_link . "/documents/create\?parent=\d+", true
+            app::config()->site->admin_tools_link
+                . "/documents/create\?parent=\d+", true
         );
 
 
@@ -1204,12 +1398,280 @@ class documents extends baseController {
 
 
         /**
-         * get last insert ID of NEW DOCUMENT,
+         * get last insert ID of new node,
          * save menu items
          */
 
         $newNode['id'] = db::lastID();
-        //$this->saveMenuItems($newNode['id']);
+        $this->saveMenuItems($newNode['id']);
+
+
+        /**
+         * save attached images
+         */
+
+        $attachedImages = array();
+        foreach (member::getStorageData($this->storageImagesKey) as $k => $v) {
+
+            $k = db::escapeString($k);
+            array_push(
+                $attachedImages,
+                "(NULL, {$newNode['id']}, {$v['is_master']}, '{$k}')"
+            );
+
+        }
+
+        if ($attachedImages) {
+
+            $attachedImages = join(",", $attachedImages);
+
+            db::set(
+
+                "INSERT INTO images
+                    (id,document_id,is_master,name)
+                        VALUES {$attachedImages}"
+
+            );
+
+        }
+
+
+        /**
+         * save node features
+         */
+
+        $fNames = array();
+        $sourceFeatures = member::getStorageData($this->storageFeaturesKey);
+
+        foreach ($sourceFeatures as $v) {
+            array_push($fNames,  $v['name']);
+        }
+
+
+        $updFeatures = array();
+        $existsFeatures = array();
+
+        if ($fNames) {
+
+            $existsFeatures = db::query(
+                "SELECT id,name FROM features WHERE name IN(%s)", $fNames
+            );
+
+        }
+
+        $insFeatures = array();
+        $insNames  = array();
+
+        foreach ($sourceFeatures as $k => $v) {
+
+            $updated = false;
+            foreach ($existsFeatures as $x => $ex) {
+
+                if (in_array($ex['name'], $fNames)) {
+
+                    $escaped = db::escapeString($v['value']);
+                    $feature = "({$newNode['id']}, {$ex['id']}, '{$escaped}')";
+
+                    array_push($updFeatures, $feature);
+                    unset($existsFeatures[$x]);
+
+                    $updated = true;
+                    break;
+
+                }
+
+            }
+
+            if (!$updated) {
+
+                array_push(
+                    $insNames,
+                    "(NULL,'" . db::escapeString($v['name']) . "')"
+                );
+
+                $insFeatures[$v['name']] = db::escapeString($v['value']);
+
+            }
+
+        }
+
+
+        /**
+         * save only new values
+         */
+
+        if ($updFeatures) {
+
+            db::set(
+
+                "INSERT INTO document_features
+                    (document_id, feature_id, feature_value)
+                        VALUES " . join(",", $updFeatures)
+
+            );
+
+        }
+
+
+        /**
+         * save new names and values
+         */
+
+        if ($insNames) {
+
+            db::set(
+
+                "INSERT INTO features (id, name)
+                    VALUES " . join(",", $insNames)
+
+            );
+
+            $newNames = array_keys($insFeatures);
+            $existsNewNames = db::query(
+                "SELECT id,name FROM features WHERE name IN(%s)", $newNames
+            );
+
+            $updNewFeatures = array();
+            foreach ($existsNewNames as $ex) {
+
+                if (in_array($ex['name'], $newNames)) {
+
+                    $feature = "({$newNode['id']}, {$ex['id']},"
+                        . " '{$insFeatures[$ex['name']]}')";
+
+                    array_push($updNewFeatures, $feature);
+
+                }
+
+            }
+
+            db::set("
+
+                INSERT INTO document_features
+                    (document_id, feature_id, feature_value)
+                        VALUES " . join(",", $updNewFeatures)
+
+            );
+
+        }
+
+
+        /**
+         * reset member cache
+         */
+
+        member::setStorageData($this->storageImagesKey, array());
+        member::setStorageData($this->storageFeaturesKey, array());
+
+
+        /**
+         * redirect to show message
+         */
+
+        $this->redirectMessage(
+
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            view::$language->document_is_created,
+            app::config()->site->admin_tools_link
+                . "/documents/branch?id={$newNode['parent_id']}"
+
+        );
+
+
+    }
+
+
+    /**
+     * save edited node data
+     */
+
+    private function saveEditedNode($nodeID) {
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/documents/edit\?id=\d+", true
+        );
+
+
+        /**
+         * get and check filtered data of edited node
+         */
+
+        $editedNode = $this->getFilteredRequiredInputData($nodeID);
+
+
+        /**
+         * set auto properties for edited node
+         */
+
+        $editedNode['modified_author'] = member::getID();
+        $editedNode['last_modified']
+            = db::normalizeQuery("SELECT NOW()");
+
+
+        /**
+         * build updated query string
+         */
+
+        $updateQuery = "UPDATE documents SET ";
+        $updatedValues = array();
+
+        foreach ($editedNode as $key => $value) {
+
+            if ($value != "NULL" and !validate::isNumber($value)) {
+                $value = "'" . db::escapeString($value) . "'";
+            }
+
+            array_push($updatedValues, $key . " = " . $value);
+
+        }
+
+        $updateQuery .= join(",", $updatedValues)
+            . " WHERE id = " . $nodeID;
+
+
+        /**
+         * move nested set keys for edited node
+         */
+
+        $this->moveNestedSetKeys(
+            $nodeID, $editedNode['parent_id']
+        );
+
+
+        /**
+         * update edited node data
+         */
+
+        db::set($updateQuery);
+
+
+        /**
+         * save menu items
+         */
+
+        $this->saveMenuItems($nodeID);
+
+
+        /**
+         * redirect to show message
+         */
+
+        $this->redirectMessage(
+
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            view::$language->document_is_edited,
+            app::config()->site->admin_tools_link
+                . "/documents/branch?id={$editedNode['parent_id']}"
+
+        );
 
 
     }
