@@ -727,7 +727,8 @@ class documents extends baseController {
             }
 
             $elem = array(
-                "name" => "menu[{$item['id']}]", "description" => $item['name']
+                "name" => "menu[{$item['id']}]",
+                "description" => $item['name']
             );
 
             if ($checked) $elem['checked'] = $checked;
