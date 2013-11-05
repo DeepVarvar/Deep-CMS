@@ -139,157 +139,6 @@ function getBranchParentlistItem(item, doc_id) {
 }
 
 
-/**
- * place new dynamic properties
- */
-
-function drawOptionalElementAttributes(props) {
-
-
-    attributes = "";
-
-    if (typeof props.id != "undefined") {
-        attributes += ' id="' + props.id + '"';
-    }
-
-    attributes += ' class="';
-    if (typeof props['class'] != "undefined") {
-        attributes += ' ' + props['class'];
-    }
-
-    if (props.type == "minitext") {
-        attributes += " mini";
-    }
-
-    attributes += '"';
-    if (typeof props['name'] != "undefined") {
-        attributes += ' name="' + props['name'] + '"';
-    }
-
-
-    return attributes;
-
-
-}
-
-function drawTextarea(props) {
-
-
-    textarea = ' <textarea' + drawOptionalElementAttributes(props) + '>';
-    if (typeof props.value != "undefined") {
-        textarea += props.value;
-    }
-
-    textarea += ' </textarea> ';
-    return textarea;
-
-
-}
-
-function drawInput(props) {
-
-
-    input = ' <input' + drawOptionalElementAttributes(props)
-                + ' type="' + (props.type.match(/text/)?"text":props.type) + '"';
-
-    if (typeof props.value != "undefined" && props.type != "reset") {
-        input += ' value="' + props.value + '"';
-    }
-
-
-    if (props.type == "radio" || props.type == "checkbox") {
-
-        if (typeof props.checked != "undefined" && props.checked === true) {
-            input += ' checked="checked"';
-        }
-
-    }
-
-
-    input += ' /> ';
-    return input;
-
-
-}
-
-function drawElement(props) {
-
-
-    element = "";
-    switch(true) {
-
-
-        case (props.type == "textarea"):
-            element = drawTextarea(props);
-        break;
-
-
-        default:
-            element = drawInput(props);
-        break;
-
-
-    }
-
-
-    return element;
-
-
-}
-
-function buildLongPropertyBlock(property) {
-
-
-    var longProperty = ' <div class="label mt-10">'
-            + property.description + ':</div> ';
-
-    longProperty += ' <div class="elem mt-10">&nbsp;</div> ';
-    longProperty += ' <div class="longblock"> '
-        + drawElement(property.field) + ' </div> ';
-
-    return longProperty;
-
-
-}
-
-function buildShortPropertyBlock(property) {
-
-
-    return ' <div class="label">'
-
-        + property.description + ':</div> '
-        + ' <div class="elem"> '
-        + drawElement(property.field) + ' </div> ';
-
-
-}
-
-function placeDynamicProperties(properties) {
-
-
-    var dynamicProps = $("#dynamicprops"), propslen = properties.length;
-
-    dynamicProps.html("");
-    for (var i = 0; i < propslen; i++) {
-
-
-        if (parseInt(properties[i].editor) == 1) {
-
-            dynamicProps.append(buildLongPropertyBlock(properties[i]));
-            CKEDITOR.replace(properties[i].field.id);
-            filemanager.bind({target: properties[i].field.id, lang: variables.language});
-
-        } else {
-            dynamicProps.append(buildShortPropertyBlock(properties[i]));
-        }
-
-
-    }
-
-
-}
-
-
 
 $(function(){
 
@@ -302,7 +151,7 @@ $(function(){
 
 
         var str = str || "";
-        var parentAlias = $("#parentalias").text();
+        var parentAlias = $("#parentalias").val();
 
         if (!parentAlias.match(new RegExp(/\/$/))) {
             parentAlias += '/';
@@ -372,7 +221,11 @@ $(function(){
         mainWidth -= mainGap;
 
         if (position > 0) {
-            target.scrollLeft = Math.ceil(mainScrollWidth * position / mainWidth / 2);
+
+            target.scrollLeft = Math.ceil(
+                mainScrollWidth * position / mainWidth / 2
+            );
+
         } else {
             target.scrollLeft = 0;
         }
@@ -382,7 +235,6 @@ $(function(){
 
     var xAutoscrollEnabled = false;
     var tree = $("#tree");
-    var parentList = $("#parentlist");
 
     $("#togglexscroll").click(function(){
 
@@ -477,146 +329,27 @@ $(function(){
 
 
     /**
-     * parentlist expand/collapse branch node
-     */
-
-    $("#parentlist a.expander").live("click", function(){
-
-
-        var documentID = $("#documentid").val();
-        var expander = $(this);
-        var branchItem = expander.parents("li").eq(0);
-        var childrenBranch = branchItem.find("ul");
-
-
-        if (childrenBranch.length > 0) {
-
-
-            childrenBranch.eq(0).toggle();
-
-
-        } else if (!expander.hasClass("loading")) {
-
-
-            expander.addClass("loading");
-            $.ajax({
-
-                type: "GET",
-                url: expander.attr("href"),
-                success: function(response){
-
-
-                    if (typeof response.exception != "undefined") {
-                        showException(response.exception);
-                    } else {
-
-
-                        var children = "";
-                        for (var c in response.children) {
-                            children += getBranchParentlistItem(response.children[c], documentID);
-                        }
-
-                        if (children.length > 0) {
-                            branchItem.append(" <ul>" + children + "</ul> ");
-                        }
-
-
-                    }
-
-
-                    expander.removeClass("loading");
-
-
-                }
-
-
-            });
-
-
-        }
-
-
-        return false;
-
-
-    });
-
-
-    /**
-     * select new parent of document
-     */
-
-    $("#parentlist a.selectme").live("click", function(){
-
-
-        $("#parentid").val($(this).attr("data-id"));
-        $("#parentalias").text($(this).attr("href"));
-        $("#parentname").text(trim($(this).find("span").text()));
-
-        var sourceName = trim($("#pagename").val());
-        setNameOfDocument(sourceName);
-        generatePageAlias(sourceName);
-
-        hideAllToggledElements();
-        return false;
-
-
-    });
-
-
-    /**
      * change prototype of document
      */
 
-    var docPrototype = $("#prototype");
-    var currentPrototype = docPrototype.val();
+    $("#prototype").change(function(){
 
-    docPrototype.change(function(){
+        var proto = $(this).val();
+        var loc = document.location.href;
 
-        var $this = $(this);
+        if (proto.match(/[a-z]+/i)) {
 
-        if (!confirmation($this.attr("data-confirmation"))) {
+            loc = loc.replace(
+                /(prototype=)([a-z]+)/i, "$1" + proto
+            );
 
-            var options = $this.find("option");
+            if (loc == document.location.href) {
+                loc = document.location.href + "&prototype=" + proto;
+            }
 
-            options.removeAttr("selected");
-            options.each(function(){
-
-                var $option = $(this);
-
-                if ($option.val() == currentPrototype) {
-                    $option.attr("selected", true);
-                }
-
-            });
-
-
-            currentPrototype = $this.val();
-
-
-        } else {
-
-
-            $.ajax({
-
-                type: "GET",
-                url: variables.admin_tools_link + "/documents/get-dynamic-properties?prototype_id=" + docPrototype.val() + "&id=" + $("#documentid").val(),
-                success: function(response){
-
-                    if (typeof response.exception != "undefined") {
-                        showException(response.exception);
-                    } else {
-                        placeDynamicProperties(response.dynamic_properties);
-                        currentPrototype = $("#prototype").val();
-                    }
-
-                }
-
-            });
-
+            document.location = loc;
 
         }
-
 
     });
 

@@ -1062,6 +1062,7 @@ class documents extends baseController {
 
         $mainProperties['prototype']['top']  = 20;
         $mainProperties['prototype']['type'] = "select";
+        $mainProperties['prototype']['selector'] = "prototype";
         $mainProperties['prototype']['description']
             = view::$language->document_type;
 
