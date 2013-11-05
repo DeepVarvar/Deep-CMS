@@ -89,7 +89,7 @@ class groups extends baseController {
 
         view::assign("grouplist", $paginator['items']);
         view::assign("pages", $paginator['pages']);
-        view::assign("page_title", view::$language->groups);
+        view::assign("node_name", view::$language->groups);
 
         $this->setProtectedLayout("groups.html");
 
@@ -121,7 +121,7 @@ class groups extends baseController {
         view::assign("permissions", $this->getPermissionsList());
         view::assign("priority",    $this->getPriorityList());
 
-        view::assign("page_title", view::$language->group_create_new);
+        view::assign("node_name", view::$language->group_create_new);
         $this->setProtectedLayout("group-new.html");
 
 
@@ -363,7 +363,7 @@ class groups extends baseController {
             $this->getPriorityList($group['priority'])
         );
 
-        view::assign("page_title", view::$language->group_edit_exists);
+        view::assign("node_name", view::$language->group_edit_exists);
         $this->setProtectedLayout("group-edit.html");
 
 

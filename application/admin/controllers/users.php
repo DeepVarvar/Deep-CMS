@@ -95,7 +95,7 @@ class users extends baseController {
                     ->setSliceSizeByPages(20)
                         ->getResult();
 
-        view::assign("page_title", view::$language->users);
+        view::assign("node_name", view::$language->users);
         view::assign("users", $paginator['items']);
         view::assign("pages", $paginator['pages']);
 
@@ -142,7 +142,7 @@ class users extends baseController {
             utils::getAvailableLanguages()
         );
 
-        view::assign("page_title", view::$language->user_create_new);
+        view::assign("node_name", view::$language->user_create_new);
         $this->setProtectedLayout("user-new.html");
 
 
@@ -264,7 +264,7 @@ class users extends baseController {
         );
 
         view::assign("user", $existsUser);
-        view::assign("page_title", view::$language->user_edit_exists);
+        view::assign("node_name", view::$language->user_edit_exists);
 
         $this->setProtectedLayout("user-edit.html");
 

@@ -212,7 +212,7 @@ class node_images extends baseController {
 
         $this->view(true);
 
-        view::assign("page_title", view::$language->images_attached);
+        view::assign("node_name", view::$language->images_attached);
         view::assign($this->availableSizes);
 
         $this->setProtectedLayout("node-images.html");

@@ -84,8 +84,8 @@ class search extends baseController {
 
             $searchCondition = array(
 
-                "d.page_name LIKE '%%"
-                    . join("%%' OR d.page_name LIKE '%%", $searchParts) . "%%'",
+                "d.node_name LIKE '%%"
+                    . join("%%' OR d.node_name LIKE '%%", $searchParts) . "%%'",
 
                 "p.page_text LIKE '%%"
                     . join("%%' OR p.page_text LIKE '%%", $searchParts) . "%%'"
@@ -102,7 +102,7 @@ class search extends baseController {
 
                     d.id,
                     d.parent_id,
-                    d.page_name,
+                    d.node_name,
                     d.page_alias,
                     p.page_text,
                     IF(i.name IS NOT NULL,i.name,'{$noImage}') image

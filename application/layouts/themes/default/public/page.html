@@ -4,7 +4,7 @@
     <?php foreach (dataHelper::getBreadcrumbs($page_id, true) as $item) { ?>
 
         <?php if (request::getURI() != "/") { ?>
-            &raquo; <a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a>
+            &raquo; <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
         <?php } ?>
 
     <?php } ?>
@@ -25,7 +25,7 @@
     <ul>
 
         <?php foreach (dataHelper::getNodeChildren($page_id) as $item) { ?>
-            <li><a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a></li>
+            <li><a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a></li>
         <?php } ?>
 
     </ul>

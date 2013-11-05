@@ -77,7 +77,7 @@ class menu extends baseController {
 
         view::assign("menulist", $paginator['items']);
         view::assign("pages", $paginator['pages']);
-        view::assign("page_title", view::$language->menu_of_site);
+        view::assign("node_name", view::$language->menu_of_site);
 
         $this->setProtectedLayout("menu.html");
 
@@ -106,7 +106,7 @@ class menu extends baseController {
          * append data into view
          */
 
-        view::assign("page_title", view::$language->menu_create_new);
+        view::assign("node_name", view::$language->menu_create_new);
         $this->setProtectedLayout("menu-new.html");
 
 
@@ -231,7 +231,7 @@ class menu extends baseController {
          */
 
         view::assign("menu", $menu);
-        view::assign("page_title", view::$language->menu_edit_exists);
+        view::assign("node_name", view::$language->menu_edit_exists);
         $this->setProtectedLayout("menu-edit.html");
 
 

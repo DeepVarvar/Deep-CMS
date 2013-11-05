@@ -142,23 +142,18 @@ abstract class htmlHelper {
 
     public static function drawTreeLinksList($arr) {
 
-
         $branch = "";
         foreach ($arr as $k => $item) {
 
-
-            $link = ' <a title="' . $item['page_name'] . '" href="'
-                . $item['page_alias'] . '">' . $item['page_name'] . '</a> ';
+            $link = ' <a title="' . $item['node_name'] . '" href="'
+                . $item['page_alias'] . '">' . $item['node_name'] . '</a> ';
 
             $branch .= ' <li> ' . $link
                 . self::drawTreeLinksList($item['children']) . ' </li> ';
 
-
         }
 
-
         return ($branch) ? ' <ul> ' . $branch . ' </ul> ' : $branch;
-
 
     }
 

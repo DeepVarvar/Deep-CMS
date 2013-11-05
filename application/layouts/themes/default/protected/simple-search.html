@@ -11,7 +11,7 @@
     <?php foreach ($search_result as $item) { ?>
 
         <div>
-            <h3><?=$item['page_name']?></h3>
+            <h3><?=$item['node_name']?></h3>
             <div><?=helper::contentPreview($item['page_text'], 200)?></div>
             <div><a href="<?=$item['page_alias']?>"><?=view::$language->more?></a></div>
         </div>

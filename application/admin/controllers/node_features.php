@@ -97,7 +97,7 @@ class node_features extends baseController {
 
         }
 
-        view::assign("page_title", view::$language->features);
+        view::assign("node_name", view::$language->features);
         $this->setProtectedLayout("node-features.html");
 
 
