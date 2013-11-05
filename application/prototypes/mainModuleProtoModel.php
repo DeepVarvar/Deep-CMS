@@ -25,7 +25,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
     protected function in_sitemapGetData( & $f) {
 
-        $f['description'] = view::$language->simple_page_in_sitemap;
+        $f['description'] = view::$language->show_in_sitemap;
         $f['type']        = "checkbox";
 
     }

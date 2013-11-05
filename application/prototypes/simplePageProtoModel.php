@@ -33,7 +33,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function in_sitemapGetData( & $f) {
 
-        $f['description'] = view::$language->simple_page_in_sitemap;
+        $f['description'] = view::$language->show_in_sitemap;
         $f['type']        = "checkbox";
 
     }
@@ -43,7 +43,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $f['top']         = 20;
         $f['required']    = true;
         $f['type']        = "select";
-        $f['description'] = view::$language->simple_page_layout;
+        $f['description'] = view::$language->layout;
         $f['value']       = utils::makeOptionsArray(
             utils::getAvailablePublicLayouts(), $f['value']
         );
@@ -65,7 +65,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         $f['value']       = rawurldecode($f['value']);
         $f['type']        = "longtext";
-        $f['description'] = view::$language->simple_page_permanent_redirect;
+        $f['description'] = view::$language->permanent_redirect;
 
     }
 
@@ -73,7 +73,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         $f['top']         = 20;
         $f['type']        = "select";
-        $f['description'] = view::$language->simple_page_change_freq;
+        $f['description'] = view::$language->change_freq;
         $f['value']       = utils::makeOptionsArray(
             utils::getAvailableChangeFreq(), $f['value']
         );
@@ -83,7 +83,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
     protected function search_priorityGetData( & $f) {
 
         $f['type']        = "select";
-        $f['description'] = view::$language->simple_page_search_priority;
+        $f['description'] = view::$language->search_priority;
         $f['value']       = utils::makeOptionsArray(
             utils::getAvailableSearchPriority(), $f['value']
         );
@@ -93,7 +93,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
     protected function page_titleGetData( & $f) {
 
         $f['type']        = "longtext";
-        $f['description'] = view::$language->simple_page_page_title;
+        $f['description'] = view::$language->page_title;
 
     }
 
@@ -101,21 +101,21 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         $f['top']         = 20;
         $f['type']        = "longtext";
-        $f['description'] = view::$language->simple_page_page_h1;
+        $f['description'] = view::$language->h1;
 
     }
 
     protected function meta_keywordsGetData( & $f) {
 
         $f['type']        = "longtext";
-        $f['description'] = view::$language->simple_page_meta_keywords;
+        $f['description'] = view::$language->meta_keywords;
 
     }
 
     protected function meta_descriptionGetData( & $f) {
 
         $f['type']        = "longtext";
-        $f['description'] = view::$language->simple_page_meta_description;
+        $f['description'] = view::$language->meta_description;
 
     }
 

@@ -8,7 +8,7 @@
 
 return array(
 
-    "main_module_prototype_name"   =>  "Модуль"
+    "main_module_prototype_name"  =>  "Модуль"
 
 );
 
