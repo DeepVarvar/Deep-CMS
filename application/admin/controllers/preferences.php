@@ -15,7 +15,6 @@ class preferences extends baseController {
 
     public function setPermissions() {
 
-
         $this->permissions = array(
 
             array(
@@ -44,7 +43,6 @@ class preferences extends baseController {
 
         );
 
-
     }
 
 
@@ -64,10 +62,7 @@ class preferences extends baseController {
             return $this->savePreferences();
         }
 
-
         $c = app::config();
-
-
         view::assign(
             "themes",
             utils::getAvailableThemes($c->site->theme)
@@ -78,9 +73,8 @@ class preferences extends baseController {
             utils::getAvailableLanguages($c->site->default_language)
         );
 
-
         view::assign("debug_mode_on", $c->system->debug_mode);
-        view::assign("page_title", view::$language->preferences_global);
+        view::assign("node_name", view::$language->preferences_global);
 
         $this->setProtectedLayout("preferences.html");
 
@@ -99,7 +93,9 @@ class preferences extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/preferences");
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/preferences"
+        );
 
 
         /**
@@ -296,16 +292,26 @@ class preferences extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/preferences");
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/preferences"
+        );
 
 
         /**
          * get required data
          */
 
-        $preferences = request::getRequiredPostParams(array("site", "system"));
+        $preferences = request::getRequiredPostParams(
+            array("site", "system")
+        );
+
         if ($preferences === null) {
-            throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->data_not_enough
+            );
+
         }
 
 
@@ -321,7 +327,12 @@ class preferences extends baseController {
         foreach ($requiredSystemData as $item) {
 
             if (!array_key_exists($item, $preferences['system'])) {
-                throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->data_not_enough
+                );
+
             }
 
         }
@@ -344,7 +355,12 @@ class preferences extends baseController {
         foreach ($requiredSiteData as $item) {
 
             if (!array_key_exists($item, $preferences['site'])) {
-                throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->data_not_enough
+                );
+
             }
 
         }
@@ -360,41 +376,50 @@ class preferences extends baseController {
 
 
         /**
-         * validate max_group_priority_number
-         */
-
-        if (!validate::isNumber($preferences['system']['max_group_priority_number'])) {
-            throw new memberErrorException(view::$language->error, view::$language->priority_need_is_number);
-        }
-
-        if ($preferences['system']['max_group_priority_number'] > 1000) {
-            throw new memberErrorException(view::$language->error, view::$language->priority_max_is_1000);
-        }
-
-        if ($preferences['system']['max_group_priority_number'] < 2) {
-            throw new memberErrorException(view::$language->error, view::$language->priority_min_is_2);
-        }
-
-
-        /**
          * validate cookie_expires_time
          */
 
-        if (!validate::isNumber($preferences['system']['cookie_expires_time'])) {
-            throw new memberErrorException(view::$language->error, view::$language->cookie_expires_need_is_number);
+        $validate = validate::isNumber(
+            $preferences['system']['cookie_expires_time']
+        );
+
+        if (!$validate) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->cookie_expires_need_is_number
+            );
+
         }
 
         if ($preferences['system']['cookie_expires_time'] >= 2147483646) {
-            throw new systemErrorException(view::$language->error, view::$language->cookie_expires_is_too_long);
+
+            throw new systemErrorException(
+                view::$language->error,
+                view::$language->cookie_expires_is_too_long
+            );
+
         }
 
-        if ($preferences['system']['cookie_expires_time'] < 300) {
-            throw new systemErrorException(view::$language->error, view::$language->cookie_expires_is_too_small);
+        if ($preferences['system']['cookie_expires_time'] < 600) {
+
+            throw new systemErrorException(
+                view::$language->error,
+                view::$language->cookie_expires_is_too_small
+            );
+
         }
 
-        $featureTime = time() + $preferences['system']['cookie_expires_time'];
-        if ($featureTime >= 2147483646) {
-            throw new systemErrorException(view::$language->error, view::$language->cookie_expires_is_too_long);
+        $futureTime = time()
+            + $preferences['system']['cookie_expires_time'];
+
+        if ($futureTime >= 2147483646) {
+
+            throw new systemErrorException(
+                view::$language->error,
+                view::$language->cookie_expires_is_too_long
+            );
+
         }
 
 
@@ -403,7 +428,12 @@ class preferences extends baseController {
          */
 
         if (!validate::likeString($preferences['site']['theme'])) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->data_invalid
+            );
+
         }
 
         $existsTheme = false;
@@ -417,7 +447,12 @@ class preferences extends baseController {
         }
 
         if (!$existsTheme) {
-            throw new memberErrorException(view::$language->error, view::$language->theme_of_site_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->theme_of_site_not_found
+            );
+
         }
 
 
@@ -425,26 +460,54 @@ class preferences extends baseController {
          * validate default_language
          */
 
-        if (!validate::likeString($preferences['site']['default_language'])) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+        $validate = validate::likeString(
+            $preferences['site']['default_language']
+        );
+
+        if (!$validate) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->data_invalid
+            );
+
         }
 
-        if (!preg_match("/^[a-z-]+$/", $preferences['site']['default_language'])) {
-            throw new memberErrorException(view::$language->error, view::$language->language_name_need_iso639_std);
+        $validate = preg_match(
+            "/^[a-z-]+$/",
+            $preferences['site']['default_language']
+        );
+
+        if (!$validate) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->language_name_need_iso639_std
+            );
+
         }
 
         $existsLanguage = false;
         foreach (utils::getAvailableLanguages() as $language) {
 
-            if ($language['value'] == $preferences['site']['default_language']) {
+            if (
+                $language['value']
+                    == $preferences['site']['default_language']) {
+
                 $existsLanguage = true;
                 break;
+
             }
 
         }
 
         if (!$existsLanguage) {
-            throw new memberErrorException(view::$language->error, view::$language->language_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->language_not_found
+            );
+
         }
 
 
@@ -452,16 +515,32 @@ class preferences extends baseController {
          * validate admin_tools_link
          */
 
-        $adminLinkFilter = filter::input($preferences['site']['admin_tools_link']);
+        $adminLinkFilter = filter::input(
+            $preferences['site']['admin_tools_link']
+        );
+
         if (preg_match("/[^a-z0-9\/]/u", $adminLinkFilter->getData())) {
-            throw new memberErrorException(view::$language->error, view::$language->admin_tools_link_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->admin_tools_link_invalid
+            );
+
         }
 
-        $adminLinkFilter->trim("/")->expReplace(array("/\/+/", "/^([^\/])/"), array("", "/$1"));
-        $preferences['site']['admin_tools_link'] = $adminLinkFilter->getData();
+        $adminLinkFilter->trim("/")
+            ->expReplace(array("/\/+/", "/^([^\/])/"), array("", "/$1"));
+
+        $preferences['site']['admin_tools_link']
+            = $adminLinkFilter->getData();
 
         if (!$preferences['site']['admin_tools_link']) {
-            throw new memberErrorException(view::$language->error, view::$language->admin_tools_link_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->admin_tools_link_invalid
+            );
+
         }
 
 
@@ -500,7 +579,9 @@ class preferences extends baseController {
          */
 
         $newConfig = app::config();
-        view::setLanguage($newConfig->site->default_language);
+        view::setLanguage(
+            $newConfig->site->default_language
+        );
 
 
         /**

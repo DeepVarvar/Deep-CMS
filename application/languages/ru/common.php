@@ -98,7 +98,7 @@ return array(
     "image_upload_single_only"          =>  "Множественная загрузка невозможна",
     "images_attached"                   =>  "Прикрепленные изображения",
     "language"                          =>  "Язык",
-    "language_name_need_iso639_std"     =>  "Язык должен быть указан согласно стандарту ISO 639",
+    "language_name_need_iso639_std"     =>  "Имя языкового пакета не соответствует стандарту ISO 639",
     "language_not_found"                =>  "Языковой пакет не найден",
     "layout"                            =>  "Шаблон вывода",
     "layout_not_found"                  =>  "Файл шаблона вывода не найден",

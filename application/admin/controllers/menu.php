@@ -124,7 +124,9 @@ class menu extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/menu");
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/menu"
+        );
 
 
         /*
@@ -133,7 +135,12 @@ class menu extends baseController {
 
         $menu_id = request::shiftParam("id");
         if (!validate::isNumber($menu_id)) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->data_invalid
+            );
+
         }
 
 
@@ -183,7 +190,12 @@ class menu extends baseController {
 
         $menu_id = request::shiftParam("id");
         if (!validate::isNumber($menu_id)) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->data_invalid
+            );
+
         }
 
 
@@ -191,12 +203,17 @@ class menu extends baseController {
          * get menu with #ID
          */
 
-        $menu = db::normalizeQuery("
-            SELECT id,name FROM menu WHERE id = %u", $menu_id
+        $menu = db::normalizeQuery(
+            "SELECT id,name FROM menu WHERE id = %u", $menu_id
         );
 
         if (!$menu) {
-            throw new memberErrorException(view::$language->error, view::$language->menu_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->menu_not_found
+            );
+
         }
 
 
@@ -234,9 +251,17 @@ class menu extends baseController {
 
         $adminToolsLink = app::config()->site->admin_tools_link;
         if ($target === null) {
-            request::validateReferer($adminToolsLink . "/menu/create");
+
+            request::validateReferer(
+                $adminToolsLink . "/menu/create"
+            );
+
         } else {
-            request::validateReferer($adminToolsLink . "/menu/edit\?id=\d+", true);
+
+            request::validateReferer(
+                $adminToolsLink . "/menu/edit\?id=\d+", true
+            );
+
         }
 
 
@@ -246,11 +271,21 @@ class menu extends baseController {
 
         $name = request::getPostParam("name");
         if ($name === null) {
-            throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->data_not_enough
+            );
+
         }
 
         if (!$name = filter::input($name)->lettersOnly()->getData()) {
-            throw new memberErrorException(view::$language->error, view::$language->menu_name_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->menu_name_invalid
+            );
+
         }
 
 
@@ -276,7 +311,8 @@ class menu extends baseController {
 
 
         $message = ($target === null)
-            ? view::$language->menu_is_created : view::$language->menu_is_edited;
+            ? view::$language->menu_is_created
+            : view::$language->menu_is_edited;
 
 
         /**
@@ -286,9 +322,9 @@ class menu extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            $message,
-            app::config()->site->admin_tools_link . "/menu"
+                view::$language->success,
+                    $message,
+                        app::config()->site->admin_tools_link . "/menu"
 
         );
 
