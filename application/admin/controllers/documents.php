@@ -65,7 +65,8 @@ class documents extends baseController {
 
                 "action"      => "branch",
                 "permission"  => "documents_manage",
-                "description" => view::$language->permission_documents_manage
+                "description"
+                    => view::$language->permission_documents_tree_manage
 
             ),
 
@@ -73,7 +74,7 @@ class documents extends baseController {
 
                 "action"      => "create",
                 "permission"  => "documents_create",
-                "description" => view::$language->permission_documents_create
+                "description" => view::$language->permission_node_create
 
             ),
 
@@ -81,14 +82,14 @@ class documents extends baseController {
 
                 "action"      => "delete",
                 "permission"  => "documents_delete",
-                "description" => view::$language->permission_documents_delete
+                "description" => view::$language->permission_node_delete
             ),
 
             array(
 
                 "action"      => "edit",
                 "permission"  => "documents_edit",
-                "description" => view::$language->permission_documents_edit
+                "description" => view::$language->permission_node_edit
 
             )
 
@@ -136,7 +137,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->data_invalid_format
+                        view::$language->data_invalid
                 );
 
             }
@@ -168,7 +169,7 @@ class documents extends baseController {
         }
 
 
-        view::assign("node_name", view::$language->document_tree);
+        view::assign("node_name", view::$language->documents_tree);
         $this->setProtectedLayout("documents.html");
 
 
@@ -190,7 +191,8 @@ class documents extends baseController {
         if (!validate::isNumber($parentID)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -218,7 +220,7 @@ class documents extends baseController {
         $this->assignNewNodeIntoView($parentID, $protoName);
         $this->setProtectedLayout("document-new.html");
 
-        view::assign("node_name", view::$language->document_create_new);
+        view::assign("node_name", view::$language->node_create_new);
 
 
     }
@@ -239,7 +241,8 @@ class documents extends baseController {
         if (!validate::isNumber($nodeID)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -267,7 +270,7 @@ class documents extends baseController {
         $this->assignEditedNodeIntoView($nodeID, $protoName);
         $this->setProtectedLayout("document-edit.html");
 
-        view::assign("node_name", view::$language->document_edit_exists);
+        view::assign("node_name", view::$language->node_edit_exists);
 
 
     }
@@ -298,7 +301,8 @@ class documents extends baseController {
         if (!validate::isNumber($nodeID)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -319,7 +323,8 @@ class documents extends baseController {
         if (!$deletedNode) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->document_not_found
+                view::$language->error,
+                    view::$language->node_not_found
             );
 
         }
@@ -341,7 +346,7 @@ class documents extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->document_deleted_count_is_over
+                    view::$language->node_delete_count_is_over
             );
 
         }
@@ -507,9 +512,9 @@ class documents extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->document_is_deleted,
-            $location
+                view::$language->success,
+                    view::$language->node_is_deleted,
+                        $location
 
         );
 
@@ -533,7 +538,6 @@ class documents extends baseController {
             $node['node_name'] = view::$language->root_of_site;
 
         } else {
-
 
             $node = db::normalizeQuery("
 
@@ -560,7 +564,6 @@ class documents extends baseController {
 
             );
 
-
         }
 
 
@@ -574,11 +577,10 @@ class documents extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->branch_documents_not_found
+                    view::$language->branch_children_not_found
             );
 
         }
-
 
         return $node;
 
@@ -636,7 +638,8 @@ class documents extends baseController {
         if (!preg_match("/^[a-z]+$/i", $protoName)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -648,7 +651,8 @@ class documents extends baseController {
         if (!array_key_exists($protoName, $this->availableProtoTypes)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->prototype_not_found
+                view::$language->error,
+                    view::$language->prototype_not_found
             );
 
         }
@@ -699,18 +703,16 @@ class documents extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->prototypes_not_available
+                    view::$language->prototypes_not_available
             );
 
         }
-
 
         $prototypes = array(
             array("value" => "---", "description" => "---")
         );
 
         foreach ($this->availableProtoTypes as $k => $item) {
-
 
             $prototype = array(
                 "value" => $k, "description" => $item->getHumanityName()
@@ -721,7 +723,6 @@ class documents extends baseController {
             }
 
             array_push($prototypes, $prototype);
-
 
         }
 
@@ -833,7 +834,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_parent_not_found
+                        view::$language->parent_node_not_found
                 );
 
             }
@@ -915,7 +916,8 @@ class documents extends baseController {
         if (!$editedNode) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->document_not_found
+                view::$language->error,
+                    view::$language->node_not_found
             );
 
         }
@@ -941,7 +943,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_parent_not_found
+                        view::$language->parent_node_not_found
                 );
 
             }
@@ -1053,7 +1055,7 @@ class documents extends baseController {
         $mainProperties['node_name']['type'] = "longtext";
         $mainProperties['node_name']['selector'] = "pagename";
         $mainProperties['node_name']['description']
-            = view::$language->document_name;
+            = view::$language->node_name;
 
 
         /**
@@ -1064,7 +1066,7 @@ class documents extends baseController {
         $mainProperties['prototype']['type'] = "select";
         $mainProperties['prototype']['selector'] = "prototype";
         $mainProperties['prototype']['description']
-            = view::$language->document_type;
+            = view::$language->node_prototype;
 
         $mainProperties['prototype']['value'] = $this->getProtoTypesList(
             $mainProperties['prototype']['value']
@@ -1078,7 +1080,7 @@ class documents extends baseController {
         $chpt = "children_prototype";
         $mainProperties[$chpt]['type'] = "select";
         $mainProperties[$chpt]['description']
-            = view::$language->document_type_of_children;
+            = view::$language->node_prototype_of_children;
 
         $mainProperties[$chpt]['value'] = $this->getProtoTypesList(
             $mainProperties[$chpt]['value']
@@ -1149,7 +1151,8 @@ class documents extends baseController {
         if ($requiredData === null) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_not_enough
+                view::$language->error,
+                    view::$language->data_not_enough
             );
 
         }
@@ -1162,7 +1165,8 @@ class documents extends baseController {
         if (!validate::isNumber($requiredData['parent_id'])) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -1178,7 +1182,8 @@ class documents extends baseController {
         if (!$requiredData['prototype']) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -1196,7 +1201,8 @@ class documents extends baseController {
         if (!$requiredData['children_prototype']) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid_format
+                view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
@@ -1216,7 +1222,7 @@ class documents extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->document_name_invalid_format
+                    view::$language->node_name_invalid
             );
 
         }
@@ -1244,7 +1250,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_parent_not_found
+                        view::$language->parent_node_not_found
                 );
 
             }
@@ -1261,7 +1267,7 @@ class documents extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->document_cant_itself_parent
+                    view::$language->node_cant_itself_parent
             );
 
         }
@@ -1290,7 +1296,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_not_found
+                        view::$language->node_not_found
                 );
 
             }
@@ -1312,7 +1318,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->document_cant_itchild_parent
+                        view::$language->node_cant_itchild_parent
                 );
 
             }
@@ -1363,7 +1369,7 @@ class documents extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->data_invalid_format
+                        view::$language->data_invalid
                 );
 
             }
@@ -1374,7 +1380,7 @@ class documents extends baseController {
 
                     throw new memberErrorException(
                         view::$language->error,
-                        view::$language->data_invalid_format
+                            view::$language->data_invalid
                     );
 
                 }
@@ -1817,10 +1823,10 @@ class documents extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->document_is_created,
-            app::config()->site->admin_tools_link
-                . "/documents/branch?id={$newNode['parent_id']}"
+                view::$language->success,
+                    view::$language->node_is_created,
+                        app::config()->site->admin_tools_link
+                            . "/documents/branch?id={$newNode['parent_id']}"
 
         );
 
@@ -1912,10 +1918,10 @@ class documents extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->document_is_edited,
-            app::config()->site->admin_tools_link
-                . "/documents/branch?id={$editedNode['parent_id']}"
+                view::$language->success,
+                    view::$language->node_is_edited,
+                        app::config()->site->admin_tools_link
+                            . "/documents/branch?id={$editedNode['parent_id']}"
 
         );
 

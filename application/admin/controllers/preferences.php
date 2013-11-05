@@ -118,9 +118,9 @@ class preferences extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->preferences_global_is_reseted,
-            app::config()->site->admin_tools_link . "/preferences"
+                view::$language->success,
+                    view::$language->preferences_global_is_reseted,
+                        app::config()->site->admin_tools_link . "/preferences"
 
         );
 
@@ -271,9 +271,9 @@ class preferences extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->permissions_is_recalculated,
-            app::config()->site->admin_tools_link . "/preferences"
+                view::$language->success,
+                    view::$language->permissions_is_recalculated,
+                        app::config()->site->admin_tools_link . "/preferences"
 
         );
 
@@ -309,7 +309,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->data_not_enough
+                    view::$language->data_not_enough
             );
 
         }
@@ -330,7 +330,7 @@ class preferences extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->data_not_enough
+                        view::$language->data_not_enough
                 );
 
             }
@@ -358,7 +358,7 @@ class preferences extends baseController {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->data_not_enough
+                        view::$language->data_not_enough
                 );
 
             }
@@ -387,7 +387,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->cookie_expires_need_is_number
+                    view::$language->cookie_expires_need_is_number
             );
 
         }
@@ -396,7 +396,7 @@ class preferences extends baseController {
 
             throw new systemErrorException(
                 view::$language->error,
-                view::$language->cookie_expires_is_too_long
+                    view::$language->cookie_expires_is_too_long
             );
 
         }
@@ -405,7 +405,7 @@ class preferences extends baseController {
 
             throw new systemErrorException(
                 view::$language->error,
-                view::$language->cookie_expires_is_too_small
+                    view::$language->cookie_expires_is_too_small
             );
 
         }
@@ -417,7 +417,7 @@ class preferences extends baseController {
 
             throw new systemErrorException(
                 view::$language->error,
-                view::$language->cookie_expires_is_too_long
+                    view::$language->cookie_expires_is_too_long
             );
 
         }
@@ -431,7 +431,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->data_invalid
+                    view::$language->data_invalid
             );
 
         }
@@ -450,7 +450,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->theme_of_site_not_found
+                    view::$language->theme_of_site_not_found
             );
 
         }
@@ -468,7 +468,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->data_invalid
+                    view::$language->data_invalid
             );
 
         }
@@ -482,7 +482,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->language_name_need_iso639_std
+                    view::$language->language_name_need_iso639_std
             );
 
         }
@@ -505,7 +505,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->language_not_found
+                    view::$language->language_not_found
             );
 
         }
@@ -523,7 +523,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->admin_tools_link_invalid
+                    view::$language->admin_tools_link_invalid
             );
 
         }
@@ -538,7 +538,7 @@ class preferences extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->admin_tools_link_invalid
+                    view::$language->admin_tools_link_invalid
             );
 
         }
@@ -591,9 +591,9 @@ class preferences extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->preferences_global_is_changed,
-            $newConfig->site->admin_tools_link . "/preferences"
+                view::$language->success,
+                    view::$language->preferences_global_is_changed,
+                        $newConfig->site->admin_tools_link . "/preferences"
 
         );
 

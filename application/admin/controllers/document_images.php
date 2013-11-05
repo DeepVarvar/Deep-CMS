@@ -36,7 +36,9 @@ class document_images extends baseController {
 
             "thumb_sizes" => array(
 
-                array("value" => "100x100", "description" => "100x100", "selected" => true),
+                array("value" => "100x100", "description" => "100x100",
+                        "selected" => true),
+
                 array("value" => "140x140", "description" => "140x140"),
                 array("value" => "180x180", "description" => "180x180"),
                 array("value" => "200x200", "description" => "200x200")
@@ -46,7 +48,9 @@ class document_images extends baseController {
             "middle_sizes" => array(
 
                 array("value" => "320x240", "description" => "320x240"),
-                array("value" => "400x300", "description" => "400x300", "selected" => true),
+                array("value" => "400x300", "description" => "400x300",
+                        "selected" => true),
+
                 array("value" => "520x390", "description" => "520x390"),
                 array("value" => "640x480", "description" => "640x480")
 
@@ -55,7 +59,9 @@ class document_images extends baseController {
             "original_sizes" => array(
 
                 array("value" => "640x480",  "description" => "640x480"),
-                array("value" => "800x600",  "description" => "800x600", "selected" => true),
+                array("value" => "800x600",  "description" => "800x600",
+                        "selected" => true),
+
                 array("value" => "1024x768", "description" => "1024x768"),
                 array("value" => "1200x900", "description" => "1200x900")
 
@@ -186,7 +192,8 @@ class document_images extends baseController {
 
                 "action"      => null,
                 "permission"  => "documents_manage",
-                "description" => view::$language->permission_documents_manage
+                "description"
+                    => view::$language->permission_documents_tree_manage
 
             )
 
@@ -349,7 +356,10 @@ class document_images extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/document-images\?target=.+", true);
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/document-images\?target=.+", true
+        );
 
 
         /**
@@ -357,7 +367,6 @@ class document_images extends baseController {
          */
 
         $this->chooseMode();
-
 
         $targetDocument = request::shiftParam("target");
         $targetImage    = request::shiftParam("id");
@@ -372,7 +381,12 @@ class document_images extends baseController {
             $images = member::getStorageData($this->storageDataKey);
 
             if (!array_key_exists($targetImage, $images)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
 
@@ -392,7 +406,6 @@ class document_images extends baseController {
 
             member::setStorageData($this->storageDataKey, $images);
 
-
         } else {
 
 
@@ -401,7 +414,12 @@ class document_images extends baseController {
              */
 
             if (!validate::isNumber($targetImage)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
 
@@ -409,14 +427,23 @@ class document_images extends baseController {
              * set image as master
              */
 
-            db::set("UPDATE images SET is_master = 0 WHERE document_id = %u", $targetDocument);
-            db::set("UPDATE images SET is_master = 1 WHERE id = %u", $targetImage);
+            db::set(
+                "UPDATE images SET is_master = 0
+                    WHERE document_id = %u", $targetDocument
+            );
+
+            db::set(
+                "UPDATE images SET is_master = 1
+                    WHERE id = %u", $targetImage
+            );
 
 
         }
 
-
-        throw new memberSuccessException(view::$language->success, view::$language->changes_has_been_saved);
+        throw new memberSuccessException(
+            view::$language->success,
+                view::$language->changes_has_been_saved
+        );
 
 
     }
@@ -443,7 +470,10 @@ class document_images extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/document-images\?target=.+", true);
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/document-images\?target=.+", true
+        );
 
 
         /**
@@ -472,7 +502,12 @@ class document_images extends baseController {
              */
 
             if (!array_key_exists($targetImage, $images)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
 
@@ -503,7 +538,6 @@ class document_images extends baseController {
 
             $this->getImagesListFromStorage();
 
-
         } else {
 
 
@@ -512,7 +546,12 @@ class document_images extends baseController {
              */
 
             if (!validate::isNumber($targetImage)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
 
@@ -520,20 +559,10 @@ class document_images extends baseController {
              * get image information
              */
 
-            $image = db::normalizeQuery("
+            $image = db::normalizeQuery(
 
-                SELECT
-
-                    name,
-                    document_id,
-                    is_master
-
-                FROM images
-                WHERE id = %u
-
-                ",
-
-                $targetImage
+                "SELECT name, document_id, is_master
+                    FROM images WHERE id = %u", $targetImage
 
             );
 
@@ -543,7 +572,6 @@ class document_images extends baseController {
              */
 
             if ($image) {
-
 
                 db::set("DELETE FROM images WHERE id = %u", $targetImage);
 
@@ -559,16 +587,19 @@ class document_images extends baseController {
 
                 if ($image['is_master']) {
 
-
                     $firstFindID = db::normalizeQuery(
-                        "SELECT id FROM images WHERE document_id = %u ORDER BY id ASC LIMIT 1",
-                        $image['document_id']
+                        "SELECT id FROM images WHERE document_id = %u
+                            ORDER BY id ASC LIMIT 1", $image['document_id']
                     );
 
                     if ($firstFindID) {
-                        db::set("UPDATE images SET is_master = 1 WHERE id = %u", $firstFindID);
-                    }
 
+                        db::set(
+                            "UPDATE images SET is_master = 1
+                                WHERE id = %u", $firstFindID
+                        );
+
+                    }
 
                 }
 
@@ -580,9 +611,7 @@ class document_images extends baseController {
 
                 $this->getImagesListFromDB($image['document_id']);
 
-
             }
-
 
         }
 
@@ -598,7 +627,8 @@ class document_images extends baseController {
          */
 
         $filePath = PUBLIC_HTML . "upload/";
-        $fileName = md5(mt_rand() . microtime(true)) . ".{$this->fileExtension}";
+        $fileName = md5(mt_rand()
+            . microtime(true)) . "." . $this->fileExtension;
 
         $original  = $filePath . $fileName;
         $middle    = $filePath . "middle_" . $fileName;
@@ -609,7 +639,9 @@ class document_images extends baseController {
          * move uploaded file into public directory
          */
 
-        move_uploaded_file($_FILES['uploadfile']['tmp_name'], $original);
+        move_uploaded_file(
+            $_FILES['uploadfile']['tmp_name'], $original
+        );
 
 
         /**
@@ -627,7 +659,7 @@ class document_images extends baseController {
 
             $originalImage->addWaterMark(
                 APPLICATION . app::config()->path->resources
-                . "watermarks/" . $this->waterMarkImage
+                    . "watermarks/" . $this->waterMarkImage
             );
 
         }
@@ -651,8 +683,8 @@ class document_images extends baseController {
         $originalImage->intelligentResize(
 
             $this->originalSize[0],
-            $this->originalSize[1],
-            $this->stretchImage
+                $this->originalSize[1],
+                    $this->stretchImage
 
         );
 
@@ -677,8 +709,8 @@ class document_images extends baseController {
         $middleImage->intelligentResize(
 
             $this->middleSize[0],
-            $this->middleSize[1],
-            $this->stretchImage
+                $this->middleSize[1],
+                    $this->stretchImage
 
         );
 
@@ -696,8 +728,8 @@ class document_images extends baseController {
         $thumbnailImage->intelligentResize(
 
             $this->thumbnailSize[0],
-            $this->thumbnailSize[1],
-            $this->stretchImage
+                $this->thumbnailSize[1],
+                    $this->stretchImage
 
         );
 
@@ -711,74 +743,78 @@ class document_images extends baseController {
 
         switch ($this->uploadActionType) {
 
-
             case "add":
-
 
                 if ($this->storageMode) {
 
+                    $storedImages = member::getStorageData(
+                        $this->storageDataKey
+                    );
 
-                    $storedImages = member::getStorageData($this->storageDataKey);
                     $isMasterImage = sizeof($storedImages) > 0 ? 0 : 1;
-
                     $storedImages[$fileName] = array();
                     $storedImages[$fileName]['is_master'] = $isMasterImage;
 
-                    member::setStorageData($this->storageDataKey, $storedImages);
-
+                    member::setStorageData(
+                        $this->storageDataKey, $storedImages
+                    );
 
                 } else {
 
-
                     $isMasterImage = db::query(
 
-                        "SELECT (1) ex FROM images WHERE document_id = %u LIMIT 1",
-                        $this->targetDocument
+                        "SELECT (1) ex FROM images WHERE
+                            document_id = %u LIMIT 1", $this->targetDocument
 
                     ) ? 0 : 1;
 
                     db::set(
 
-                        "INSERT INTO images (id,document_id,is_master,name) VALUES (NULL,%u,%u,'%s')",
-                        $this->targetDocument,
-                        $isMasterImage,
-                        $fileName
+                        "INSERT INTO images (id,document_id,is_master,name)
+                            VALUES (NULL,%u,%u,'%s')",
+                                $this->targetDocument,
+                                    $isMasterImage,
+                                        $fileName
 
                     );
 
-
                 }
-
 
             break;
 
-
             case "replace":
-
 
                 if ($this->storageMode) {
 
-
-                    $storedImages = member::getStorageData($this->storageDataKey);
+                    $storedImages = member::getStorageData(
+                        $this->storageDataKey
+                    );
 
                     $storedImages[$fileName] = array();
-                    $storedImages[$fileName]['is_master'] = $storedImages[$this->targetImage]['is_master'];
+                    $storedImages[$fileName]['is_master']
+                        = $storedImages[$this->targetImage]['is_master'];
 
                     unset($storedImages[$this->targetImage]);
 
                     @ unlink(PUBLIC_HTML . "upload/" . $this->targetImage);
-                    @ unlink(PUBLIC_HTML . "upload/thumb_" . $this->targetImage);
-                    @ unlink(PUBLIC_HTML . "upload/middle_" . $this->targetImage);
 
-                    member::setStorageData($this->storageDataKey, $storedImages);
+                    @ unlink(
+                        PUBLIC_HTML . "upload/thumb_" . $this->targetImage
+                    );
 
+                    @ unlink(
+                        PUBLIC_HTML . "upload/middle_" . $this->targetImage
+                    );
+
+                    member::setStorageData(
+                        $this->storageDataKey, $storedImages
+                    );
 
                 } else {
 
-
                     $oldFileName = db::normalizeQuery(
-                        "SELECT name FROM images WHERE id = %u",
-                        $this->targetImage
+                        "SELECT name FROM images
+                            WHERE id = %u", $this->targetImage
                     );
 
                     if ($oldFileName) {
@@ -790,16 +826,13 @@ class document_images extends baseController {
                     }
 
                     db::set(
-                        "UPDATE images SET name = '%s' WHERE id = %u",
-                        $fileName, $this->targetImage
+                        "UPDATE images SET name = '%s'
+                            WHERE id = %u", $fileName, $this->targetImage
                     );
-
 
                 }
 
-
             break;
-
 
         }
 
@@ -819,7 +852,13 @@ class document_images extends baseController {
          */
 
         if (is_array($_FILES['uploadfile']['tmp_name'])) {
-            $this->exceptionExit("error", view::$language->error, view::$language->upload_image_single_only);
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->upload_image_single_only
+            );
+
         }
 
 
@@ -828,7 +867,13 @@ class document_images extends baseController {
          */
 
         if ($_FILES['uploadfile']['error']) {
-            $this->exceptionExit("error", view::$language->error, view::$language->upload_image_file_error);
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->upload_image_file_error
+            );
+
         }
 
 
@@ -864,7 +909,8 @@ class document_images extends baseController {
          */
 
         $mimeType = $finfo !== null
-            ? finfo_file($finfo, $file) : mime_content_type($file);
+            ? finfo_file($finfo, $file)
+            : mime_content_type($file);
 
 
         /**
@@ -882,7 +928,13 @@ class document_images extends baseController {
          */
 
         if (!array_key_exists($mimeType, $this->allowedFileTypes)) {
-            $this->exceptionExit("error", view::$language->error, view::$language->upload_image_broken_mime);
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->upload_image_broken_mime
+            );
+
         }
 
         $this->fileExtension = $this->allowedFileTypes[$mimeType];
@@ -902,7 +954,10 @@ class document_images extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/document-images\?target=.+", true);
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/document-images\?target=.+", true
+        );
 
 
         /**
@@ -921,7 +976,13 @@ class document_images extends baseController {
         );
 
         if (!$requiredData = request::getRequiredPostParams($required)) {
-            $this->exceptionExit("error", view::$language->error, view::$language->data_not_enough);
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->data_not_enough
+            );
+
         }
 
 
@@ -929,8 +990,15 @@ class document_images extends baseController {
          * validate action type
          */
 
-        if ($requiredData['action'] !== "replace" and $requiredData['action'] !== "add") {
-            $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
+        if ($requiredData['action'] !== "replace"
+                and $requiredData['action'] !== "add") {
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->data_invalid
+            );
+
         }
 
         $this->uploadActionType = $requiredData['action'];
@@ -941,21 +1009,34 @@ class document_images extends baseController {
          */
 
         $target = $requiredData['target_document'];
-
         if ($target !== "new") {
 
-
             if (!validate::isNumber($target)) {
-                $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
+
+                $this->exceptionExit(
+                    "error",
+                        view::$language->error,
+                            view::$language->data_invalid
+                );
+
             }
 
-            if (!db::query("SELECT (1) ex FROM documents WHERE id = %u", $target)) {
-                $this->exceptionExit("error", view::$language->error, view::$language->document_not_found);
+            $exists = db::query(
+                "SELECT (1) ex FROM documents WHERE id = %u", $target
+            );
+
+            if (!$exists) {
+
+                $this->exceptionExit(
+                    "error",
+                        view::$language->error,
+                            view::$language->node_not_found
+                );
+
             }
 
             $this->targetDocument = $target;
             $this->storageMode = false;
-
 
         } else {
             $this->storageMode = true;
@@ -967,8 +1048,6 @@ class document_images extends baseController {
          */
 
         $target = $requiredData['image_id'];
-
-
         if ($this->storageMode and $this->uploadActionType !== "add") {
 
 
@@ -976,29 +1055,50 @@ class document_images extends baseController {
              * validate target image for exists ID
              */
 
-            if (!array_key_exists($target, member::getStorageData($this->storageDataKey))) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+            $validate = array_key_exists(
+                $target, member::getStorageData($this->storageDataKey)
+            );
+
+            if (!$validate) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
-
         } else {
-
 
             if ($this->uploadActionType !== "add") {
 
                 if (!validate::isNumber($target)) {
-                    $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
+
+                    $this->exceptionExit(
+                        "error",
+                            view::$language->error,
+                                view::$language->data_invalid
+                    );
+
                 }
 
-                if (!db::query("SELECT (1) ex FROM images WHERE id = %u", $target)) {
-                    $this->exceptionExit("error", view::$language->error, view::$language->image_not_found);
+                $exists = db::query(
+                    "SELECT (1) ex FROM images WHERE id = %u", $target
+                );
+
+                if (!$exists) {
+
+                    $this->exceptionExit(
+                        "error",
+                            view::$language->error,
+                                view::$language->image_not_found
+                    );
+
                 }
 
             }
 
-
         }
-
 
         $this->targetImage = $target;
 
@@ -1007,9 +1107,17 @@ class document_images extends baseController {
          * set values of sizes
          */
 
-        $this->thumbnailSize = $this->getSizeValueFromData($requiredData['thumbnail_size']);
-        $this->middleSize    = $this->getSizeValueFromData($requiredData['middle_size']);
-        $this->originalSize  = $this->getSizeValueFromData($requiredData['original_size']);
+        $this->thumbnailSize = $this->getSizeValueFromData(
+            $requiredData['thumbnail_size']
+        );
+
+        $this->middleSize = $this->getSizeValueFromData(
+            $requiredData['middle_size']
+        );
+
+        $this->originalSize = $this->getSizeValueFromData(
+            $requiredData['original_size']
+        );
 
 
         /**
@@ -1039,22 +1147,30 @@ class document_images extends baseController {
          */
 
         if (!validate::likeString($input)) {
-            $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->data_invalid
+            );
+
         }
 
 
         /**
-         * invalid string format
+         * invalid string format,
+         * or return values of width/height
          */
 
         if (!preg_match("/^([1-9]\d{0,3})x([1-9]\d{0,3})$/", $input, $m)) {
-            $this->exceptionExit("error", view::$language->error, view::$language->data_invalid_format);
+
+            $this->exceptionExit(
+                "error",
+                    view::$language->error,
+                        view::$language->data_invalid
+            );
+
         }
-
-
-        /**
-         * return values of width/height
-         */
 
         return array($m[1], $m[2]);
 
@@ -1068,25 +1184,14 @@ class document_images extends baseController {
 
     private function getImagesListFromDB($documentID) {
 
+        view::assign("images",
 
-        view::assign("images", db::query("
+            db::query(
+                "SELECT id, is_master, name FROM images WHERE
+                    document_id = %u ORDER BY id ASC", $documentID
+            )
 
-            SELECT
-
-                id,
-                is_master,
-                name
-
-            FROM images
-            WHERE document_id = %u
-            ORDER BY id ASC
-
-            ",
-
-            $documentID
-
-        ));
-
+        );
 
     }
 
@@ -1099,8 +1204,16 @@ class document_images extends baseController {
 
 
         $images = array();
-        foreach (member::getStorageData($this->storageDataKey) as $k => $item) {
-            array_push($images, array("id" => $k, "is_master" => $item['is_master'], "name" => $k));
+        foreach (
+            member::getStorageData($this->storageDataKey) as $k => $item) {
+
+            array_push(
+                $images,
+                    array(
+                        "id" => $k,
+                            "is_master" => $item['is_master'],
+                                "name" => $k));
+
         }
 
         view::assign("images", $images);
@@ -1120,21 +1233,22 @@ class document_images extends baseController {
         $targetDocument = request::getParam("target");
         switch (true) {
 
-
             case ($targetDocument === "new"):
                 $this->storageMode = true;
             break;
-
 
             case (validate::isNumber($targetDocument)):
                 $this->storageMode = false;
             break;
 
-
             default:
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
-            break;
 
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
+            break;
 
         }
 
@@ -1144,23 +1258,17 @@ class document_images extends baseController {
 
     /**
      * set exception and exit from application
+     * exit now from application
+     * WARNING! need stored member cache before exit!
      */
 
     private function exceptionExit() {
-
-
-
-        /**
-         * exit now from application
-         * WARNING! need stored member cache before exit!
-         */
 
         $args = func_get_args();
         storage::write("admin-attached-images-exception", $args);
 
         member::storeData();
         exit();
-
 
     }
 

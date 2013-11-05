@@ -47,19 +47,18 @@ class document_features extends baseController {
 
     public function setPermissions() {
 
-
         $this->permissions = array(
 
             array(
 
                 "action"      => null,
                 "permission"  => "documents_manage",
-                "description" => view::$language->permission_documents_manage
+                "description"
+                    => view::$language->permission_documents_tree_manage
 
             )
 
         );
-
 
     }
 
@@ -85,18 +84,20 @@ class document_features extends baseController {
              */
 
             $targetDocument = request::shiftParam("target");
-
             if (!validate::isNumber($targetDocument)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
             $this->getFeaturesFromDB($targetDocument);
 
-
         }
 
-
-        view::assign("page_title", view::$language->document_features);
+        view::assign("page_title", view::$language->features);
         $this->setProtectedLayout("document-features.html");
 
 
@@ -125,37 +126,29 @@ class document_features extends baseController {
 
         $name = request::getPostParam("value");
         if ($name === null) {
-            throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_not_enough
+            );
+
         }
 
 
         $name = filter::input($name)
                     ->stripTags()
-                    ->expReplace("/\s+/", " ")
-                    ->getData();
+                        ->expReplace("/\s+/", " ")
+                            ->getData();
 
         $items = array();
-
         if ($name) {
 
-            $items = db::query("
-
-                SELECT
-
-                    name fvalue
-
-                FROM features
-                WHERE name LIKE '%%%s%%'
-                LIMIT 0,5
-
-                ",
-
-                $name
-
+            $items = db::query(
+                "SELECT name fvalue FROM features
+                    WHERE name LIKE '%%%s%%' LIMIT 0,5", $name
             );
 
         }
-
 
         view::assign("items", $items);
 
@@ -185,38 +178,29 @@ class document_features extends baseController {
 
         $value = request::getPostParam("value");
         if ($value === null) {
-            throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
-        }
 
-
-        $value = filter::input($value)
-                    ->stripTags()
-                    ->expReplace("/\s+/", " ")
-                    ->getData();
-
-        $items = array();
-
-        if ($value) {
-
-            $items = db::query("
-
-                SELECT
-
-                    feature_value fvalue
-
-                FROM document_features
-                WHERE feature_value LIKE '%%%s%%'
-                GROUP BY feature_value
-                LIMIT 0,5
-
-                ",
-
-                $value
-
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_not_enough
             );
 
         }
 
+        $value = filter::input($value)
+                    ->stripTags()
+                        ->expReplace("/\s+/", " ")
+                            ->getData();
+
+        $items = array();
+        if ($value) {
+
+            $items = db::query(
+                "SELECT feature_value fvalue FROM document_features
+                    WHERE feature_value LIKE '%%%s%%'
+                        GROUP BY feature_value LIMIT 0,5", $value
+            );
+
+        }
 
         view::assign("items", $items);
 
@@ -248,7 +232,12 @@ class document_features extends baseController {
         $data = request::getRequiredPostParams($required);
 
         if ($data === null) {
-            throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_not_enough
+            );
+
         }
 
 
@@ -265,8 +254,14 @@ class document_features extends baseController {
          * validate target document ID
          */
 
-        if (!$this->storageMode and !validate::isNumber($data['document_id'])) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+        if (!$this->storageMode
+                and !validate::isNumber($data['document_id'])) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
         }
 
 
@@ -276,11 +271,16 @@ class document_features extends baseController {
 
         $data['name'] = filter::input($data['name'])
                             ->stripTags()
-                            ->expReplace("/\s+/", " ")
-                            ->getData();
+                                ->expReplace("/\s+/", " ")
+                                    ->getData();
 
         if (!$data['name']) {
-            throw new memberErrorException(view::$language->error, view::$language->document_feature_name_invalid);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->feature_name_invalid
+            );
+
         }
 
 
@@ -290,13 +290,17 @@ class document_features extends baseController {
 
         $data['value'] = filter::input($data['value'])
                             ->stripTags()
-                            ->expReplace("/\s+/", " ")
-                            ->getData();
+                                ->expReplace("/\s+/", " ")
+                                    ->getData();
 
         if (!$data['value']) {
-            throw new memberErrorException(view::$language->error, view::$language->document_feature_value_invalid);
-        }
 
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->feature_value_invalid
+            );
+
+        }
 
         if ($this->storageMode) {
             $this->saveFeatureIntoStorage($data);
@@ -332,17 +336,25 @@ class document_features extends baseController {
             $this->deleteFeatureFromStorage($featureID);
         } else {
 
-
             if (!validate::isNumber($documentID)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
             if (!$this->storageMode and !validate::isNumber($featureID)) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
             $this->deleteFeatureFromDB($featureID, $documentID);
-
 
         }
 
@@ -371,12 +383,9 @@ class document_features extends baseController {
             WHERE df.document_id = %u
             ORDER BY df.feature_id ASC
 
-            ",
-
-            $documentID
+            ", $documentID
 
         );
-
 
         view::assign("target_document", $documentID);
         view::assign("features", $features);
@@ -396,8 +405,18 @@ class document_features extends baseController {
          * check for exists document
          */
 
-        if (!db::query("SELECT (1) ex FROM documents WHERE id = %u", $data['document_id'])) {
-            throw new memberErrorException(view::$language->error, view::$language->document_not_found);
+        $exists = db::query(
+            "SELECT (1) ex FROM documents
+                WHERE id = %u", $data['document_id']
+        );
+
+        if (!$exists) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->node_not_found
+            );
+
         }
 
 
@@ -406,9 +425,9 @@ class document_features extends baseController {
          */
 
         $existsFeatureID = db::normalizeQuery(
-            "SELECT id FROM features WHERE name = '%s'", $data['name']
+            "SELECT id FROM features
+                WHERE name = '%s'", $data['name']
         );
-
 
         if (!$existsFeatureID) {
 
@@ -418,32 +437,31 @@ class document_features extends baseController {
              */
 
             db::set(
-                "INSERT INTO features (id,name) VALUES (NULL,'%s')",
-                $data['name']
+                "INSERT INTO features (id,name)
+                    VALUES (NULL,'%s')", $data['name']
             );
 
             $newFeatureID = db::lastID();
-            db::set("
+            db::set(
 
-                INSERT INTO document_features
-                (document_id,feature_id,feature_value)
-                VALUES (%u,%u,'%s')
-
-                ",
-
-                $data['document_id'],
-                $newFeatureID,
-                $data['value']
+                "INSERT INTO document_features
+                    (document_id,feature_id,feature_value)
+                        VALUES (%u,%u,'%s')",
+                            $data['document_id'],
+                                $newFeatureID,
+                                    $data['value']
 
             );
 
-
         } else {
 
-
             $existsValue = db::normalizeQuery(
-                "SELECT (1) ex FROM document_features WHERE document_id = %u AND feature_id = %u",
-                $data['document_id'], $existsFeatureID
+
+                "SELECT (1) ex FROM document_features
+                    WHERE document_id = %u AND feature_id = %u",
+                        $data['document_id'],
+                            $existsFeatureID
+
             );
 
 
@@ -453,18 +471,13 @@ class document_features extends baseController {
 
             if ($existsValue) {
 
+                db::set(
 
-                db::set("
-
-                    UPDATE document_features
-                    SET feature_value = '%s'
-                    WHERE document_id = %u AND feature_id = %u
-
-                    ",
-
-                    $data['value'],
-                    $data['document_id'],
-                    $existsFeatureID
+                    "UPDATE document_features SET feature_value = '%s'
+                        WHERE document_id = %u AND feature_id = %u",
+                            $data['value'],
+                                $data['document_id'],
+                                    $existsFeatureID
 
                 );
 
@@ -475,24 +488,18 @@ class document_features extends baseController {
 
             } else {
 
+                db::set(
 
-                db::set("
-
-                    INSERT INTO document_features
-                    (document_id,feature_id,feature_value)
-                    VALUES (%u,%u,'%s')
-
-                    ",
-
-                    $data['document_id'],
-                    $existsFeatureID,
-                    $data['value']
+                    "INSERT INTO document_features
+                        (document_id,feature_id,feature_value)
+                            VALUES (%u,%u,'%s')",
+                                $data['document_id'],
+                                    $existsFeatureID,
+                                        $data['value']
 
                 );
 
-
             }
-
 
         }
 
@@ -514,17 +521,11 @@ class document_features extends baseController {
     private function deleteFeatureFromDB($featureID, $documentID) {
 
 
-        db::set("
+        db::set(
 
-            DELETE
-            FROM document_features
-            WHERE feature_id = %u
-            AND document_id = %u
-
-            ",
-
-            $featureID,
-            $documentID
+            "DELETE FROM document_features
+                WHERE feature_id = %u AND document_id = %u",
+                    $featureID, $documentID
 
         );
 
@@ -534,7 +535,8 @@ class document_features extends baseController {
          */
 
         $existsMore = db::query(
-            "SELECT (1) ex FROM document_features WHERE feature_id = %u", $featureID
+            "SELECT (1) ex FROM document_features
+                WHERE feature_id = %u", $featureID
         );
 
         if (!$existsMore) {
@@ -568,7 +570,6 @@ class document_features extends baseController {
 
         }
 
-
         view::assign("target_document", "new");
         view::assign("features", $features);
 
@@ -583,24 +584,16 @@ class document_features extends baseController {
     private function saveFeatureIntoStorage($data) {
 
 
-        /**
-         * set new feature value
-         */
-
-
         $features = member::getStorageData($this->storageDataKey);
-
         $key = helper::getHash($data['name']);
-        $features[$key] = array("name" => $data['name'], "value" => $data['value']);
+
+        $features[$key] = array(
+            "name" => $data['name'], "value" => $data['value']
+        );
 
         member::setStorageData($this->storageDataKey, $features);
-
-
-        /**
-         * assign into view current document features
-         */
-
         $this->getFeaturesFromStorage();
+
 
     }
 

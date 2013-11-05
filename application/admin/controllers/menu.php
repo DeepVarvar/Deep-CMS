@@ -138,7 +138,7 @@ class menu extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->data_invalid
+                    view::$language->data_invalid
             );
 
         }
@@ -166,9 +166,9 @@ class menu extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->menu_is_deleted,
-            app::config()->site->admin_tools_link . "/menu"
+                view::$language->success,
+                    view::$language->menu_is_deleted,
+                        app::config()->site->admin_tools_link . "/menu"
 
         );
 
@@ -193,7 +193,7 @@ class menu extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->data_invalid
+                    view::$language->data_invalid
             );
 
         }
@@ -211,7 +211,7 @@ class menu extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->menu_not_found
+                    view::$language->menu_not_found
             );
 
         }
@@ -274,7 +274,7 @@ class menu extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->data_not_enough
+                    view::$language->data_not_enough
             );
 
         }
@@ -283,7 +283,7 @@ class menu extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->menu_name_invalid
+                    view::$language->menu_name_invalid
             );
 
         }

@@ -25,7 +25,7 @@ abstract class globalMemberLoginAttempt {
 
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->login_or_pass_bad
+                        view::$language->login_or_pass_bad
                 );
 
             }
