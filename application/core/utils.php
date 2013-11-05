@@ -366,7 +366,7 @@ abstract class utils {
              * check for available overloading
              */
 
-            if (method_exists($, "__call")) {
+            if (method_exists($c, "__call")) {
 
                 $argument = $action;
                 $action = "__call";
