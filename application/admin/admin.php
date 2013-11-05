@@ -15,9 +15,7 @@ class admin extends baseController {
 
     public function setPermissions() {
 
-
         $this->permissions = array(
-
 
             array(
 
@@ -27,9 +25,7 @@ class admin extends baseController {
 
             )
 
-
         );
-
 
     }
 
@@ -43,8 +39,6 @@ class admin extends baseController {
 
         $uri = request::getURI();
         $cnf = app::config();
-
-
         if (member::isAuth()) {
 
 
@@ -106,8 +100,6 @@ class admin extends baseController {
              */
 
             request::validateReferer(app::config()->site->admin_tools_link);
-
-
             if (!member::logged()) {
 
                 storage::write(
@@ -122,12 +114,9 @@ class admin extends baseController {
 
             }
 
-
             request::sameOriginRedirect();
 
-
         }
-
 
         if (storage::exists('admin-login-env')) {
             view::assign(storage::shift('admin-login-env'));
@@ -143,7 +132,6 @@ class admin extends baseController {
             );
 
         }
-
 
         $this->setProtectedLayout("login-form.html");
 

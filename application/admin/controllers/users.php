@@ -30,7 +30,7 @@ class users extends baseController {
 
                 "action"      => "create",
                 "permission"  => "users_create",
-                "description" => view::$language->permission_users_create
+                "description" => view::$language->permission_user_create
 
             ),
 
@@ -38,7 +38,7 @@ class users extends baseController {
 
                 "action"      => "delete",
                 "permission"  => "users_delete",
-                "description" => view::$language->permission_users_delete
+                "description" => view::$language->permission_user_delete
 
             ),
 
@@ -46,7 +46,7 @@ class users extends baseController {
 
                 "action"      => "edit",
                 "permission"  => "users_edit",
-                "description" => view::$language->permission_users_edit
+                "description" => view::$language->permission_user_edit
 
             )
 
@@ -64,8 +64,8 @@ class users extends baseController {
 
 
         $priorityCondition = (!member::isRoot() or member::getPriority() > 0)
-            ? "WHERE g.priority > " . member::getPriority() . " OR g.priority IS NULL" : "";
-
+            ? "WHERE g.priority > "
+                . member::getPriority() . " OR g.priority IS NULL" : "";
 
         $sourceQuery = db::buildQueryString("
 
@@ -87,15 +87,13 @@ class users extends baseController {
 
         ");
 
-
         $paginator = new paginator($sourceQuery);
         $paginator =
 
             $paginator->setCurrentPage(request::getCurrentPage())
                 ->setItemsPerPage(20)
-                ->setSliceSizeByPages(20)
-                ->getResult();
-
+                    ->setSliceSizeByPages(20)
+                        ->getResult();
 
         view::assign("page_title", view::$language->users);
         view::assign("users", $paginator['items']);
@@ -166,13 +164,22 @@ class users extends baseController {
 
         $user_id = request::shiftParam("id");
         if (!validate::isNumber($user_id)) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
         }
 
         if (!member::isRoot() and (string) $user_id === "0") {
-            throw new memberErrorException(view::$language->error, view::$language->system_object_action_denied);
-        }
 
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->system_object_action_denied
+            );
+
+        }
 
         $existsUser = db::normalizeQuery("
 
@@ -194,23 +201,36 @@ class users extends baseController {
 
             WHERE u.id = %u
 
-            ",
-
-            $user_id
+            ", $user_id
 
         );
 
-
         if (!$existsUser) {
-            throw new memberErrorException(view::$language->error, view::$language->user_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_not_found
+            );
+
         }
 
         if (!member::isRoot() and member::getID() == $existsUser['id']) {
-            throw new memberErrorException(view::$language->error, view::$language->user_cant_edit_so_profile);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_cant_edit_so_profile
+            );
+
         }
 
-        if (!member::isRoot() and member::getPriority() >= $existsUser['priority']) {
-            throw new memberErrorException(view::$language->error, view::$language->user_cant_edit_hoep_user);
+        if (!member::isRoot()
+                and member::getPriority() >= $existsUser['priority']) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_cant_edit_hoep_user
+            );
+
         }
 
 
@@ -263,7 +283,9 @@ class users extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/users");
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/users"
+        );
 
 
         /**
@@ -273,11 +295,21 @@ class users extends baseController {
 
         $user_id = request::shiftParam("id");
         if (!validate::isNumber($user_id)) {
-            throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
         }
 
         if ((string) $user_id === "0") {
-            throw new memberErrorException(view::$language->error, view::$language->system_object_action_denied);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->system_object_action_denied
+            );
+
         }
 
 
@@ -293,23 +325,36 @@ class users extends baseController {
 
             WHERE u.id = %u
 
-            ",
-
-            $user_id
+            ", $user_id
 
         );
 
-
         if (!$existsUser) {
-            throw new memberErrorException(view::$language->error, view::$language->user_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_not_found
+            );
+
         }
 
         if (member::getID() == $existsUser['id']) {
-            throw new memberErrorException(view::$language->ouch, view::$language->user_suicide_not_allowed);
+
+            throw new memberErrorException(
+                view::$language->ouch,
+                    view::$language->user_suicide_not_allowed
+            );
+
         }
 
-        if (!member::isRoot() and member::getPriority() >= $existsUser['priority']) {
-            throw new memberErrorException(view::$language->error, view::$language->user_cant_delete_hoep_user);
+        if (!member::isRoot()
+                and member::getPriority() >= $existsUser['priority']) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_cant_delete_hoep_user
+            );
+
         }
 
 
@@ -317,9 +362,8 @@ class users extends baseController {
          * now delete user
          */
 
-        db::set("
-            DELETE FROM users
-            WHERE id = %u", $existsUser['id']
+        db::set(
+            "DELETE FROM users WHERE id = %u", $existsUser['id']
         );
 
 
@@ -330,9 +374,9 @@ class users extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->user_is_deleted,
-            app::config()->site->admin_tools_link . "/users"
+                view::$language->success,
+                    view::$language->user_is_deleted,
+                        app::config()->site->admin_tools_link . "/users"
 
         );
 
@@ -351,10 +395,10 @@ class users extends baseController {
          * get available groups
          */
 
-        $groups = db::query("
-            SELECT id, priority, name FROM groups
-            ORDER BY priority DESC
-        ");
+        $groups = db::query(
+            "SELECT id, priority, name
+                FROM groups ORDER BY priority DESC"
+        );
 
 
         /**
@@ -370,10 +414,7 @@ class users extends baseController {
 
         );
 
-
         array_push($grouplist, $emptyOption);
-
-
         foreach ($groups as $group) {
 
 
@@ -381,10 +422,12 @@ class users extends baseController {
              * check group priority for available items
              */
 
-            if (!member::isRoot() and member::getPriority() >= $group['priority']) {
-                break;
-            }
+            if (!member::isRoot()
+                    and member::getPriority() >= $group['priority']) {
 
+                break;
+
+            }
 
             $option = array(
 
@@ -396,9 +439,7 @@ class users extends baseController {
 
             array_push($grouplist, $option);
 
-
         }
-
 
         return $grouplist;
 
@@ -430,7 +471,6 @@ class users extends baseController {
         $statuslist = array();
         foreach ($statustypes as $k => $status) {
 
-
             $option = array(
 
                 "description" => $status,
@@ -439,12 +479,9 @@ class users extends baseController {
 
             );
 
-
             array_push($statuslist, $option);
 
-
         }
-
 
         return $statuslist;
 
@@ -465,9 +502,17 @@ class users extends baseController {
 
         $adminToolsLink = app::config()->site->admin_tools_link;
         if ($target === null) {
-            request::validateReferer($adminToolsLink . "/users/create");
+
+            request::validateReferer(
+                $adminToolsLink . "/users/create"
+            );
+
         } else {
-            request::validateReferer($adminToolsLink . "/users/edit\?id=\d+", true);
+
+            request::validateReferer(
+                $adminToolsLink . "/users/edit\?id=\d+", true
+            );
+
         }
 
 
@@ -490,7 +535,12 @@ class users extends baseController {
 
         $userData = request::getRequiredPostParams($requiredParams);
         if ($userData === null) {
-            throw new memberErrorException(view::$language->error, view::$language->data_not_enough);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_not_enough
+            );
+
         }
 
 
@@ -501,7 +551,12 @@ class users extends baseController {
         foreach ($requiredParams as $strKey) {
 
             if (!validate::likeString($userData[$strKey])) {
-                throw new memberErrorException(view::$language->error, view::$language->data_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->data_invalid
+                );
+
             }
 
         }
@@ -511,8 +566,14 @@ class users extends baseController {
          * check user status type
          */
 
-        if (!validate::isNumber($userData['status']) or $userData['status'] > 3) {
-            throw new memberErrorException(view::$language->error, view::$language->user_status_invalid_format);
+        if (!validate::isNumber($userData['status'])
+                or $userData['status'] > 3) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_status_invalid
+            );
+
         }
 
 
@@ -521,13 +582,24 @@ class users extends baseController {
          */
 
         if (!preg_match("/^[a-z-]+$/", $userData['language'])) {
-            throw new memberErrorException(view::$language->error, view::$language->language_name_need_iso639_std);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->language_name_need_iso639_std
+            );
+
         }
 
-        $languageDir = APPLICATION . app::config()->path->languages . $userData['language'];
+        $languageDir = APPLICATION
+            . app::config()->path->languages . $userData['language'];
 
         if (!is_dir($languageDir)) {
-            throw new memberErrorException(view::$language->error, view::$language->language_not_found);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->language_not_found
+            );
+
         }
 
 
@@ -537,11 +609,15 @@ class users extends baseController {
 
         $userData['login']
             = filter::input($userData['login'])
-                ->stripTags()
-                ->getData();
+                ->stripTags()->getData();
 
         if (!$userData['login']) {
-            throw new memberErrorException(view::$language->error, view::$language->user_login_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->user_login_invalid
+            );
+
         }
 
 
@@ -550,7 +626,12 @@ class users extends baseController {
          */
 
         if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new memberErrorException(view::$language->error, view::$language->email_invalid_format);
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->email_invalid
+            );
+
         }
 
 
@@ -560,8 +641,11 @@ class users extends baseController {
          * password for exists user is required only if isset
          */
 
-        $userData['confirmpassword'] = filter::input($userData['confirmpassword'])->getData();
-        $userData['password'] = filter::input($userData['password'])->getData();
+        $userData['confirmpassword']
+            = filter::input($userData['confirmpassword'])->getData();
+
+        $userData['password']
+            = filter::input($userData['password'])->getData();
 
 
         $requiredPassword = (
@@ -573,11 +657,21 @@ class users extends baseController {
         if ($requiredPassword) {
 
             if (!$userData['password'] or !$userData['confirmpassword']) {
-                throw new memberErrorException(view::$language->error, view::$language->password_confirm_req_depend);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->password_confirm_req_depend
+                );
+
             }
 
             if ($userData['password'] !== $userData['confirmpassword']) {
-                throw new memberErrorException(view::$language->error, view::$language->password_confirm_dont_match);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->password_confirm_dont_match
+                );
+
             }
 
         }
@@ -590,34 +684,43 @@ class users extends baseController {
 
         if ($userData['group_id'] === "none") {
 
-
             $userData['group_id'] = "NULL";
-            $existsGroup = array(
-                "priority" => null,
-                "id" => null
-            );
-
+            $existsGroup = array("priority" => null, "id" => null);
 
         } else {
 
-
             if (!validate::isNumber($userData['group_id'])) {
-                throw new memberErrorException(view::$language->error, view::$language->group_id_invalid_format);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->group_id_invalid
+                );
+
             }
 
-            $existsGroup = db::normalizeQuery("
-                SELECT id,priority FROM groups
-                WHERE id = %u", $userData['group_id']
+            $existsGroup = db::normalizeQuery(
+                "SELECT id,priority FROM groups
+                    WHERE id = %u", $userData['group_id']
             );
 
             if (!$existsGroup) {
-                throw new memberErrorException(view::$language->error, view::$language->group_not_found);
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->group_not_found
+                );
+
             }
 
-            if (!member::isRoot() and member::getPriority() >= $existsGroup['priority']) {
-                throw new memberErrorException(view::$language->error, view::$language->user_cant_set_hoep_group);
-            }
+            if (!member::isRoot()
+                    and member::getPriority() >= $existsGroup['priority']) {
 
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->user_cant_set_hoep_group
+                );
+
+            }
 
         }
 
@@ -628,8 +731,7 @@ class users extends baseController {
 
         $userData['about']
             = filter::input($userData['about'])
-                ->stripTags()
-                ->getData();
+                ->stripTags()->getData();
 
 
         /**
@@ -706,18 +808,16 @@ class users extends baseController {
             $newUserID = db::lastID();
             $userHash = helper::getHash(
 
-                $newUserID . $userData['login'] . $password . $existsGroup['id']
-                . $existsGroup['priority'] . $userData['email']
+                $newUserID . $userData['login']
+                    . $password . $existsGroup['id']
+                        . $existsGroup['priority'] . $userData['email']
 
             );
-
 
             db::set(
-                "UPDATE users SET hash = '%s' WHERE id = %u",
-                $userHash, $newUserID
+                "UPDATE users SET hash = '%s'
+                    WHERE id = %u", $userHash, $newUserID
             );
-
-
 
         } else {
 
@@ -726,18 +826,23 @@ class users extends baseController {
              * get user password hash
              */
 
-            $uPass = db::normalizeQuery("SELECT password FROM users WHERE id = %u", $target);
+            $uPass = db::normalizeQuery(
+                "SELECT password FROM users WHERE id = %u", $target
+            );
 
 
             /**
              * build user hash
              */
 
-            $password = $requiredPassword ? helper::getHash($userData['password']) : $uPass;
+            $password = $requiredPassword
+                ? helper::getHash($userData['password']) : $uPass;
+
             $userHash = helper::getHash(
 
-                $target . $userData['login'] . $password . $existsGroup['id']
-                . $existsGroup['priority'] . $userData['email']
+                $target . $userData['login']
+                    . $password . $existsGroup['id']
+                        . $existsGroup['priority'] . $userData['email']
 
             );
 
@@ -747,7 +852,6 @@ class users extends baseController {
              */
 
             if ($requiredPassword) {
-
 
                 db::set("
 
@@ -778,9 +882,7 @@ class users extends baseController {
 
                 );
 
-
             } else {
-
 
                 db::set("
 
@@ -809,9 +911,7 @@ class users extends baseController {
 
                 );
 
-
             }
-
 
         }
 
@@ -829,9 +929,9 @@ class users extends baseController {
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            $message,
-            app::config()->site->admin_tools_link . "/users"
+                view::$language->success,
+                    $message,
+                        app::config()->site->admin_tools_link . "/users"
 
         );
 

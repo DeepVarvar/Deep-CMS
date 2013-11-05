@@ -14,7 +14,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
         "in_sitemap"         => 0,
         "page_alias"         => "",
-        "search_priority"    => ""
+        "searchers_priority" => ""
 
     );
 
@@ -37,14 +37,14 @@ class mainModuleProtoModel extends baseProtoTypeModel {
         $f['required']    = true;
         $f['value']       = rawurldecode($f['value']);
         $f['type']        = "longtext";
-        $f['description'] = view::$language->simple_page_page_alias;
+        $f['description'] = view::$language->page_alias;
 
     }
 
-    protected function search_priorityGetData( & $f) {
+    protected function searchers_priorityGetData( & $f) {
 
         $f['type']        = "select";
-        $f['description'] = view::$language->simple_page_search_priority;
+        $f['description'] = view::$language->searchers_priority;
         $f['value']       = utils::makeOptionsArray(
             utils::getAvailableSearchPriority(), $f['value']
         );
@@ -67,18 +67,18 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->simple_page_page_alias_invalid
+                    view::$language->page_alias_invalid
             );
 
         }
 
         $data = utils::normalizeInputUrl(
-            $data, view::$language->simple_page_page_alias_invalid
+            $data, view::$language->page_alias_invalid
         );
 
     }
 
-    protected function search_priorityPrepare( & $data) {
+    protected function searchers_priorityPrepare( & $data) {
 
         $data = (string) $data;
         if ($data == "---") {
@@ -90,7 +90,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
             throw new memberErrorException(
                 view::$language->error,
-                view::$language->sp_invalid_format
+                    view::$language->searchers_priority_invalid
             );
 
         }
