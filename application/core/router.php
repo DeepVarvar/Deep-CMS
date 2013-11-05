@@ -106,7 +106,7 @@ abstract class router {
 
             $loadedPage = db::query(
 
-                "SELECT id, prototype FROM documents WHERE
+                "SELECT id, prototype FROM tree WHERE
                     page_alias = '%s' AND is_publish = 1",
                         request::getURI()
 
@@ -117,7 +117,7 @@ abstract class router {
 
             $loadedPage = db::query(
 
-                "SELECT id, prototype FROM documents WHERE
+                "SELECT id, prototype FROM tree WHERE
                     page_alias IN('%s','%s') AND is_publish = 1",
                         $module, request::getURI()
 
@@ -237,11 +237,11 @@ abstract class router {
                 u2.login modifier_name,
                 IF(i.name IS NOT NULL,i.name,'{$noImage}') image
 
-            FROM documents d
+            FROM tree d
 
             LEFT JOIN users u1 ON u1.id = d.author
             LEFT JOIN users u2 ON u2.id = d.modified_author
-            LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
+            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
 
             WHERE d.id = %u", $loadedPage['id']
 

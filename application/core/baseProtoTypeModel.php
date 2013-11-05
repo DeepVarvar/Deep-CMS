@@ -25,10 +25,7 @@ class baseProtoTypeModel {
 
             $fields = join(",", array_keys($this->returnedFields));
             $values = db::normalizeQuery(
-
-                "SELECT {$fields} FROM documents
-                    WHERE id = %u", $nodeID
-
+                "SELECT {$fields} FROM tree WHERE id = %u", $nodeID
             );
 
             if (!$values) {

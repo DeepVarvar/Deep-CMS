@@ -11,23 +11,23 @@ $(function(){
     var attachedimageswrapper = $("#attachedimageswrapper");
     var uploadform = $("#uploadform");
     var uploadprogress = $("#uploadprogress");
-    var target = $("#target_document");
+    var target = $("#target_node");
     var uploadframe = $("#" + getNewUploadFrame());
 
     var deleteimageconfirm = $("#innerdata").attr("data-deleteimageconfirm");
-    var target_document = $("#innerdata").attr("data-target");
+    var target_node = $("#innerdata").attr("data-target");
 
 
     /**
      * place images array from response
      */
 
-    function placeDocumentImages(images, target_document) {
+    function placeNodeImages(images, target_node) {
 
 
 
         var output = "", iLen = images.length;
-        var linkPrefix = variables.admin_tools_link + '/document-images/';
+        var linkPrefix = variables.admin_tools_link + '/node-images/';
 
         for (var i = 0; i < iLen; i++) {
 
@@ -49,11 +49,11 @@ $(function(){
                     output += ' </div> ';
 
                     output += ' <div class="masterlink"> ';
-                        output += ' <a class="masteraction" href="' + linkPrefix + 'master?id=' + images[i].id + '&target=' + target_document + '">' + language.make_is_master + '</a> ';
+                        output += ' <a class="masteraction" href="' + linkPrefix + 'master?id=' + images[i].id + '&target=' + target_node + '">' + language.make_is_master + '</a> ';
                     output += ' </div> ';
 
                     output += ' <div> ';
-                        output += ' <a class="deleteaction" href="' + linkPrefix + 'delete?id=' + images[i].id + '&target=' + target_document + '">' + language.delete_now + '</a> ';
+                        output += ' <a class="deleteaction" href="' + linkPrefix + 'delete?id=' + images[i].id + '&target=' + target_node + '">' + language.delete_now + '</a> ';
                     output += ' </div> ';
 
                 output += ' </div> ';
@@ -70,7 +70,7 @@ $(function(){
 
 
     /**
-     * attached document images
+     * attached node images
      */
 
     function getNewUploadFrame() {
@@ -157,7 +157,7 @@ $(function(){
                             showException(response.exception);
                         } else {
 
-                            placeDocumentImages(response.images, target_document);
+                            placeNodeImages(response.images, target_node);
                             bindAttachedImagesItems();
 
                         }
@@ -211,7 +211,7 @@ $(function(){
 
             item.find("a.replaceaction").click(function(){
 
-                setUploadImagesForm(target_document, "replace", $(this).attr("data-id"));
+                setUploadImagesForm(target_node, "replace", $(this).attr("data-id"));
                 coverblur.show();
                 popupformwrapper.show();
 
@@ -229,7 +229,7 @@ $(function(){
     function setUploadImagesForm(target, action, image_id) {
 
 
-        $("#target_document").val(target);
+        $("#target_node").val(target);
         $("#action").val(action);
         $("#image_id").val(image_id);
         $("#uploadfile").val("");
@@ -245,7 +245,7 @@ $(function(){
     }
 
 
-    setUploadImagesForm(target_document, "add", "new");
+    setUploadImagesForm(target_node, "add", "new");
     uploadprogress.hide();
 
     bindAttachedImagesItems();
@@ -256,7 +256,7 @@ $(function(){
         coverblur.show();
         popupformwrapper.show();
 
-        setUploadImagesForm(target_document, "add", "new");
+        setUploadImagesForm(target_node, "add", "new");
         return false;
 
     });
@@ -276,7 +276,7 @@ $(function(){
 
                 cache: false,
                 type: "GET",
-                url: variables.admin_tools_link + "/document-images/view?target=" + target.val(),
+                url: variables.admin_tools_link + "/node-images/view?target=" + target.val(),
                 success: function(response){
 
 
@@ -284,7 +284,7 @@ $(function(){
                         showException(response.exception);
                     } else {
 
-                        placeDocumentImages(response.images, target_document);
+                        placeNodeImages(response.images, target_node);
                         popupformwrapper.hide();
                         coverblur.hide();
 
@@ -294,7 +294,7 @@ $(function(){
 
 
                     uploadframe = $("#" + getNewUploadFrame());
-                    setUploadImagesForm(target_document, "add", "new");
+                    setUploadImagesForm(target_node, "add", "new");
 
                     uploadprogress.hide();
                     uploadform.show();

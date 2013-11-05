@@ -35,7 +35,7 @@ class groups extends baseController {
             array(
 
                 "action"      => "create",
-                "permission"  => "groups_create",
+                "permission"  => "group_create",
                 "description" => view::$language->permission_group_create
 
             ),
@@ -43,7 +43,7 @@ class groups extends baseController {
             array(
 
                 "action"      => "delete",
-                "permission"  => "groups_delete",
+                "permission"  => "group_delete",
                 "description" => view::$language->permission_group_delete
 
             ),
@@ -51,7 +51,7 @@ class groups extends baseController {
             array(
 
                 "action"      => "edit",
-                "permission"  => "groups_edit",
+                "permission"  => "group_edit",
                 "description" => view::$language->permission_group_edit
 
             )

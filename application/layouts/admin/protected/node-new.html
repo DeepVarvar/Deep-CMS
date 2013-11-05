@@ -4,15 +4,13 @@
     <h1><?=$page_title?></h1>
 
 
-    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/documents/edit?id=<?=$node['id']['value']?>" method="post">
+    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$node['parent_id']['value']?>" method="post">
         <div class="form">
 
             <div class="label mt-20">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
             <div class="elem mt-20">
-                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
-                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
             </div>
-
 
             <div id="showpagename" class="longblock mt-20 c"></div>
 
@@ -20,8 +18,8 @@
             <?=adminHelper::getForm($node)?>
 
 
-            <div class="label mt-20"><?=view::$language->show_in_menu?>:</div>
-            <div class="elem mt-20">
+            <div class="label mt-30"><?=view::$language->show_in_menu?>:</div>
+            <div class="elem mt-30">
 
                 <?php foreach ($in_menu as $checkbox) { ?>
 
@@ -50,12 +48,12 @@
 
             <div class="label mt-20"><?=view::$language->images_attached?>:</div>
             <div class="elem mt-20">
-                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/document-images?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
+                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/node-images?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
 
             <div class="label"><?=view::$language->features?>:</div>
             <div class="elem">
-                <a id="documentfeatures" href="<?=$_config->site->admin_tools_link?>/document-features?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
+                <a id="nodefeatures" href="<?=$_config->site->admin_tools_link?>/node-features?target=<?=$node['id']['value']?>"><?=view::$language->show_it?></a>
             </div>
 
 
@@ -63,8 +61,7 @@
             <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
             <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
             <div class="elem">
-                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
-                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
+                <input type="submit" name="save" value=" <?=view::$language->save?> " />
             </div>
 
             <div class="clear"></div>

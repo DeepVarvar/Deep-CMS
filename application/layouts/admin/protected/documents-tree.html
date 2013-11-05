@@ -1,0 +1,84 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+
+    <div id="treeaction">
+        <a href="<?=$_config->site->admin_tools_link?>/tree/branch?id=0"><?=view::$language->documents_tree_return_to_root?></a> \
+        <a id="togglexscroll" href="#xautoscroll" title=" <?=view::$language->x_auto_scroll?> ">x-AutoScroll</a>
+    </div>
+
+
+    <div id="tree">
+
+        <ul class="node">
+
+            <li>
+
+                <?php if ($node['type'] == 'node') { ?>
+
+                    <a class="levelup" title=" <?=view::$language->documents_tree_level_up?> " href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$node['parent_id']?>"></a>
+                    <a class="name<?=$node['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$node['id']?>" title=" <?=view::$language->edit_now?> ">
+                        <div class="blend"></div>
+                        <span><?=$node['node_name']?></span>
+                    </a>
+
+                <?php } else { ?>
+
+                    <a class="noexpandnode" name="noexpandnode"></a>
+                    <a class="name" name="root">
+                        <div class="blend"></div>
+                        <span><?=$node['node_name']?></span>
+                    </a>
+
+                <?php } ?>
+
+                <a class="create" href="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$node['id']?>" title=" <?=view::$language->node_create_new?> "></a>
+
+                <?php if ($node['type'] == 'node') { ?>
+                    <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$node['id']?>" title=" <?=view::$language->delete_now?> " onclick="return confirmation('<?=view::$language->node_delete_confirm?>');"></a>
+                <?php } ?>
+
+                <?php if ($children) { ?>
+
+                    <ul>
+
+                    <?php foreach ($children as $c) { ?>
+
+                        <li>
+
+                            <?php if ($c['children'] > 0) { ?>
+                                <a class="expander" href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>" title=" <?=view::$language->branch_children_expand_collapse?> "></a>
+                            <?php } else { ?>
+                                <a class="noexpand" name="<?=microtime(true)?>"></a>
+                            <?php } ?>
+
+                            <a class="name<?=$c['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$c['id']?>" title=" <?=view::$language->edit_now?> ">
+                                <div class="blend"></div>
+                                <span><?=$c['node_name']?></span>
+                            </a>
+
+                            <?php if ($c['children'] > 0) { ?>
+                                <a class="showbranch" href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>" title=" <?=view::$language->documents_tree_only_one_branch?> "></a>
+                            <?php } ?>
+
+                            <a class="create" href="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$c['id']?>" title=" <?=view::$language->node_create_new?> "></a>
+                            <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$c['id']?>" title=" <?=view::$language->delete_now?> " onclick="return confirmation('<?=view::$language->node_delete_confirm?>');"></a>
+
+                        </li>
+
+                    <?php } ?>
+
+                    </ul>
+
+                <?php } ?>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

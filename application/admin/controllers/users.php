@@ -29,7 +29,7 @@ class users extends baseController {
             array(
 
                 "action"      => "create",
-                "permission"  => "users_create",
+                "permission"  => "user_create",
                 "description" => view::$language->permission_user_create
 
             ),
@@ -37,7 +37,7 @@ class users extends baseController {
             array(
 
                 "action"      => "delete",
-                "permission"  => "users_delete",
+                "permission"  => "user_delete",
                 "description" => view::$language->permission_user_delete
 
             ),
@@ -45,7 +45,7 @@ class users extends baseController {
             array(
 
                 "action"      => "edit",
-                "permission"  => "users_edit",
+                "permission"  => "user_edit",
                 "description" => view::$language->permission_user_edit
 
             )

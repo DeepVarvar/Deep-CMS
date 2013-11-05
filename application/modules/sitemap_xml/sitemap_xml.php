@@ -39,7 +39,7 @@ class sitemap_xml extends baseController {
         /**
          * available parameters on <url> item:
          *
-         * <loc>        : url of document, REQUIRED!
+         * <loc>        : url - REQUIRED!
          * <lastmod>    : (date) YYYY.MM.DD
          * <changefreq> : always|hourly|daily|weekly|monthly|yearly|never
          * <priority>   : (float) 0.0-1.0
@@ -51,17 +51,17 @@ class sitemap_xml extends baseController {
 
             SELECT
 
-                CONCAT('', '%s', d.page_alias) loc,
+                CONCAT('', '%s', page_alias) loc,
                 DATE_FORMAT(last_modified,'%s') lastmod,
-                d.change_freq changefreq,
-                ROUND(d.search_priority,1) priority
+                change_freq changefreq,
+                ROUND(searcher_priority,1) priority
 
-            FROM documents d
+            FROM tree
 
-            WHERE d.is_publish = 1
-                AND d.page_alias NOT LIKE '%%http://%%'
+            WHERE is_publish = 1
+                AND page_alias NOT LIKE '%%http://%%'
 
-            ORDER BY d.parent_id ASC, d.sort ASC
+            ORDER BY parent_id ASC, lk ASC
 
             ",
 

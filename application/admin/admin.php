@@ -56,7 +56,7 @@ class admin extends baseController {
              */
 
             if ($uri == $cnf->site->admin_tools_link) {
-                request::redirect($cnf->site->admin_tools_link . "/documents");
+                request::redirect($cnf->site->admin_tools_link . "/tree");
             }
 
 

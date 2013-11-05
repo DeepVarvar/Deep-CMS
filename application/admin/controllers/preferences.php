@@ -39,6 +39,15 @@ class preferences extends baseController {
                 "permission"  => "preferences_reset",
                 "description" => view::$language->permission_preferences_reset
 
+            ),
+
+            array(
+
+                "action"      => "clear_cache",
+                "permission"  => "preferences_clear_cache",
+                "description"
+                    => view::$language->permission_preferences_clear_cache
+
             )
 
         );

@@ -10,10 +10,10 @@ abstract class dataHelper {
 
 
     /**
-     * return document data with ID
+     * return node data with ID
      */
 
-    public static function getDocument($id, $more = array(), $with = DATA_WITHOUT_ALL) {
+    public static function getNode($id, $more = array(), $with = DATA_WITHOUT_ALL) {
 
 
         /**
@@ -21,7 +21,7 @@ abstract class dataHelper {
          */
 
         if (!validate::isNumber($id)) {
-            throw new systemErrorException("Helper error", "Document ID is not number");
+            throw new systemErrorException("Helper error", "Node ID is not number");
         }
 
         if (!is_array($more)) {
@@ -34,11 +34,11 @@ abstract class dataHelper {
 
 
         /**
-         * get document data
+         * get node data
          */
 
         $noImg = app::config()->site->no_image;
-        $document = db::query("
+        $node = db::query("
 
             SELECT
 
@@ -55,9 +55,9 @@ abstract class dataHelper {
                 d.last_modified,
                 d.creation_date
 
-            FROM documents d
+            FROM tree d
             LEFT JOIN users u ON u.id = d.author
-            LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
+            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
 
             WHERE d.is_publish = 1 AND d.id = %u
 
@@ -68,10 +68,10 @@ abstract class dataHelper {
         );
 
 
-        if ($document) {
+        if ($node) {
 
-            //self::joinExtendedItemsData($document, $more, $with);
-            return $document[0];
+            //self::joinExtendedItemsData($node, $more, $with);
+            return $node[0];
 
         }
 
@@ -80,10 +80,10 @@ abstract class dataHelper {
 
 
     /**
-     * return children array from document ID
+     * return children array from parent node ID
      */
 
-    public static function getDocumentChildren($id, $more = array(), $with = DATA_WITHOUT_ALL, $limit = 0, $orderBy = null) {
+    public static function getNodeChildren($id, $more = array(), $with = DATA_WITHOUT_ALL, $limit = 0, $orderBy = null) {
 
 
         /**
@@ -91,7 +91,7 @@ abstract class dataHelper {
          */
 
         if (!validate::isNumber($id)) {
-            throw new systemErrorException("Helper error", "Document ID is not number");
+            throw new systemErrorException("Helper error", "Node ID is not number");
         }
 
         if (!is_array($more)) {
@@ -132,9 +132,9 @@ abstract class dataHelper {
                 d.last_modified,
                 d.creation_date
 
-            FROM documents d
+            FROM tree d
             LEFT JOIN users u ON u.id = d.author
-            LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
+            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
 
             WHERE d.is_publish = 1 AND d.parent_id = %u
             ORDER BY {$orderBy}
@@ -205,9 +205,9 @@ abstract class dataHelper {
                 d.creation_date
 
             FROM menu_items mi
-            JOIN documents d ON d.id = mi.document_id
+            JOIN tree d ON d.id = mi.node_id
             LEFT JOIN users u ON u.id = d.author
-            LEFT JOIN images i ON i.document_id = d.id AND i.is_master = 1
+            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
 
             WHERE d.is_publish = 1 AND mi.menu_id = %u
             ORDER BY d.lk ASC
@@ -231,18 +231,18 @@ abstract class dataHelper {
 
 
     /**
-     * return attached images array with document ID
+     * return attached images array with node ID
      */
 
-    public static function getAttachedImages($documentID) {
+    public static function getAttachedImages($nodeID) {
 
 
         /**
          * validate input ID
          */
 
-        if (!validate::isNumber($documentID)) {
-            throw new systemErrorException("Helper error", "Document ID is not number");
+        if (!validate::isNumber($nodeID)) {
+            throw new systemErrorException("Helper error", "Node ID is not number");
         }
 
 
@@ -251,7 +251,7 @@ abstract class dataHelper {
          */
 
         $images = array();
-        foreach (self::getAttachedImagesArray(array($documentID), false) as $image) {
+        foreach (self::getAttachedImagesArray(array($nodeID), false) as $image) {
             array_push($images, $image['name']);
         }
 
@@ -263,14 +263,14 @@ abstract class dataHelper {
 
 
     /**
-     * return features array with document ID
+     * return features array with node ID
      */
 
-    public static function getDocumentFeatures($documentID) {
+    public static function getNodeFeatures($nodeID) {
 
 
-        if (!validate::isNumber($documentID)) {
-            throw new systemErrorException("Helper error", "Document ID is not number");
+        if (!validate::isNumber($nodeID)) {
+            throw new systemErrorException("Helper error", "Node ID is not number");
         }
 
 
@@ -279,7 +279,7 @@ abstract class dataHelper {
          */
 
         $features = array();
-        foreach (self::getDocumentFeaturesArray(array($documentID)) as $feature) {
+        foreach (self::getNodeFeaturesArray(array($nodeID)) as $feature) {
             $feature = array("name" => $feature['name'], "value" => $feature['value']);
             array_push($features, $feature);
         }
@@ -292,10 +292,10 @@ abstract class dataHelper {
 
 
     /**
-     * return breadcrumbs items array with document ID
+     * return breadcrumbs items array with current node ID
      */
 
-    public static function getBreadcrumbs($documentID, $showHome = false) {
+    public static function getBreadcrumbs($nodeID, $showHome = false) {
 
 
         return db::query("
@@ -309,10 +309,10 @@ abstract class dataHelper {
                     d.page_alias
 
                 FROM (
-                    SELECT lk, rk, page_alias FROM documents WHERE id = %u
+                    SELECT lk, rk, page_alias FROM tree WHERE id = %u
                 ) t
 
-                INNER JOIN documents d ON (
+                INNER JOIN tree d ON (
 
                     d.lk < t.lk AND d.rk > t.rk AND d.is_publish = 1
                         OR d.id = %u OR d.page_alias = IF(%u = 0, '', '/')
@@ -324,8 +324,8 @@ abstract class dataHelper {
 
             ",
 
-            $documentID,
-            $documentID,
+            $nodeID,
+            $nodeID,
             ($showHome ? 1 : 0)
 
         );
@@ -487,7 +487,7 @@ abstract class dataHelper {
          */
 
         $attachedImages = array();
-        $documentFeatures = array();
+        $nodeFeatures = array();
 
         $withImages = false;
         $withFeatures = false;
@@ -502,7 +502,7 @@ abstract class dataHelper {
                 $withImages = true;
                 $withFeatures = true;
 
-                $documentFeatures = self::getDocumentFeaturesArray($itemsIDs);
+                $nodeFeatures = self::getNodeFeaturesArray($itemsIDs);
                 $attachedImages   = self::getAttachedImagesArray($itemsIDs);
 
 
@@ -520,7 +520,7 @@ abstract class dataHelper {
             case ($with == DATA_WITH_FEATURES):
 
                 $withFeatures = true;
-                $documentFeatures = self::getDocumentFeaturesArray($itemsIDs);
+                $nodeFeatures = self::getNodeFeaturesArray($itemsIDs);
 
             break;
 
@@ -571,7 +571,7 @@ abstract class dataHelper {
 
             foreach ($attachedImages as $k => $image) {
 
-                if ($image['document_id'] == $item['id']) {
+                if ($image['node_id'] == $item['id']) {
                     array_push($items[$i]['attached_images'], $image['name']);
                     unset($attachedImages[$k]);
                 }
@@ -580,20 +580,20 @@ abstract class dataHelper {
 
 
             /**
-             * append document features
+             * append node features
              */
 
             if ($withFeatures) {
-                $items[$i]['document_features'] = array();
+                $items[$i]['node_features'] = array();
             }
 
-            foreach ($documentFeatures as $k => $feature) {
+            foreach ($nodeFeatures as $k => $feature) {
 
-                if ($feature['document_id'] == $item['id']) {
+                if ($feature['node_id'] == $item['id']) {
 
                     $feature = array("name" => $feature['name'], "value" => $feature['value']);
-                    array_push($items[$i]['document_features'], $feature);
-                    unset($documentFeatures[$k]);
+                    array_push($items[$i]['node_features'], $feature);
+                    unset($nodeFeatures[$k]);
 
                 }
 
@@ -621,11 +621,11 @@ abstract class dataHelper {
 
             SELECT
 
-                document_id,
+                node_id,
                 name
 
             FROM images
-            WHERE document_id IN(%s)
+            WHERE node_id IN(%s)
             ORDER BY is_master DESC, id ASC
 
             ",
@@ -651,8 +651,8 @@ abstract class dataHelper {
 
             foreach ($images as $image) {
 
-                if (!in_array($image['document_id'], $IDs)) {
-                    $noImages[] = array("document_id" => $id, "name" => $noImg);
+                if (!in_array($image['node_id'], $IDs)) {
+                    $noImages[] = array("node_id" => $id, "name" => $noImg);
                 }
 
             }
@@ -667,7 +667,7 @@ abstract class dataHelper {
             if (!$images) {
 
                 foreach ($IDs as $id) {
-                    $images[] = array("document_id" => $id, "name" => app::config()->site->no_image);
+                    $images[] = array("node_id" => $id, "name" => app::config()->site->no_image);
                 }
 
             }
@@ -683,10 +683,10 @@ abstract class dataHelper {
 
 
     /**
-     * return document features array
+     * return node features array
      */
 
-    private static function getDocumentFeaturesArray($IDs) {
+    private static function getNodeFeaturesArray($IDs) {
 
 
         /**
@@ -697,14 +697,14 @@ abstract class dataHelper {
 
             SELECT
 
-                df.document_id,
-                df.feature_value value,
+                tf.node_id,
+                tf.feature_value value,
                 f.name
 
-            FROM document_features df
-            INNER JOIN features f ON f.id = df.feature_id
-            WHERE df.document_id IN(%s)
-            ORDER BY df.feature_id ASC
+            FROM tree_features tf
+            INNER JOIN features f ON f.id = tf.feature_id
+            WHERE tf.node_id IN(%s)
+            ORDER BY tf.feature_id ASC
 
             ",
 

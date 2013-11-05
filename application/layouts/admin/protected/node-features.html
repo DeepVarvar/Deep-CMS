@@ -9,7 +9,7 @@
     <script type="text/javascript" src="<?=$_config->site->admin_tools_link?>/variables.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/common.js"></script>
-    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/document-features.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/node-features.js"></script>
 
     <title><?=view::$language->admin_tools?> :: <?=$page_title?></title>
 
@@ -27,7 +27,7 @@
 
     </div>
 
-    <div id="innerdata" data-deletefeatureconfirm="<?=view::$language->feature_delete_confirm?>" data-target="<?=$target_document?>"></div>
+    <div id="innerdata" data-deletefeatureconfirm="<?=view::$language->feature_delete_confirm?>" data-target="<?=$target_node?>"></div>
 
     <div class="topfcap featurecaption">
 
@@ -42,7 +42,7 @@
 
         <?php foreach ($features as $item) { ?>
 
-            <form class="feature" action="<?=$config->site->admin_tools_link?>/document-features/save" method="post">
+            <form class="feature" action="<?=$config->site->admin_tools_link?>/node-features/save" method="post">
 
                 <div class="name">
                     <input type="text" name="name" value="<?=$item['fname']?>" data-value="<?=$item['fname']?>" autocomplete="off" />
@@ -55,12 +55,12 @@
                 </div>
 
                 <div class="save">
-                    <input type="hidden" name="document_id" value="<?=$item['document_id']?>" />
+                    <input type="hidden" name="node_id" value="<?=$item['node_id']?>" />
                     <input type="submit" name="save" value=" &raquo; " title=" <?=view::$language->save?> " />
                 </div>
 
                 <div class="delete">
-                    <a href="<?=$config->site->admin_tools_link?>/document-features/delete?id=<?=$item['feature_id']?>&target=<?=$item['document_id']?>" title=" <?=view::$language->delete_now?> ">✖</a>
+                    <a href="<?=$config->site->admin_tools_link?>/node-features/delete?id=<?=$item['feature_id']?>&target=<?=$item['node_id']?>" title=" <?=view::$language->delete_now?> ">✖</a>
                 </div>
 
                 <div class="clear"></div>
@@ -82,7 +82,7 @@
 
         </div>
 
-        <form class="feature" action="<?=$config->site->admin_tools_link?>/document-features/save" method="post">
+        <form class="feature" action="<?=$config->site->admin_tools_link?>/node-features/save" method="post">
 
             <div class="name">
                 <input type="text" name="name" value="" data-value="" autocomplete="off" />
@@ -95,7 +95,7 @@
             </div>
 
             <div class="save">
-                <input type="hidden" name="document_id" value="<?=$target_document?>" />
+                <input type="hidden" name="node_id" value="<?=$target_node?>" />
                 <input type="submit" name="save" value=" &raquo; " title=" <?=view::$language->save?> " />
             </div>
 

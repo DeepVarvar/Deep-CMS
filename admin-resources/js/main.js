@@ -12,7 +12,7 @@ function getBranchTreeItem(item) {
     item.children = parseInt(item.children);
     item.is_publish = parseInt(item.is_publish);
 
-    var linkPrefix = variables.admin_tools_link + "/documents";
+    var linkPrefix = variables.admin_tools_link + "/tree";
     var branchLink = linkPrefix + "/branch?id=" + item.id;
     var createLink = linkPrefix + "/create?parent=" + item.id;
     var deleteLink = linkPrefix + "/delete?id=" + item.id;
@@ -27,7 +27,8 @@ function getBranchTreeItem(item) {
     var eName  = item.children > 0 ? "" : ' name="' + Math.random() + '"';
     var eLink  = item.children > 0 ? ' href="' + branchLink + '"' : "";
     var eTitle = item.children > 0
-            ? ' title=" ' + language.document_tree_expand_collapse + ' "' : "";
+            ? ' title=" ' + language.branch_children_expand_collapse + ' "'
+            : "";
 
     var expander = ' <a' + eTitle + ' class="'
             + eClass + '"' + eName + eLink + '></a> ';
@@ -56,84 +57,21 @@ function getBranchTreeItem(item) {
 
         showbranch = ' <a class="showbranch" href="'
             + branchLink + '" title=" '
-            + language.document_tree_show_only_tb + ' "></a> ';
+            + language.documents_tree_only_one_branch + ' "></a> ';
 
     }
 
     create  = ' <a class="create" href="' + createLink
-        + '" title=" ' + language.document_create_new + ' "></a> ';
+        + '" title=" ' + language.node_create_new + ' "></a> ';
 
     idelete = ' <a class="delete" href="'
         + deleteLink + '" title=" ' + language.delete_now + ' "'
         + ' onclick="return confirmation(\''
-        + language.document_delete_confirm + '\');"></a> ';
+        + language.node_delete_confirm + '\');"></a> ';
 
 
     return ' <li> ' + expander + iname
         + showbranch + create + idelete + ' </li> ';
-
-
-}
-
-
-/**
- * return string of parentlist branch item
- */
-
-function getBranchParentlistItem(item, doc_id) {
-
-
-    item.children = parseInt(item.children);
-    item.is_off = parseInt(item.is_off);
-
-    var linkPrefix = variables.admin_tools_link + "/documents";
-    var branchLink = linkPrefix
-            + "/get-available-parents?branch_id=" + item.id + "&id=" + doc_id;
-
-
-    /**
-     * expander
-     */
-
-    var eClass = (item.is_off == 0 && item.children > 0)
-            ? "expander" : "noexpand";
-
-    var eName  = (item.is_off == 0 && item.children > 0)
-            ? "" : ' name="' + Math.random() + '"';
-
-    var eLink  = (item.is_off == 0 && item.children > 0)
-            ? ' href="' + branchLink + '"' : "";
-
-    var eTitle = (item.is_off == 0 && item.children > 0)
-            ? ' title=" ' + language.document_tree_expand_collapse + ' "' : "";
-
-    var expander = ' <a' + eTitle + ' class="'
-            + eClass + '"' + eName + eLink + '></a> ';
-
-
-    /**
-     * name
-     */
-
-    var dataID   = ' data-id="' + item.id + '"';
-    var blend    = ' <div class="blend"></div> ';
-    var isOff = item.is_off == 0 ? " selectme" : " off";
-
-    var iName  = item.is_off == 0
-            ? "" : ' name="' + Math.random() + '"';
-
-    var iLink = item.is_off == 0
-            ? ' href="' + item.page_alias + '"' : "";
-
-    var iTitle = item.is_off == 0
-            ? ' title=" ' + language.document_set_as_parent + ' "' : "";
-
-    var dName = ' <a class="name' + isOff + '"'
-            + iName + iLink + iTitle + dataID + '>' + blend
-            + ' <span> ' + item.node_name + ' </span> ' + ' </a> ';
-
-
-    return ' <li> ' + expander + dName + ' </li> ';
 
 
 }
@@ -165,19 +103,19 @@ $(function(){
 
 
     /**
-     * set viewed name of document
+     * set viewed name of node
      */
 
-    function setNameOfDocument(str) {
+    function setNameOfNode(str) {
         $("#showpagename").text(str);
     }
 
 
     /**
-     * refresh viewed name of document
+     * refresh viewed name of node
      */
 
-    setNameOfDocument(trim($("#pagename").val()));
+    setNameOfNode(trim($("#pagename").val()));
 
 
     /**
@@ -197,14 +135,14 @@ $(function(){
     $("#pagename").keyup(function(){
 
         var sourceName = trim($("#pagename").val());
-        setNameOfDocument(sourceName);
+        setNameOfNode(sourceName);
         generatePageAlias(sourceName);
 
     });
 
 
     /**
-     * document tree horizontal autoscroll
+     * documents tree horizontal autoscroll
      * with mouse horizontal move,
      * on/off and move actions worker
      */
@@ -264,7 +202,7 @@ $(function(){
 
 
     /**
-     * document tree expand/collapse branch node
+     * documents tree expand/collapse branch node
      */
 
     $("#tree a.expander").live("click", function(){
@@ -329,7 +267,7 @@ $(function(){
 
 
     /**
-     * change prototype of document
+     * change prototype of node
      */
 
     $("#prototype").change(function(){
@@ -355,7 +293,7 @@ $(function(){
 
 
     /**
-     * open attached images window of document
+     * open attached images window of node
      */
 
     $("#attachedimages").click(function(){
@@ -373,17 +311,17 @@ $(function(){
 
 
     /**
-     * open features window of document
+     * open features window of node
      */
 
-    $("#documentfeatures").click(function(){
+    $("#nodefeatures").click(function(){
 
 
-        var documentFeaturesWindow = window.open(
-            $(this).attr("href"), "documentfeatures", "width=620,height=450,scrollbars=yes"
+        var nodeFeaturesWindow = window.open(
+            $(this).attr("href"), "nodefeatures", "width=620,height=450,scrollbars=yes"
         );
 
-        documentFeaturesWindow.focus();
+        nodeFeaturesWindow.focus();
         return false;
 
 

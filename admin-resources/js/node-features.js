@@ -5,7 +5,7 @@ $(function(){
 
 
     /**
-     * document features
+     * node features
      */
 
     var body = $("html, body");
@@ -16,7 +16,7 @@ $(function(){
     var deleteFeatureConfirm = $("#innerdata").attr("data-deletefeatureconfirm");
 
 
-    function placeDocumentFeatures(features) {
+    function placeNodeFeatures(features) {
 
 
         var output = "";
@@ -25,7 +25,7 @@ $(function(){
 
 
             output += ' <form class="feature" action="'
-                            + variables.admin_tools_link + '/document-features/save" method="post"> ';
+                            + variables.admin_tools_link + '/node-features/save" method="post"> ';
 
                 output += ' <div class="name"> ';
 
@@ -46,14 +46,14 @@ $(function(){
                 output += ' </div> ';
 
                 output += ' <div class="save"> ';
-                    output += ' <input type="hidden" name="document_id" value="' + features[i].document_id + '" /> ';
+                    output += ' <input type="hidden" name="node_id" value="' + features[i].node_id + '" /> ';
                     output += ' <input type="submit" name="silentsave" value=" &raquo; " title=" ' + language.save + ' " /> ';
                 output += ' </div> ';
 
                 output += ' <div class="delete"> ';
 
-                    output += ' <a href="' + variables.admin_tools_link + '/document-features/delete?id='
-                                + features[i].feature_id + '&target=' + features[i].document_id
+                    output += ' <a href="' + variables.admin_tools_link + '/node-features/delete?id='
+                                + features[i].feature_id + '&target=' + features[i].node_id
                                 + '" title=" ' + language.delete_now + ' ">✖</a> ';
 
                 output += ' </div> ';
@@ -105,7 +105,7 @@ $(function(){
 
             $.post(
 
-                variables.admin_tools_link + "/document-features/" + type + "-autocomplete",
+                variables.admin_tools_link + "/node-features/" + type + "-autocomplete",
                 {value: newValue},
 
                 function (response) {
@@ -260,7 +260,7 @@ $(function(){
                         showException(response.exception);
                     } else {
 
-                        placeDocumentFeatures(response.features);
+                        placeNodeFeatures(response.features);
                         bindFeatures();
 
                     }
@@ -308,7 +308,7 @@ $(function(){
             } else {
 
                 hideNewFeatureForm();
-                placeDocumentFeatures(response.features);
+                placeNodeFeatures(response.features);
                 bindFeatures();
 
             }

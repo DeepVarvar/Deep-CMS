@@ -861,7 +861,7 @@ abstract class view {
 
 
         /**
-         * dependency values for h1 and title of document
+         * dependency values for h1 and title of node
          */
 
         if (!self::$vars['page_h1']) {

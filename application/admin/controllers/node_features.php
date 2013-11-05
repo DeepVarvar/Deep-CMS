@@ -3,10 +3,10 @@
 
 
 /**
- * admin submodule, manage document features
+ * admin submodule, manage node features
  */
 
-class document_features extends baseController {
+class node_features extends baseController {
 
 
     private
@@ -20,7 +20,7 @@ class document_features extends baseController {
 
 
         /**
-         * storage saved mode for new document
+         * storage saved mode for new node
          */
 
         $storageMode = false;
@@ -41,7 +41,7 @@ class document_features extends baseController {
 
     /**
      * set permissions for this controller
-     * this permissions repeat of documents admin controller,
+     * this permissions repeat of documents tree admin controller,
      * but and you can make one permission for some other actions
      */
 
@@ -52,7 +52,7 @@ class document_features extends baseController {
             array(
 
                 "action"      => null,
-                "permission"  => "documents_manage",
+                "permission"  => "documents_tree_manage",
                 "description"
                     => view::$language->permission_documents_tree_manage
 
@@ -80,11 +80,11 @@ class document_features extends baseController {
 
 
             /**
-             * validate target document ID
+             * validate target node ID
              */
 
-            $targetDocument = request::shiftParam("target");
-            if (!validate::isNumber($targetDocument)) {
+            $targetNode = request::shiftParam("target");
+            if (!validate::isNumber($targetNode)) {
 
                 throw new memberErrorException(
                     view::$language->error,
@@ -93,12 +93,12 @@ class document_features extends baseController {
 
             }
 
-            $this->getFeaturesFromDB($targetDocument);
+            $this->getFeaturesFromDB($targetNode);
 
         }
 
         view::assign("page_title", view::$language->features);
-        $this->setProtectedLayout("document-features.html");
+        $this->setProtectedLayout("node-features.html");
 
 
     }
@@ -195,7 +195,7 @@ class document_features extends baseController {
         if ($value) {
 
             $items = db::query(
-                "SELECT feature_value fvalue FROM document_features
+                "SELECT feature_value fvalue FROM tree_features
                     WHERE feature_value LIKE '%%%s%%'
                         GROUP BY feature_value LIMIT 0,5", $value
             );
@@ -228,7 +228,7 @@ class document_features extends baseController {
          * get required data
          */
 
-        $required = array("document_id", "name", "value");
+        $required = array("node_id", "name", "value");
         $data = request::getRequiredPostParams($required);
 
         if ($data === null) {
@@ -242,20 +242,20 @@ class document_features extends baseController {
 
 
         /**
-         * fix mode from POST data of document ID
+         * fix mode from POST data of node ID
          */
 
-        if ($data['document_id'] === "new") {
+        if ($data['node_id'] === "new") {
             $this->storageMode = true;
         }
 
 
         /**
-         * validate target document ID
+         * validate target node ID
          */
 
         if (!$this->storageMode
-                and !validate::isNumber($data['document_id'])) {
+                and !validate::isNumber($data['node_id'])) {
 
             throw new memberErrorException(
                 view::$language->error,
@@ -313,7 +313,7 @@ class document_features extends baseController {
 
 
     /**
-     * delete document feature
+     * delete node feature
      */
 
     public function delete() {
@@ -328,15 +328,15 @@ class document_features extends baseController {
         view::lockOutputContext();
 
 
-        $featureID  = request::shiftParam("id");
-        $documentID = request::shiftParam("target");
+        $featureID = request::shiftParam("id");
+        $nodeID    = request::shiftParam("target");
 
 
         if ($this->storageMode) {
             $this->deleteFeatureFromStorage($featureID);
         } else {
 
-            if (!validate::isNumber($documentID)) {
+            if (!validate::isNumber($nodeID)) {
 
                 throw new memberErrorException(
                     view::$language->error,
@@ -354,7 +354,7 @@ class document_features extends baseController {
 
             }
 
-            $this->deleteFeatureFromDB($featureID, $documentID);
+            $this->deleteFeatureFromDB($featureID, $nodeID);
 
         }
 
@@ -366,28 +366,28 @@ class document_features extends baseController {
      * get features list from database
      */
 
-    private function getFeaturesFromDB($documentID) {
+    private function getFeaturesFromDB($nodeID) {
 
 
         $features = db::query("
 
             SELECT
 
-                df.feature_id,
-                df.document_id,
-                df.feature_value fvalue,
+                tf.feature_id,
+                tf.node_id,
+                tf.feature_value fvalue,
                 f.name fname
 
-            FROM document_features df
-            INNER JOIN features f ON f.id = df.feature_id
-            WHERE df.document_id = %u
-            ORDER BY df.feature_id ASC
+            FROM tree_features tf
+            INNER JOIN features f ON f.id = tf.feature_id
+            WHERE tf.node_id = %u
+            ORDER BY tf.feature_id ASC
 
-            ", $documentID
+            ", $nodeID
 
         );
 
-        view::assign("target_document", $documentID);
+        view::assign("target_node", $nodeID);
         view::assign("features", $features);
 
 
@@ -402,12 +402,12 @@ class document_features extends baseController {
 
 
         /**
-         * check for exists document
+         * check for exists node
          */
 
         $exists = db::query(
-            "SELECT (1) ex FROM documents
-                WHERE id = %u", $data['document_id']
+            "SELECT (1) ex FROM tree
+                WHERE id = %u", $data['node_id']
         );
 
         if (!$exists) {
@@ -444,10 +444,10 @@ class document_features extends baseController {
             $newFeatureID = db::lastID();
             db::set(
 
-                "INSERT INTO document_features
-                    (document_id,feature_id,feature_value)
+                "INSERT INTO tree_features
+                    (node_id,feature_id,feature_value)
                         VALUES (%u,%u,'%s')",
-                            $data['document_id'],
+                            $data['node_id'],
                                 $newFeatureID,
                                     $data['value']
 
@@ -457,9 +457,9 @@ class document_features extends baseController {
 
             $existsValue = db::normalizeQuery(
 
-                "SELECT (1) ex FROM document_features
-                    WHERE document_id = %u AND feature_id = %u",
-                        $data['document_id'],
+                "SELECT (1) ex FROM tree_features
+                    WHERE node_id = %u AND feature_id = %u",
+                        $data['node_id'],
                             $existsFeatureID
 
             );
@@ -473,27 +473,27 @@ class document_features extends baseController {
 
                 db::set(
 
-                    "UPDATE document_features SET feature_value = '%s'
-                        WHERE document_id = %u AND feature_id = %u",
+                    "UPDATE tree_features SET feature_value = '%s'
+                        WHERE node_id = %u AND feature_id = %u",
                             $data['value'],
-                                $data['document_id'],
+                                $data['node_id'],
                                     $existsFeatureID
 
                 );
 
 
             /**
-             * insert value for other document with exists name
+             * insert value for other node with exists name
              */
 
             } else {
 
                 db::set(
 
-                    "INSERT INTO document_features
-                        (document_id,feature_id,feature_value)
+                    "INSERT INTO tree_features
+                        (node_id,feature_id,feature_value)
                             VALUES (%u,%u,'%s')",
-                                $data['document_id'],
+                                $data['node_id'],
                                     $existsFeatureID,
                                         $data['value']
 
@@ -505,10 +505,10 @@ class document_features extends baseController {
 
 
         /**
-         * assign into view current document features
+         * assign into view current node features
          */
 
-        $this->getFeaturesFromDB($data['document_id']);
+        $this->getFeaturesFromDB($data['node_id']);
 
 
     }
@@ -518,14 +518,14 @@ class document_features extends baseController {
      * delete feature from database
      */
 
-    private function deleteFeatureFromDB($featureID, $documentID) {
+    private function deleteFeatureFromDB($featureID, $nodeID) {
 
 
         db::set(
 
-            "DELETE FROM document_features
-                WHERE feature_id = %u AND document_id = %u",
-                    $featureID, $documentID
+            "DELETE FROM tree_features
+                WHERE feature_id = %u AND node_id = %u",
+                    $featureID, $nodeID
 
         );
 
@@ -535,7 +535,7 @@ class document_features extends baseController {
          */
 
         $existsMore = db::query(
-            "SELECT (1) ex FROM document_features
+            "SELECT (1) ex FROM tree_features
                 WHERE feature_id = %u", $featureID
         );
 
@@ -559,10 +559,10 @@ class document_features extends baseController {
 
             $feature = array(
 
-                "feature_id"  => $k,
-                "document_id" => "new",
-                "fvalue"      => $f['value'],
-                "fname"       => $f['name']
+                "feature_id" => $k,
+                "node_id"    => "new",
+                "fvalue"     => $f['value'],
+                "fname"      => $f['name']
 
             );
 
@@ -570,7 +570,7 @@ class document_features extends baseController {
 
         }
 
-        view::assign("target_document", "new");
+        view::assign("target_node", "new");
         view::assign("features", $features);
 
 

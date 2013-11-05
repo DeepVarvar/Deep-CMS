@@ -9,7 +9,7 @@
     <script type="text/javascript" src="<?=$_config->site->admin_tools_link?>/variables.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/common.js"></script>
-    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/document-images.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/node-images.js"></script>
 
     <title><?=view::$language->admin_tools?> :: <?=$page_title?></title>
 
@@ -27,7 +27,7 @@
 
     </div>
 
-    <div id="innerdata" data-deleteimageconfirm="<?=view::$language->image_delete_confirm?>" data-target="<?=$target_document?>"></div>
+    <div id="innerdata" data-deleteimageconfirm="<?=view::$language->image_delete_confirm?>" data-target="<?=$target_node?>"></div>
 
     <div id="attachedimageswrapper">
 
@@ -46,11 +46,11 @@
                     </div>
 
                     <div class="masterlink">
-                        <a class="masteraction" href="<?=$_config->site->admin_tools_link?>/document-images/master?id=<?=$item['id']?>&target=<?=$target_document?>"><?=view::$language->make_is_master?></a>
+                        <a class="masteraction" href="<?=$_config->site->admin_tools_link?>/node-images/master?id=<?=$item['id']?>&target=<?=$target_node?>"><?=view::$language->make_is_master?></a>
                     </div>
 
                     <div>
-                        <a class="deleteaction" href="<?=$_config->site->admin_tools_link?>/document-images/delete?id=<?=$item['id']?>&target=<?=$target_document?>"><?=view::$language->delete_now?></a>
+                        <a class="deleteaction" href="<?=$_config->site->admin_tools_link?>/node-images/delete?id=<?=$item['id']?>&target=<?=$target_node?>"><?=view::$language->delete_now?></a>
                     </div>
 
                 </div>
@@ -72,7 +72,7 @@
         <img alt="" src="<?=$_config->site->admin_resources?>images/progress.gif" />
     </div>
 
-    <form id="uploadform" action="<?=$_config->site->admin_tools_link?>/document-images/upload" enctype="multipart/form-data" method="post">
+    <form id="uploadform" action="<?=$_config->site->admin_tools_link?>/node-images/upload" enctype="multipart/form-data" method="post">
 
         <div class="r b">
             <a class="closepopupform" href="#close">✖</a>
@@ -80,7 +80,7 @@
 
         <h3 id="uploadcaption"></h3>
 
-        <input type="hidden" id="target_document" name="target_document" value="<?=$target_document?>" />
+        <input type="hidden" id="target_node" name="target_node" value="<?=$target_node?>" />
         <input type="hidden" id="action" name="action" value="add" />
         <input type="hidden" id="image_id" name="image_id" value="new" />
 

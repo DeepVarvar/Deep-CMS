@@ -107,13 +107,13 @@ class search extends baseController {
                     p.page_text,
                     IF(i.name IS NOT NULL,i.name,'{$noImage}') image
 
-                FROM documents d
+                FROM tree d
 
                 INNER JOIN props_simple_pages p
                     ON (p.id = d.props_id AND d.prototype = 10)
 
                 LEFT JOIN images i
-                    ON i.document_id = d.id AND i.is_master = 1
+                    ON i.node_id = d.id AND i.is_master = 1
 
                 WHERE d.is_publish = 1 AND {$searchCondition}
 

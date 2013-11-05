@@ -36,7 +36,7 @@ class sitemap extends baseController {
          * build sitemap
          */
 
-        $documents = db::query("
+        $nodes = db::query("
 
             SELECT
 
@@ -45,7 +45,7 @@ class sitemap extends baseController {
                 node_name,
                 page_alias
 
-            FROM documents
+            FROM tree
 
             WHERE is_publish = 1 AND in_sitemap = 1
             ORDER BY lk ASC
@@ -58,7 +58,7 @@ class sitemap extends baseController {
          * assign data into view
          */
 
-        //view::assign("sitemap", helper::makeTreeArray($documents));
+        //view::assign("sitemap", helper::makeTreeArray($nodes));
         view::assign("node_name", view::$language->sitemap);
 
         $this->setProtectedLayout($layoutName);

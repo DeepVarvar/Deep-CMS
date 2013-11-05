@@ -32,7 +32,7 @@ abstract class adminHelper {
 
             array(
                 "name" => "documents_tree",
-                "link" => "/documents"
+                "link" => "/tree"
             ),
 
             array(
@@ -177,7 +177,7 @@ abstract class adminHelper {
                         fm.bind({
                             targetObj  : CKEDITOR.instances['<?=$props['selector']?>'],
                             targetName : '<?=$props['selector']?>',
-                            fmUrl      : '<?=self::$admUrl?>/document-images?target=<?=$props['node_id']?>',
+                            fmUrl      : '<?=self::$admUrl?>/node-images?target=<?=$props['node_id']?>',
                             language   : '<?=self::$member['language']?>'
                         });
 

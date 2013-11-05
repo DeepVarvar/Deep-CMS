@@ -3,10 +3,10 @@
 
 
 /**
- * admin submodule, manage documents of site
+ * admin submodule, manage documents tree of site
  */
 
-class documents extends baseController {
+class tree extends baseController {
 
 
     private
@@ -21,7 +21,7 @@ class documents extends baseController {
 
 
         /**
-         * based root element of document tree
+         * based root element of documents tree
          */
 
         $root = array(
@@ -64,7 +64,7 @@ class documents extends baseController {
             array(
 
                 "action"      => "branch",
-                "permission"  => "documents_manage",
+                "permission"  => "documents_tree_manage",
                 "description"
                     => view::$language->permission_documents_tree_manage
 
@@ -73,7 +73,7 @@ class documents extends baseController {
             array(
 
                 "action"      => "create",
-                "permission"  => "documents_create",
+                "permission"  => "node_create",
                 "description" => view::$language->permission_node_create
 
             ),
@@ -81,14 +81,14 @@ class documents extends baseController {
             array(
 
                 "action"      => "delete",
-                "permission"  => "documents_delete",
+                "permission"  => "node_delete",
                 "description" => view::$language->permission_node_delete
             ),
 
             array(
 
                 "action"      => "edit",
-                "permission"  => "documents_edit",
+                "permission"  => "node_edit",
                 "description" => view::$language->permission_node_edit
 
             )
@@ -170,7 +170,7 @@ class documents extends baseController {
 
 
         view::assign("node_name", view::$language->documents_tree);
-        $this->setProtectedLayout("documents.html");
+        $this->setProtectedLayout("documents-tree.html");
 
 
     }
@@ -218,7 +218,7 @@ class documents extends baseController {
          */
 
         $this->assignNewNodeIntoView($parentID, $protoName);
-        $this->setProtectedLayout("document-new.html");
+        $this->setProtectedLayout("node-new.html");
 
         view::assign("node_name", view::$language->node_create_new);
 
@@ -268,7 +268,7 @@ class documents extends baseController {
          */
 
         $this->assignEditedNodeIntoView($nodeID, $protoName);
-        $this->setProtectedLayout("document-edit.html");
+        $this->setProtectedLayout("node-edit.html");
 
         view::assign("node_name", view::$language->node_edit_exists);
 
@@ -289,7 +289,7 @@ class documents extends baseController {
 
         request::validateReferer(
             app::config()->site->admin_tools_link
-                . "/documents(/branch\?id=\d+)?", true
+                . "/tree(/branch\?id=\d+)?", true
         );
 
 
@@ -316,7 +316,7 @@ class documents extends baseController {
         $deletedNode = db::normalizeQuery(
 
             "SELECT id, parent_id, lk, rk, (rk - lk + 1) gap
-                FROM documents WHERE id = %u", $nodeID
+                FROM tree WHERE id = %u", $nodeID
 
         );
 
@@ -337,7 +337,7 @@ class documents extends baseController {
         $deletedCount = db::normalizeQuery(
 
             "SELECT (COUNT(1) - 1) cnt
-                FROM documents WHERE lk BETWEEN %u
+                FROM tree WHERE lk BETWEEN %u
                     AND %u", $deletedNode['lk'], $deletedNode['rk']
 
         );
@@ -358,9 +358,9 @@ class documents extends baseController {
 
         db::set(
 
-            "DELETE FROM menu_items WHERE document_id IN(
+            "DELETE FROM menu_items WHERE node_id IN(
 
-                SELECT id FROM documents
+                SELECT id FROM tree
                     WHERE lk BETWEEN %u AND %u
 
             )", $deletedNode['lk'], $deletedNode['rk']
@@ -374,9 +374,9 @@ class documents extends baseController {
 
         $images = db::query(
 
-            "SELECT name FROM images WHERE document_id IN(
+            "SELECT name FROM images WHERE node_id IN(
 
-                SELECT id FROM documents
+                SELECT id FROM tree
                     WHERE lk BETWEEN %u AND %u
 
             )", $deletedNode['lk'], $deletedNode['rk']
@@ -387,9 +387,9 @@ class documents extends baseController {
 
             db::set(
 
-                "DELETE FROM images WHERE document_id IN(
+                "DELETE FROM images WHERE node_id IN(
 
-                    SELECT id FROM documents
+                    SELECT id FROM tree
                         WHERE lk BETWEEN %u AND %u
 
                 )", $deletedNode['lk'], $deletedNode['rk']
@@ -413,10 +413,10 @@ class documents extends baseController {
 
         $existsFeatureIDs = db::normalizeQuery(
 
-            "SELECT feature_id FROM document_features
-                WHERE document_id IN(
+            "SELECT feature_id FROM tree_features
+                WHERE node_id IN(
 
-                    SELECT id FROM documents
+                    SELECT id FROM tree
                         WHERE lk BETWEEN %u AND %u
 
             )", $deletedNode['lk'], $deletedNode['rk']
@@ -429,9 +429,9 @@ class documents extends baseController {
 
         db::set(
 
-            "DELETE FROM document_features WHERE document_id IN(
+            "DELETE FROM tree_features WHERE node_id IN(
 
-                SELECT id FROM documents
+                SELECT id FROM tree
                     WHERE lk BETWEEN %u AND %u
 
             )", $deletedNode['lk'], $deletedNode['rk']
@@ -445,11 +445,11 @@ class documents extends baseController {
 
                 SELECT f.id FROM features f
 
-                LEFT JOIN document_features df
-                    ON df.feature_id = f.id
+                LEFT JOIN tree_features tf
+                    ON tf.feature_id = f.id
 
                 WHERE f.id IN({$existsFeatureIDs})
-                    AND df.feature_id IS NULL
+                    AND tf.feature_id IS NULL
 
             ");
 
@@ -477,27 +477,27 @@ class documents extends baseController {
 
         db::set(
 
-            "DELETE FROM documents WHERE lk BETWEEN
+            "DELETE FROM tree WHERE lk BETWEEN
                 %u AND %u", $deletedNode['lk'], $deletedNode['rk']
 
         );
 
 
         /**
-         * update keys for other documents
+         * update keys for other nodes
          */
 
         db::set(
 
-            "UPDATE documents SET rk = rk - %u
-                WHERE rk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+            "UPDATE tree SET rk = rk - %u WHERE rk > %u",
+                $nestedSetKeys['gap'], $nestedSetKeys['rk']
 
         );
 
         db::set(
 
-            "UPDATE documents SET lk = lk - %u
-                WHERE lk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+            "UPDATE tree SET lk = lk - %u WHERE lk > %u",
+                $nestedSetKeys['gap'], $nestedSetKeys['rk']
 
         );
 
@@ -507,7 +507,7 @@ class documents extends baseController {
          */
 
         $location = app::config()->site->admin_tools_link
-            . "/documents/branch?id=" . $deletedNode['parent_id'];
+            . "/tree/branch?id=" . $deletedNode['parent_id'];
 
         $this->redirectMessage(
 
@@ -539,24 +539,25 @@ class documents extends baseController {
 
         } else {
 
+            // TODO можно переделать запрос на lk, rk без лишних джойнов
             $node = db::normalizeQuery("
 
                 SELECT
 
                     ('node') type,
-                    d.is_publish,
-                    d.id,
-                    d.parent_id,
-                    d.node_name,
+                    t.is_publish,
+                    t.id,
+                    t.parent_id,
+                    t.node_name,
                     COUNT(c.id) children,
                     p.node_name parent_name
 
-                FROM documents d
-                LEFT JOIN documents c ON c.parent_id = d.id
-                LEFT JOIN documents p ON p.id = d.parent_id
+                FROM tree t
+                LEFT JOIN tree c ON c.parent_id = t.id
+                LEFT JOIN tree p ON p.id = t.parent_id
 
-                WHERE d.id = %u
-                GROUP BY d.id
+                WHERE t.id = %u
+                GROUP BY t.id
 
                 ",
 
@@ -606,8 +607,8 @@ class documents extends baseController {
                 c.node_name,
                 COUNT(cc.id) children
 
-            FROM documents c
-            LEFT JOIN documents cc ON cc.parent_id = c.id
+            FROM tree c
+            LEFT JOIN tree cc ON cc.parent_id = c.id
 
             WHERE c.parent_id = %u
 
@@ -748,7 +749,7 @@ class documents extends baseController {
 
             $inMenu = db::query("
                 SELECT menu_id FROM menu_items
-                WHERE document_id = $current
+                WHERE node_id = $current
             ");
 
         }
@@ -826,7 +827,7 @@ class documents extends baseController {
 
                 "SELECT node_name, prototype,
                     children_prototype cpt, page_alias
-                        FROM documents WHERE id = %u", $newNode['parent_id']
+                        FROM tree WHERE id = %u", $newNode['parent_id']
 
             );
 
@@ -893,19 +894,19 @@ class documents extends baseController {
 
             SELECT
 
-                d.id,
-                d.parent_id,
-                d.prototype,
-                d.children_prototype,
-                d.is_publish,
-                d.node_name,
+                t.id,
+                t.parent_id,
+                t.prototype,
+                t.children_prototype,
+                t.is_publish,
+                t.node_name,
                 p.prototype parent_prototype,
                 p.page_alias parent_alias,
                 p.node_name parent_name
 
-            FROM documents d
-            LEFT JOIN documents p ON p.id = d.parent_id
-            WHERE d.id = %u
+            FROM tree t
+            LEFT JOIN tree p ON p.id = t.parent_id
+            WHERE t.id = %u
 
             ",
 
@@ -1023,7 +1024,7 @@ class documents extends baseController {
          */
 
         $mainProperties['id']['type'] = "hidden";
-        $mainProperties['id']['selector'] = "documentid";
+        $mainProperties['id']['selector'] = "nodeid";
         unset($mainProperties['id']['description']);
         unset($mainProperties['id']['editor']);
 
@@ -1241,7 +1242,7 @@ class documents extends baseController {
 
             $existsParent = db::normalizeQuery(
 
-                "SELECT (1) ex FROM documents
+                "SELECT (1) ex FROM tree
                     WHERE id = %u", $requiredData['parent_id']
 
             );
@@ -1286,10 +1287,7 @@ class documents extends baseController {
              */
 
             $currentKeys = db::normalizeQuery(
-
-                "SELECT lk, rk FROM documents
-                    WHERE id = %u", $nodeID
-
+                "SELECT lk, rk FROM tree WHERE id = %u", $nodeID
             );
 
             if (!$currentKeys) {
@@ -1308,9 +1306,8 @@ class documents extends baseController {
 
             $isBrokenParent = db::query(
 
-                "SELECT (1) ex FROM documents
-                    WHERE lk > %u AND rk < %u LIMIT 1",
-                        $currentKeys['lk'], $currentKeys['rk']
+                "SELECT (1) ex FROM tree WHERE lk > %u AND rk < %u LIMIT 1",
+                    $currentKeys['lk'], $currentKeys['rk']
 
             );
 
@@ -1408,9 +1405,9 @@ class documents extends baseController {
          * insert new inMenu data
          */
 
-        db::set("
-            DELETE FROM menu_items
-            WHERE document_id = %u", $nodeID
+        db::set(
+            "DELETE FROM menu_items
+                WHERE node_id = %u", $nodeID
         );
 
         if ($inMenu = $this->getInMenuList()) {
@@ -1423,9 +1420,9 @@ class documents extends baseController {
             if ($insertedRows) {
 
                 $insertedRows = join(",", $insertedRows);
-                db::set("
-                    INSERT INTO menu_items (menu_id,document_id)
-                    VALUES {$insertedRows}"
+                db::set(
+                    "INSERT INTO menu_items (menu_id,node_id)
+                        VALUES {$insertedRows}"
                 );
 
             }
@@ -1444,7 +1441,7 @@ class documents extends baseController {
 
         $currentPos = db::normalizeQuery(
             "SELECT lvl, lk, rk, parent_id
-                FROM documents WHERE id = %u", $nodeID
+                FROM tree WHERE id = %u", $nodeID
         );
 
 
@@ -1463,7 +1460,7 @@ class documents extends baseController {
 
         $newParentKeys = db::normalizeQuery(
             "SELECT lvl, (rk - 1) rk
-                FROM documents WHERE id = %u", $newParentID
+                FROM tree WHERE id = %u", $newParentID
         );
 
         $newParentKeys['lvl'] = !isset($newParentKeys['lvl'])
@@ -1472,7 +1469,7 @@ class documents extends baseController {
         $newParentKeys['rk'] = isset($newParentKeys['rk'])
             ? ((int) $newParentKeys['rk'])
             : db::normalizeQuery(
-                "SELECT rk FROM documents ORDER BY rk DESC LIMIT 1"
+                "SELECT rk FROM tree ORDER BY rk DESC LIMIT 1"
             );
 
         $skewLevel = $newParentKeys['lvl'] - $currentPos['lvl'] + 1;
@@ -1483,7 +1480,7 @@ class documents extends baseController {
             $skewEdit = $newParentKeys['rk'] - $currentPos['lk'] + 1;
             db::set("
 
-                UPDATE documents SET
+                UPDATE tree SET
 
                     rk = IF(lk >= %u, rk + (%s), IF(rk < %u, rk + (%s), rk)),
                     lvl = IF(lk >= %u, lvl + (%s), lvl),
@@ -1515,7 +1512,7 @@ class documents extends baseController {
 
             db::set("
 
-                UPDATE documents SET
+                UPDATE tree SET
 
                     lk=IF(rk <= %u, lk + (%s), IF(lk > %u, lk - (%s), lk)),
                     lvl=IF(rk <= %u, lvl + (%s), lvl),
@@ -1559,7 +1556,7 @@ class documents extends baseController {
 
         request::validateReferer(
             app::config()->site->admin_tools_link
-                . "/documents/create\?parent=\d+", true
+                . "/tree/create\?parent=\d+", true
         );
 
 
@@ -1576,15 +1573,15 @@ class documents extends baseController {
          */
 
         $nestedSetKeys = db::normalizeQuery(
-            "SELECT lk, lvl FROM documents WHERE id = %u",
-            $newNode['parent_id']
+            "SELECT lk, lvl FROM tree
+                WHERE id = %u", $newNode['parent_id']
         );
 
         if (!$nestedSetKeys) {
 
             $nestedSetKeys['lvl'] = 0;
             $nestedSetKeys['lk']  = db::normalizeQuery(
-                "SELECT MAX(rk) rk FROM documents"
+                "SELECT MAX(rk) rk FROM tree"
             );
 
         }
@@ -1609,7 +1606,7 @@ class documents extends baseController {
          * build inserted query string
          */
 
-        $insertQuery = "INSERT INTO documents ("
+        $insertQuery = "INSERT INTO tree ("
             . join(",", array_keys($newNode)) . ") VALUES (";
 
         $insertedValues = array();
@@ -1631,19 +1628,18 @@ class documents extends baseController {
          */
 
         db::set(
-            "UPDATE documents SET lk = lk + 2 WHERE lk > %u",
-            $nestedSetKeys['lk']
+            "UPDATE tree SET lk = lk + 2
+                WHERE lk > %u", $nestedSetKeys['lk']
         );
 
         db::set(
-            "UPDATE documents SET rk = rk + 2 WHERE rk > %u",
-            $nestedSetKeys['lk']
+            "UPDATE tree SET rk = rk + 2
+                WHERE rk > %u", $nestedSetKeys['lk']
         );
 
 
         /**
-         * insert all static data into documents,
-         * get last insert ID for other transactions
+         * insert all data of new node
          */
 
         db::set($insertQuery);
@@ -1680,7 +1676,7 @@ class documents extends baseController {
             db::set(
 
                 "INSERT INTO images
-                    (id,document_id,is_master,name)
+                    (id,node_id,is_master,name)
                         VALUES {$attachedImages}"
 
             );
@@ -1756,8 +1752,8 @@ class documents extends baseController {
 
             db::set(
 
-                "INSERT INTO document_features
-                    (document_id, feature_id, feature_value)
+                "INSERT INTO tree_features
+                    (node_id, feature_id, feature_value)
                         VALUES " . join(",", $updFeatures)
 
             );
@@ -1799,8 +1795,8 @@ class documents extends baseController {
 
             db::set("
 
-                INSERT INTO document_features
-                    (document_id, feature_id, feature_value)
+                INSERT INTO tree_features
+                    (node_id, feature_id, feature_value)
                         VALUES " . join(",", $updNewFeatures)
 
             );
@@ -1826,7 +1822,7 @@ class documents extends baseController {
                 view::$language->success,
                     view::$language->node_is_created,
                         app::config()->site->admin_tools_link
-                            . "/documents/branch?id={$newNode['parent_id']}"
+                            . "/tree/branch?id={$newNode['parent_id']}"
 
         );
 
@@ -1847,7 +1843,7 @@ class documents extends baseController {
 
         request::validateReferer(
             app::config()->site->admin_tools_link
-                . "/documents/edit\?id=\d+", true
+                . "/tree/edit\?id=\d+", true
         );
 
 
@@ -1871,7 +1867,7 @@ class documents extends baseController {
          * build updated query string
          */
 
-        $updateQuery = "UPDATE documents SET ";
+        $updateQuery = "UPDATE tree SET ";
         $updatedValues = array();
 
         foreach ($editedNode as $key => $value) {
@@ -1921,7 +1917,7 @@ class documents extends baseController {
                 view::$language->success,
                     view::$language->node_is_edited,
                         app::config()->site->admin_tools_link
-                            . "/documents/branch?id={$editedNode['parent_id']}"
+                            . "/tree/branch?id={$editedNode['parent_id']}"
 
         );
 

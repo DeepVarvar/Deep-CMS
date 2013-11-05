@@ -18,13 +18,13 @@
         <a target="_blank" href="/upload/<?=$image?>"><img alt="" src="/upload/thumb_<?=$image?>" /></a>
     <?php } ?>
 
-    <?php foreach (dataHelper::getDocumentFeatures($page_id) as $feature) { ?>
+    <?php foreach (dataHelper::getNodeFeatures($page_id) as $feature) { ?>
         <h3><?=$feature['name']?>: <?=$feature['value']?></h3>
     <?php } ?>
 
     <ul>
 
-        <?php foreach (dataHelper::getDocumentChildren($page_id) as $item) { ?>
+        <?php foreach (dataHelper::getNodeChildren($page_id) as $item) { ?>
             <li><a href="<?=$item['page_alias']?>"><?=$item['page_name']?></a></li>
         <?php } ?>
 

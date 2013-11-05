@@ -133,8 +133,8 @@ abstract class htmlHelper {
      *
      * array (
      *
-     *     "page_alias"    => "/url/path/do/document",
-     *     "page_name"     => "Name of document",
+     *     "page_alias"    => "/url/path",
+     *     "node_name"     => "Name of node",
      *     "children" => array(LIKE PARENT ARRAY OR EMPTY ARRAY),
      *
      * )

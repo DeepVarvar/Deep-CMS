@@ -3,10 +3,10 @@
 
 
 /**
- * admin submodule, manage attached document images
+ * admin submodule, manage attached node images
  */
 
-class document_images extends baseController {
+class node_images extends baseController {
 
 
     private
@@ -72,7 +72,7 @@ class document_images extends baseController {
 
 
         /**
-         * storage saved mode for new document
+         * storage saved mode for new node
          */
 
         $storageMode = false,
@@ -93,10 +93,10 @@ class document_images extends baseController {
 
 
         /**
-         * target document of uploaded image
+         * target node of uploaded image
          */
 
-        $targetDocument = null,
+        $targetNode = null,
 
 
         /**
@@ -179,7 +179,7 @@ class document_images extends baseController {
 
     /**
      * set permissions for this controller
-     * this permissions repeat of documents admin controller,
+     * this permissions repeat of tree admin controller,
      * but and you can make one permission for some other actions
      */
 
@@ -191,7 +191,7 @@ class document_images extends baseController {
             array(
 
                 "action"      => null,
-                "permission"  => "documents_manage",
+                "permission"  => "documents_tree_manage",
                 "description"
                     => view::$language->permission_documents_tree_manage
 
@@ -215,7 +215,7 @@ class document_images extends baseController {
         view::assign("page_title", view::$language->images_attached);
         view::assign($this->availableSizes);
 
-        $this->setProtectedLayout("document-images.html");
+        $this->setProtectedLayout("node-images.html");
 
 
     }
@@ -268,14 +268,14 @@ class document_images extends baseController {
          * choose mode of view images
          */
 
-        $targetDocument = request::shiftParam("target");
-        view::assign("target_document", $targetDocument);
+        $targetNode = request::shiftParam("target");
+        view::assign("target_node", $targetNode);
 
 
         if ($this->storageMode) {
             $this->getImagesListFromStorage();
         } else {
-            $this->getImagesListFromDB($targetDocument);
+            $this->getImagesListFromDB($targetNode);
         }
 
 
@@ -336,7 +336,7 @@ class document_images extends baseController {
 
 
     /**
-     * set image as master image of target document
+     * set image as master image of target node
      */
 
     public function master() {
@@ -358,7 +358,7 @@ class document_images extends baseController {
 
         request::validateReferer(
             app::config()->site->admin_tools_link
-                . "/document-images\?target=.+", true
+                . "/node-images\?target=.+", true
         );
 
 
@@ -368,7 +368,7 @@ class document_images extends baseController {
 
         $this->chooseMode();
 
-        $targetDocument = request::shiftParam("target");
+        $targetNode = request::shiftParam("target");
         $targetImage    = request::shiftParam("id");
 
         if ($this->storageMode) {
@@ -429,7 +429,7 @@ class document_images extends baseController {
 
             db::set(
                 "UPDATE images SET is_master = 0
-                    WHERE document_id = %u", $targetDocument
+                    WHERE node_id = %u", $targetNode
             );
 
             db::set(
@@ -472,7 +472,7 @@ class document_images extends baseController {
 
         request::validateReferer(
             app::config()->site->admin_tools_link
-                . "/document-images\?target=.+", true
+                . "/node-images\?target=.+", true
         );
 
 
@@ -561,7 +561,7 @@ class document_images extends baseController {
 
             $image = db::normalizeQuery(
 
-                "SELECT name, document_id, is_master
+                "SELECT name, node_id, is_master
                     FROM images WHERE id = %u", $targetImage
 
             );
@@ -588,8 +588,8 @@ class document_images extends baseController {
                 if ($image['is_master']) {
 
                     $firstFindID = db::normalizeQuery(
-                        "SELECT id FROM images WHERE document_id = %u
-                            ORDER BY id ASC LIMIT 1", $image['document_id']
+                        "SELECT id FROM images WHERE node_id = %u
+                            ORDER BY id ASC LIMIT 1", $image['node_id']
                     );
 
                     if ($firstFindID) {
@@ -609,7 +609,7 @@ class document_images extends baseController {
                  * this method assign data into view!
                  */
 
-                $this->getImagesListFromDB($image['document_id']);
+                $this->getImagesListFromDB($image['node_id']);
 
             }
 
@@ -738,7 +738,7 @@ class document_images extends baseController {
 
         /**
          * save or update image name
-         * add new image for exists document
+         * add new image for exists node
          */
 
         switch ($this->uploadActionType) {
@@ -764,15 +764,15 @@ class document_images extends baseController {
                     $isMasterImage = db::query(
 
                         "SELECT (1) ex FROM images WHERE
-                            document_id = %u LIMIT 1", $this->targetDocument
+                            node_id = %u LIMIT 1", $this->targetNode
 
                     ) ? 0 : 1;
 
                     db::set(
 
-                        "INSERT INTO images (id,document_id,is_master,name)
+                        "INSERT INTO images (id,node_id,is_master,name)
                             VALUES (NULL,%u,%u,'%s')",
-                                $this->targetDocument,
+                                $this->targetNode,
                                     $isMasterImage,
                                         $fileName
 
@@ -956,7 +956,7 @@ class document_images extends baseController {
 
         request::validateReferer(
             app::config()->site->admin_tools_link
-                . "/document-images\?target=.+", true
+                . "/node-images\?target=.+", true
         );
 
 
@@ -969,7 +969,7 @@ class document_images extends baseController {
             "thumbnail_size",
             "middle_size",
             "original_size",
-            "target_document",
+            "target_node",
             "action",
             "image_id"
 
@@ -1005,10 +1005,10 @@ class document_images extends baseController {
 
 
         /**
-         * validate target document
+         * validate target node
          */
 
-        $target = $requiredData['target_document'];
+        $target = $requiredData['target_node'];
         if ($target !== "new") {
 
             if (!validate::isNumber($target)) {
@@ -1022,7 +1022,7 @@ class document_images extends baseController {
             }
 
             $exists = db::query(
-                "SELECT (1) ex FROM documents WHERE id = %u", $target
+                "SELECT (1) ex FROM tree WHERE id = %u", $target
             );
 
             if (!$exists) {
@@ -1035,7 +1035,7 @@ class document_images extends baseController {
 
             }
 
-            $this->targetDocument = $target;
+            $this->targetNode  = $target;
             $this->storageMode = false;
 
         } else {
@@ -1179,16 +1179,16 @@ class document_images extends baseController {
 
 
     /**
-     * get array of images for exists document from database
+     * get array of images for exists node from database
      */
 
-    private function getImagesListFromDB($documentID) {
+    private function getImagesListFromDB($nodeID) {
 
         view::assign("images",
 
             db::query(
                 "SELECT id, is_master, name FROM images WHERE
-                    document_id = %u ORDER BY id ASC", $documentID
+                    node_id = %u ORDER BY id ASC", $nodeID
             )
 
         );
@@ -1197,7 +1197,7 @@ class document_images extends baseController {
 
 
     /**
-     * get array of images for new document from storage
+     * get array of images for new node from storage
      */
 
     private function getImagesListFromStorage() {
@@ -1230,14 +1230,14 @@ class document_images extends baseController {
     private function chooseMode() {
 
 
-        $targetDocument = request::getParam("target");
+        $targetNode = request::getParam("target");
         switch (true) {
 
-            case ($targetDocument === "new"):
+            case ($targetNode === "new"):
                 $this->storageMode = true;
             break;
 
-            case (validate::isNumber($targetDocument)):
+            case (validate::isNumber($targetNode)):
                 $this->storageMode = false;
             break;
 
