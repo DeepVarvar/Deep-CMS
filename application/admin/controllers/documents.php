@@ -274,6 +274,212 @@ class documents extends baseController {
 
 
     /**
+     * delete node
+     */
+
+    public function delete() {
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/documents(/branch\?id=\d+)?", true
+        );
+
+
+        /**
+         * validate deleted node ID
+         */
+
+        $nodeID = request::shiftParam("id");
+        if (!validate::isNumber($nodeID)) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_invalid_format
+            );
+
+        }
+
+
+        /**
+         * check exists deleted node
+         */
+
+        $deletedNode = db::normalizeQuery(
+
+            "SELECT id, parent_id FROM documents
+                WHERE id = %u", $nodeID
+
+        );
+
+        if (!$deletedNode) {
+
+            throw new memberErrorException(
+                view::$language->error, view::$language->document_not_found
+            );
+
+        }
+
+
+        /**
+         * delete node data from menu items
+         */
+
+        db::set(
+
+            "DELETE FROM menu_items
+                WHERE document_id = %u", $nodeID
+
+        );
+
+
+        /**
+         * get nested set keys for branch deleting
+         */
+
+        $nestedSetKeys = db::normalizeQuery(
+
+            "SELECT lk, rk, (rk - lk + 1) gap
+                FROM documents WHERE id = %u", $nodeID
+
+        );
+
+
+        /**
+         * delete branch
+         */
+
+        db::set(
+
+            "DELETE FROM documents WHERE lk BETWEEN
+                %u AND %u", $nestedSetKeys['lk'], $nestedSetKeys['rk']
+
+        );
+
+
+        /**
+         * update keys for other documents
+         */
+
+        db::set(
+
+            "UPDATE documents SET rk = rk - %u
+                WHERE rk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+
+        );
+
+        db::set(
+
+            "UPDATE documents SET lk = lk - %u
+                WHERE lk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+
+        );
+
+
+        /**
+         * delete attached images
+         */
+
+        $images = db::query(
+
+            "SELECT name FROM images
+                WHERE document_id = %u", $nodeID
+
+        );
+
+        if ($images) {
+
+            db::set(
+
+                "DELETE FROM images WHERE
+                    document_id = %u", $nodeID
+
+            );
+
+            foreach ($images as $image) {
+
+                @ unlink(PUBLIC_HTML . "upload/" . $image['name']);
+                @ unlink(PUBLIC_HTML . "upload/thumb_" . $image['name']);
+                @ unlink(PUBLIC_HTML . "upload/middle_" . $image['name']);
+
+            }
+
+        }
+
+
+        /**
+         * delete exists features
+         */
+
+        $existsFeatureIDs = db::normalizeQuery(
+
+            "SELECT feature_id FROM document_features
+                WHERE document_id = %u", $nodeID
+
+        );
+
+        if (!is_array($existsFeatureIDs)) {
+            $existsFeatureIDs = array($existsFeatureIDs);
+        }
+
+        db::set(
+
+            "DELETE FROM document_features
+                WHERE document_id = %u", $nodeID
+
+        );
+
+        if ($existsFeatureIDs) {
+
+            $existsFeatureIDs = join(",", $existsFeatureIDs);
+            $lostIDs = db::normalizeQuery("
+
+                SELECT f.id FROM features f
+
+                LEFT JOIN document_features df
+                    ON df.feature_id = f.id
+
+                WHERE f.id IN({$existsFeatureIDs})
+                    AND df.feature_id IS NULL
+
+            ");
+
+            if (!is_array($lostIDs)) {
+                $lostIDs = array($lostIDs);
+            }
+
+            if ($lostIDs) {
+                $lostIDs = join(",", $lostIDs);
+                db::set("DELETE FROM features WHERE id IN({$lostIDs})");
+            }
+
+        }
+
+
+        /**
+         * redirect to show message
+         */
+
+        $location = app::config()->site->admin_tools_link
+            . "/documents/branch?id=" . $deletedNode['parent_id'];
+
+        $this->redirectMessage(
+
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            view::$language->document_is_deleted,
+            $location
+
+        );
+
+
+    }
+
+
+    /**
      * MORE DOWN ONLY PRIVATE FUNCTIONS
      *
      *
