@@ -190,24 +190,6 @@ abstract class db {
 
 
     /**
-     * start transaction isolation
-     */
-
-    public static function begin() {
-        self::$mysqli->query("START TRANSACTION");
-    }
-
-
-    /**
-     * commit transaction
-     */
-
-    public static function commit() {
-        self::$mysqli->query("COMMIT");
-    }
-
-
-    /**
      * private simple update or insert query,
      * return number of affected rows
      */
