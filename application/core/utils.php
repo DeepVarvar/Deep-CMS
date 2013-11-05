@@ -264,7 +264,7 @@ abstract class utils {
      * priority range values for sitemap (SEO)
      */
 
-    public static function getAvailableSearchPriority() {
+    public static function getAvailableSearchersPriority() {
         return array(
             "---","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"
         );

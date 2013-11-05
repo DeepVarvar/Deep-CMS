@@ -85,7 +85,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $f['type']        = "select";
         $f['description'] = view::$language->searchers_priority;
         $f['value']       = utils::makeOptionsArray(
-            utils::getAvailableSearchPriority(), $f['value']
+            utils::getAvailableSearchersPriority(), $f['value']
         );
 
     }
@@ -224,7 +224,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
             $data = "NULL";
 
         } else if (
-            !in_array($data, utils::getAvailableSearchPriority(), true)) {
+            !in_array($data, utils::getAvailableSearchersPriority(), true)) {
 
             throw new memberErrorException(
                 view::$language->error,

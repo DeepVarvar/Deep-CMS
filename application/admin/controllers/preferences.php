@@ -73,10 +73,45 @@ class preferences extends baseController {
             utils::getAvailableLanguages($c->site->default_language)
         );
 
+        view::assign("cache_enabled", $c->system->cache_enabled);
         view::assign("debug_mode_on", $c->system->debug_mode);
         view::assign("node_name", view::$language->preferences_global);
 
         $this->setProtectedLayout("preferences.html");
+
+
+    }
+
+
+    /**
+     * clear system cache
+     */
+
+    public function clear_cache() {
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/preferences"
+        );
+
+
+        /**
+         * show redirect message,
+         * WARNING! Success exception always cleared cache!
+         */
+
+        $this->redirectMessage(
+
+            SUCCESS_EXCEPTION,
+                view::$language->success,
+                    view::$language->cache_is_cleared,
+                        app::config()->site->admin_tools_link . "/preferences"
+
+        );
 
 
     }
@@ -139,7 +174,9 @@ class preferences extends baseController {
          * validate referer of possible CSRF attack
          */
 
-        request::validateReferer(app::config()->site->admin_tools_link . "/preferences");
+        request::validateReferer(
+            app::config()->site->admin_tools_link . "/preferences"
+        );
 
 
         /**
@@ -151,15 +188,19 @@ class preferences extends baseController {
 
         foreach ($controllers as $controller) {
 
-
             foreach ($controller->getPermissions() as $current) {
 
-                if (!in_array($current['permission'], $controllersPermissions)) {
-                    array_push($controllersPermissions, $current['permission']);
+                $check = in_array(
+                    $current['permission'], $controllersPermissions
+                );
+
+                if (!$check) {
+                    array_push(
+                        $controllersPermissions, $current['permission']
+                    );
                 }
 
             }
-
 
         }
 
@@ -200,19 +241,22 @@ class preferences extends baseController {
          * insert new list of permissions
          */
 
-        $permissionValues = "('" . join("'), ('", $controllersPermissions) . "')";
+        $permissionValues
+            = "('". join("'), ('", $controllersPermissions) . "')";
 
-        db::set("
-            INSERT INTO permissions (name)
-            VALUES {$permissionValues}
-        ");
+        db::set(
+            "INSERT INTO permissions (name)
+                VALUES {$permissionValues}"
+        );
 
 
         /**
          * get new list of permissions
          */
 
-        $newPermissions = db::query("SELECT id, name FROM permissions");
+        $newPermissions = db::query(
+            "SELECT id, name FROM permissions"
+        );
 
 
         /**
@@ -236,7 +280,6 @@ class preferences extends baseController {
 
             foreach ($groupExistsPermissions as $groupPermission) {
 
-
                 if ($permission['name'] == $groupPermission['name']) {
 
                     array_push(
@@ -245,7 +288,6 @@ class preferences extends baseController {
                     );
 
                 }
-
 
             }
 
@@ -257,11 +299,10 @@ class preferences extends baseController {
          */
 
         $newGroupsPermissionsValues = join(", ", $newGroupsPermissions);
-
-        db::set("
-            INSERT INTO group_permissions (group_id,permission_id)
-            VALUES {$newGroupsPermissionsValues}
-        ");
+        db::set(
+            "INSERT INTO group_permissions (group_id,permission_id)
+                VALUES {$newGroupsPermissionsValues}"
+        );
 
 
         /**
@@ -320,7 +361,6 @@ class preferences extends baseController {
          */
 
         $requiredSystemData = array(
-            "max_group_priority_number",
             "cookie_expires_time"
         );
 
@@ -372,6 +412,15 @@ class preferences extends baseController {
 
         $preferences['system']['debug_mode']
             = array_key_exists("debug_mode", $preferences['system'])
+                ? true : false;
+
+
+        /**
+         * set cache enabled
+         */
+
+        $preferences['system']['cache_enabled']
+            = array_key_exists("cache_enabled", $preferences['system'])
                 ? true : false;
 
 

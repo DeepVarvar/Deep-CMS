@@ -5,6 +5,7 @@
 
 
     <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/reset" onclick="return confirmation('<?=view::$language->preferences_global_reset_confirm?>');"><?=view::$language->preferences_global_reset?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/clear-cache"><?=view::$language->cache_clear_now?></a></h3>
     <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/recalculate"><?=view::$language->permissions_recalculate?></a></h3>
 
 
@@ -49,6 +50,11 @@
 
             <div class="label mt-20">&nbsp;</div>
             <div class="elem mt-20">
+
+                <div class="inputbox" title=" <?=view::$language->cache_enabled?> ">
+                    <div class="blend"></div>
+                    <input type="checkbox" name="system[cache_enabled]"<?=$cache_enabled?' checked="checked"':''?> /> - <?=view::$language->cache_enabled?>
+                </div>
 
                 <div class="inputbox" title=" <?=view::$language->debug_mode_on?> ">
                     <div class="blend"></div>
