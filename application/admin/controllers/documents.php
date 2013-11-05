@@ -305,13 +305,14 @@ class documents extends baseController {
 
 
         /**
+         * get nested set keys for branch deleting,
          * check exists deleted node
          */
 
         $deletedNode = db::normalizeQuery(
 
-            "SELECT id, parent_id FROM documents
-                WHERE id = %u", $nodeID
+            "SELECT id, parent_id, lk, rk, (rk - lk + 1) gap
+                FROM documents WHERE id = %u", $nodeID
 
         );
 
@@ -325,56 +326,39 @@ class documents extends baseController {
 
 
         /**
-         * delete node data from menu items
+         * limited sizeof of deleted children branch
          */
 
-        db::set(
+        $deletedCount = db::normalizeQuery(
 
-            "DELETE FROM menu_items
-                WHERE document_id = %u", $nodeID
+            "SELECT (COUNT(1) - 1) cnt
+                FROM documents WHERE lk BETWEEN %u
+                    AND %u", $deletedNode['lk'], $deletedNode['rk']
 
         );
+
+        if ($deletedCount > 100) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                view::$language->document_deleted_count_is_over
+            );
+
+        }
 
 
         /**
-         * get nested set keys for branch deleting
-         */
-
-        $nestedSetKeys = db::normalizeQuery(
-
-            "SELECT lk, rk, (rk - lk + 1) gap
-                FROM documents WHERE id = %u", $nodeID
-
-        );
-
-
-        /**
-         * delete branch
+         * delete all children branch data from menu items
          */
 
         db::set(
 
-            "DELETE FROM documents WHERE lk BETWEEN
-                %u AND %u", $nestedSetKeys['lk'], $nestedSetKeys['rk']
+            "DELETE FROM menu_items WHERE document_id IN(
 
-        );
+                SELECT id FROM documents
+                    WHERE lk BETWEEN %u AND %u
 
-
-        /**
-         * update keys for other documents
-         */
-
-        db::set(
-
-            "UPDATE documents SET rk = rk - %u
-                WHERE rk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
-
-        );
-
-        db::set(
-
-            "UPDATE documents SET lk = lk - %u
-                WHERE lk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+            )", $deletedNode['lk'], $deletedNode['rk']
 
         );
 
@@ -385,8 +369,12 @@ class documents extends baseController {
 
         $images = db::query(
 
-            "SELECT name FROM images
-                WHERE document_id = %u", $nodeID
+            "SELECT name FROM images WHERE document_id IN(
+
+                SELECT id FROM documents
+                    WHERE lk BETWEEN %u AND %u
+
+            )", $deletedNode['lk'], $deletedNode['rk']
 
         );
 
@@ -394,8 +382,12 @@ class documents extends baseController {
 
             db::set(
 
-                "DELETE FROM images WHERE
-                    document_id = %u", $nodeID
+                "DELETE FROM images WHERE document_id IN(
+
+                    SELECT id FROM documents
+                        WHERE lk BETWEEN %u AND %u
+
+                )", $deletedNode['lk'], $deletedNode['rk']
 
             );
 
@@ -417,7 +409,12 @@ class documents extends baseController {
         $existsFeatureIDs = db::normalizeQuery(
 
             "SELECT feature_id FROM document_features
-                WHERE document_id = %u", $nodeID
+                WHERE document_id IN(
+
+                    SELECT id FROM documents
+                        WHERE lk BETWEEN %u AND %u
+
+            )", $deletedNode['lk'], $deletedNode['rk']
 
         );
 
@@ -427,8 +424,12 @@ class documents extends baseController {
 
         db::set(
 
-            "DELETE FROM document_features
-                WHERE document_id = %u", $nodeID
+            "DELETE FROM document_features WHERE document_id IN(
+
+                SELECT id FROM documents
+                    WHERE lk BETWEEN %u AND %u
+
+            )", $deletedNode['lk'], $deletedNode['rk']
 
         );
 
@@ -452,11 +453,48 @@ class documents extends baseController {
             }
 
             if ($lostIDs) {
-                $lostIDs = join(",", $lostIDs);
-                db::set("DELETE FROM features WHERE id IN({$lostIDs})");
+
+                db::set(
+
+                    "DELETE FROM features WHERE id
+                        IN(" . join(",", $lostIDs) . ")"
+
+                );
+
             }
 
         }
+
+
+        /**
+         * delete branch
+         */
+
+        db::set(
+
+            "DELETE FROM documents WHERE lk BETWEEN
+                %u AND %u", $deletedNode['lk'], $deletedNode['rk']
+
+        );
+
+
+        /**
+         * update keys for other documents
+         */
+
+        db::set(
+
+            "UPDATE documents SET rk = rk - %u
+                WHERE rk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+
+        );
+
+        db::set(
+
+            "UPDATE documents SET lk = lk - %u
+                WHERE lk > %u", $nestedSetKeys['gap'], $nestedSetKeys['rk']
+
+        );
 
 
         /**
