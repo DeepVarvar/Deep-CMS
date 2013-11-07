@@ -285,12 +285,6 @@ class tree extends baseController {
             }
 
         } else {
-
-            $newParent = array(
-                "lvl" => 0,
-                "lk"  => db::normalizeQuery("SELECT MAX(rk) rk FROM tree")
-            );
-
         }
 
 
