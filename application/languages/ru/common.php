@@ -124,6 +124,7 @@ return array(
     "meta_keywords"                       =>  "Keywords",
     "more"                                =>  "Подробнее",
     "module"                              =>  "Модуль",
+    "module_not_enabled"                  =>  "Модуль не подключен",
     "module_not_found"                    =>  "Модуль не найден",
     "name"                                =>  "Имя",
     "nickname"                            =>  "Логин",

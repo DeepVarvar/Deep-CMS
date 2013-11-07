@@ -429,31 +429,16 @@ abstract class utils {
 
     public static function getAvailablePublicModules() {
 
-
         $existsTargets = self::glob(
             APPLICATION . app::config()->path->modules . "*", GLOB_ONLYDIR
         );
 
         $existsTargets = array_merge(array("---"), $existsTargets);
         foreach ($existsTargets as $k => $item) {
-
-            $basename = basename($item);
-            if (isset(view::$language->{$basename})) {
-                $existsTargets[$k] = view::$language->{$basename};
-            } else {
-
-                $existsTargets[$k] = preg_replace(
-                    array("/_+(\w+)$/", "/_+/"),
-                        array(".$1", "-"),
-                            $basename
-                );
-
-            }
-
+            $existsTargets[$k] = basename($item);
         }
 
         return $existsTargets;
-
 
     }
 

@@ -137,8 +137,8 @@ abstract class router {
 
             )) {
 
-                throw new memberErrorException(
-                    404, view::$language->error . " 404",
+                throw new systemErrorException(
+                    view::$language->error,
                         view::$language->page_not_found
                 );
 
@@ -175,8 +175,16 @@ abstract class router {
          * load page data, include module
          */
 
-        self::loadPageData($loadedPage);
         if ($loadedPage['page_is_module']) {
+
+            if (!$loadedPage['module_name']) {
+
+                throw new systemErrorException(
+                    view::$language->error,
+                        view::$language->module_not_enabled
+                );
+
+            }
 
             $path = self::isAdmin() ? "" : $config->path->modules;
             self::loadModule(
@@ -184,6 +192,8 @@ abstract class router {
                     $loadedPage['module_name']
             );
 
+        } else {
+            self::loadPageData($loadedPage);
         }
 
 
@@ -224,9 +234,7 @@ abstract class router {
 
         );
 
-        $pageData = array_merge($pageData, $loadedPage);
         $pm = "permanent_redirect";
-
         if (array_key_exists($pm, $pageData) and $pageData[$pm]) {
             request::redirect($pageData[$pm]);
         }

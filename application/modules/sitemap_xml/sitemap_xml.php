@@ -52,21 +52,19 @@ class sitemap_xml extends baseController {
             SELECT
 
                 CONCAT('', '%s', page_alias) loc,
-                DATE_FORMAT(last_modified,'%s') lastmod,
+                DATE_FORMAT(last_modified,'%%Y-%%m-%%d') lastmod,
                 change_freq changefreq,
-                ROUND(searcher_priority,1) priority
+                ROUND(searchers_priority,1) priority
 
             FROM tree
 
             WHERE is_publish = 1
                 AND page_alias NOT LIKE '%%http://%%'
 
-            ORDER BY parent_id ASC, lk ASC
-
             ",
 
-            app::config()->site->protocol . "://" . app::config()->site->domain,
-            "%Y-%m-%d"
+            app::config()->site->protocol
+                . "://" . app::config()->site->domain
 
         );
 
@@ -86,12 +84,11 @@ class sitemap_xml extends baseController {
 
             array(
 
-                "name" => "urlset",
-
+                "name"       => "urlset",
                 "attributes" => array(
 
                     array(
-                        "name" => "xmlns",
+                        "name"  => "xmlns",
                         "value" => "http://www.sitemaps.org/schemas/sitemap/0.9"
                     )
 
@@ -101,7 +98,7 @@ class sitemap_xml extends baseController {
 
                     array(
 
-                        "name" => "url",
+                        "name"     => "url",
                         "children" => array(
 
                             array("name" => "lastmod"),

@@ -43,11 +43,26 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
     protected function module_nameGetData( & $f) {
 
+        $options = array();
+        foreach (utils::getAvailablePublicModules() as $item) {
+
+            $description = $item;
+            if (isset(view::$language->{$item})) {
+                $description = view::$language->{$item};
+            }
+
+            $option = array("value" => $item, "description" => $description);
+            if ($f['value'] == $item) {
+                $option['selected'] = true;
+            }
+
+            array_push($options, $option);
+
+        }
+
+        $f['value']       = $options;
         $f['type']        = "select";
         $f['description'] = view::$language->main_module_connected_module;
-        $f['value']       = utils::makeOptionsArray(
-            utils::getAvailablePublicModules(), $f['value']
-        );
 
     }
 
