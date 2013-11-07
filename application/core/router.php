@@ -45,27 +45,23 @@ abstract class router {
 
 
     /**
-     * load admin module or dynamic page
+     * load dynamic page
      */
 
     public static function init() {
 
 
-        /**
-         * get module
-         */
-
         $config = app::config();
-        $module = self::shiftParam();
+        $requestURI = request::getURI();
 
 
         /**
          * is admin mode?
          */
 
-        if ("/" . $module == $config->site->admin_tools_link) {
+        $adminLink = preg_quote($config->site->admin_tools_link, "/");
+        if (preg_match("/^{$adminLink}/", $requestURI)) {
             self::$adminMode = true;
-            $module = "admin";
         }
 
 
@@ -76,9 +72,7 @@ abstract class router {
 
         if (storage::exists("__message")) {
 
-
             extract(storage::shift("__message"));
-
             if ($type == SUCCESS_EXCEPTION) {
 
                 throw new memberRefreshSuccessException(
@@ -93,56 +87,59 @@ abstract class router {
 
             }
 
-
         }
 
 
         /**
          * messages not found,
-         * working more, load dynamic pages
+         * working more,
+         * get siblings pages
          */
-
-        if (!$module) {
-
-            $loadedPage = db::query(
-
-                "SELECT id, prototype FROM tree WHERE
-                    page_alias = '%s' AND is_publish = 1",
-                        request::getURI()
-
-            );
-
-
-        } else {
-
-            $loadedPage = db::query(
-
-                "SELECT id, prototype FROM tree WHERE
-                    page_alias IN('%s','%s') AND is_publish = 1",
-                        $module, request::getURI()
-
-            );
-
-        }
-
 
         if (self::isAdmin()) {
 
+            $loadedPage = array(
 
-            $pageIsModule = true;
-            $loadedPage   = array(
-                "id" => 0, "prototype" => "mainModule"
+                "id"             => 0,
+                "prototype"      => "mainModule",
+                "page_alias"     => $config->site->admin_tools_link,
+                "page_is_module" => 1,
+                "module_name"    => "admin"
+
             );
-
 
         } else {
 
 
-            if (!$loadedPage) {
+            if (!$loadedPage = db::query("
+
+                SELECT
+
+                    id,
+                    prototype,
+                    page_alias,
+                    IF(prototype = 'mainModule', 1, 0) page_is_module,
+                    module_name
+
+                FROM tree WHERE (
+
+                    (page_alias = '%1\$s'
+                        AND prototype != 'mainModule')
+
+                    OR ('%1\$s' REGEXP CONCAT('^', page_alias, '(/.*)?$')
+                        AND prototype = 'mainModule')
+
+                ) AND is_publish = 1
+                    ORDER BY page_is_module ASC,
+                        LENGTH(page_alias) ASC LIMIT 2
+
+                ", request::getURI()
+
+            )) {
 
                 throw new memberErrorException(
-                    404, view::$language->error
-                    . " 404", view::$language->page_not_found
+                    404, view::$language->error . " 404",
+                        view::$language->page_not_found
                 );
 
             }
@@ -152,60 +149,40 @@ abstract class router {
              * get correctly page type from result
              */
 
-            $pageIsModule = false;
-            if ($module) {
-
-                if (sizeof($loadedPage) > 1) {
-
-                    foreach ($loadedPage as $k => $item) {
-                        if ($item['prototype'] == "mainModule") {
-                            $pageIsModule = true;
-                            break;
-                        }
-                    }
-
-                    $loadedPage = $pageIsModule
-                        ? $loadedPage[$k] : array_pop($loadedPage);
-
-                } else {
-
-                    $loadedPage = $loadedPage[0];
-                    if ($loadedPage['prototype'] == "mainModule") {
-                        $pageIsModule = true;
-                    }
-
+            $siblingsKey = 0;
+            if (sizeof($loadedPage) > 1) {
+                foreach ($loadedPage as $siblingsKey => $item) {
+                    if ($item['page_is_module']) break;
                 }
-
-            } else {
-                $loadedPage = $loadedPage[0];
             }
+
+            $loadedPage = $loadedPage[$siblingsKey];
 
 
         }
 
 
         /**
-         * load module or page
+         * get rejected params level,
+         * delete main rejected params
          */
 
-        if ($pageIsModule) {
+        $rejectedLevel = substr_count($loadedPage['page_alias'], "/");
+        self::$params  = array_slice(self::$params, $rejectedLevel);
 
-            if (!self::isAdmin()) {
-                self::loadPageData($loadedPage);
-            }
+
+        /**
+         * load page data, include module
+         */
+
+        self::loadPageData($loadedPage);
+        if ($loadedPage['page_is_module']) {
 
             $path = self::isAdmin() ? "" : $config->path->modules;
-            view::assign("page_is_module", 1);
-
             self::loadModule(
-                APPLICATION . $path . $module . "/", $module
+                APPLICATION . $path . $loadedPage['module_name'] . "/",
+                    $loadedPage['module_name']
             );
-
-        } else {
-
-            self::$params = array();
-            self::loadPageData($loadedPage);
-            view::assign("page_is_module", 0);
 
         }
 
@@ -247,7 +224,9 @@ abstract class router {
 
         );
 
+        $pageData = array_merge($pageData, $loadedPage);
         $pm = "permanent_redirect";
+
         if (array_key_exists($pm, $pageData) and $pageData[$pm]) {
             request::redirect($pageData[$pm]);
         }

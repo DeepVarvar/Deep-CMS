@@ -123,6 +123,8 @@ return array(
     "meta_description"                    =>  "Description",
     "meta_keywords"                       =>  "Keywords",
     "more"                                =>  "Подробнее",
+    "module"                              =>  "Модуль",
+    "module_not_found"                    =>  "Модуль не найден",
     "name"                                =>  "Имя",
     "nickname"                            =>  "Логин",
     "nickname_or_email"                   =>  "Логин или E-mail",

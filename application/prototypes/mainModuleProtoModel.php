@@ -14,7 +14,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
         "in_sitemap"         => 0,
         "page_alias"         => "",
-        "searchers_priority" => ""
+        "module_name"        => ""
 
     );
 
@@ -37,16 +37,16 @@ class mainModuleProtoModel extends baseProtoTypeModel {
         $f['required']    = true;
         $f['value']       = rawurldecode($f['value']);
         $f['type']        = "longtext";
-        $f['description'] = view::$language->page_alias;
+        $f['description'] = view::$language->main_module_module_alias;
 
     }
 
-    protected function searchers_priorityGetData( & $f) {
+    protected function module_nameGetData( & $f) {
 
         $f['type']        = "select";
-        $f['description'] = view::$language->searchers_priority;
+        $f['description'] = view::$language->main_module_connected_module;
         $f['value']       = utils::makeOptionsArray(
-            utils::getAvailableSearchersPriority(), $f['value']
+            utils::getAvailablePublicModules(), $f['value']
         );
 
     }
@@ -78,7 +78,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
     }
 
-    protected function searchers_priorityPrepare( & $data) {
+    protected function module_namePrepare( & $data) {
 
         $data = (string) $data;
         if ($data == "---") {
@@ -86,11 +86,11 @@ class mainModuleProtoModel extends baseProtoTypeModel {
             $data = "NULL";
 
         } else if (
-            !in_array($data, utils::getAvailableSearchersPriority(), true)) {
+            !in_array($data, utils::getAvailablePublicModules(), true)) {
 
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->searchers_priority_invalid
+                    view::$language->main_module_module_not_found
             );
 
         }
