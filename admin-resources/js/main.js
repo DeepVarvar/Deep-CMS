@@ -24,7 +24,7 @@ function getBranchTreeItem(item) {
      */
 
     var eClass = item.children > 0 ? "expander" : "noexpand";
-    var eName  = item.children > 0 ? "" : ' name="' + Math.random() + '"';
+    var eName  = item.children > 0 ? "" : ' name="' + branchLink + '"';
     var eLink  = item.children > 0 ? ' href="' + branchLink + '"' : "";
     var eTitle = item.children > 0
             ? ' title=" ' + language.branch_children_expand_collapse + ' "'
@@ -70,7 +70,7 @@ function getBranchTreeItem(item) {
         + language.node_delete_confirm + '\');"></a> ';
 
 
-    return ' <li data-id="' + item.id + '"> ' + expander + iname
+    return ' <li data-tree-id="' + item.id + '"> ' + expander + iname
         + showbranch + create + idelete + ' </li> ';
 
 
@@ -199,6 +199,74 @@ $(function(){
      * documents tree expand/collapse branch node
      */
 
+    function getTreeItemEnvironment(item) {
+
+        var position = item.position();
+        var data = {
+
+            top       : position.top,
+            left      : position.left,
+            item_id   : item.attr("data-tree-id"),
+            parent_id : item.parents("li").eq(0).attr("data-tree-id"),
+            prev_id   : item.prev().attr("data-tree-id"),
+            next_id   : item.next().attr("data-tree-id")
+
+        };
+
+        for (var i in data) {
+            if (!data[i] && parseInt(data[i], 10) != 0) {
+                delete data[i];
+            }
+        }
+
+        return data;
+
+    }
+
+    function updateTreeState(bf, af) {
+
+        var bfParent = $('li[data-tree-id="' + bf.parent_id + '"]');
+        var afParent = $('li[data-tree-id="' + af.parent_id + '"]');
+
+        if (bfParent.find("ul").length < 1) {
+
+            var expander = bfParent.find("a.expander");
+            var expHref  = expander.attr("href");
+
+            expander
+
+                .removeClass("expander")
+                .addClass("noexpand")
+                .removeAttr("href")
+                .removeAttr("title")
+                .attr("name", expHref);
+
+        }
+
+        var afLen = afParent.find("> ul > li").length;
+        if (afLen > 0) {
+
+            var expander = afParent.find("> a.expander, > a.noexpand");
+            if (expander.hasClass("noexpand")) {
+
+                var expHref = expander.attr("name");
+                expander
+
+                    .removeClass("noexpand")
+                    .addClass("expander")
+
+                    .attr("title", " " +
+                        language.branch_children_expand_collapse + " ")
+
+                    .removeAttr("name")
+                    .attr("href", expHref);
+
+            }
+
+        }
+
+    }
+
     $("#root").nestedSortable({
 
         protectRoot          : true,
@@ -215,36 +283,33 @@ $(function(){
         maxLevels            : 0,
         isTree               : true,
         startCollapsed       : true,
-        update               : function(event, ui) {
+
+        activate: function(event, ui) {
+            ui.item.data("before", getTreeItemEnvironment(ui.item));
+        },
+
+        update: function(event, ui) {
 
             var that = $(this);
-            var data = {
-                item   : ui.item.attr("data-id"),
-                parent : ui.item.parents("li").attr("data-id"),
-                prev   : ui.item.prev().attr("data-id"),
-                next   : ui.item.next().attr("data-id")
-            };
-
-            for (var i in data) {
-                if (!data[i]) {
-                    delete data[i];
-                }
-            }
-
+            var env  = getTreeItemEnvironment(ui.item);
             $.ajax({
 
                 type: "POST",
                 url: variables.admin_tools_link + "/tree/move-node",
-                data: data,
+                data: env,
                 success: function(response) {
 
-                    var is_error = false;
+                    var is_error = true;
                     if (typeof response.exception != "undefined") {
                         is_error = (response.exception.type == "error");
-                        showException(response.exception);
                     }
 
                     if (!is_error) {
+                        updateTreeState(ui.item.data("before"), env);
+                        ui.item.data("before", null);
+                    } else {
+                        showException(response.exception);
+                        that.nestedSortable("cancel");
                     }
 
                 }
@@ -289,7 +354,7 @@ $(function(){
                         } else {
 
                             expander.removeClass("expander")
-                                .addClass("noexpander");
+                                .addClass("noexpand");
 
                         }
 

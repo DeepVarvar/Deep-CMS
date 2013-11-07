@@ -177,6 +177,31 @@ class tree extends baseController {
 
 
     /**
+     * move node action
+     */
+
+    public function move_node() {
+
+
+        /**
+         * set main output context
+         * and disable changes
+         */
+
+        view::setOutputContext("json");
+        view::lockOutputContext();
+
+
+        throw new memberSuccessException(
+            view::$language->success,
+                view::$language->node_is_moved
+        );
+
+
+    }
+
+
+    /**
      * view create new node form
      */
 

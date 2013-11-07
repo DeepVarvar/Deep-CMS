@@ -138,6 +138,7 @@ return array(
     "node_is_created"                     =>  "Новый узел успешно создан",
     "node_is_deleted"                     =>  "Узел успешно удален",
     "node_is_edited"                      =>  "Узел успешно отредактирован",
+    "node_is_moved"                       =>  "Узел успешно перемещен",
     "node_name"                           =>  "Название узла",
     "node_name_invalid"                   =>  "Некорректное название узла",
     "node_not_found"                      =>  "Узел не найден",

@@ -14,7 +14,7 @@
 
         <ul id="root">
 
-            <li data-id="<?=$node['id']?>">
+            <li data-tree-id="<?=$node['id']?>" data-children="<?=$node['children']?>">
 
                 <?php if ($node['type'] == 'node') { ?>
 
@@ -46,12 +46,12 @@
 
                     <?php foreach ($children as $c) { ?>
 
-                        <li data-id="<?=$c['id']?>">
+                        <li data-tree-id="<?=$c['id']?>" data-children="<?=$c['children']?>">
 
                             <?php if ($c['children'] > 0) { ?>
                                 <a class="expander" href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>" title=" <?=view::$language->branch_children_expand_collapse?> "></a>
                             <?php } else { ?>
-                                <a class="noexpand" name="<?=microtime(true)?>"></a>
+                                <a class="noexpand" name="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>"></a>
                             <?php } ?>
 
                             <a class="name<?=$c['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$c['id']?>" title=" <?=view::$language->edit_now?> ">
