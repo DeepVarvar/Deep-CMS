@@ -29,11 +29,13 @@ class sitemap_xml extends baseController {
 
         /**
          * set main output context
-         * and disable changes
+         * and disable changes,
+         * clear all before added public variables
          */
 
         view::setOutputContext("xml");
         view::lockOutputContext();
+        view::clearPublicVariables();
 
 
         /**

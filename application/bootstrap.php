@@ -262,7 +262,7 @@ try {
      */
 
     $pageOnCache = false;
-    if ($config->system->cache_enabled === true) {
+    if ($config->system->cache_enabled) {
 
         $cachedPage = md5(request::getOriginURL());
         $availableContexts = join(",", $availableContexts);

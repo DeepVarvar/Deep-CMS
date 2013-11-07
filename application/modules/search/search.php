@@ -41,7 +41,7 @@ class search extends baseController {
          * check for exists dependency protected layout
          */
 
-        $layoutName = "simple-search.html";
+        $layoutName = "search.html";
 
         if (!utils::isExistsProtectedLayout($layoutName)) {
 
@@ -84,11 +84,8 @@ class search extends baseController {
 
             $searchCondition = array(
 
-                "d.node_name LIKE '%%"
-                    . join("%%' OR d.node_name LIKE '%%", $searchParts) . "%%'",
-
-                "p.page_text LIKE '%%"
-                    . join("%%' OR p.page_text LIKE '%%", $searchParts) . "%%'"
+                "t.node_name LIKE '%%"
+                    . join("%%' OR t.node_name LIKE '%%", $searchParts) . "%%'"
 
             );
 
@@ -100,22 +97,18 @@ class search extends baseController {
 
                 SELECT DISTINCT
 
-                    d.id,
-                    d.parent_id,
-                    d.node_name,
-                    d.page_alias,
-                    p.page_text,
+                    t.id,
+                    t.parent_id,
+                    t.node_name,
+                    t.page_alias,
                     IF(i.name IS NOT NULL,i.name,'{$noImage}') image
 
-                FROM tree d
+                FROM tree t
+                LEFT JOIN images i ON
+                    (i.node_id = t.id AND i.is_master = 1)
 
-                INNER JOIN props_simple_pages p
-                    ON (p.id = d.props_id AND d.prototype = 10)
-
-                LEFT JOIN images i
-                    ON i.node_id = d.id AND i.is_master = 1
-
-                WHERE d.is_publish = 1 AND {$searchCondition}
+                WHERE t.is_publish = 1
+                    AND {$searchCondition}
 
             ");
 

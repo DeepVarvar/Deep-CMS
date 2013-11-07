@@ -221,7 +221,6 @@ return array(
     "show_it"                             =>  "показать",
     "show_order"                          =>  "порядок вывода",
     "sign_in"                             =>  "Войти",
-    "sitemap"                             =>  "Карта сайта",
     "sort"                                =>  "Сортировка",
     "sql_count_cache"                     =>  "Чтение данных из кеша",
     "sql_count_change"                    =>  "Изменение данных",

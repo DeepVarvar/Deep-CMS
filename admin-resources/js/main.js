@@ -70,7 +70,7 @@ function getBranchTreeItem(item) {
         + language.node_delete_confirm + '\');"></a> ';
 
 
-    return ' <li> ' + expander + iname
+    return ' <li data-id="' + item.id + '"> ' + expander + iname
         + showbranch + create + idelete + ' </li> ';
 
 
@@ -87,7 +87,6 @@ $(function(){
 
     function generatePageAlias(str) {
 
-
         var str = str || "";
         var parentAlias = $("#parentalias").val();
 
@@ -97,7 +96,6 @@ $(function(){
 
         str = str.replace(/['"\\]+/g, "").replace(/[\s-]+/g, "-");
         $("#pagealias").val( str ? parentAlias + str : "" );
-
 
     }
 
@@ -149,7 +147,6 @@ $(function(){
 
     function xAutoScroll(e, element) {
 
-
         var mainWidth = element.innerWidth();
         var target = element[0];
         var mainScrollWidth = target.scrollWidth - mainWidth;
@@ -167,7 +164,6 @@ $(function(){
         } else {
             target.scrollLeft = 0;
         }
-
 
     }
 
@@ -189,9 +185,7 @@ $(function(){
 
         }
 
-
         return false;
-
 
     });
 
@@ -205,22 +199,74 @@ $(function(){
      * documents tree expand/collapse branch node
      */
 
-    $("#tree a.expander").live("click", function(){
+    $("#root").nestedSortable({
 
+        protectRoot          : true,
+        forcePlaceholderSize : true,
+        handle               : "a.name",
+        helper               :	"clone",
+        items                : "li",
+        opacity              : 1,
+        placeholder          : "placeholder",
+        revert               : 200, // скорость анимации возвращения на место
+        tabSize              : 40, // сетка смещения для вложений
+        tolerance            : "pointer",
+        toleranceElement     : false,
+        maxLevels            : 0,
+        isTree               : true,
+        startCollapsed       : true,
+        update               : function(event, ui) {
+
+            var that = $(this);
+            var data = {
+                item   : ui.item.attr("data-id"),
+                parent : ui.item.parents("li").attr("data-id"),
+                prev   : ui.item.prev().attr("data-id"),
+                next   : ui.item.next().attr("data-id")
+            };
+
+            for (var i in data) {
+                if (!data[i]) {
+                    delete data[i];
+                }
+            }
+
+            $.ajax({
+
+                type: "POST",
+                url: variables.admin_tools_link + "/tree/move-node",
+                data: data,
+                success: function(response) {
+
+                    var is_error = false;
+                    if (typeof response.exception != "undefined") {
+                        is_error = (response.exception.type == "error");
+                        showException(response.exception);
+                    }
+
+                    if (!is_error) {
+                    }
+
+                }
+
+            });
+
+        }
+
+    });
+
+    $("#root a.expander").live("click", function(){
 
         var expander = $(this);
         var branchItem = expander.parents("li").eq(0);
         var childrenBranch = branchItem.find("ul");
 
-
         if (childrenBranch.length > 0) {
 
-
-            childrenBranch.eq(0).toggle();
-
+            childrenBranch.remove();
+            delete childrenBranch;
 
         } else if (!expander.hasClass("loading")) {
-
 
             expander.addClass("loading");
             $.ajax({
@@ -229,11 +275,9 @@ $(function(){
                 url: expander.attr("href"),
                 success: function(response){
 
-
                     if (typeof response.exception != "undefined") {
                         showException(response.exception);
                     } else {
-
 
                         var children = "";
                         for (var c in response.children) {
@@ -242,26 +286,24 @@ $(function(){
 
                         if (children.length > 0) {
                             branchItem.append(" <ul>" + children + "</ul> ");
-                        }
+                        } else {
 
+                            expander.removeClass("expander")
+                                .addClass("noexpander");
+
+                        }
 
                     }
 
-
                     expander.removeClass("loading");
-
 
                 }
 
-
             });
-
 
         }
 
-
         return false;
-
 
     });
 
@@ -298,14 +340,12 @@ $(function(){
 
     $("#attachedimages").click(function(){
 
-
         var attachedImagesWindow = window.open(
             $(this).attr("href"), "attachedimages", "width=620,height=450,scrollbars=yes"
         );
 
         attachedImagesWindow.focus();
         return false;
-
 
     });
 
@@ -316,14 +356,12 @@ $(function(){
 
     $("#nodefeatures").click(function(){
 
-
         var nodeFeaturesWindow = window.open(
             $(this).attr("href"), "nodefeatures", "width=620,height=450,scrollbars=yes"
         );
 
         nodeFeaturesWindow.focus();
         return false;
-
 
     });
 

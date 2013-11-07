@@ -12,9 +12,9 @@
 
     <div id="tree">
 
-        <ul class="node">
+        <ul id="root">
 
-            <li>
+            <li data-id="<?=$node['id']?>">
 
                 <?php if ($node['type'] == 'node') { ?>
 
@@ -46,7 +46,7 @@
 
                     <?php foreach ($children as $c) { ?>
 
-                        <li>
+                        <li data-id="<?=$c['id']?>">
 
                             <?php if ($c['children'] > 0) { ?>
                                 <a class="expander" href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>" title=" <?=view::$language->branch_children_expand_collapse?> "></a>

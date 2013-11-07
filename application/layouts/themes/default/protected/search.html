@@ -3,7 +3,7 @@
 
     <h1><?=$page_h1?></h1>
 
-    <form action="/search" method="get">
+    <form action="<?$page_alias?>" method="get">
         <input type="text" name="searchwords" value="<?=$searchwords?>" autocomplete="off" placeholder="<?=view::$language->search_of_site_placeholder?>" />
         <input type="submit" value="<?=view::$language->search_now?>" />
     </form>

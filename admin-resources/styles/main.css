@@ -970,19 +970,27 @@ p.installinfo {
     border-left: dotted 2px #2b9ad5;
 }
 
-#tree ul.node {
+ul#root {
     margin: 0;
     border: none;
 }
 
-#tree li {
+ul#root li {
     list-style: none;
     clear: both;
     width: 500px;
     height: 12px;
 }
 
-#tree a {
+/* placed for */
+ul#root li.placeholder {
+}
+
+/* dragged now */
+ul#root li.ui-sortable-helper {
+}
+
+ul#root a {
     display: block;
     float: left;
     margin: 0 3px 8px 0;
@@ -992,37 +1000,37 @@ p.installinfo {
     text-align: center;
 }
 
-#tree a.noexpandnode {
+ul#root a.noexpandnode {
     width: 24px;
     height: 14px;
 }
 
-#tree a.noexpand {
+ul#root a.noexpand {
     width: 24px;
     height: 12px;
     border-bottom: dotted 2px #2b9ad5;
 }
 
-#tree a.levelup {
+ul#root a.levelup {
     width: 24px;
     background: url(../images/level-up.png) no-repeat center 1px;
 }
 
-#tree a.expander {
+ul#root a.expander {
     width: 24px;
     background: url(../images/expander.png) no-repeat center 1px;
 }
 
-#tree a.loading {
+ul#root a.loading {
     background: url(../images/loading.gif) no-repeat center center;
 }
 
-#tree a.off {
+ul#root a.off {
     text-decoration: line-through;
     color: #a0a0a0;
 }
 
-#tree a.name {
+ul#root a.name {
     position: relative;
     overflow: hidden;
     padding: 0 40px 0 10px;
@@ -1036,11 +1044,11 @@ p.installinfo {
     border-radius: 4px;
 }
 
-#tree a.name:hover {
+ul#root a.name:hover {
     background: #eaeaff;
 }
 
-#tree a.name div.blend {
+ul#root a.name div.blend {
     position: absolute;
     right: 0;
     width: 40px;
@@ -1048,123 +1056,19 @@ p.installinfo {
     background: url(../images/right-white-blend-gradient-40.png) repeat-y right center;
 }
 
-#tree a.showbranch {
+ul#root a.showbranch {
     width: 20px;
     background: url(../images/childsloader.png) no-repeat center 2px;
 }
 
-#tree a.create {
+ul#root a.create {
     width: 20px;
     background: url(../images/createchild.png) no-repeat center 3px;
 }
 
-#tree a.delete {
+ul#root a.delete {
     width: 20px;
     background: url(../images/delete.png) no-repeat center 3px;
-}
-
-#parentname {
-    padding: 3px 20px 5px 20px;
-    text-align: center;
-    border: solid 2px #7d7d7d;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -khtml-border-radius: 4px;
-    border-radius: 4px;
-    font-weight: bold;
-    color: #000000;
-}
-
-#parentlist {
-    overflow-x: scroll;
-    padding: 30px;
-    border: solid 2px #138ed9;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -khtml-border-radius: 4px;
-    border-radius: 4px;
-}
-
-#parentlist ul {
-    margin-left: 52px;
-    border-left: dotted 2px #2b9ad5;
-}
-
-#parentlist ul.node {
-    margin: 0;
-    border: none;
-}
-
-#parentlist li {
-    list-style: none;
-    clear: both;
-    width: 500px;
-    height: 12px;
-}
-
-#parentlist a {
-    display: block;
-    float: left;
-    margin: 0 3px 8px 0;
-    height: 24px;
-    line-height: 22px;
-    color: #000000;
-    text-align: center;
-}
-
-#parentlist a.noexpandnode {
-    width: 24px;
-    height: 14px;
-}
-
-#parentlist a.noexpand {
-    width: 24px;
-    height: 12px;
-    border-bottom: dotted 2px #2b9ad5;
-}
-
-#parentlist a.expander {
-    width: 24px;
-    background: url(../images/expander.png) no-repeat center 1px;
-}
-
-#parentlist a.loading {
-    background: url(../images/loading.gif) no-repeat center center;
-}
-
-#parentlist a.off {
-    text-decoration: line-through;
-    color: #a0a0a0;
-}
-
-#parentlist a.name {
-    position: relative;
-    overflow: hidden;
-    padding: 0 40px 0 10px;
-    max-width: 320px;
-    white-space: nowrap;
-    background: #ffffff;
-    border: solid 2px #a0a0a0;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -khtml-border-radius: 4px;
-    border-radius: 4px;
-}
-
-#parentlist a.name:hover {
-    background: #eaeaff;
-}
-
-#parentlist a.off:hover {
-    background: #ffffff;
-}
-
-#parentlist a.name div.blend {
-    position: absolute;
-    right: 0;
-    width: 40px;
-    height: 24px;
-    background: url(../images/right-white-blend-gradient-40.png) repeat-y right center;
 }
 
 #notifier {

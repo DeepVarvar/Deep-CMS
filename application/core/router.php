@@ -126,14 +126,15 @@ abstract class router {
                     (page_alias = '%1\$s'
                         AND prototype != 'mainModule')
 
-                    OR ('%1\$s' REGEXP CONCAT('^', page_alias, '(/.*)?$')
-                        AND prototype = 'mainModule')
+                    OR ('%1\$s' REGEXP CONCAT(
+                            '^', REPLACE(page_alias, '.', '\\\.') , '(/.*)?$'
+                        ) AND prototype = 'mainModule')
 
                 ) AND is_publish = 1
                     ORDER BY page_is_module ASC,
                         LENGTH(page_alias) ASC LIMIT 2
 
-                ", request::getURI()
+                ", $requestURI
 
             )) {
 
@@ -175,6 +176,7 @@ abstract class router {
          * load page data, include module
          */
 
+        self::loadPageData($loadedPage);
         if ($loadedPage['page_is_module']) {
 
             if (!$loadedPage['module_name']) {
@@ -192,8 +194,6 @@ abstract class router {
                     $loadedPage['module_name']
             );
 
-        } else {
-            self::loadPageData($loadedPage);
         }
 
 
@@ -239,7 +239,9 @@ abstract class router {
             request::redirect($pageData[$pm]);
         }
 
+        $pageData = array_merge($pageData, $loadedPage);
         view::assign($pageData);
+
         if (array_key_exists("layout", $pageData)) {
             view::setLayout($config->layouts->public . $pageData['layout']);
         }

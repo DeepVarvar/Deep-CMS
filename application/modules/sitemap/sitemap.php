@@ -21,7 +21,6 @@ class sitemap extends baseController {
          */
 
         $layoutName = "sitemap.html";
-
         if (!utils::isExistsProtectedLayout($layoutName)) {
 
             throw new systemErrorException(
@@ -33,34 +32,20 @@ class sitemap extends baseController {
 
 
         /**
-         * build sitemap
-         */
-
-        $nodes = db::query("
-
-            SELECT
-
-                id,
-                parent_id,
-                node_name,
-                page_alias
-
-            FROM tree
-
-            WHERE is_publish = 1 AND in_sitemap = 1
-            ORDER BY lk ASC
-
-        ");
-
-
-
-        /**
+         * get sitemap,
          * assign data into view
          */
 
-        //view::assign("sitemap", helper::makeTreeArray($nodes));
-        view::assign("node_name", view::$language->sitemap);
+        $nodes = db::query(
 
+            "SELECT id, lvl, lk, rk, parent_id, node_name, page_alias
+                FROM tree WHERE is_publish = 1
+                    AND in_sitemap = 1 ORDER BY lk ASC"
+
+        );
+
+        view::assign("sitemap_nodes", helper::makeTreeArray($nodes));
+        view::assign("node_name", view::$language->sitemap);
         $this->setProtectedLayout($layoutName);
 
 

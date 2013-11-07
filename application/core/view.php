@@ -359,6 +359,15 @@ abstract class view {
 
 
     /**
+     * clear all public variables from view output
+     */
+
+    public static function clearPublicVariables() {
+        self::$vars = array();
+    }
+
+
+    /**
      * assign exception report data into extracted vars for layout,
      * choose layout to exception
      */
@@ -825,6 +834,8 @@ abstract class view {
 
         $requiredVariables = array(
 
+            "last_modified"      => db::normalizeQuery("SELECT NOW()"),
+            "layout"             => self::getCurrentLayout(),
             "node_name"          => "[This page is not a node]",
             "page_text"          => "",
             "page_h1"            => "",
@@ -838,23 +849,6 @@ abstract class view {
 
             if (!isset(self::$vars[$key]) or self::$vars[$key] === "") {
                 self::$vars[$key] = $value;
-            }
-
-        }
-
-        $unchangedVariables = array(
-
-            "page_alias"    => request::getURI(),
-            "last_modified" => date("Y-m-d H:i:s"),
-            "layout"        => self::getCurrentLayout()
-
-        );
-
-        foreach ($unchangedVariables as $k => $value) {
-
-            $exists = (array_key_exists($k, self::$vars) and self::$vars[$k]);
-            if ($exists) {
-                self::$vars[$k] = $value;
             }
 
         }

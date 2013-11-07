@@ -187,7 +187,9 @@ class tree extends baseController {
          * get parent ID and prototype name
          */
 
-        $parentID = request::shiftParam("parent");
+        $protoName = request::shiftParam("prototype");
+        $parentID  = request::shiftParam("parent");
+
         if (!validate::isNumber($parentID)) {
 
             throw new memberErrorException(
@@ -197,10 +199,6 @@ class tree extends baseController {
 
         }
 
-        $protoName = request::shiftParam("prototype");
-        if ($protoName === null) {
-            $protoName = $this->defaultProtoType;
-        }
 
 
         /**
@@ -237,7 +235,9 @@ class tree extends baseController {
          * get node ID and prototype name
          */
 
-        $nodeID = request::shiftParam("id");
+        $protoName = request::shiftParam("prototype");
+        $nodeID    = request::shiftParam("id");
+
         if (!validate::isNumber($nodeID)) {
 
             throw new memberErrorException(
@@ -245,11 +245,6 @@ class tree extends baseController {
                     view::$language->data_invalid
             );
 
-        }
-
-        $protoName = request::shiftParam("prototype");
-        if ($protoName === null) {
-            $protoName = $this->defaultProtoType;
         }
 
 
@@ -799,7 +794,7 @@ class tree extends baseController {
 
             "id"                 => "new",
             "parent_id"          => $parentID,
-            "prototype"          => $protoName,
+            "prototype"          => $this->defaultProtoType,
             "children_prototype" => $this->defaultProtoType,
             "is_publish"         => 1,
             "node_name"          => "",
@@ -814,7 +809,10 @@ class tree extends baseController {
 
         if ($parentID == 0) {
 
-            $newNode['parent_name']  = view::$language->root_of_site;
+            $newNode['parent_name'] = view::$language->root_of_site;
+            if ($protoName) {
+                $newNode['prototype'] = $protoName;
+            }
 
         } else {
 
@@ -840,9 +838,10 @@ class tree extends baseController {
 
             }
 
-            $newNode['prototype']          = $parentNode['cpt'];
-            $newNode['children_prototype'] = $parentNode['cpt'];
-            $newNode['parent_name']        = $parentNode['node_name'];
+            $newNode['prototype'] = $protoName
+                ? $protoName : $parentNode['cpt'];
+
+            $newNode['parent_name'] = $parentNode['node_name'];
 
 
             /**
@@ -908,9 +907,7 @@ class tree extends baseController {
             LEFT JOIN tree p ON p.id = t.parent_id
             WHERE t.id = %u
 
-            ",
-
-            $nodeID
+            ", $nodeID
 
         );
 
@@ -921,6 +918,15 @@ class tree extends baseController {
                     view::$language->node_not_found
             );
 
+        }
+
+
+        /**
+         * set new prototype of edited node
+         */
+
+        if ($protoName) {
+            $editedNode['prototype'] = $protoName;
         }
 
 
@@ -1116,7 +1122,9 @@ class tree extends baseController {
     private function buildNodeProperties( & $node, $nodeID = null) {
 
 
+        $this->getPrototype($node['prototype']);
         $protoModel = $this->getNodeProtoModel($node['prototype']);
+
         $node = array_merge(
             $this->getNodeProps($node), $protoModel->getProperties($nodeID)
         );
@@ -1242,7 +1250,7 @@ class tree extends baseController {
 
             $existsParent = db::normalizeQuery(
 
-                "SELECT (1) ex FROM tree
+                "SELECT lk, rk FROM tree
                     WHERE id = %u", $requiredData['parent_id']
 
             );
@@ -1304,22 +1312,19 @@ class tree extends baseController {
              * children is parent?
              */
 
-            $isBrokenParent = db::query(
+            if (isset($existsParent)) {
 
-                "SELECT (1) ex FROM tree WHERE lk > %u AND rk < %u LIMIT 1",
-                    $currentKeys['lk'], $currentKeys['rk']
+                if ($currentKeys['lk'] < $existsParent['lk']
+                        and $currentKeys['rk'] > $existsParent['rk']) {
 
-            );
+                    throw new memberErrorException(
+                        view::$language->error,
+                            view::$language->node_cant_itchild_parent
+                    );
 
-            if ($isBrokenParent) {
-
-                throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->node_cant_itchild_parent
-                );
+                }
 
             }
-
 
         }
 
