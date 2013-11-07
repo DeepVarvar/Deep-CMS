@@ -192,6 +192,106 @@ class tree extends baseController {
         view::lockOutputContext();
 
 
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/tree(/branch\?id=\d+)?", true
+        );
+
+
+        /**
+         * only post request type
+         */
+
+        if (!request::isPost()) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
+        }
+
+
+        /**
+         * get node ID and parent ID
+         */
+
+        $nodeID = request::getPostParam("item_id");
+        $parentID = request::getPostParam("parent_id");
+
+        if (!validate::isNumber($nodeID)
+                or !validate::isNumber($parentID)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
+        }
+
+
+        /**
+         * get and check exists node,
+         * check current parent node
+         */
+
+        $movedNode = db::normalizeQuery(
+
+            "SELECT t.lvl, t.lk, t.rk, t.parent_id,
+                p.lvl parent_lvl, p.lk parent_lk, p.rk parent_rk
+                    FROM tree t LEFT JOIN tree p ON p.id = t.parent_id
+                        WHERE t.id = %u", $nodeID
+
+        );
+
+        if (!$movedNode) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->node_not_found
+            );
+
+        }
+
+        if ($movedNode['parent_id'] > 0 and !$movedNode['parent_rk']) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->parent_node_not_found
+            );
+
+        }
+
+
+        /**
+         * get and check exists new parent node
+         */
+
+        if ($parentID > 0) {
+
+            if (!$newParent = db::normalizeQuery(
+                "SELECT lvl, lk, rk FROM tree WHERE id = %u", $parentID
+            )) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->parent_node_not_found
+                );
+
+            }
+
+        } else {
+        }
+
+
+        /**
+         * send success exception
+         */
+
         throw new memberSuccessException(
             view::$language->success,
                 view::$language->node_is_moved

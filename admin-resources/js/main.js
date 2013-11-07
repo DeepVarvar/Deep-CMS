@@ -70,7 +70,8 @@ function getBranchTreeItem(item) {
         + language.node_delete_confirm + '\');"></a> ';
 
 
-    return ' <li data-tree-id="' + item.id + '"> ' + expander + iname
+    return ' <li data-tree-id="' + item.id + '"'
+        + ' data-children="' + item.children + '"> ' + expander + iname
         + showbranch + create + idelete + ' </li> ';
 
 
@@ -225,41 +226,60 @@ $(function(){
 
     function updateTreeState(bf, af) {
 
-        var bfParent = $('li[data-tree-id="' + bf.parent_id + '"]');
-        var afParent = $('li[data-tree-id="' + af.parent_id + '"]');
+        if (bf.parent_id != af.parent_id) {
 
-        if (bfParent.find("ul").length < 1) {
+            var bfParent = $('li[data-tree-id="' + bf.parent_id + '"]');
+            var afParent = $('li[data-tree-id="' + af.parent_id + '"]');
 
-            var expander = bfParent.find("a.expander");
-            var expHref  = expander.attr("href");
+            var bfChildren = parseInt(bfParent.attr("data-children"), 10) - 1;
+            var afChildren = parseInt(afParent.attr("data-children"), 10) + 1;
 
-            expander
+            bfParent.attr("data-children", bfChildren);
+            afParent.attr("data-children", afChildren);
 
-                .removeClass("expander")
-                .addClass("noexpand")
-                .removeAttr("href")
-                .removeAttr("title")
-                .attr("name", expHref);
+            if (bfChildren < 1) {
 
-        }
+                var expander = bfParent.find("> a.expander");
+                var expHref  = expander.attr("href");
 
-        var afLen = afParent.find("> ul > li").length;
-        if (afLen > 0) {
-
-            var expander = afParent.find("> a.expander, > a.noexpand");
-            if (expander.hasClass("noexpand")) {
-
-                var expHref = expander.attr("name");
                 expander
 
-                    .removeClass("noexpand")
-                    .addClass("expander")
+                    .removeClass("expander")
+                    .addClass("noexpand")
+                    .removeAttr("href")
+                    .removeAttr("title")
+                    .attr("name", expHref);
 
-                    .attr("title", " " +
-                        language.branch_children_expand_collapse + " ")
+            }
 
-                    .removeAttr("name")
-                    .attr("href", expHref);
+            if (afChildren > 0) {
+
+                var expander = afParent.find("> a.expander, > a.noexpand");
+                if (expander.hasClass("noexpand")) {
+
+                    var expHref = expander.attr("name");
+                    expander
+
+                        .removeClass("noexpand")
+                        .addClass("expander")
+
+                        .attr("title", " " +
+                            language.branch_children_expand_collapse + " ")
+
+                        .removeAttr("name")
+                        .attr("href", expHref);
+
+                } else {
+
+                    /**
+                     * first click need for cleared children,
+                     * and 2 click load actually children branch from server
+                     */
+
+                    expander.click();
+                    expander.click();
+
+                }
 
             }
 
@@ -267,7 +287,8 @@ $(function(){
 
     }
 
-    $("#root").nestedSortable({
+    var treeRoot = $("#root");
+    treeRoot.nestedSortable({
 
         protectRoot          : true,
         forcePlaceholderSize : true,
@@ -284,8 +305,17 @@ $(function(){
         isTree               : true,
         startCollapsed       : true,
 
-        activate: function(event, ui) {
+        start: function(event, ui) {
             ui.item.data("before", getTreeItemEnvironment(ui.item));
+        },
+
+        change: function(event, ui) {
+
+            //var placeholder = treeRoot.find("li.placeholder").eq(0);
+            //var placeParent = placeholder.parents("li").eq(0);
+            //var children = placeParent.find("> ul > li");
+            //var expander = placeParent.find("> a.expander");
+
         },
 
         update: function(event, ui) {
