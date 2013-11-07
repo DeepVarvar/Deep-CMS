@@ -177,137 +177,6 @@ class tree extends baseController {
 
 
     /**
-     * move node action
-     */
-
-    public function move_node() {
-
-
-        /**
-         * set main output context
-         * and disable changes
-         */
-
-        view::setOutputContext("json");
-        view::lockOutputContext();
-
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link
-                . "/tree(/branch\?id=\d+)?", true
-        );
-
-
-        /**
-         * only post request type
-         */
-
-        if (!request::isPost()) {
-
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
-            );
-
-        }
-
-
-        /**
-         * get node ID and parent ID
-         */
-
-        $nodeID = request::getPostParam("item_id");
-        $parentID = request::getPostParam("parent_id");
-
-        if (!validate::isNumber($nodeID)
-                or !validate::isNumber($parentID)) {
-
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
-            );
-
-        }
-
-
-        /**
-         * get and check exists node,
-         * check current parent node
-         */
-
-        $movedNode = db::normalizeQuery(
-
-            "SELECT t.lvl, t.lk, t.rk, t.parent_id,
-                p.lvl parent_lvl, p.lk parent_lk, p.rk parent_rk
-                    FROM tree t LEFT JOIN tree p ON p.id = t.parent_id
-                        WHERE t.id = %u", $nodeID
-
-        );
-
-        if (!$movedNode) {
-
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->node_not_found
-            );
-
-        }
-
-        if ($movedNode['parent_id'] > 0 and !$movedNode['parent_rk']) {
-
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->parent_node_not_found
-            );
-
-        }
-
-
-        /**
-         * get and check exists new parent node
-         */
-
-        if ($parentID > 0) {
-
-            if (!$newParent = db::normalizeQuery(
-                "SELECT lvl, lk, rk FROM tree WHERE id = %u", $parentID
-            )) {
-
-                throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->parent_node_not_found
-                );
-
-            }
-
-        } else {
-
-            $newParent = array(
-                "lvl" => 0,
-                "lk"  => db::normalizeQuery("SELECT MAX(rk) rk FROM tree")
-            );
-
-        }
-
-
-        /**
-         * send success exception
-         */
-
-        throw new memberSuccessException(
-            view::$language->success,
-                view::$language->node_is_moved
-        );
-
-
-    }
-
-
-    /**
      * view create new node form
      */
 
@@ -649,6 +518,137 @@ class tree extends baseController {
 
 
     /**
+     * move node action
+     */
+
+    public function move_node() {
+
+
+        /**
+         * set main output context
+         * and disable changes
+         */
+
+        view::setOutputContext("json");
+        view::lockOutputContext();
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/tree(/branch\?id=\d+)?", true
+        );
+
+
+        /**
+         * only post request type
+         */
+
+        if (!request::isPost()) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
+        }
+
+
+        /**
+         * get node ID and parent ID
+         */
+
+        $nodeID = request::getPostParam("item_id");
+        $parentID = request::getPostParam("parent_id");
+
+        if (!validate::isNumber($nodeID)
+                or !validate::isNumber($parentID)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
+        }
+
+
+        /**
+         * get and check exists node,
+         * check current parent node
+         */
+
+        $movedNode = db::normalizeQuery(
+
+            "SELECT t.lvl, t.lk, t.rk, t.parent_id,
+                p.lvl parent_lvl, p.lk parent_lk, p.rk parent_rk
+                    FROM tree t LEFT JOIN tree p ON p.id = t.parent_id
+                        WHERE t.id = %u", $nodeID
+
+        );
+
+        if (!$movedNode) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->node_not_found
+            );
+
+        }
+
+        if ($movedNode['parent_id'] > 0 and !$movedNode['parent_rk']) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->parent_node_not_found
+            );
+
+        }
+
+
+        /**
+         * get and check exists new parent node
+         */
+
+        if ($parentID > 0) {
+
+            if (!$newParent = db::normalizeQuery(
+                "SELECT lvl, lk, rk FROM tree WHERE id = %u", $parentID
+            )) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->parent_node_not_found
+                );
+
+            }
+
+        } else {
+
+            $newParent = array(
+                "lvl" => 0,
+                "lk"  => db::normalizeQuery("SELECT MAX(rk) rk FROM tree")
+            );
+
+        }
+
+
+        /**
+         * send success exception
+         */
+
+        throw new memberSuccessException(
+            view::$language->success,
+                view::$language->node_is_moved
+        );
+
+
+    }
+
+
+    /**
      * MORE DOWN ONLY PRIVATE FUNCTIONS
      *
      *
@@ -739,7 +739,7 @@ class tree extends baseController {
             WHERE c.parent_id = %u
 
             GROUP BY c.id
-            ORDER BY c.lk ASC, c.node_name ASC
+            ORDER BY c.lk ASC
 
             ",
 
@@ -1724,6 +1724,7 @@ class tree extends baseController {
 
 
         /**
+         * TODO maybe add feature first/last append new node choice
          * set auto properties for new node
          */
 
@@ -1989,6 +1990,9 @@ class tree extends baseController {
 
         $editedNode = $this->getFilteredRequiredInputData($nodeID);
 
+        $parentID = $editedNode['parent_id'];
+        unset($editedNode['parent_id']);
+
 
         /**
          * set auto properties for edited node
@@ -2021,15 +2025,6 @@ class tree extends baseController {
 
 
         /**
-         * move nested set keys for edited node
-         */
-
-        $this->moveNestedSetKeys(
-            $nodeID, $editedNode['parent_id']
-        );
-
-
-        /**
          * update edited node data
          */
 
@@ -2053,7 +2048,7 @@ class tree extends baseController {
                 view::$language->success,
                     view::$language->node_is_edited,
                         app::config()->site->admin_tools_link
-                            . "/tree/branch?id={$editedNode['parent_id']}"
+                            . "/tree/branch?id={$parentID}"
 
         );
 
