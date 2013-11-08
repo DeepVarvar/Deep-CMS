@@ -37,7 +37,7 @@
                 <a class="create" href="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$node['id']?>" title=" <?=view::$language->node_create_new?> "></a>
 
                 <?php if ($node['type'] == 'node') { ?>
-                    <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$node['id']?>" title=" <?=view::$language->delete_now?> " onclick="return confirmation('<?=view::$language->node_delete_confirm?>');"></a>
+                    <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$node['id']?>" title=" <?=view::$language->delete_now?> "></a>
                 <?php } ?>
 
                 <?php if ($children) { ?>
@@ -64,7 +64,7 @@
                             <?php } ?>
 
                             <a class="create" href="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$c['id']?>" title=" <?=view::$language->node_create_new?> "></a>
-                            <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$c['id']?>" title=" <?=view::$language->delete_now?> " onclick="return confirmation('<?=view::$language->node_delete_confirm?>');"></a>
+                            <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$c['id']?>" title=" <?=view::$language->delete_now?> "></a>
 
                         </li>
 

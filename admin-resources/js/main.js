@@ -65,10 +65,7 @@ function getBranchTreeItem(item) {
         + '" title=" ' + language.node_create_new + ' "></a> ';
 
     idelete = ' <a class="delete" href="'
-        + deleteLink + '" title=" ' + language.delete_now + ' "'
-        + ' onclick="return confirmation(\''
-        + language.node_delete_confirm + '\');"></a> ';
-
+        + deleteLink + '" title=" ' + language.delete_now + ' "></a> ';
 
     return ' <li data-tree-id="' + item.id + '"'
         + ' data-children="' + item.children + '"> ' + expander + iname
@@ -350,7 +347,46 @@ $(function(){
 
     });
 
-    $("#root a.expander").live("click", function(){
+    $("#root a.delete").live("click", function() {
+
+        var delink = $(this);
+
+        if (confirmation(language.node_delete_confirm)) {
+
+            $.ajax({
+
+                type: "GET",
+                cache: false,
+                url: delink.attr("href"),
+                success: function(response){
+
+                    if (typeof response.exception != "undefined") {
+
+                        showException(response.exception);
+                        if (response.exception.type == "success") {
+
+                            var parent = delink.parents("li").eq(0);
+                            parent.remove();
+
+                            setTimeout(function() {
+                                delete parent;
+                            }, 400);
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+        return false;
+
+    });
+
+    $("#root a.expander").live("click", function() {
 
         var expander = $(this);
         var branchItem = expander.parents("li").eq(0);
@@ -359,7 +395,10 @@ $(function(){
         if (childrenBranch.length > 0) {
 
             childrenBranch.remove();
-            delete childrenBranch;
+            setTimeout(function() {
+                delete childrenBranch;
+            }, 400);
+
 
         } else if (!expander.hasClass("loading")) {
 
