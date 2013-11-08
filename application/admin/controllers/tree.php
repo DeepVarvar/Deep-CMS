@@ -576,6 +576,24 @@ class tree extends baseController {
 
 
         /**
+         * get next node ID and previous node ID
+         */
+
+        $nextID = request::getPostParam("next_id");
+        $prevID = request::getPostParam("prev_id");
+
+        if (($nextID and !validate::isNumber($nextID))
+                or ($prevID and !validate::isNumber($prevID))) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->data_invalid
+            );
+
+        }
+
+
+        /**
          * get and check exists node,
          * check current parent node
          */
@@ -603,6 +621,47 @@ class tree extends baseController {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->parent_node_not_found
+            );
+
+        }
+
+
+        /**
+         * check previous node if exists,
+         * check next node if exists
+         */
+
+        if ($nextID and !$nextNode = db::normalizeQuery(
+            "SELECT lvl, lk, rk FROM tree WHERE id = %u", $nextID)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->next_node_not_found
+            );
+
+        }
+
+        if ($prevID and !$prevNode = db::normalizeQuery(
+            "SELECT lvl, lk, rk FROM tree WHERE id = %u", $prevID)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->prev_node_not_found
+            );
+
+        }
+
+
+        /**
+         * check required for update
+         */
+
+        if ((isset($nextNode) and $movedNode['rk'] == ($nextNode['lk'] - 1))
+         or (isset($prevNode) and $movedNode['lk'] == ($prevNode['rk'] + 1))) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->node_update_is_not_required
             );
 
         }
