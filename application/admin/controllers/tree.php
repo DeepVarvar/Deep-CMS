@@ -719,13 +719,7 @@ class tree extends baseController {
 
 
         } else {
-
-            $newParent = array(
-                "lvl" => 0,
-                "lk"  => 0, //db::normalizeQuery("SELECT rk FROM tree ORDER BY rk DESC LIMIT 1")
-                "rk"  => 0
-            );
-
+            $newParent = array("lvl" => 0, "lk"  => 0, "rk"  => 1);
         }
 
 
@@ -734,61 +728,64 @@ class tree extends baseController {
          */
 
         $isChangeParent = ($movedNode['parent_id'] != $parentID);
-        $skewTree  = $movedNode['rk'] - $movedNode['lk'] + 1;
-        $skewLevel = $newParent['lvl'] - $movedNode['lvl'] + 1;
 
-        $minLK = $isPrevNode ? $prevNode['rk'] + 1
-            : ($isNextNode ? $nextNode['lk'] : $newParent['lk'] + 1);
+        $newPos = $isPrevNode ? $prevNode['rk'] + 1 : (
+            $isNextNode ? $nextNode['lk'] : $newParent['rk']
+        );
 
-        $maxRK = $isNextNode ? $nextNode['lk'] - 1
-            : ($isPrevNode ? $prevNode['rk'] : $newParent['rk'] - 1);
+        //dump($newPos);
 
+        $width    = $movedNode['rk'] - $movedNode['lk'] + 1;
+        $distance = $newPos - $movedNode['lk'];
+        $tmpPos   = $movedNode['lk'];
 
-        /**
-         * drag on left
-         */
-
-        if ($minLK < $movedNode['lk']) {
-
-            $skewEdit = $movedNode['lk'] - $minLK;
-            if ($isChangeParent) {
-            }
-
-            db::set("
-
-                UPDATE tree SET
-
-                    /*lvl = IF(lk < {$movedNode['lk']}, lvl, lvl + ({$skewLevel})),*/
-                    rk  = IF(lk < {$movedNode['lk']}, rk + {$skewTree}, rk - $skewEdit),
-                    lk  = IF(lk < {$movedNode['lk']}, lk + {$skewTree}, lk - $skewEdit)
-
-                WHERE lk >= {$minLK} AND rk <= {$movedNode['rk']}
-
-            ");
-
-
-        /**
-         * drag on right
-         */
-
-        } else {
-
-            $skewEdit = $maxRK - $movedNode['lk'] - $skewTree + 1;
-            if ($isChangeParent) {
-            }
-
-            db::set("
-
-                UPDATE tree SET
-
-                    lk = IF(rk > {$movedNode['rk']}, lk - $skewTree, lk + $skewEdit),
-                    rk = IF(rk > {$movedNode['rk']}, rk - $skewTree, rk + $skewEdit)
-
-                WHERE lk >= {$movedNode['lk']} AND rk <= {$maxRK}
-
-            ");
-
+        if ($distance < 0) {
+            $distance -= $width;
+            $tmpPos   += $width;
         }
+
+
+        /**
+         * create new space for subtree
+         */
+
+        db::set(
+            "UPDATE tree SET rk = rk + %u
+                WHERE lk >= %u", $width, $newPos
+        );
+
+        db::set(
+            "UPDATE tree SET lk = lk + %u
+                WHERE lk >= %u", $width, $newPos
+        );
+
+
+        /**
+         * move subtree into new space
+         */
+
+        db::set(
+
+            "UPDATE tree SET lk = lk + (%1\$s), rk = rk + (%1\$s)
+                WHERE lk >= %2\$u AND rk <= %2\$u + %3\$u",
+                    $distance, $tmpPos, $width
+
+        );
+
+
+        /**
+         * remove old space vacated by subtree
+         */
+
+        db::set(
+            "UPDATE tree SET rk = rk - %u
+                WHERE lk > %u", $width, $movedNode['lk']
+        );
+
+        db::set(
+            "UPDATE tree SET lk = lk - %u
+                WHERE lk > %u", $width, $movedNode['lk']
+        );
 
 
         /**
