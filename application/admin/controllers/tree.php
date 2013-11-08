@@ -651,13 +651,26 @@ class tree extends baseController {
 
         }
 
+        $isPrevNode = isset($prevNode);
+        $isNextNode = isset($nextNode);
+
+        if ($isNextNode and $isPrevNode
+                and $nextNode['lk'] != ($prevNode['rk'] + 1)) {
+
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->node_incorrect_siblings
+            );
+
+        }
+
 
         /**
          * check required for update
          */
 
-        if ((isset($nextNode) and $movedNode['rk'] == ($nextNode['lk'] - 1))
-         or (isset($prevNode) and $movedNode['lk'] == ($prevNode['rk'] + 1))) {
+        if (($isNextNode and $movedNode['rk'] == ($nextNode['lk'] - 1))
+         or ($isPrevNode and $movedNode['lk'] == ($prevNode['rk'] + 1))) {
 
             throw new memberErrorException(
                 view::$language->error,
@@ -673,9 +686,9 @@ class tree extends baseController {
 
         if ($parentID > 0) {
 
+
             if (!$newParent = db::normalizeQuery(
-                "SELECT lvl, lk, rk FROM tree WHERE id = %u", $parentID
-            )) {
+                "SELECT lvl, lk, rk FROM tree WHERE id = %u", $parentID)) {
 
                 throw new memberErrorException(
                     view::$language->error,
@@ -684,11 +697,106 @@ class tree extends baseController {
 
             }
 
+            if ($isPrevNode and ($prevNode['lk'] <= $newParent['lk']
+                or $prevNode['rk'] >= $newParent['rk'])) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->node_incorrect_siblings
+                );
+
+            }
+
+            if ($isNextNode and ($nextNode['lk'] <= $newParent['lk']
+                or $nextNode['rk'] >= $newParent['rk'])) {
+
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->node_incorrect_siblings
+                );
+
+            }
+
+
         } else {
 
             $newParent = array(
                 "lvl" => 0,
-                "lk"  => db::normalizeQuery("SELECT MAX(rk) rk FROM tree")
+                "lk"  => db::normalizeQuery(
+                    "SELECT rk FROM tree ORDER BY rk DESC LIMIT 1"
+                )
+            );
+
+        }
+
+
+        /**
+         * calculate positions
+         */
+
+        $skewLevel = $newParent['lvl'] - $movedNode['lvl'] + 1;
+        $skewTree  = $movedNode['rk'] - $movedNode['lk'] + 1;
+
+        dump(($newParent['rk'] - 1) < $movedNode['rk']);
+
+        if (($newParent['rk'] - 1) < $movedNode['rk']) {
+
+            $skewEdit = $newParent['rk'] - $movedNode['lk'];
+            db::set("
+
+                UPDATE tree SET
+
+                    rk = IF(lk >= %u, rk + (%s), IF(rk < %u, rk + (%s), rk)),
+                    lvl = IF(lk >= %u, lvl + (%s), lvl),
+                    lk = IF(lk >= %u, lk + (%s), IF(lk > %u, lk + (%s), lk))
+
+                WHERE rk > %u AND lk < %u
+
+                ",
+
+                $movedNode['lk'],
+                $skewEdit,
+                $movedNode['lk'],
+                $skewTree,
+                $movedNode['lk'],
+                $skewLevel,
+                $movedNode['lk'],
+                $skewEdit,
+                $newParent['rk'] - 1,
+                $skewTree,
+                $newParent['rk'] - 1,
+                $movedNode['rk']
+
+            );
+
+        } else {
+
+            $skewEdit = $newParent['rk'] - $movedNode['lk'] - $skewTree;
+            db::set("
+
+                UPDATE tree SET
+
+                    lk=IF(rk <= %u, lk + (%s), IF(lk > %u, lk - (%s), lk)),
+                    lvl=IF(rk <= %u, lvl + (%s), lvl),
+                    rk=IF(rk <= %u, rk + (%s), IF(rk <= %u, rk - (%s), rk))
+
+                WHERE rk > %u AND lk <= %u
+
+                ",
+
+                $movedNode['rk'],
+                $skewEdit,
+                $movedNode['rk'],
+                $skewTree,
+                $movedNode['rk'],
+                $skewLevel,
+                $movedNode['rk'],
+                $skewEdit,
+                $newParent['rk'] - 1,
+                $skewTree,
+                $movedNode['lk'],
+                $newParent['rk'] - 1
+
             );
 
         }
