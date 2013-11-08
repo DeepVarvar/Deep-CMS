@@ -757,8 +757,8 @@ class tree extends baseController {
                 UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
                     rk = rk + %2\$u WHERE rk >= %1\$u;
 
-                UPDATE tree SET lvl = lvl + (%3\$s), lk = lk + (%4\$s), rk = rk + (%4\$s)
-                    WHERE lk >= %5\$u AND rk <= %6\$u;
+                UPDATE tree SET lvl = lvl + (%3\$s), lk = lk + (%4\$s),
+                    rk = rk + (%4\$s) WHERE lk >= %5\$u AND rk <= %6\$u;
 
                 UPDATE tree SET lk = IF(lk >= %5\$u, lk - %2\$u, lk),
                     rk = rk - %2\$u WHERE rk >= %6\$u;
@@ -792,8 +792,8 @@ class tree extends baseController {
                 UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
                     rk = rk + %2\$u WHERE rk >= %1\$u;
 
-                UPDATE tree SET lvl = lvl + (%3\$s), rk = rk + %4\$u, lk = lk + %4\$u
-                    WHERE lk >= %5\$u AND rk <= %6\$u;
+                UPDATE tree SET lvl = lvl + (%3\$s), rk = rk + %4\$u,
+                    lk = lk + %4\$u WHERE lk >= %5\$u AND rk <= %6\$u;
 
                 UPDATE tree SET lk = IF(lk >= %7\$u, lk - %2\$u, lk),
                     rk = rk - %2\$u WHERE rk >= %7\$u
