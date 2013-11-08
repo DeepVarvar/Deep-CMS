@@ -733,20 +733,7 @@ class tree extends baseController {
          * calculate positions
          */
 
-
-
-        ////////////////////////////////////////////////////////////////////
-
-
-        if ($movedNode['parent_id'] != $parentID) {
-
-            db::set(
-                "UPDATE tree SET parent_id = %u
-                    WHERE id = %u", $parentID, $nodeID
-            );
-
-        }
-
+        $isChangeParent = ($movedNode['parent_id'] != $parentID);
         $skewTree  = $movedNode['rk'] - $movedNode['lk'] + 1;
         $skewLevel = $newParent['lvl'] - $movedNode['lvl'] + 1;
 
@@ -758,59 +745,64 @@ class tree extends baseController {
 
 
         /**
-         * when parent is not change,
-         * only for sort
+         * drag on left
          */
 
-        if ($movedNode['parent_id'] == $parentID) {
+        if ($minLK < $movedNode['lk']) {
 
-
-            /**
-             * drag on left
-             */
-
-            if ($minLK < $movedNode['lk']) {
-
-                $skewEdit = $movedNode['lk'] - $minLK;
-                db::set("
-
-                    UPDATE tree SET
-
-                        /*lvl = IF(lk < {$movedNode['lk']}, lvl, lvl + ({$skewLevel})),*/
-                        rk  = IF(lk < {$movedNode['lk']}, rk + {$skewTree}, rk - $skewEdit),
-                        lk  = IF(lk < {$movedNode['lk']}, lk + {$skewTree}, lk - $skewEdit)
-
-                    WHERE lk >= {$minLK} AND rk <= {$movedNode['rk']}
-
-                ");
-
-
-            /**
-             * drag on right
-             */
-
-            } else {
-
-                $skewEdit = $maxRK - $movedNode['lk'] - $skewTree + 1;
-                db::set("
-
-                    UPDATE tree SET
-
-                        lk = IF(rk > {$movedNode['rk']}, lk - $skewTree, lk + $skewEdit),
-                        rk = IF(rk > {$movedNode['rk']}, rk - $skewTree, rk + $skewEdit)
-
-                    WHERE lk >= {$movedNode['lk']} AND rk <= {$maxRK}
-
-                ");
-
+            $skewEdit = $movedNode['lk'] - $minLK;
+            if ($isChangeParent) {
             }
 
+            db::set("
+
+                UPDATE tree SET
+
+                    /*lvl = IF(lk < {$movedNode['lk']}, lvl, lvl + ({$skewLevel})),*/
+                    rk  = IF(lk < {$movedNode['lk']}, rk + {$skewTree}, rk - $skewEdit),
+                    lk  = IF(lk < {$movedNode['lk']}, lk + {$skewTree}, lk - $skewEdit)
+
+                WHERE lk >= {$minLK} AND rk <= {$movedNode['rk']}
+
+            ");
+
+
+        /**
+         * drag on right
+         */
+
+        } else {
+
+            $skewEdit = $maxRK - $movedNode['lk'] - $skewTree + 1;
+            if ($isChangeParent) {
+            }
+
+            db::set("
+
+                UPDATE tree SET
+
+                    lk = IF(rk > {$movedNode['rk']}, lk - $skewTree, lk + $skewEdit),
+                    rk = IF(rk > {$movedNode['rk']}, rk - $skewTree, rk + $skewEdit)
+
+                WHERE lk >= {$movedNode['lk']} AND rk <= {$maxRK}
+
+            ");
 
         }
 
 
-        ////////////////////////////////////////////////////////////////////
+        /**
+         * update parent ID value for moved node
+         */
 
+        if ($isChangeParent) {
+
+            db::set(
+                "UPDATE tree SET parent_id = %u
+                    WHERE id = %u", $parentID, $nodeID
+            );
+
+        }
 
 
         /**
