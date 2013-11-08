@@ -727,10 +727,7 @@ class tree extends baseController {
          * calculate positions
          */
 
-        $isChangeParent = (
-            $movedNode['parent_id'] != $parentID
-        );
-
+        $skewLevel = $newParent['lvl'] - $movedNode['lvl'] + 1;
         $newPos = $isPrevNode ? $prevNode['rk'] + 1 : (
             $isNextNode ? $nextNode['lk'] : $newParent['rk']
         );
@@ -760,13 +757,14 @@ class tree extends baseController {
                 UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
                     rk = rk + %2\$u WHERE rk >= %1\$u;
 
-                UPDATE tree SET lk = lk + (%3\$s), rk = rk + (%3\$s)
-                    WHERE lk >= %4\$u AND rk <= %5\$u;
+                UPDATE tree SET lvl = lvl + (%3\$s), lk = lk + (%4\$s), rk = rk + (%4\$s)
+                    WHERE lk >= %5\$u AND rk <= %6\$u;
 
-                UPDATE tree SET lk = IF(lk >= %4\$u, lk - %2\$u, lk),
-                    rk = rk - %2\$u WHERE rk >= %5\$u;
+                UPDATE tree SET lk = IF(lk >= %5\$u, lk - %2\$u, lk),
+                    rk = rk - %2\$u WHERE rk >= %6\$u;
 
-                ", $newPos, $width, $distance, $tmpPos, $tmpRight
+                ", $newPos, $width, $skewLevel,
+                        $distance, $tmpPos, $tmpRight
 
             );
 
@@ -794,14 +792,14 @@ class tree extends baseController {
                 UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
                     rk = rk + %2\$u WHERE rk >= %1\$u;
 
-                UPDATE tree SET rk = rk + %3\$u, lk = lk + %3\$u
-                    WHERE lk >= %4\$u AND rk <= %5\$u;
+                UPDATE tree SET lvl = lvl + (%3\$s), rk = rk + %4\$u, lk = lk + %4\$u
+                    WHERE lk >= %5\$u AND rk <= %6\$u;
 
-                UPDATE tree SET lk = IF(lk >= %6\$u, lk - %2\$u, lk),
-                    rk = rk - %2\$u WHERE rk >= %6\$u
+                UPDATE tree SET lk = IF(lk >= %7\$u, lk - %2\$u, lk),
+                    rk = rk - %2\$u WHERE rk >= %7\$u
 
-                ", $newPos, $width, $distance, $movedNode['lk'],
-                        $movedNode['rk'], $tmpLeft
+                ", $newPos, $width, $skewLevel, $distance,
+                        $movedNode['lk'], $movedNode['rk'], $tmpLeft
 
             );
 
@@ -813,7 +811,7 @@ class tree extends baseController {
          * update parent ID value for moved node
          */
 
-        if ($isChangeParent) {
+        if ($movedNode['parent_id'] != $parentID) {
 
             db::set(
                 "UPDATE tree SET parent_id = %u
