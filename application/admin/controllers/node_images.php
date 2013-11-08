@@ -856,7 +856,7 @@ class node_images extends baseController {
             $this->exceptionExit(
                 "error",
                     view::$language->error,
-                        view::$language->upload_image_single_only
+                        view::$language->image_upload_single_only
             );
 
         }
@@ -871,7 +871,7 @@ class node_images extends baseController {
             $this->exceptionExit(
                 "error",
                     view::$language->error,
-                        view::$language->upload_image_file_error
+                        view::$language->image_upload_file_error
             );
 
         }
@@ -932,7 +932,7 @@ class node_images extends baseController {
             $this->exceptionExit(
                 "error",
                     view::$language->error,
-                        view::$language->upload_image_broken_mime
+                        view::$language->image_upload_broken_mime
             );
 
         }
