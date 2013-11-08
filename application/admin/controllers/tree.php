@@ -719,7 +719,13 @@ class tree extends baseController {
 
 
         } else {
-            $newParent = array("lvl" => 0, "lk"  => 0, "rk"  => 1);
+
+            $newParent = array(
+                "lvl" => 0,
+                "lk"  => 0, //db::normalizeQuery("SELECT rk FROM tree ORDER BY rk DESC LIMIT 1")
+                "rk"  => 0
+            );
+
         }
 
 
@@ -727,36 +733,28 @@ class tree extends baseController {
          * calculate positions
          */
 
-        $isChangeParent = ($movedNode['parent_id'] != $parentID);
+        $isChangeParent = (
+            $movedNode['parent_id'] != $parentID
+        );
 
         $newPos = $isPrevNode ? $prevNode['rk'] + 1 : (
             $isNextNode ? $nextNode['lk'] : $newParent['rk']
         );
 
-        //dump($newPos);
-
         $width    = $movedNode['rk'] - $movedNode['lk'] + 1;
-        $distance = $newPos - $movedNode['lk'];
-        $tmpPos   = $movedNode['lk'];
-
-        if ($distance < 0) {
-            $distance -= $width;
-            $tmpPos   += $width;
-        }
+        $tmpPos   = $movedNode['lk'] + $width;
+        $distance = $newPos - $tmpPos;
+        $tmpRight = $tmpPos + $width;
 
 
         /**
          * create new space for subtree
          */
 
+        db::showQueryString();
         db::set(
-            "UPDATE tree SET rk = rk + %u
-                WHERE lk >= %u", $width, $newPos
-        );
-
-        db::set(
-            "UPDATE tree SET lk = lk + %u
-                WHERE lk >= %u", $width, $newPos
+            "UPDATE tree SET lk = IF(lk >= {$newPos}, lk + {$width}, lk),
+                rk = rk + {$width} WHERE rk >= {$newPos}"
         );
 
 
@@ -764,12 +762,10 @@ class tree extends baseController {
          * move subtree into new space
          */
 
+        db::showQueryString();
         db::set(
-
-            "UPDATE tree SET lk = lk + (%1\$s), rk = rk + (%1\$s)
-                WHERE lk >= %2\$u AND rk <= %2\$u + %3\$u",
-                    $distance, $tmpPos, $width
-
+            "UPDATE tree SET lk = lk + ({$distance}), rk = rk + ({$distance})
+                WHERE lk >= {$tmpPos} AND rk <= {$tmpRight}"
         );
 
 
@@ -777,14 +773,10 @@ class tree extends baseController {
          * remove old space vacated by subtree
          */
 
+        db::showQueryString();
         db::set(
-            "UPDATE tree SET rk = rk - %u
-                WHERE lk > %u", $width, $movedNode['lk']
-        );
-
-        db::set(
-            "UPDATE tree SET lk = lk - %u
-                WHERE lk > %u", $width, $movedNode['lk']
+            "UPDATE tree SET lk = IF(lk >= {$tmpPos}, lk - {$width}, lk),
+                rk = rk - {$width} WHERE rk >= {$tmpRight}"
         );
 
 
@@ -792,14 +784,14 @@ class tree extends baseController {
          * update parent ID value for moved node
          */
 
-        if ($isChangeParent) {
+        /*if ($isChangeParent) {
 
             db::set(
                 "UPDATE tree SET parent_id = %u
                     WHERE id = %u", $parentID, $nodeID
             );
 
-        }
+        }*/
 
 
         /**
