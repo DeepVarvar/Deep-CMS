@@ -52,19 +52,17 @@ function getBranchTreeItem(item) {
      * delete
      */
 
-    showbranch = "";
-    if (item.children > 0) {
+    //if (item.children > 0) {
 
-        showbranch = ' <a class="showbranch" href="'
-            + branchLink + '" title=" '
-            + language.documents_tree_only_one_branch + ' "></a> ';
+    var showbranch = ' <a class="showbranch'
+        + (item.children > 0 ? '' : ' hide') + '" href="'
+        + branchLink + '" title=" '
+        + language.documents_tree_only_one_branch + ' "></a> ';
 
-    }
-
-    create  = ' <a class="create" href="' + createLink
+    var create  = ' <a class="create" href="' + createLink
         + '" title=" ' + language.node_create_new + ' "></a> ';
 
-    idelete = ' <a class="delete" href="'
+    var idelete = ' <a class="delete" href="'
         + deleteLink + '" title=" ' + language.delete_now + ' "></a> ';
 
     return ' <li data-tree-id="' + item.id + '"'
@@ -236,9 +234,11 @@ $(function(){
 
             if (bfChildren < 1) {
 
+                var showbch  = bfParent.find("> a.showbranch");
                 var expander = bfParent.find("> a.expander");
                 var expHref  = expander.attr("href");
 
+                showbch.addClass("hide");
                 expander
 
                     .removeClass("expander")
@@ -251,10 +251,14 @@ $(function(){
 
             if (afChildren > 0) {
 
+                var showbch  = afParent.find("> a.showbranch");
                 var expander = afParent.find("> a.expander, > a.noexpand");
+
                 if (expander.hasClass("noexpand")) {
 
                     var expHref = expander.attr("name");
+
+                    showbch.removeClass("hide");
                     expander
 
                         .removeClass("noexpand")

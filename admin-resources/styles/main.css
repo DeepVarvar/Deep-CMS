@@ -159,7 +159,7 @@ h4, h5, h6 {
 }
 
 .hide {
-    display: none;
+    display: none !important;
 }
 
 .wrapper {

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: localhost
--- Время создания: Ноя 06 2013 г., 00:39
+-- Время создания: Ноя 08 2013 г., 21:27
 -- Версия сервера: 5.1.66
 -- Версия PHP: 5.3.3-7+squeeze15
 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `groups` (
   `priority` bigint(20) NOT NULL,
   `name` char(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
 -- Дамп данных таблицы `groups`
@@ -113,12 +113,14 @@ CREATE TABLE IF NOT EXISTS `images` (
   PRIMARY KEY (`id`),
   KEY `is_master` (`is_master`),
   KEY `node_id` (`node_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Дамп данных таблицы `images`
 --
 
+INSERT INTO `images` (`id`, `node_id`, `is_master`, `name`) VALUES
+(9, 29, 1, 'e97a677f04c4176cd43cbef4ba30ff50.jpg');
 
 -- --------------------------------------------------------
 
@@ -133,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `menu` (
   `name` char(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- Дамп данных таблицы `menu`
@@ -162,7 +164,12 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
 --
 
 INSERT INTO `menu_items` (`menu_id`, `node_id`) VALUES
-(2, 2);
+(1, 29),
+(2, 29),
+(1, 30),
+(2, 30),
+(1, 5),
+(2, 5);
 
 -- --------------------------------------------------------
 
@@ -215,9 +222,9 @@ DROP TABLE IF EXISTS `tree`;
 CREATE TABLE IF NOT EXISTS `tree` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `parent_id` bigint(20) NOT NULL,
-  `lvl` tinyint(3) unsigned NOT NULL,
-  `lk` bigint(20) unsigned NOT NULL,
-  `rk` bigint(20) unsigned NOT NULL,
+  `lvl` tinyint(3) NOT NULL,
+  `lk` bigint(20) NOT NULL,
+  `rk` bigint(20) NOT NULL,
   `prototype` char(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `children_prototype` char(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `author` bigint(20) NOT NULL,
@@ -232,6 +239,7 @@ CREATE TABLE IF NOT EXISTS `tree` (
   `permanent_redirect` char(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `change_freq` char(7) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `searchers_priority` double DEFAULT NULL,
+  `module_name` char(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `page_title` mediumtext,
   `page_h1` mediumtext,
   `meta_keywords` mediumtext,
@@ -248,16 +256,17 @@ CREATE TABLE IF NOT EXISTS `tree` (
   KEY `prototype` (`prototype`),
   KEY `is_publish` (`is_publish`),
   KEY `in_sitemap` (`in_sitemap`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=29 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 --
 -- Дамп данных таблицы `tree`
 --
 
-INSERT INTO `tree` (`id`, `parent_id`, `lvl`, `lk`, `rk`, `prototype`, `children_prototype`, `author`, `modified_author`, `last_modified`, `creation_date`, `is_publish`, `node_name`, `in_sitemap`, `layout`, `page_alias`, `permanent_redirect`, `change_freq`, `searchers_priority`, `page_title`, `page_h1`, `meta_keywords`, `meta_description`, `page_text`) VALUES
-(26, 0, 1, 1, 6, 'simplePage', 'simplePage', 0, 0, '2013-11-05 07:50:09', '2013-11-05 07:50:09', 1, '1', 0, 'page.html', '/1', '', NULL, NULL, '', '', '', '', ''),
-(27, 26, 2, 2, 5, 'simplePage', 'simplePage', 0, 0, '2013-11-05 07:52:40', '2013-11-05 07:52:40', 1, '2rerrtопм', 0, 'page.html', '/1/2rerrt%D0%BE%D0%BF%D0%BC', '', NULL, NULL, '', '', '', '', ''),
-(28, 27, 3, 3, 4, 'simplePage', 'simplePage', 0, 0, '2013-11-05 07:53:25', '2013-11-05 07:53:00', 1, '3', 0, 'simple-page.html', '/1/2rerrt%D0%BE%D0%BF%D0%BC/3', '', NULL, NULL, '', '', '', '', '');
+INSERT INTO `tree` (`id`, `parent_id`, `lvl`, `lk`, `rk`, `prototype`, `children_prototype`, `author`, `modified_author`, `last_modified`, `creation_date`, `is_publish`, `node_name`, `in_sitemap`, `layout`, `page_alias`, `permanent_redirect`, `change_freq`, `searchers_priority`, `module_name`, `page_title`, `page_h1`, `meta_keywords`, `meta_description`, `page_text`) VALUES
+(1, 0, 1, 1, 2, 'simplePage', 'simplePage', 0, 0, '2013-11-08 21:07:05', '2013-11-08 19:54:09', 1, '1', 1, 'page.html', '/1', '', NULL, NULL, NULL, '', '', '', '', ''),
+(2, 0, 1, 3, 4, 'simplePage', 'simplePage', 0, 0, '2013-11-08 21:07:13', '2013-11-08 19:54:18', 1, '2', 1, 'page.html', '/2', '', NULL, NULL, NULL, '', '', '', '', ''),
+(4, 0, 1, 5, 6, 'simplePage', 'simplePage', 0, 0, '2013-11-08 21:07:20', '2013-11-08 21:03:43', 1, '3', 1, 'page.html', '/3', '', NULL, NULL, NULL, '', '', '', '', ''),
+(5, 0, 1, 7, 8, 'mainModule', 'simplePage', 0, 0, '2013-11-08 21:06:26', '2013-11-08 21:06:26', 1, 'Карта сайта', 0, NULL, '/%D0%9A%D0%B0%D1%80%D1%82%D0%B0-%D1%81%D0%B0%D0%B9%D1%82%D0%B0', NULL, NULL, NULL, 'sitemap', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -306,11 +315,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `group_id` (`group_id`),
   KEY `status` (`status`),
   KEY `hash` (`hash`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
 -- Дамп данных таблицы `users`
 --
 
 INSERT INTO `users` (`id`, `group_id`, `status`, `language`, `timezone`, `avatar`, `login`, `password`, `email`, `hash`, `last_ip`, `registration_date`, `last_visit`, `about`, `working_cache`) VALUES
-(0, 0, 0, NULL, NULL, NULL, 'root', 'c56d0e9a7ccec67b4ea131655038d604', 'support@deep-cms.ru', 'aed2e0fe6319b3f9ae8ac9711058fd42', '127.0.0.1', '2013-11-01 07:32:17', '2013-11-06 00:36:55', '', '{"__stored_images":[],"__stored_features":[]}');
+(0, 0, 0, NULL, NULL, NULL, 'root', 'c56d0e9a7ccec67b4ea131655038d604', 'support@deep-cms.ru', 'aed2e0fe6319b3f9ae8ac9711058fd42', '127.0.0.1', '2013-11-01 07:32:17', '2013-11-08 21:27:07', '', '{"__stored_images":[],"__stored_features":[]}');

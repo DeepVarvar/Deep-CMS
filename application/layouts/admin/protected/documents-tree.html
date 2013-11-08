@@ -59,10 +59,7 @@
                                 <span><?=$c['node_name']?></span>
                             </a>
 
-                            <?php if ($c['children'] > 0) { ?>
-                                <a class="showbranch" href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>" title=" <?=view::$language->documents_tree_only_one_branch?> "></a>
-                            <?php } ?>
-
+                            <a class="showbranch<?=$c['children']>0?'':' hide'?>" href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>" title=" <?=view::$language->documents_tree_only_one_branch?> "></a>
                             <a class="create" href="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$c['id']?>" title=" <?=view::$language->node_create_new?> "></a>
                             <a class="delete" href="<?=$_config->site->admin_tools_link?>/tree/delete?id=<?=$c['id']?>" title=" <?=view::$language->delete_now?> "></a>
 
