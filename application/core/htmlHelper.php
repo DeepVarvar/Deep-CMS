@@ -10,7 +10,7 @@ abstract class htmlHelper {
 
 
     /**
-     * draw multidimentional ul-li-a links list
+     * draw multidimensional ul-li-a links list
      * by level without recursion
      */
 

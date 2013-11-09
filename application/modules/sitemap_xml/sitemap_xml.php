@@ -28,10 +28,11 @@ class sitemap_xml extends baseController {
         @ ini_set("memory_limit", "512M");
 
         /**
-         * set main output context
-         * and disable changes
+         * clear before added public variables,
+         * set main output context and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("xml");
         view::lockOutputContext();
 
