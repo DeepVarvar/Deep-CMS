@@ -150,7 +150,7 @@ abstract class dataHelper {
                     t.lk < k.lk AND t.rk > k.rk AND t.is_publish = 1
                         OR t.id = %1\$u
                         OR t.page_alias = IF(%2\$u = 0, '', '/')
-                ) ORDER BY t.lvl ASC", $nodeID, ($showHome ? 1 : 0)
+                ) ORDER BY t.lvl ASC, t.lk ASC", $nodeID, ($showHome ? 1 : 0)
 
         );
 
