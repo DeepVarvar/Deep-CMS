@@ -48,6 +48,7 @@ class sitemap_xml extends baseController {
          * more info: http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
          */
 
+        $config  = app::config();
         $sitemap = db::query("
 
             SELECT
@@ -62,25 +63,17 @@ class sitemap_xml extends baseController {
             WHERE is_publish = 1
                 AND page_alias NOT LIKE '%%http://%%'
 
-            ",
-
-            app::config()->site->protocol
-                . "://" . app::config()->site->domain
+            ", $config->site->protocol . "://" . $config->site->domain
 
         );
 
 
         /**
-         * assign sitemap into view
-         */
-
-        view::assign("urlset", $sitemap);
-
-
-        /**
+         * assign sitemap into view,
          * set custom sitemap XSD schema
          */
 
+        view::assign("urlset", $sitemap);
         view::setXSDSchema(
 
             array(
