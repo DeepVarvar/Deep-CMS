@@ -11,9 +11,11 @@
     <?php foreach ($search_result as $item) { ?>
 
         <div>
+            <img alt="" src="/upload/thumb_<?=$item['image']?>" style="float: left;" />
             <h3><?=$item['node_name']?></h3>
             <div><?=helper::contentPreview($item['page_text'], 200)?></div>
             <div><a href="<?=$item['page_alias']?>"><?=view::$language->more?></a></div>
+            <div class="clear"></div>
         </div>
 
     <?php } ?>

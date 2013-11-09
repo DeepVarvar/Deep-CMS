@@ -20,7 +20,7 @@ class search extends baseController {
      * result items per page
      */
 
-    private $itemsPerPage = 20;
+    private $itemsPerPage = 10;
 
 
     /**
@@ -37,10 +37,6 @@ class search extends baseController {
     public function index() {
 
 
-        /**
-         * check for exists dependency protected layout
-         */
-
         $layoutName = "search.html";
         if (!utils::isExistsProtectedLayout($layoutName)) {
             throw new systemErrorException(
@@ -48,11 +44,6 @@ class search extends baseController {
                     "Dependency protected layout {$layoutName} is not exists"
             );
         }
-
-
-        /**
-         * get searchwords
-         */
 
         $searchwords = rawurldecode(
             (string) request::shiftParam("searchwords")
@@ -76,51 +67,44 @@ class search extends baseController {
             $searchParts, 0, $this->maxSearWordsLength
         );
 
+
         if ($searchParts) {
 
 
             $searchedFields = array();
             foreach (utils::getAvailableProtoTypes() as $item) {
+
                 $proto = new $item;
-                $protoFields = $proto->getSearchedFields();
-                $searchedFields = array_merge($searchedFields, $protoFields);
+                $protoFields[$item] = $proto->getSearchedFields();
+                $searchedFields = array_merge(
+                    $searchedFields, $protoFields[$item]
+                );
+
             }
 
-            $searchedFields = array_unique($searchedFields);
+            $searchCondition = array();
+            $searchedFields  = array_unique($searchedFields);
 
-            dump($searchParts, $searchedFields);
+            foreach ($searchParts as $sw) {
 
+                $sw   = db::escapeString($sw);
+                $join = " LIKE '%%{$sw}%%' OR ";
+                $suff = " LIKE '%%{$sw}%%' ";
 
-            $searchCondition = array(
+                array_push(
+                    $searchCondition, join($join, $searchedFields) . $suff
+                );
 
-                "t.node_name LIKE '%%"
-                    . join("%%' OR t.node_name LIKE '%%", $searchParts) . "%%'"
+            }
+
+            $searchCondition = join(" OR ", $searchCondition);
+            $searchQuery     = db::buildQueryString(
+
+                "SELECT DISTINCT id, parent_id, prototype,
+                    lvl, lk, rk, page_alias, node_name FROM tree
+                        WHERE ({$searchCondition}) AND is_publish = 1"
 
             );
-
-            $searchCondition = "(" . join(" OR ", $searchCondition) . ")";
-
-
-            $noImage = app::config()->site->no_image;
-            $searchQuery = db::buildQueryString("
-
-                SELECT DISTINCT
-
-                    t.id,
-                    t.parent_id,
-                    t.node_name,
-                    t.page_alias,
-                    IF(i.name IS NOT NULL,i.name,'{$noImage}') image
-
-                FROM tree t
-                LEFT JOIN images i ON
-                    (i.node_id = t.id AND i.is_master = 1)
-
-                WHERE t.is_publish = 1
-                    AND {$searchCondition}
-
-            ");
-
 
             $paginator = new paginator($searchQuery);
             $paginator =
@@ -130,9 +114,13 @@ class search extends baseController {
                         ->setSliceSizeByPages($this->sliceSizeByPages)
                             ->getResult();
 
-
             $searchResult = $paginator['items'];
             $pages = $paginator['pages'];
+
+            unset($paginator);
+            dataHelper::joinExtendedData(
+                $searchResult, array("image", "page_text")
+            );
 
 
         } else {
@@ -140,10 +128,6 @@ class search extends baseController {
             $pages = array();
         }
 
-
-        /**
-         * assign data into view
-         */
 
         view::assign("pages", $pages);
         view::assign("search_result", $searchResult);
