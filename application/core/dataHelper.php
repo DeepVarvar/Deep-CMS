@@ -18,9 +18,9 @@ abstract class dataHelper {
         self::validateIdMore($id, $more);
         $node = db::cachedQuery(
 
-            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
-                t.page_alias, t.node_name FROM tree t
-                    WHERE t.is_publish = 1 AND t.id = %u", $id
+            "SELECT id, parent_id, prototype, lvl, lk, rk,
+                page_alias, node_name FROM tree
+                    WHERE is_publish = 1 AND id = %u", $id
 
         );
 
@@ -51,10 +51,10 @@ abstract class dataHelper {
         $limit = $limit == 0 ? "" : "LIMIT {$limit}";
         $items = db::query(
 
-            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
-                t.page_alias, t.node_name FROM tree t
-                    WHERE t.is_publish = 1 
-                        AND t.parent_id = %u {$limit}", $id
+            "SELECT id, parent_id, prototype, lvl, lk, rk,
+                page_alias, node_name FROM tree
+                    WHERE is_publish = 1 AND parent_id = %u
+                        ORDER BY lk {$limit}", $id
 
         );
 

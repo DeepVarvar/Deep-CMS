@@ -13,7 +13,12 @@
 
     <h1><?=$page_h1?></h1>
 
-    <?=$page_text?>
+
+    <div>
+        <?=$page_text?>
+        <div class="clear">
+    </div>
+
 
     <?php foreach (dataHelper::getAttachedImages($id) as $image) { ?>
         <a target="_blank" href="/upload/<?=$image?>"><img alt="" src="/upload/thumb_<?=$image?>" /></a>
