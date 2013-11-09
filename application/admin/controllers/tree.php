@@ -529,6 +529,7 @@ class tree extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 

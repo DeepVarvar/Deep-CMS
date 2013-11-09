@@ -235,8 +235,11 @@ class node_images extends baseController {
          */
 
         if (!$fromIndex) {
+
+            view::clearPublicVariables();
             view::setOutputContext("json");
             view::lockOutputContext();
+
         }
 
 
@@ -296,6 +299,7 @@ class node_images extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
@@ -348,6 +352,7 @@ class node_images extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
@@ -462,6 +467,7 @@ class node_images extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 

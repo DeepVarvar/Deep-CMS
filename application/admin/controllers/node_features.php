@@ -116,6 +116,7 @@ class node_features extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
@@ -168,6 +169,7 @@ class node_features extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
@@ -220,6 +222,7 @@ class node_features extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
@@ -324,6 +327,7 @@ class node_features extends baseController {
          * and disable changes
          */
 
+        view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
