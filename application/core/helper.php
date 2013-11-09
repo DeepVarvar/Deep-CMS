@@ -9,14 +9,11 @@
 abstract class helper {
 
 
-    protected static
+    /**
+     * helper custom strftime (strfDateTime) current timestamp
+     */
 
-
-        /**
-         * helper custom strftime (strfDateTime) current timestamp
-         */
-
-        $strfTimeStamp = null;
+    protected static $strfTimeStamp = null;
 
 
     /**
@@ -44,52 +41,41 @@ abstract class helper {
 
     public static function strfTime($format, $string) {
 
-
-        if (!validate::isNumber($string)) {
-
-            if (!$string = @ strtotime($string)) {
-                throw new systemErrorException("Helper error", "String is not date or time");
-            }
-
+        if (!validate::isNumber($string) or !$string = @ strtotime($string)) {
+            throw new systemErrorException(
+                "Helper error", "String is not date or time"
+            );
         }
 
-
         if (!validate::isNumber($string)) {
-            throw new systemErrorException("Helper error", "Timestamp is not number");
+            throw new systemErrorException(
+                "Helper error", "Timestamp is not number"
+            );
         }
-
 
         $formattedString = @ strftime($format, $string);
         self::$strfTimeStamp = $string;
 
-        return preg_replace_callback("/%\w/", "strftimeReplaceCallback", $formattedString);
-
+        return preg_replace_callback(
+            "/%\w/", "strftimeReplaceCallback", $formattedString
+        );
 
     }
 
 
     /**
-     * return humanity bytes size
+     * return humanity bytes size,
+     * maybe need division by 1000?
+     * see http://en.wikipedia.org/wiki/Binary_prefix
      */
 
     public static function humanityByteSize($size) {
 
-
-        /**
-         * set types, fix input data
-         */
-
         $types = array("B", "KiB", "MiB", "GiB", "TiB");
         $size = $size < 1 ? 1 : (int) $size;
 
-
-        /**
-         * maybe need division by 1000?
-         * see http://en.wikipedia.org/wiki/Binary_prefix
-         */
-
-        return round( $size/pow(1024, ($type = floor(log($size, 1024)))) , 1 ) . " " . $types[$type];
-
+        return round($size/pow(1024, ($type = floor(log($size, 1024)))) , 1 )
+                        . " " . $types[$type];
 
     }
 
@@ -119,25 +105,21 @@ abstract class helper {
 
     public static function makeTreeArray(& $lineArray, $parent = 0) {
 
-
         $branch = array();
         if ($lineArray) {
-
             foreach ($lineArray as $k => $item) {
-
                 if ($item['parent_id'] == $parent) {
 
-                    $item['children'] = self::makeTreeArray($lineArray, $item['id']);
+                    $item['children']
+                        = self::makeTreeArray($lineArray, $item['id']);
+
                     array_push($branch, $item);
 
                 }
-
             }
-
         }
 
         return $branch;
-
 
     }
 
@@ -148,14 +130,14 @@ abstract class helper {
 
     public static function plural($n, $f1, $f3, $f5) {
 
-
         if (!validate::isNumber($n)) {
-            throw new systemErrorException("Helper error", "Plural argument is not number");
+            throw new systemErrorException(
+                "Helper error", "Plural argument is not number"
+            );
         }
 
-
-        return $n%10==1&&$n%100!=11?$f1:($n%10>=2&&$n%10<=4&&($n%100<10||$n%100>=20)?$f3:$f5);
-
+        return $n%10==1&&$n%100!=11?$f1:
+                    ($n%10>=2&&$n%10<=4&&($n%100<10||$n%100>=20)?$f3:$f5);
 
     }
 
@@ -173,18 +155,17 @@ abstract class helper {
     }
 
 
-
     /**
      * change original ULR string with input parameters
      */
 
     public static function changeOriginURL($newParams) {
 
-
         if (!is_array($newParams)) {
-            throw new systemErrorException("Helper error", "URL parameters is not array");
+            throw new systemErrorException(
+                "Helper error", "URL parameters is not array"
+            );
         }
-
 
         $parts = explode("?", request::getOriginURL());
         array_shift($parts);
@@ -195,9 +176,7 @@ abstract class helper {
         $parts = array_merge($parts, $newParams);
         $query = http_build_query($parts);
 
-
         return request::getURI() . ($query ? "?{$query}" : "");
-
 
     }
 
@@ -214,40 +193,26 @@ abstract class helper {
 
 function strftimeReplaceCallback($pattern) {
 
-
     $pattern = $pattern[0];
     $timestamp = helper::getCurrentStrfTimeStamp();
     $output = "[undefined pattern {$pattern}]";
 
     switch ($pattern) {
 
-
-        /**
-         * set plural month name
-         */
-
+        // plural month name
         case "%B":
-
             $monthNumber = date("n", $timestamp);
             $output = view::$language->{"%B"}[$monthNumber];
-
         break;
 
-
-        /**
-         * set one number month format
-         */
-
+        // one number month format
         case "%j":
             $output = date("j", $timestamp);
         break;
 
-
     }
 
-
     return $output;
-
 
 }
 
