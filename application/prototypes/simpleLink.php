@@ -17,6 +17,7 @@ class simpleLink extends baseTreeNode {
         "lvl",
         "prototype",
         "creation_date",
+        "last_modified",
         "node_name",
 
         // individual

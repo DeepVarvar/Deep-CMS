@@ -10,11 +10,6 @@ define("FAST_RUNNING",   false);
 define("ERROR_EXCEPTION",    0);
 define("SUCCESS_EXCEPTION",  1);
 
-define("DATA_WITHOUT_ALL",   0);
-define("DATA_WITH_IMAGES",   1);
-define("DATA_WITH_FEATURES", 2);
-define("DATA_WITH_ALL",      3);
-
 
 /**
  * set main environment path's,

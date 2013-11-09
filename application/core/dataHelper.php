@@ -13,42 +13,23 @@ abstract class dataHelper {
      * return node data with ID
      */
 
-    public static function getNode(
-                    $id, $more = array(), $with = DATA_WITHOUT_ALL) {
+    public static function getNode($id, $more = array()) {
 
+        self::validateIdMore($id, $more);
+        $node = db::cachedQuery(
 
-        self::validateIdMoreWith($id, $more, $with);
-        $noImg = app::config()->site->no_image;
-        $node = db::query("
-
-            SELECT
-
-                d.id,
-                d.parent_id,
-                d.lvl,
-                IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
-                d.page_alias,
-                d.node_name,
-                d.author author_id,
-                u.login author_name,
-                d.last_modified,
-                d.creation_date
-
-            FROM tree d
-            LEFT JOIN users u ON u.id = d.author
-            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
-            WHERE d.is_publish = 1 AND d.id = %u", $id
+            "SELECT t.id, t.parent_id, t.prototype, t.lk, t.rk,
+                t.page_alias, t.node_name FROM tree t
+                    WHERE t.is_publish = 1 AND t.id = %u", $id
 
         );
 
-
-        if ($node) {
-            self::joinExtendedItemsData($node, $more, $with);
-            return $node[0];
+        if (!$node) {
+            throw new systemErrorException("Helper error", "Node not found");
         }
 
-        return array();
-
+        self::joinExtendedData($node, $more);
+        return $node[0];
 
     }
 
@@ -57,11 +38,10 @@ abstract class dataHelper {
      * return children array from parent node ID
      */
 
-    public static function getNodeChildren($id, $more = array(),
-                    $with = DATA_WITHOUT_ALL, $limit = 0, $orderBy = null) {
+    public static function getNodeChildren(
+                $id, $more = array(), $limit = 0, $orderBy = null) {
 
-
-        self::validateIdMoreWith($id, $more, $with);
+        self::validateIdMore($id, $more);
         if (!validate::isNumber($limit)) {
             throw new systemErrorException(
                 "Helper error", "Limit is not number"
@@ -69,34 +49,17 @@ abstract class dataHelper {
         }
 
         $limit = $limit == 0 ? "" : "LIMIT {$limit}";
-        $noImg = app::config()->site->no_image;
-        $items = db::query("
+        $items = db::query(
 
-            SELECT
-
-                d.id,
-                d.parent_id,
-                d.lvl,
-                IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
-                d.page_alias,
-                d.node_name,
-                d.author author_id,
-                u.login author_name,
-                d.last_modified,
-                d.creation_date
-
-            FROM tree d
-            LEFT JOIN users u ON u.id = d.author
-            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
-
-            WHERE d.is_publish = 1
-                AND d.parent_id = %u {$limit}", $id
+            "SELECT t.id, t.parent_id, t.prototype, t.lk, t.rk,
+                t.page_alias, t.node_name FROM tree t
+                    WHERE t.is_publish = 1 
+                        AND t.parent_id = %u {$limit}", $id
 
         );
 
-        self::joinExtendedItemsData($items, $more, $with);
+        self::joinExtendedData($items, $more);
         return $items;
-
 
     }
 
@@ -105,42 +68,21 @@ abstract class dataHelper {
      * return menu items array from menu ID
      */
 
-    public static function getMenuItems(
-                        $id, $more = array(), $with = DATA_WITHOUT_ALL) {
+    public static function getMenuItems($id, $more = array()) {
 
+        self::validateIdMore($id, $more);
+        $items = db::cachedQuery(
 
-        self::validateIdMoreWith($id, $more, $with);
-        $noImg = app::config()->site->no_image;
-        $items = db::cachedQuery("
-
-            SELECT
-
-                d.id,
-                d.parent_id,
-                d.lvl,
-                IF(i.name IS NOT NULL,i.name,'{$noImg}') image,
-                d.page_alias,
-                d.node_name,
-                d.author author_id,
-                u.login author_name,
-                d.last_modified,
-                d.creation_date
-
-            FROM menu_items mi
-            JOIN tree d ON d.id = mi.node_id
-            LEFT JOIN users u ON u.id = d.author
-            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
-
-            WHERE d.is_publish = 1 AND mi.menu_id = %u
-            ORDER BY d.lk ASC
-
-            ", $id
+            "SELECT t.id, t.parent_id, t.prototype, t.lk, t.rk,
+                t.page_alias, t.node_name FROM menu_items mi
+                    JOIN tree t ON t.id = mi.node_id
+                        WHERE t.is_publish = 1 AND mi.menu_id = %u
+                            ORDER BY t.lk ASC", $id
 
         );
 
-        self::joinExtendedItemsData($items, $more, $with);
+        self::joinExtendedData($items, $more);
         return $items;
-
 
     }
 
@@ -202,15 +144,13 @@ abstract class dataHelper {
 
         return db::query(
 
-            "SELECT d.id, d.parent_id, d.lvl, d.node_name, d.page_alias
-            FROM (SELECT lk, rk, page_alias FROM tree WHERE id = %u) t
-
-            INNER JOIN tree d ON (
-
-                d.lk < t.lk AND d.rk > t.rk AND d.is_publish = 1
-                    OR d.id = %u OR d.page_alias = IF(%u = 0, '', '/')
-
-            ) ORDER BY d.lvl ASC", $nodeID, $nodeID, ($showHome ? 1 : 0)
+            "SELECT t.id, t.parent_id, t.lvl, t.node_name, t.page_alias
+                FROM (SELECT lk, rk FROM tree WHERE id = %1\$u) k
+                INNER JOIN tree t ON (
+                    t.lk < k.lk AND t.rk > k.rk AND t.is_publish = 1
+                        OR t.id = %1\$u
+                        OR t.page_alias = IF(%2\$u = 0, '', '/')
+                ) ORDER BY t.lvl ASC", $nodeID, ($showHome ? 1 : 0)
 
         );
 
@@ -221,100 +161,176 @@ abstract class dataHelper {
      * join extended (more) data of items
      */
 
-    public static function joinExtendedItemsData(
-                                & $items, $more, $with = DATA_WITHOUT_ALL) {
+    public static function joinExtendedData( & $items, $more) {
 
 
+        /**
+         * empty collection or empty more
+         */
+
+        if (!$items or !$more) {
+            return;
+        }
+
+
+        /**
+         * prepare collection data
+         */
+
+        $itemsIDs   = array();
+        $prototypes = array();
+
+        foreach ($items as $item) {
+            array_push($itemsIDs, $item['id']);
+            array_push($prototypes, $item['prototype']);
+        }
+
+
+        /**
+         * get expected fields for this collection
+         */
+
+        $protoFields = array();
+        $expectedFields = array();
+
+        $protoNames = array_unique($prototypes);
+        foreach ($protoNames as $item) {
+
+            $prototype = new $item;
+            $fields = $prototype->getPublicFields();
+            $expectedFields = array_merge($expectedFields, $fields);
+            $protoFields[$item] = $fields;
+
+        }
+
+        unset($prototype);
+        unset($protoNames);
+
+        $expectedFields = array_diff(
+            array_unique($expectedFields),
+            array("id", "parent_id", "prototype", "node_name", "page_alias")
+        );
+
+        if (!$expectedFields) {
+            return;
+        }
+
+
+        /**
+         * join master image
+         */
+
+        $wantedFields = array("t.id");
+        $masterImageQueryJoin = "";
+
+        if (in_array("image", $more)) {
+
+            $key = array_search("image", $more);
+            if ($key !== null and $key !== false) {
+                unset($more[$key]);
+            }
+
+            $noImage = app::config()->site->no_image;
+            $masterImageQueryJoin
+                = "LEFT JOIN images i ON i.node_id = t.id AND i.is_master = 1";
+
+            array_push(
+                $wantedFields,
+                "IF(i.name IS NOT NULL,i.name,'{$noImage}') image"
+            );
+
+        }
+
+
+        /**
+         * prepare more fields,
+         * build query string,
+         * get extended data
+         */
+
+        foreach ($more as $item) {
+            $pre = in_array($item, $expectedFields) ? "t." : "('') ";
+            array_push($wantedFields, $pre . $item);
+        }
+
+        $wantedFields   = join(",", $wantedFields);
+        $itemsIDsJoined = join(",", $itemsIDs);
+
+        $itemsData = db::cachedQuery(
+            "SELECT {$wantedFields} FROM tree t
+                {$masterImageQueryJoin} WHERE t.id IN({$itemsIDsJoined})"
+        );
 
 
         /**
          * get attached images and features
          */
 
+        $withImages     = in_array("images", $more);
+        $withFeatures   = in_array("features", $more);
         $attachedImages = array();
-        $nodeFeatures = array();
+        $nodeFeatures   = array();
 
-        $withImages = false;
-        $withFeatures = false;
+        if ($withImages) {
+            $attachedImages = self::getAttachedImagesArray($itemsIDs);
+        }
 
-        switch (true) {
-
-            case ($with == DATA_WITH_ALL):
-
-                $withImages = true;
-                $withFeatures = true;
-
-                $nodeFeatures = self::getNodeFeaturesArray($itemsIDs);
-                $attachedImages   = self::getAttachedImagesArray($itemsIDs);
-
-            break;
-
-            case ($with == DATA_WITH_IMAGES):
-
-                $withImages = true;
-                $attachedImages = self::getAttachedImagesArray($itemsIDs);
-
-            break;
-
-            case ($with == DATA_WITH_FEATURES):
-
-                $withFeatures = true;
-                $nodeFeatures = self::getNodeFeaturesArray($itemsIDs);
-
-            break;
-
-            default:
-                // NONE
-            break;
-
+        if ($withFeatures) {
+            $nodeFeatures = self::getNodeFeaturesArray($itemsIDs);
         }
 
 
         /**
-         * merge extended data into items
+         * merge extended data into items,
+         * append attached images,
+         * append node features
          */
 
         foreach ($items as $i => $item) {
 
+            $curProto = $protoFields[$item['prototype']];
+            foreach ($itemsData as $k => $data) {
 
-            /**
-             * append attached images
-             */
+                if ($data['id'] == $item['id']) {
 
-            if ($withImages) {
-                $items[$i]['images'] = array();
-            }
+                    foreach ($data as $edk => $none) {
+                        if ($edk != "image" and !in_array($edk, $curProto)) {
+                            $data[$edk] = "";
+                        }
+                    }
 
-            foreach ($attachedImages as $k => $image) {
+                    unset($data['id']);
+                    unset($itemsData[$k]);
 
-                if ($image['node_id'] == $item['id']) {
-                    array_push($items[$i]['images'], $image['name']);
-                    unset($attachedImages[$k]);
+                    $items[$i] = array_merge($items[$i], $data);
+                    break;
+
                 }
 
             }
 
+            if ($withImages) {
 
-            /**
-             * append node features
-             */
+                $items[$i]['images'] = array();
+                foreach ($attachedImages as $k => $image) {
+                    if ($image['node_id'] == $item['id']) {
+                        array_push($items[$i]['images'], $image['name']);
+                        unset($attachedImages[$k]);
+                    }
+                }
 
-            if ($withFeatures) {
-                $items[$i]['features'] = array();
             }
 
-            foreach ($nodeFeatures as $k => $feature) {
+            if ($withFeatures) {
 
-                if ($feature['node_id'] == $item['id']) {
-
-                    $feature = array(
-                        "name"  => $feature['name'],
-                        "value" => $feature['value']
-                    );
-
-                    array_push($items[$i]['features'], $feature);
-                    unset($nodeFeatures[$k]);
-
+                $items[$i]['features'] = array();
+                foreach ($nodeFeatures as $k => $f) {
+                    if ($f['node_id'] == $item['id']) {
+                        unset($nodeFeatures[$k]);
+                        array_push($items[$i]['features'], array(
+                            "name" => $f['name'], "value" => $f['value']
+                        ));
+                    }
                 }
 
             }
@@ -329,7 +345,7 @@ abstract class dataHelper {
      * validate base helper input data
      */
 
-    private static function validateIdMoreWith($id, $more, $with) {
+    private static function validateIdMore($id, $more) {
 
         if (!validate::isNumber($id)) {
             throw new systemErrorException(
@@ -343,10 +359,12 @@ abstract class dataHelper {
             );
         }
 
-        if (!validate::isNumber($with)) {
-            throw new systemErrorException(
-                "Helper error", "Extended data type is not number"
-            );
+        foreach ($more as $item) {
+            if (!is_string($item)) {
+                throw new systemErrorException(
+                    "Helper error", "Invalid more data name"
+                );
+            }
         }
 
     }

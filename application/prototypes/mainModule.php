@@ -20,13 +20,7 @@ class mainModule extends baseTreeNode {
         "node_name",
 
         // individual
-        "page_alias",
-
-        // SEO
-        "page_title",
-        "page_h1",
-        "meta_keywords",
-        "meta_description"
+        "page_alias"
 
     );
 

@@ -3,12 +3,10 @@
 
     <?php foreach (dataHelper::getBreadcrumbs($id, true) as $k => $item) { ?>
 
-        <?php /*if (request::getURI() != "/") {*/ ?>
-
+        <?php if (request::getURI() != "/") { ?>
             <?=$k>0?'&raquo;':''?>
             <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
-
-        <?php /*}*/ ?>
+        <?php } ?>
 
     <?php } ?>
 
