@@ -10,54 +10,45 @@ abstract class htmlHelper {
 
 
     /**
-     * draw multidimentional ul-li-a links list
+     * draw multidimentional ul-li-a links list by level
      */
 
-    public static function drawTreeLinksList($inputArr) {
+    public static function drawTreeLinksList($arr) {
 
-        /*$branch = "";
-        foreach ($arr as $k => $item) {
+        $output = '';
+        $lvl    = null;
 
-            $link = ' <a title="' . $item['node_name'] . '" href="'
-                . $item['page_alias'] . '">' . $item['node_name'] . '</a> ';
+        foreach ($arr as $k => $i) {
 
-            $branch .= ' <li> ' . $link
-                . self::drawTreeLinksList($item['children']) . ' </li> ';
+            if ($lvl === null) {
 
-        }
+                $output .= ' <ul> <li> ' . $i['node_name'];
+                $lvl     = $i['lvl'];
+                $first   = $lvl;
 
-        return ($branch) ? ' <ul> ' . $branch . ' </ul> ' : $branch;*/
+            } else if ($lvl < $i['lvl']) {
 
-        $level = 0;
-        $outputList = ' <ul> ';
-        foreach ($inputArr as $k => $item) {
+                $lvl     = $i['lvl'];
+                $output .= ' <ul> <li> ' . $i['node_name'];
 
-            $link = ' <li> <a href="' . $item['page_alias']
-                . '">' . $item['node_name'] . '</a> ';
+            } else if ($lvl > $i['lvl']) {
 
-            $next = $k + 1;
-            $outputList .= $link;
-
-            if (isset($inputArr[$next])) {
-
-                if ($inputArr[$next]['lvl'] > $item['lvl']) {
-
-                    $level += 1;
-                    $outputList .= ' <ul> ';
-
-                } else if ($inputArr[$next]['lvl'] < $item['lvl']) {
-                    $outputList .= ' </li> </ul> ';
-                } else {
-                    $outputList .= ' </li> ';
-                }
+                $diff    = $lvl - $i['lvl'];
+                $lvl     = $i['lvl'];
+                $output .= ' </li> ' . str_repeat(' </ul> </li> ', $diff);
+                $output .= ' <li> ' . $i['node_name'];
 
             } else {
-                $outputList .= ' </li> ';
+                $output .= ' </li> <li> ' . $i['node_name'];
+            }
+
+            if (!isset($arr[$k+1])) {
+                $output .= str_repeat(' </li> </ul> ', $lvl - $first + 1);
             }
 
         }
 
-        return $outputList . ' </ul> ';
+        return $output;
 
     }
 
