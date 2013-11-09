@@ -36,6 +36,15 @@ class simplePage extends baseTreeNode {
 
     );
 
+    protected $searchedFields = array(
+        "node_name",
+        "page_title",
+        "page_h1",
+        "meta_keywords",
+        "meta_description",
+        "page_text"
+    );
+
     public function getHumanityName() {
         return view::$language->simple_page_prototype_name;
     }

@@ -225,6 +225,26 @@ abstract class utils {
 
 
     /**
+     * return prototypes names array
+     */
+
+    public static function getAvailableProtoTypes() {
+
+        $prototypes = array();
+        foreach (self::glob(APPLICATION . "prototypes/*.php") as $item) {
+            $protoName = basename($item, ".php");
+            if (preg_match("/ProtoModel$/", $protoName)) {
+                continue;
+            }
+            array_push($prototypes, $protoName);
+        }
+
+        return $prototypes;
+
+    }
+
+
+    /**
      * return array list of available public layouts
      */
 

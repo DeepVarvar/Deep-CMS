@@ -25,6 +25,9 @@ class simpleLink extends baseTreeNode {
 
     );
 
+    protected $searchedFields = array(
+        "node_name"
+    );
 
     public function getHumanityName() {
         return view::$language->simple_link_prototype_name;

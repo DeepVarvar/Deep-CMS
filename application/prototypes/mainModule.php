@@ -9,6 +9,7 @@
 class mainModule extends baseTreeNode {
 
 
+    protected $searchedFields = array();
     protected $publicFields = array(
 
         // base
@@ -23,7 +24,6 @@ class mainModule extends baseTreeNode {
         "page_alias"
 
     );
-
 
     public function getHumanityName() {
         return view::$language->main_module_prototype_name;

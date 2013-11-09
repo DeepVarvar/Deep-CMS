@@ -982,21 +982,10 @@ class tree extends baseController {
 
     private function getAvailableProtoTypes() {
 
-
         $this->availableProtoTypes = array();
-        $path = APPLICATION . "prototypes/*.php";
-
-        foreach (utils::glob($path) as $item) {
-
-            $protoName = basename($item, ".php");
-            if (preg_match("/ProtoModel$/", $protoName)) {
-                continue;
-            }
-
-            $this->availableProtoTypes[$protoName] = new $protoName;
-
+        foreach (utils::getAvailableProtoTypes() as $item) {
+            $this->availableProtoTypes[$item] = new $item;
         }
-
 
     }
 
