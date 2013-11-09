@@ -47,7 +47,6 @@ abstract class htmlHelper {
 
     public static function drawOptionList($options) {
 
-
         $optionList = "";
         foreach ($options as $option) {
 
@@ -65,7 +64,6 @@ abstract class htmlHelper {
         }
 
         return $optionList;
-
 
     }
 

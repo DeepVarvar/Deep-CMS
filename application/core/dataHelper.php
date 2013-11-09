@@ -18,7 +18,7 @@ abstract class dataHelper {
         self::validateIdMore($id, $more);
         $node = db::cachedQuery(
 
-            "SELECT t.id, t.parent_id, t.prototype, t.lk, t.rk,
+            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM tree t
                     WHERE t.is_publish = 1 AND t.id = %u", $id
 
@@ -51,7 +51,7 @@ abstract class dataHelper {
         $limit = $limit == 0 ? "" : "LIMIT {$limit}";
         $items = db::query(
 
-            "SELECT t.id, t.parent_id, t.prototype, t.lk, t.rk,
+            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM tree t
                     WHERE t.is_publish = 1 
                         AND t.parent_id = %u {$limit}", $id
@@ -73,7 +73,7 @@ abstract class dataHelper {
         self::validateIdMore($id, $more);
         $items = db::cachedQuery(
 
-            "SELECT t.id, t.parent_id, t.prototype, t.lk, t.rk,
+            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM menu_items mi
                     JOIN tree t ON t.id = mi.node_id
                         WHERE t.is_publish = 1 AND mi.menu_id = %u
@@ -207,8 +207,7 @@ abstract class dataHelper {
         unset($protoNames);
 
         $expectedFields = array_diff(
-            array_unique($expectedFields),
-            array("id", "parent_id", "prototype", "node_name", "page_alias")
+            array_unique($expectedFields), array("page_alias")
         );
 
         if (!$expectedFields) {

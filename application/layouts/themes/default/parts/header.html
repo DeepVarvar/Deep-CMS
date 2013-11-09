@@ -21,6 +21,8 @@
 
         <div class="menu">
 
+            <? dump(dataHelper::getMenuItems(1, array("parent_idzz", "page_h1"))); ?>
+
             <?php foreach (dataHelper::getMenuItems(1) as $item) { ?>
                 <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
             <?php } ?>
