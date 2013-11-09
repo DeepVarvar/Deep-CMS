@@ -1,11 +1,14 @@
 <?php require $_config->layouts->header; ?>
 
 
-    <?php foreach (dataHelper::getBreadcrumbs($id, true) as $item) { ?>
+    <?php foreach (dataHelper::getBreadcrumbs($id, true) as $k => $item) { ?>
 
-        <?php if (request::getURI() != "/") { ?>
-            &raquo; <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
-        <?php } ?>
+        <?php /*if (request::getURI() != "/") {*/ ?>
+
+            <?=$k>0?'&raquo;':''?>
+            <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
+
+        <?php /*}*/ ?>
 
     <?php } ?>
 
