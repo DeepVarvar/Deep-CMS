@@ -17,7 +17,9 @@ class sitemap extends baseController {
 
 
         /**
-         * check for exists dependency protected layout
+         * check for exists dependency protected layout,
+         * get sitemap,
+         * assign data into view
          */
 
         $layoutName = "sitemap.html";
@@ -29,12 +31,6 @@ class sitemap extends baseController {
             );
 
         }
-
-
-        /**
-         * get sitemap,
-         * assign data into view
-         */
 
         view::assign("sitemap_nodes", db::query(
 
