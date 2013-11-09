@@ -11,21 +11,11 @@ abstract class htmlHelper {
 
     /**
      * draw multidimentional ul-li-a links list
-     *
-     * this need multidimensional array
-     *
-     * array (
-     *
-     *     "page_alias"    => "/url/path",
-     *     "node_name"     => "Name of node",
-     *     "children" => array(LIKE PARENT ARRAY OR EMPTY ARRAY),
-     *
-     * )
      */
 
-    public static function drawTreeLinksList($arr) {
+    public static function drawTreeLinksList($inputArr) {
 
-        $branch = "";
+        /*$branch = "";
         foreach ($arr as $k => $item) {
 
             $link = ' <a title="' . $item['node_name'] . '" href="'
@@ -36,7 +26,38 @@ abstract class htmlHelper {
 
         }
 
-        return ($branch) ? ' <ul> ' . $branch . ' </ul> ' : $branch;
+        return ($branch) ? ' <ul> ' . $branch . ' </ul> ' : $branch;*/
+
+        $level = 0;
+        $outputList = ' <ul> ';
+        foreach ($inputArr as $k => $item) {
+
+            $link = ' <li> <a href="' . $item['page_alias']
+                . '">' . $item['node_name'] . '</a> ';
+
+            $next = $k + 1;
+            $outputList .= $link;
+
+            if (isset($inputArr[$next])) {
+
+                if ($inputArr[$next]['lvl'] > $item['lvl']) {
+
+                    $level += 1;
+                    $outputList .= ' <ul> ';
+
+                } else if ($inputArr[$next]['lvl'] < $item['lvl']) {
+                    $outputList .= ' </li> </ul> ';
+                } else {
+                    $outputList .= ' </li> ';
+                }
+
+            } else {
+                $outputList .= ' </li> ';
+            }
+
+        }
+
+        return $outputList . ' </ul> ';
 
     }
 

@@ -36,15 +36,14 @@ class sitemap extends baseController {
          * assign data into view
          */
 
-        $nodes = db::query(
+        view::assign("sitemap_nodes", db::query(
 
             "SELECT id, lvl, lk, rk, parent_id, node_name, page_alias
                 FROM tree WHERE is_publish = 1
                     AND in_sitemap = 1 ORDER BY lk ASC"
 
-        );
+        ));
 
-        view::assign("sitemap_nodes", helper::makeTreeArray($nodes));
         view::assign("node_name", view::$language->sitemap);
         $this->setProtectedLayout($layoutName);
 
