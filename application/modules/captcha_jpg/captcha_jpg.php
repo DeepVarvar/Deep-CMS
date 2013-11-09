@@ -66,130 +66,96 @@ class captcha_jpg extends baseController {
         }
 
         $keyString = "";
-
-
-        /**
-         * WARNING!
-         * glob function maybe returned FALSE value!
-         * but expected empty array!
-         */
-
-        $fonts = glob(APPLICATION . app::config()->path->resources . "/fonts/*.png");
-        if (!$fonts) {
-            throw new systemErrorException("Captcha error", "Fonts on resources not found");
+        if (!$fonts = utils::glob(
+            APPLICATION . app::config()->path->resources . "/fonts/*.png"
+        )) {
+            throw new systemErrorException(
+                "Captcha error", "Fonts on resources not found"
+            );
         }
-
 
         $alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-        $alphabetLength  = strlen($alphabet);
-        $allowedSymbols  = "23456789abcdeghkmnpqsuvxyz";
-
+        $alphabetLength = strlen($alphabet);
+        $allowedSymbols = "23456789abcdeghkmnpqsuvxyz";
 
         if ($this->foregroundColor === "random") {
-            $this->foregroundColor = array(mt_rand(0,150), mt_rand(0,150), mt_rand(0,15));
+            $this->foregroundColor = array(
+                mt_rand(0,150), mt_rand(0,150), mt_rand(0,15)
+            );
         }
 
-
         do {
-
 
             for ($i = 0; $i < $this->length; $i++) {
                 $keyString .= $allowedSymbols{mt_rand(0, strlen($allowedSymbols) - 1)};
             }
-
 
             $font = imagecreatefrompng($fonts[mt_rand(0, sizeof($fonts) - 1)]);
             imagealphablending($font, true);
 
             $fontFileWidth  = imagesx($font);
             $fontFileHeight = imagesy($font) - 1;
-
             $fontMetrics = array();
-
             $symbol = 0;
             $readingSymbol = false;
 
-
             for ($i = 0; $i < $fontFileWidth && $symbol < $alphabetLength; $i++) {
 
-
                 $transparent = (imagecolorat($font, $i, 0) >> 24) == 127;
-
-
                 if(!$readingSymbol && !$transparent) {
 
                     $fontMetrics[$alphabet{$symbol}] = array("start" => $i);
                     $readingSymbol = true;
-
                     continue;
 
                 }
-
 
                 if($readingSymbol && $transparent) {
 
                     $fontMetrics[$alphabet{$symbol}]['end'] = $i;
                     $readingSymbol = false;
-
                     $symbol++;
                     continue;
 
                 }
 
-
             }
-
 
             $img = imagecreatetruecolor($this->width, $this->height);
             imagealphablending($img, true);
 
             $white = imagecolorallocate($img, 255, 255, 255);
             $black = imagecolorallocate($img, 0, 0, 0);
-
-            imagefilledrectangle($img, 0, 0, $this->width - 1, $this->height - 1, $white);
-
+            imagefilledrectangle(
+                $img, 0, 0, $this->width - 1, $this->height - 1, $white
+            );
 
             $x = 1;
-
-
             for ($i = 0; $i < $this->length; $i++) {
-
 
                 $m = $fontMetrics[$keyString{$i}];
                 $y = mt_rand( - $this->fluctuationAmplitude, $this->fluctuationAmplitude) + ($this->height - $fontFileHeight) / 2 + 2;
                 $shift = 0;
 
-
                 if($i > 0) {
 
-
                     $shift = 10000;
-
-
                     for ($sy = 7; $sy < $fontFileHeight - 20; $sy += 1) {
-
                         for ($sx = $m['start'] - 1; $sx < $m['end']; $sx += 1) {
-
 
                             $rgb = imagecolorat($font, $sx, $sy);
                             $opacity = $rgb >> 24;
 
-
                             if ($opacity < 127) {
-
 
                                 $left = $sx - $m['start'] + $x;
                                 $py = $sy + $y;
-
 
                                 if ($py > $this->height) {
                                     break;
                                 }
 
-
                                 for ($px = min($left, $this->width - 1); $px > $left - 12 && $px >= 0; $px -= 1) {
-
 
                                     $color = imagecolorat($img, $px, $py) & 0xff;
                                     if($color + $opacity < 190) {
@@ -202,41 +168,29 @@ class captcha_jpg extends baseController {
 
                                     }
 
-
                                 }
-
 
                                 break;
 
-
                             }
 
-
                         }
-
                     }
-
 
                     if($shift == 10000) {
                         $shift = mt_rand(4, 6);
                     }
 
-
                 }
-
 
                 imagecopy($img, $font, $x - $shift, $y, $m['start'], 1, $m['end'] -$m['start'], $fontFileHeight);
                 $x += $m['end'] - $m['start'] - $shift;
 
-
             }
-
 
         } while ( $x >= ($this->width - 10) );
 
-
         $center = $x/2;
-
         $img2 = imagecreatetruecolor($this->width, $this->height);
         $foreground = imagecolorallocate($img2, $this->foregroundColor[0], $this->foregroundColor[1], $this->foregroundColor[2]);
         $background = imagecolorallocate($img2, 255, 255, 255);
@@ -278,18 +232,13 @@ class captcha_jpg extends baseController {
          */
 
         for ($x = 0; $x < $this->width; $x++) {
-
             for ($y = 0; $y < $this->height; $y++) {
-
 
                 $sx = $x + (sin($x * $rand1 + $rand5) + sin($y * $rand3 + $rand6)) * $rand9 - $this->width / 2 + $center + 1;
                 $sy = $y + (sin($x * $rand2 + $rand7) + sin($y * $rand4 + $rand8)) * $rand10;
 
-
                 if ($sx < 0 || $sy < 0 || $sx >= $this->width - 1 || $sy >= $this->height - 1) {
-
                     continue;
-
                 } else {
 
                     $color    = imagecolorat($img, $sx, $sy) & 0xFF;
@@ -301,9 +250,7 @@ class captcha_jpg extends baseController {
 
 
                 if ($color == 255 && $color_x == 255 && $color_y == 255 && $color_xy == 255) {
-
                     continue;
-
                 } else if ($color == 0 && $color_x == 0 && $color_y == 0 && $color_xy == 0) {
 
                     $newred   = $this->foregroundColor[0];
@@ -311,7 +258,6 @@ class captcha_jpg extends baseController {
                     $newblue  = $this->foregroundColor[2];
 
                 } else {
-
 
                     $frsx  = $sx - floor($sx);
                     $frsy  = $sy - floor($sy);
@@ -329,34 +275,24 @@ class captcha_jpg extends baseController {
                     $newgreen  = $newcolor0 * $this->foregroundColor[1] + $newcolor * 255;
                     $newblue   = $newcolor0 * $this->foregroundColor[2] + $newcolor * 255;
 
-
                 }
-
 
                 imagesetpixel($img2, $x, $y, imagecolorallocate($img2, $newred, $newgreen, $newblue));
 
-
             }
-
 
         }
 
-
         imagedestroy($img);
-
         storage::write("captcha", $keyString);
-
-
         request::addHeader("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
         request::addHeader("Cache-Control: no-store, no-cache, must-revalidate");
         request::addHeader("Cache-Control: post-check=0, pre-check=0", false);
         request::addHeader("Pragma: no-cache");
         request::addHeader("Content-Type: image/jpeg");
 
-
         request::sendHeaders();
         imagejpeg($img2, null, $this->jpegQuality);
-
         exit();
 
 
