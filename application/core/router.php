@@ -31,6 +31,13 @@ abstract class router {
 
 
         /**
+         * excepted prototypes
+         */
+
+        $exceptedPrototypes = array("none", "simpleLink"),
+
+
+        /**
          * main parameters
          */
 
@@ -111,6 +118,7 @@ abstract class router {
         } else {
 
 
+            $excProtos = "'" . join("','", self::$exceptedPrototypes) . "'";
             if (!$loadedPage = db::query("
 
                 SELECT
@@ -121,7 +129,7 @@ abstract class router {
                     IF(prototype = 'mainModule', 1, 0) page_is_module,
                     module_name
 
-                FROM tree WHERE (
+                FROM tree WHERE prototype NOT IN({$excProtos}) AND (
 
                     (page_alias = '%1\$s'
                         AND prototype != 'mainModule')

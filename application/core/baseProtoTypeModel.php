@@ -12,6 +12,7 @@ class baseProtoTypeModel {
 
     protected $nodeID = null;
     protected $returnedFields = array();
+    protected $preparedProperties = array();
 
 
     public function getValues($nodeID) {
@@ -63,6 +64,8 @@ class baseProtoTypeModel {
 
             if (method_exists($this, $getter)) {
                 $this->{$getter}($mainProperties[$k]);
+            } else {
+                unset($mainProperties[$k]);
             }
 
         }
@@ -76,19 +79,17 @@ class baseProtoTypeModel {
     public function getPreparedProperties() {
 
 
-        $preparedProperties = array();
         $mainProperties = array_keys($this->returnedFields);
-
         foreach ($mainProperties as $key) {
 
             $setter = $key . "Prepare";
-            $preparedProperties[$key] = request::getPostParam($key);
+            $this->preparedProperties[$key] = request::getPostParam($key);
 
             if (method_exists($this, $setter)) {
-                $this->{$setter}($preparedProperties[$key]);
+                $this->{$setter}($this->preparedProperties[$key]);
             } else {
 
-                if ($preparedProperties[$key] === null) {
+                if ($this->preparedProperties[$key] === null) {
 
                     throw new memberErrorException(
                         view::$language->error,
@@ -97,14 +98,14 @@ class baseProtoTypeModel {
 
                 }
 
-                $preparedProperties[$key] = filter::input(
-                    $preparedProperties[$key])->stripTags()->getData();
+                $this->preparedProperties[$key] = filter::input(
+                    $this->preparedProperties[$key])->stripTags()->getData();
 
             }
 
         }
 
-        return $preparedProperties;
+        return $this->preparedProperties;
 
 
     }
