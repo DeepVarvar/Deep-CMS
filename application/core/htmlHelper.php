@@ -10,10 +10,12 @@ abstract class htmlHelper {
 
 
     /**
-     * draw multidimentional ul-li-a links list by level
+     * draw multidimentional ul-li-a links list
+     * by level without recursion
      */
 
     public static function drawTreeLinksList($arr) {
+
 
         $output = '';
         $lvl    = null;
@@ -49,6 +51,7 @@ abstract class htmlHelper {
         }
 
         return $output;
+
 
     }
 
