@@ -1,7 +1,7 @@
 <?php require $_config->layouts->header; ?>
 
 
-    <?php foreach (dataHelper::getBreadcrumbs($page_id, true) as $item) { ?>
+    <?php foreach (dataHelper::getBreadcrumbs($id, true) as $item) { ?>
 
         <?php if (request::getURI() != "/") { ?>
             &raquo; <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
@@ -14,17 +14,17 @@
 
     <?=$page_text?>
 
-    <?php foreach (dataHelper::getAttachedImages($page_id) as $image) { ?>
+    <?php foreach (dataHelper::getAttachedImages($id) as $image) { ?>
         <a target="_blank" href="/upload/<?=$image?>"><img alt="" src="/upload/thumb_<?=$image?>" /></a>
     <?php } ?>
 
-    <?php foreach (dataHelper::getNodeFeatures($page_id) as $feature) { ?>
+    <?php foreach (dataHelper::getNodeFeatures($id) as $feature) { ?>
         <h3><?=$feature['name']?>: <?=$feature['value']?></h3>
     <?php } ?>
 
     <ul>
 
-        <?php foreach (dataHelper::getNodeChildren($page_id) as $item) { ?>
+        <?php foreach (dataHelper::getNodeChildren($id) as $item) { ?>
             <li><a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a></li>
         <?php } ?>
 

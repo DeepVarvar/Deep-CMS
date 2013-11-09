@@ -126,7 +126,7 @@ $(function(){
      * refresh name and generate alias
      */
 
-    $("#pagename").keyup(function(){
+    $("#pagename").focus().keyup(function(){
 
         var sourceName = trim($("#pagename").val());
         setNameOfNode(sourceName);

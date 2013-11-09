@@ -33,16 +33,11 @@ set_include_path(
 session_name("deepcms");
 session_start();
 
-if (!array_key_exists("report", $_SESSION)) {
-    $_SESSION['report'] = array();
-}
-
-if (!array_key_exists("step", $_SESSION)) {
-    $_SESSION['step'] = 1;
-}
-
-if (!array_key_exists("errors", $_SESSION)) {
-    $_SESSION['errors'] = false;
+if (!array_key_exists("ins", $_SESSION)) {
+    $_SESSION['ins'] = array();
+    $_SESSION['ins']['report'] = array();
+    $_SESSION['ins']['step'] = 1;
+    $_SESSION['ins']['errors'] = false;
 }
 
 
@@ -52,11 +47,11 @@ if (!array_key_exists("errors", $_SESSION)) {
 
 function getConfig() {
 
-    if (!array_key_exists("config", $_SESSION)) {
-        $_SESSION['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/","no_image":"no-image.png","no_avatar":"no-avatar.png"},"application":{"name":"Deep-CMS","version":"2.0.42","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":true,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"path":{"admin":"admin\/","autorun_after":"autorun\/after\/","autorun_before":"autorun\/before\/","cache":"cache\/","languages":"languages\/","library":"library\/","logs":"logs\/","metadata":"metadata\/","modules":"modules\/","resources":"resources\/","tmp":"tmp\/","upload_dir":"upload\/"},"layouts":{"admin":"layouts\/admin\/","system":"layouts\/system\/","themes":"layouts\/themes\/","parts":"parts\/","public":"public\/","protected":"protected\/","header":"parts\/header.html","footer":"parts\/footer.html","exception":"protected\/exception.html","debug":"layouts\/system\/debug.html","txt":"layouts\/system\/txt.html","json":"layouts\/system\/json.html","xml":"layouts\/system\/xml.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
+    if (!array_key_exists("config", $_SESSION['ins'])) {
+        $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/","no_image":"no-image.png","no_avatar":"no-avatar.png"},"application":{"name":"Deep-CMS","version":"2.0.42","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"path":{"admin":"admin\/","autorun_after":"autorun\/after\/","autorun_before":"autorun\/before\/","cache":"cache\/","languages":"languages\/","library":"library\/","logs":"logs\/","metadata":"metadata\/","modules":"modules\/","resources":"resources\/","tmp":"tmp\/","upload_dir":"upload\/"},"layouts":{"admin":"layouts\/admin\/","system":"layouts\/system\/","themes":"layouts\/themes\/","parts":"parts\/","public":"public\/","protected":"protected\/","header":"parts\/header.html","footer":"parts\/footer.html","exception":"protected\/exception.html","debug":"layouts\/system\/debug.html","txt":"layouts\/system\/txt.html","json":"layouts\/system\/json.html","xml":"layouts\/system\/xml.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
     }
 
-    return $_SESSION['config'];
+    return $_SESSION['ins']['config'];
 
 }
 
@@ -66,7 +61,7 @@ function getConfig() {
  */
 
 function setConfig($config) {
-    $_SESSION['config'] = $config;
+    $_SESSION['ins']['config'] = $config;
 }
 
 
@@ -211,7 +206,7 @@ function saveConfigIntoFile($config) {
 
 
         // enable or disable filesystem cache support
-        "cache_enabled": true,
+        "cache_enabled": false,
 
 
         // write logs of application (members) events
@@ -482,7 +477,7 @@ function getInstallationQueryString($prefix = "") {
             KEY status   (status),
             KEY hash     (hash)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
         INSERT INTO {$prefix}users
         (id, group_id, status, login, password, email, hash, last_ip, registration_date, last_visit, about)
@@ -500,7 +495,7 @@ function getInstallationQueryString($prefix = "") {
 
             PRIMARY KEY (id)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
         DROP TABLE IF EXISTS {$prefix}group_permissions;
@@ -509,7 +504,7 @@ function getInstallationQueryString($prefix = "") {
             group_id        BIGINT(20) NOT NULL,
             permission_id   BIGINT(20) NOT NULL
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
         DROP TABLE IF EXISTS {$prefix}groups;
@@ -521,7 +516,7 @@ function getInstallationQueryString($prefix = "") {
 
             PRIMARY KEY (id)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
         INSERT INTO {$prefix}groups (id, priority, name) VALUES (1, 0, 'root');
         UPDATE {$prefix}groups SET id = 0 WHERE id = 1;
@@ -540,7 +535,7 @@ function getInstallationQueryString($prefix = "") {
             KEY node_id   (node_id),
             KEY is_master (is_master)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
 
@@ -549,43 +544,45 @@ function getInstallationQueryString($prefix = "") {
 
             id                  BIGINT(20)  NOT NULL AUTO_INCREMENT,
             parent_id           BIGINT(20)  NOT NULL,
-            lvl                 TINYINT(3)  UNSIGNED NOT NULL,
-            lk                  BIGINT(20)  UNSIGNED NOT NULL,
-            rk                  BIGINT(20)  UNSIGNED NOT NULL,
-            prototype           BIGINT(20)  NOT NULL,
-            c_prototype         BIGINT(20)  NOT NULL,
-            props_id            BIGINT(20)  NOT NULL DEFAULT '0',
-            is_publish          TINYINT(1)  NOT NULL DEFAULT '0',
-            in_sitemap          TINYINT(1)  NOT NULL DEFAULT '0',
-            sort                BIGINT(20)  NOT NULL DEFAULT '0',
-            page_alias          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            permanent_redirect  MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            node_name           CHAR(255)   CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            page_h1             MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            page_title          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            meta_keywords       MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            meta_description    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            layout              CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            lvl                 TINYINT(3)  NOT NULL,
+            lk                  BIGINT(20)  NOT NULL,
+            rk                  BIGINT(20)  NOT NULL,
+            prototype           CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            children_prototype  CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
             author              BIGINT(20)  NOT NULL,
+            modified_author     BIGINT(20)  NOT NULL,
             last_modified       DATETIME    NOT NULL,
             creation_date       DATETIME    NOT NULL,
+            is_publish          TINYINT(1)  NOT NULL,
+            node_name           CHAR(255)   CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            in_sitemap          TINYINT(1)  NOT NULL,
+
+            layout              CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            page_alias          CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            permanent_redirect  CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
             change_freq         CHAR(7)     CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            search_priority     DOUBLE      DEFAULT NULL,
+            searchers_priority  DOUBLE      DEFAULT NULL,
+            module_name         CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            page_title          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            page_h1             MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            meta_keywords       MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            meta_description    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            page_text           LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
 
             PRIMARY KEY (id),
 
-            KEY parent_id  (parent_id),
-            KEY lvl        (lvl),
-            KEY lk         (lk),
-            KEY rk         (rk),
-            KEY prototype  (prototype),
-            KEY props_id   (props_id),
-            KEY is_publish (is_publish),
-            KEY in_sitemap (in_sitemap),
-            KEY sort       (sort),
-            KEY author     (author)
+            KEY parent_id       (parent_id),
+            KEY lvl             (lvl),
+            KEY lk              (lk),
+            KEY rk              (rk),
+            KEY author          (author),
+            KEY modified_author (modified_author),
+            KEY page_alias      (page_alias),
+            KEY prototype       (prototype),
+            KEY is_publish      (is_publish),
+            KEY in_sitemap      (in_sitemap)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
 
@@ -599,7 +596,7 @@ function getInstallationQueryString($prefix = "") {
             KEY node_id    (node_id),
             KEY feature_id (feature_id)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
 
@@ -611,57 +608,7 @@ function getInstallationQueryString($prefix = "") {
 
             PRIMARY KEY (id)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
-
-
-
-        DROP TABLE IF EXISTS {$prefix}prototypes;
-        CREATE TABLE {$prefix}prototypes (
-
-            id           BIGINT(20) NOT NULL AUTO_INCREMENT,
-            type         TINYINT(2) NOT NULL,
-            sys_name     CHAR(255)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            name         CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            description  MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
-
-            PRIMARY KEY (id)
-
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8  AUTO_INCREMENT = 10;
-
-        INSERT INTO {$prefix}prototypes (id, type, sys_name, name, description) VALUES
-            (10, 10, 'props_simple_pages', 'Обычные страницы', 'Прототип свойств обычных страниц сайта');
-
-
-
-        DROP TABLE IF EXISTS {$prefix}field_types;
-        CREATE TABLE {$prefix}field_types (
-
-            prototype    BIGINT(20) NOT NULL,
-            field_type   CHAR(32)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            editor       TINYINT(1) NOT NULL DEFAULT '0',
-            name         CHAR(255)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            description  CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            sort         BIGINT(20) NOT NULL DEFAULT '1',
-
-            KEY prototype (prototype),
-            KEY sort      (sort)
-
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
-
-        INSERT INTO {$prefix}field_types (prototype, field_type, editor, name, description, sort) VALUES
-            (10, 'textarea', '1', 'page_text', 'Содержимое страницы', 1);
-
-
-
-        DROP TABLE IF EXISTS {$prefix}props_simple_pages;
-        CREATE TABLE {$prefix}props_simple_pages (
-
-            id         BIGINT(20) NOT NULL AUTO_INCREMENT,
-            page_text  LONGTEXT   CHARACTER SET utf8 COLLATE utf8_general_ci,
-
-            PRIMARY KEY (id)
-
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
 
@@ -676,7 +623,7 @@ function getInstallationQueryString($prefix = "") {
 
             KEY parent_id (parent_id)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
 
@@ -689,7 +636,7 @@ function getInstallationQueryString($prefix = "") {
             KEY menu_id (menu_id),
             KEY node_id (node_id)
 
-        ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 
 INSTALLATIONSTRING;
@@ -706,66 +653,6 @@ function getExtendedQueryString($prefix = "") {
 
 
     return <<<EXTENDEDINSTALLATIONSTRING
-
-        INSERT INTO tree (
-
-            id,
-            parent_id,
-            lvl,
-            lk,
-            rk,
-            prototype,
-            c_prototype,
-            props_id,
-            is_publish,
-            in_sitemap,
-            sort,
-            page_alias,
-            permanent_redirect,
-            node_name,
-            page_h1,
-            page_title,
-            meta_keywords,
-            meta_description,
-            layout, author,
-            last_modified,
-            creation_date,
-            change_freq,
-            search_priority
-
-        ) VALUES
-
-        (1, 0, 1, 1, 2, 10, 10, 1, 1, 1, 10, '/', '', 'Главная', '', '', '', '', 'page.html', 0, '2013-07-08 00:32:46', '2013-07-07 23:38:04', NULL, NULL),
-        (2, 0, 1, 3, 8, 10, 10, 2, 1, 1, 20, '/news', '', 'Новости', '', '', '', '', 'page.html', 0, '2013-07-07 23:47:03', '2013-07-07 23:38:44', NULL, NULL),
-        (3, 2, 2, 4, 5, 10, 10, 3, 1, 1, 0, '/news/one', '', 'Первая новость', '', '', '', '', 'page.html', 0, '2013-07-08 01:57:57', '2013-07-07 23:43:08', NULL, NULL),
-        (4, 2, 2, 6, 7, 10, 10, 4, 1, 1, 0, '/news/two', '', 'Вторая новость', '', '', '', '', 'page.html', 0, '2013-07-08 01:57:50', '2013-07-07 23:43:38', NULL, NULL),
-        (5, 0, 1, 9, 16, 10, 10, 5, 1, 1, 30, '/articles', '', 'Статьи', '', '', '', '', 'page.html', 0, '2013-07-07 23:45:19', '2013-07-07 23:45:19', NULL, NULL),
-        (6, 0, 1, 17, 18, 10, 10, 6, 1, 0, 10000, '/sitemap', '', 'Карта сайта', '', '', '', '', 'page.html', 0, '2013-07-07 23:46:40', '2013-07-07 23:46:40', NULL, NULL),
-        (7, 5, 2, 10, 13, 10, 10, 7, 1, 1, 0, '/articles/one', '', 'Статья один', '', '', '', '', 'page.html', 0, '2013-07-08 01:58:18', '2013-07-07 23:47:38', NULL, NULL),
-        (8, 5, 2, 14, 15, 10, 10, 8, 1, 1, 0, '/articles/two', '', 'Статья два', '', '', '', '', 'page.html', 0, '2013-07-08 01:58:10', '2013-07-07 23:48:04', NULL, NULL),
-        (9, 7, 3, 11, 12, 10, 10, 9, 1, 1, 0, '/articles/one/inner', '', 'Вложение в статью один', '', '', '', '', 'page.html', 0, '2013-07-08 01:58:26', '2013-07-07 23:50:43', NULL, NULL),
-        (10, 0, 1, 19, 20, 10, 10, 10, 1, 0, 100, 'http://www.google.ru/', '', 'www.google.ru', '', '', '', '', 'page.html', 0, '2013-07-07 23:53:10', '2013-07-07 23:52:55', NULL, NULL);
-
-
-        INSERT INTO menu (id, parent_id, name)
-            VALUES (1, 0, 'Верхнее меню'), (2, 0, 'Нижнее меню');
-
-
-        INSERT INTO menu_items (menu_id, node_id)
-            VALUES (2, 1), (1, 1), (2, 2), (1, 5), (2, 6), (2, 10);
-
-
-        INSERT INTO props_simple_pages (id, page_text) VALUES
-        (1, '<p>Текст на главной странице..</p>'),
-        (2, '<p>Это раздел новостей..</p>'),
-        (3, '<p>Текст первой новости</p>'),
-        (4, '<p>Текст второй новости.</p>'),
-        (5, '<p>Это раздел статей.</p>'),
-        (6, '<p> </p>'),
-        (7, '<p>Текст статьи один.</p>'),
-        (8, '<p>Текст статьи два.</p>'),
-        (9, '<p>Текст вложения в статью один. Вложения могут быть любой глубины. Нет никакого ограничения вложения одних документов в других, за исключением запрета вложения в самого себя и в родителей находящихся выше в ветке дерева.</p>'),
-        (10, '<p> </p>');
 
 EXTENDEDINSTALLATIONSTRING;
 
@@ -982,10 +869,10 @@ abstract class db {
 
         if (self::$mysqli->connect_errno) {
 
-            $_SESSION['report'][] = self::$mysqli->connect_errno
+            $_SESSION['ins']['report'][] = self::$mysqli->connect_errno
                 . ": " . self::$mysqli->connect_error;
 
-            $_SESSION['errors'] = true;
+            $_SESSION['ins']['errors'] = true;
 
         }
 
@@ -1004,10 +891,10 @@ abstract class db {
 
         if (self::$mysqli->errno) {
 
-            $_SESSION['report'][] = self::$mysqli->errno
+            $_SESSION['ins']['report'][] = self::$mysqli->errno
                 . ": " . self::$mysqli->error;
 
-            $_SESSION['errors'] = true;
+            $_SESSION['ins']['errors'] = true;
 
         }
 
@@ -1025,10 +912,10 @@ abstract class db {
         @ self::$mysqli->multi_query($queryString);
         if (self::$mysqli->errno) {
 
-            $_SESSION['report'][] = self::$mysqli->errno
+            $_SESSION['ins']['report'][] = self::$mysqli->errno
                 . ": " . self::$mysqli->error;
 
-            $_SESSION['errors'] = true;
+            $_SESSION['ins']['errors'] = true;
 
         } else {
 
@@ -1145,11 +1032,11 @@ function refresh() {
  * back pre routing
  */
 
-if (array_key_exists("errors", $_SESSION)
-        and isset($_POST['prev']) and $_SESSION['step'] > 1) {
+if (array_key_exists("errors", $_SESSION['ins'])
+        and isset($_POST['prev']) and $_SESSION['ins']['step'] > 1) {
 
-    $_SESSION['report'] = array();
-    $_SESSION['step'] -= 1;
+    $_SESSION['ins']['report'] = array();
+    $_SESSION['ins']['step'] -= 1;
 
     refresh();
 
@@ -1173,7 +1060,7 @@ try {
     $layout = "install.html";
 
 
-    switch ($_SESSION['step']) {
+    switch ($_SESSION['ins']['step']) {
 
 
         case 4:
@@ -1186,9 +1073,9 @@ try {
 
             saveConfigIntoFile($_config);
 
-            $_SESSION['report'] = array();
-            $_SESSION['step'] = 4;
-            $_SESSION['errors'] = false;
+            $_SESSION['ins']['report'] = array();
+            $_SESSION['ins']['step'] = 4;
+            $_SESSION['ins']['errors'] = false;
 
 
         break;
@@ -1200,21 +1087,18 @@ try {
             if (isset($_POST['next'])) {
 
 
-                $_SESSION['report'] = array();
-
-
                 /**
                  * save configuration
                  */
 
-                $_config->site->protocol = $_SESSION['settings']['protocol'];
-                $_config->site->domain   = $_SESSION['settings']['domain'];
+                $_config->site->protocol = $_SESSION['ins']['settings']['protocol'];
+                $_config->site->domain   = $_SESSION['ins']['settings']['domain'];
 
-                $_SESSION['settings']['debugmode']
+                $_SESSION['ins']['settings']['debugmode']
                     = array_key_exists("debugmode", $_POST);
 
                 $_config->system->debug_mode
-                    = $_SESSION['settings']['debugmode'];
+                    = $_SESSION['ins']['settings']['debugmode'];
 
                 setConfig($_config);
 
@@ -1246,10 +1130,10 @@ try {
                 $rootlogin = filter::input($_POST['rootlogin'])
                         ->lettersOnly()->getData();
 
-                $_SESSION['settings']['rootlogin'] = $rootlogin;
+                $_SESSION['ins']['settings']['rootlogin'] = $rootlogin;
                 if (!$rootlogin) {
-                    $_SESSION['report'][] = $language->user_login_invalid;
-                    $_SESSION['errors'] = true;
+                    $_SESSION['ins']['report'][] = $language->user_login_invalid;
+                    $_SESSION['ins']['errors'] = true;
                 }
 
 
@@ -1258,12 +1142,12 @@ try {
                  */
 
                 $rootpassword = trim((string) $_POST['rootpassword']);
-                $_SESSION['settings']['rootpassword'] = $rootpassword;
+                $_SESSION['ins']['settings']['rootpassword'] = $rootpassword;
 
                 if (!$rootpassword) {
 
-                    $_SESSION['errors'] = true;
-                    $_SESSION['report'][]
+                    $_SESSION['ins']['errors'] = true;
+                    $_SESSION['ins']['report'][]
                         = $language->install_root_password_is_empty;
 
                 }
@@ -1278,7 +1162,7 @@ try {
                  * connect to DB
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
                     db::connect(
 
@@ -1292,7 +1176,7 @@ try {
 
                 }
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
                     db::setCharset($_config->db->connection_charset);
                 }
 
@@ -1301,7 +1185,7 @@ try {
                  * update root password and hash
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
                     db::query(
 
@@ -1320,7 +1204,7 @@ try {
                  * get permissions for root
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
 
                     /**
@@ -1359,7 +1243,7 @@ try {
                  * truncate group permissions
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
                     db::query(
                         "TRUNCATE TABLE
@@ -1373,7 +1257,7 @@ try {
                  * truncate permissions
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
                     db::query(
                         "TRUNCATE TABLE
@@ -1387,7 +1271,7 @@ try {
                  * insert new list of permissions
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
                     $permissionValues = "('"
                         . join("'), ('", $controllersPermissions) . "')";
@@ -1404,7 +1288,7 @@ try {
                  * insert permissions for root
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
 
                     db::query(
 
@@ -1422,24 +1306,24 @@ try {
                  * post routing
                  */
 
-                if (!$_SESSION['errors']) {
-                    $_SESSION['report'] = array();
-                    $_SESSION['step'] += 1;
+                if (!$_SESSION['ins']['errors']) {
+                    $_SESSION['ins']['report'] = array();
+                    $_SESSION['ins']['step'] += 1;
                 }
 
                 refresh();
 
             }
 
-            $_SESSION['errors'] = false;
-            $_SESSION['step'] = 3;
+            $_SESSION['ins']['errors'] = false;
+            $_SESSION['ins']['step'] = 3;
 
-            if (!array_key_exists("settings", $_SESSION)) {
+            if (!array_key_exists("settings", $_SESSION['ins'])) {
 
                 $port = $_SERVER['SERVER_PORT'];
                 $port = ($port != 80 and $port != 443) ? ":{$port}" : "";
 
-                $_SESSION['settings'] = array(
+                $_SESSION['ins']['settings'] = array(
 
                     "protocol" => stristr(
                         $_SERVER['SERVER_PROTOCOL'], "https"
@@ -1460,7 +1344,7 @@ try {
 
             if (isset($_POST['next'])) {
 
-                $_SESSION['report'] = array();
+                $_SESSION['ins']['report'] = array();
 
 
                 /**
@@ -1504,50 +1388,50 @@ try {
                  */
 
 
-                $_SESSION['db']['host'] = $host;
+                $_SESSION['ins']['db']['host'] = $host;
                 if (!$host) {
 
-                    $_SESSION['errors'] = true;
-                    $_SESSION['report'][]
+                    $_SESSION['ins']['errors'] = true;
+                    $_SESSION['ins']['report'][]
                         = $language->install_db_host_is_empty;
 
                 }
 
 
-                $_SESSION['db']['port'] = $port;
+                $_SESSION['ins']['db']['port'] = $port;
                 if (!$port or !preg_match("/^[0-9]+$/", $port)
                         or $port > 65535) {
 
-                    $_SESSION['errors'] = true;
-                    $_SESSION['report'][]
+                    $_SESSION['ins']['errors'] = true;
+                    $_SESSION['ins']['report'][]
                         = $language->install_db_port_is_broken;
 
                 }
 
 
-                $_SESSION['db']['name'] = $name;
+                $_SESSION['ins']['db']['name'] = $name;
                 if (!$name) {
 
-                    $_SESSION['errors'] = true;
-                    $_SESSION['report'][]
+                    $_SESSION['ins']['errors'] = true;
+                    $_SESSION['ins']['report'][]
                         = $language->install_db_name_is_empty;
 
                 }
 
 
-                $_SESSION['db']['user'] = $user;
+                $_SESSION['ins']['db']['user'] = $user;
                 if (!$user) {
 
-                    $_SESSION['errors'] = true;
-                    $_SESSION['report'][]
+                    $_SESSION['ins']['errors'] = true;
+                    $_SESSION['ins']['report'][]
                         = $language->install_db_user_is_empty;
 
                 }
 
-                $_SESSION['db']['password'] = $pass;
-                $_SESSION['db']['prefix'] = $prefix;
+                $_SESSION['ins']['db']['password'] = $pass;
+                $_SESSION['ins']['db']['prefix'] = $prefix;
 
-                $_SESSION['db']['addextended']
+                $_SESSION['ins']['db']['addextended']
                     = array_key_exists("addextended", $_POST);
 
 
@@ -1555,11 +1439,11 @@ try {
                  * connect to DB
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
                     db::connect($host, $user, $pass, $name, $port);
                 }
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
                     db::setCharset($_config->db->connection_charset);
                 }
 
@@ -1568,7 +1452,7 @@ try {
                  * database installation
                  */
 
-                if (!$_SESSION['errors']) {
+                if (!$_SESSION['ins']['errors']) {
                     db::query(getInstallationQueryString($prefix));
                 }
 
@@ -1577,7 +1461,7 @@ try {
                  * add extended demo data
                  */
 
-                if (!$_SESSION['errors'] and $_SESSION['db']['addextended']) {
+                if (!$_SESSION['ins']['errors'] and $_SESSION['ins']['db']['addextended']) {
                     db::query(getExtendedQueryString($prefix));
                 }
 
@@ -1586,12 +1470,12 @@ try {
                  * save database configuration
                  */
 
-                $_config->db->host     = $_SESSION['db']['host'];
-                $_config->db->port     = $_SESSION['db']['port'];
-                $_config->db->name     = $_SESSION['db']['name'];
-                $_config->db->user     = $_SESSION['db']['user'];
-                $_config->db->password = $_SESSION['db']['password'];
-                $_config->db->prefix   = $_SESSION['db']['prefix'];
+                $_config->db->host     = $_SESSION['ins']['db']['host'];
+                $_config->db->port     = $_SESSION['ins']['db']['port'];
+                $_config->db->name     = $_SESSION['ins']['db']['name'];
+                $_config->db->user     = $_SESSION['ins']['db']['user'];
+                $_config->db->password = $_SESSION['ins']['db']['password'];
+                $_config->db->prefix   = $_SESSION['ins']['db']['prefix'];
 
                 setConfig($_config);
 
@@ -1600,9 +1484,9 @@ try {
                  * post routing
                  */
 
-                if (!$_SESSION['errors']) {
-                    $_SESSION['report'] = array();
-                    $_SESSION['step'] += 1;
+                if (!$_SESSION['ins']['errors']) {
+                    $_SESSION['ins']['report'] = array();
+                    $_SESSION['ins']['step'] += 1;
                 }
 
                 refresh();
@@ -1610,14 +1494,14 @@ try {
             }
 
 
-            $_SESSION['errors'] = false;
-            $_SESSION['step'] = 2;
+            $_SESSION['ins']['errors'] = false;
+            $_SESSION['ins']['step'] = 2;
 
 
-            if (!array_key_exists("db", $_SESSION)) {
+            if (!array_key_exists("db", $_SESSION['ins'])) {
 
 
-                $_SESSION['db'] = array(
+                $_SESSION['ins']['db'] = array(
 
                     "host" => "localhost",
                     "port" => "3306",
@@ -1641,9 +1525,9 @@ try {
 
             if (isset($_POST['next'])) {
 
-                if (!$_SESSION['errors']) {
-                    $_SESSION['report'] = array();
-                    $_SESSION['step'] += 1;
+                if (!$_SESSION['ins']['errors']) {
+                    $_SESSION['ins']['report'] = array();
+                    $_SESSION['ins']['step'] += 1;
                 }
 
                 refresh();
@@ -1651,8 +1535,8 @@ try {
             }
 
 
-            $_SESSION['errors'] = false;
-            $_SESSION['step'] = 1;
+            $_SESSION['ins']['errors'] = false;
+            $_SESSION['ins']['step'] = 1;
 
 
             /**
@@ -1661,7 +1545,7 @@ try {
 
             $currentPhpVersion = round((float) phpversion(), 2);
             if (!$checkPhpVersion = checkPhpVersion()) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
 
@@ -1697,7 +1581,7 @@ try {
                 }
 
                 if (!$checkMemoryLimit = $myValue <= ($phpValue * $up)) {
-                    $_SESSION['errors'] = true;
+                    $_SESSION['ins']['errors'] = true;
                 }
 
             } else {
@@ -1707,7 +1591,7 @@ try {
 
 
             if (!$fileUploads = !!ini_get("file_uploads")) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
 
@@ -1743,7 +1627,7 @@ try {
                 }
 
                 if (!$uploadMaxFileSize = $myValue <= ($phpValue * $up)) {
-                    $_SESSION['errors'] = true;
+                    $_SESSION['ins']['errors'] = true;
                 }
 
             } else {
@@ -1757,7 +1641,7 @@ try {
                 or $mqgpc == 1 or $mqgpc === true);
 
             if ($checkMQGPCEnabled) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
 
@@ -1766,23 +1650,23 @@ try {
              */
 
             if (!$checkMysqli = class_exists("mysqli")) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             if (!$checkDOMImpl = class_exists("DOMImplementation")) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             if (!$checkDOMDoc = class_exists("DOMDocument")) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             if (!$checkGD = function_exists("imagecreatefromjpeg")) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             if (!$checkFilterVar = function_exists("filter_var")) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             // finfo and mime fix
@@ -1793,7 +1677,7 @@ try {
             if (!$checkFinfo and !$checkMime) {
 
                 $checkFinfoOrMime   = false;
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
 
             }
 
@@ -1804,52 +1688,57 @@ try {
 
             $autorunAfterDir = APPLICATION . "autorun/after";
             if (!$checkAutorunAfterDir = checkPath($autorunAfterDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $autorunBeforeDir = APPLICATION . "autorun/before";
             if (!$checkAutorunBeforeDir = checkPath($autorunBeforeDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $cacheDir = APPLICATION . "cache";
             if (!$checkCacheDir = checkPath($cacheDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $configDir = APPLICATION . "config";
             if (!$checkConfigDir = checkPath($configDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $languagesDir = APPLICATION . "languages";
             if (!$checkLanguagesDir = checkPath($languagesDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $libraryDir = APPLICATION . "library";
             if (!$checkLibraryDir = checkPath($libraryDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $logsDir = APPLICATION . "logs";
             if (!$checkLogsDir = checkPath($logsDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $modulesDir = APPLICATION . "modules";
             if (!$checkModulesDir = checkPath($modulesDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
+            }
+
+            $prototypesDir = APPLICATION . "prototypes";
+            if (!$checkPrototypesDir = checkPath($prototypesDir)) {
+                $_SESSION['ins']['errors'] = true;
             }
 
             $resourcesDir = APPLICATION . "resources";
             if (!$checkResourcesDir = checkPath($resourcesDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
             $uploadDir = PUBLIC_HTML . "upload";
             if (!$checkUploadDir = checkPath($uploadDir)) {
-                $_SESSION['errors'] = true;
+                $_SESSION['ins']['errors'] = true;
             }
 
         break;
@@ -1871,6 +1760,10 @@ try {
 
 header("Content-Type: text/html; charset=utf-8");
 require $layout;
+
+if ($_SESSION['ins']['step'] == 4) {
+    $_SESSION = array();
+}
 
 
 

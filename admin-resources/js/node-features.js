@@ -12,6 +12,7 @@ $(function(){
     var featureCaption = $("div.featurecaption").filter(".topfcap");
     var featurelist = $("#featurelist");
     var newFeatureForm = $("#newfeatureform");
+    var newFeatureName = $("#new-feature-name");
     var newFeatureTargetForm = newFeatureForm.find(".feature");
     var deleteFeatureConfirm = $("#innerdata").attr("data-deletefeatureconfirm");
 
@@ -74,6 +75,7 @@ $(function(){
 
         newFeatureForm.show();
         featureCaption.css({opacity:0});
+        newFeatureName.focus();
 
         if (newFeatureForm.length > 0) {
             body.animate({scrollTop:body.outerHeight()}, 800);

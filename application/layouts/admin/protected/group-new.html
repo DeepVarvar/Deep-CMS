@@ -11,7 +11,11 @@
             <div class="elem">&nbsp;</div>
 
             <div class="label mt-20"><?=view::$language->group_name?>:</div>
-            <div class="elem mt-20"><input class="required" type="text" name="name" value="" /></div>
+            <div class="elem mt-20"><input id="group-name" class="required" type="text" name="name" value="" /></div>
+
+            <script type="text/javascript">
+                document.getElementById("group-name").focus();
+            </script>
 
             <div class="label"><?=view::$language->priority?>:</div>
             <div class="elem">
