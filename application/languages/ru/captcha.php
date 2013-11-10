@@ -7,7 +7,7 @@
  */
 
 return array(
-    "captcha_jpg"  =>  "Капча"
+    "captcha"  =>  "Капча"
 );
 
 

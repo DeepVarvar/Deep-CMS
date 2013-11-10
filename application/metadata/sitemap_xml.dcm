@@ -10,7 +10,7 @@
      */
 
     "type"        : "module",
-    "system_name" : "search",
+    "system_name" : "sitemap_xml",
 
 
     /**
@@ -29,9 +29,9 @@
      * on filesystem
      */
 
-    "main_dir"   : "modules/search",
+    "main_dir"   : "modules/sitemap_xml",
     "main_files" : [
-        "modules/search/search.php"
+        "modules/sitemap_xml/sitemap_xml.php"
     ],
 
 
@@ -49,7 +49,7 @@
      */
 
     "language_files" : [
-        "search.php"
+        "sitemap_xml.php"
     ],
 
 
@@ -61,7 +61,7 @@
     "admin_templates"       : [],
     "parts_templates"       : [],
     "public_templates"      : [],
-    "protected_templates"   : ["search.html"]
+    "protected_templates"   : []
 
 
 }

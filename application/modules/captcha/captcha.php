@@ -7,7 +7,7 @@
  * rewrite of RECAPTCHA
  */
 
-class captcha_jpg extends baseController {
+class captcha extends baseController {
 
 
     private
@@ -67,7 +67,7 @@ class captcha_jpg extends baseController {
 
         $keyString = "";
         if (!$fonts = utils::glob(
-            APPLICATION . app::config()->path->resources . "/fonts/*.png"
+            APPLICATION . app::config()->path->resources . "/captcha/*.png"
         )) {
             throw new systemErrorException(
                 "Captcha error", "Fonts on resources not found"

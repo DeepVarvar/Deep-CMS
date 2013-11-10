@@ -10,7 +10,7 @@
      */
 
     "type"        : "module",
-    "system_name" : "search",
+    "system_name" : "captcha",
 
 
     /**
@@ -29,9 +29,9 @@
      * on filesystem
      */
 
-    "main_dir"   : "modules/search",
+    "main_dir"   : "modules/captcha",
     "main_files" : [
-        "modules/search/search.php"
+        "modules/captcha/captcha.php"
     ],
 
 
@@ -40,8 +40,33 @@
      * and resource files
      */
 
-    "resource_dir"   : false,
-    "resource_files" : [],
+    "resource_dir"   : "resources/captcha/",
+    "resource_files" : [
+
+        "antiqua.png",
+        "cambria.png",
+        "footlight.png",
+        "lucida.png",
+        "times.png",
+        "baskerville.png",
+        "centaur.png",
+        "garamond.png",
+        "minion.png",
+        "warnock.png",
+        "batang.png",
+        "century.png",
+        "georgia.png",
+        "palatino.png",
+        "bookman.png",
+        "chaparral.png",
+        "goudy_old.png",
+        "perpetua.png",
+        "calisto.png",
+        "constantia.png",
+        "kozuka.png",
+        "rockwell.png"
+
+    ],
 
 
     /**
@@ -49,7 +74,7 @@
      */
 
     "language_files" : [
-        "search.php"
+        "captcha.php"
     ],
 
 
@@ -61,7 +86,7 @@
     "admin_templates"       : [],
     "parts_templates"       : [],
     "public_templates"      : [],
-    "protected_templates"   : ["search.html"]
+    "protected_templates"   : []
 
 
 }
