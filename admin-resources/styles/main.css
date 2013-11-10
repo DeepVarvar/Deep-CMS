@@ -255,17 +255,31 @@ h4, h5, h6 {
     opacity: 0.7;
 }
 
-a.showpopupform {
+a.showpopupform, a#deleteallimages, a#showfeatureform {
     display: block;
     position: fixed;
     z-index: 10;
     top: 0;
-    right: 0;
-    padding: 0 10px;
     height: 26px;
     line-height: 24px;
+    text-align: center;
     background: url(../images/top-line-right-item-background.png) repeat-x;
     border: solid 1px #424242;
+}
+
+a.showpopupform {
+    right: 122px;
+    width: 200px;
+}
+
+a#deleteallimages {
+    right: 0;
+    width: 120px;
+}
+
+a#showfeatureform {
+    right: 0;
+    width: 200px;
 }
 
 #popupformwrapper {
@@ -346,9 +360,16 @@ a.showpopupform {
 }
 
 #uploadprogress {
-    margin-top: 100px;
+    margin-top: 80px;
     height: 24px;
     line-height: 32px;
+    text-align: center;
+}
+
+#progressstatus {
+    line-height: 30px;
+    font-size: 15px;
+    font-weight: bold;
     text-align: center;
 }
 

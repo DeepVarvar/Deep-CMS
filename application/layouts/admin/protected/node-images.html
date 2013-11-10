@@ -8,6 +8,9 @@
 
     <script type="text/javascript" src="<?=$_config->site->admin_tools_link?>/variables.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/jquery/jquery.fileupload.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/common.js"></script>
     <script type="text/javascript" src="<?=$_config->site->admin_resources?>js/node-images.js"></script>
 
@@ -23,7 +26,10 @@
         <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/wiki/<?=$_config->application->version?>" title=" <?=view::$language->help?> ">?</a></div>
         <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
         <div class="left-item-last">&nbsp;</div>
-        <div class="right-item"><a class="showpopupform" id="showuploadform" href="#uploadnew" title=" <?=view::$language->image_upload_now?> "><?=view::$language->image_upload_now?></a></div>
+        <div class="right-item">
+            <a id="deleteallimages" href="#alldelete" title=" <?=view::$language->images_delete_all?> "><?=view::$language->images_delete_all?></a>
+            <a class="showpopupform" id="showuploadform" href="#uploadnew" title=" <?=view::$language->images_upload_now?> "><?=view::$language->images_upload_now?></a>
+        </div>
 
     </div>
 
@@ -69,6 +75,7 @@
 <div id="popupformwrapper">
 
     <div id="uploadprogress">
+        <div id="progressstatus">0%</div>
         <img alt="" src="<?=$_config->site->admin_resources?>images/progress.gif" />
     </div>
 
@@ -118,12 +125,9 @@
         </div>
 
         <div id="filewrapper">
-            <input type="file" id="uploadfile" name="uploadfile" />
+            <input type="file" id="uploadfile" name="uploadfile" multiple />
             <input type="button" value=" <?=view::$language->browse?> " />
         </div>
-
-        <input type="submit" value=" <?=view::$language->upload?> " />
-
         <div class="clear"></div>
 
     </form>

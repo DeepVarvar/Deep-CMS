@@ -11,30 +11,23 @@ $(function(){
     var attachedimageswrapper = $("#attachedimageswrapper");
     var uploadform = $("#uploadform");
     var uploadprogress = $("#uploadprogress");
+    var progressstatus = $("#progressstatus");
     var target = $("#target_node");
-    var uploadframe = $("#" + getNewUploadFrame());
+    var uploadfile = $("#uploadfile");
+    var showuploadform = $("a#showuploadform");
 
     var deleteimageconfirm = $("#innerdata").attr("data-deleteimageconfirm");
     var target_node = $("#innerdata").attr("data-target");
 
-
-    /**
-     * place images array from response
-     */
-
     function placeNodeImages(images, target_node) {
-
-
 
         var output = "", iLen = images.length;
         var linkPrefix = variables.admin_tools_link + '/node-images/';
 
         for (var i = 0; i < iLen; i++) {
 
-
             var isMaster = parseInt(images[i].is_master) > 0
                     ? ' master' : "";
-
 
             output += ' <div class="image' + isMaster + '"> ';
                 output += ' <div class="imagewrapper"> ';
@@ -59,59 +52,26 @@ $(function(){
                 output += ' </div> ';
             output += ' </div> ';
 
-
         }
 
         output += ' <div class="h-40 clear"></div> ';
         $("#attachedimageswrapper").html(output);
 
-
     }
-
-
-    /**
-     * attached node images
-     */
-
-    function getNewUploadFrame() {
-
-
-        $(".uploadframe").each(function(){
-            $(this).remove();
-            delete $(this);
-        });
-
-
-        var fname = "iframe" + (String(Math.random()).replace(".", ""));
-
-        var f = '<iframe class="uploadframe" id="' + fname + '" name="' + fname
-                    + '" frameborder="0" src="about:blank" scrolling="yes"></frame>';
-
-        $("body").append(f);
-        uploadform.attr("target", fname);
-        return fname;
-
-
-    }
-
 
     function bindAttachedImagesItems() {
 
-
         attachedimageswrapper.find(".image").each(function(){
 
-
             var item = $(this);
-
-
             if (document.location.href.indexOf("CKEditor=") >= 0) {
 
                 item.find("a.selectme").click(function(){
 
                     var imageLink = $(this).attr("href");
-
                     coverblur.show();
                     popupchooseimage.show();
+
                     popupchooseimage.find("a").off().on("click", function() {
 
                         var type = $(this).attr("data-type");
@@ -143,91 +103,59 @@ $(function(){
 
             }
 
-
             item.find("a.deleteaction").click(function(){
 
-
                 if (confirmation(deleteimageconfirm)) {
-
-
                     $.get($(this).attr("href"), function(response){
-
-
                         if (typeof response.exception != "undefined" && response.exception.type == "error") {
                             showException(response.exception);
                         } else {
-
                             placeNodeImages(response.images, target_node);
                             bindAttachedImagesItems();
-
                         }
-
-
                     });
-
-
                 }
-
 
                 return false;
 
-
             });
-
 
             item.find("a.masteraction").click(function(){
 
-
                 $.ajax({
-
                     cache: false,
                     type: "GET",
                     url: $(this).attr("href"),
                     success: function(response){
-
                         if (typeof response.exception != "undefined") {
-
                             if (response.exception.type == "success") {
-
                                 attachedimageswrapper.find(".image").removeClass("master");
                                 item.addClass("master");
-
                             } else {
                                 showException(response.exception);
                             }
-
                         }
-
                     }
-
                 });
-
 
                 return false;
 
-
             });
-
 
             item.find("a.replaceaction").click(function(){
 
                 setUploadImagesForm(target_node, "replace", $(this).attr("data-id"));
                 coverblur.show();
                 popupformwrapper.show();
-
                 return false;
 
             });
 
-
         });
-
 
     }
 
-
     function setUploadImagesForm(target, action, image_id) {
-
 
         $("#target_node").val(target);
         $("#action").val(action);
@@ -238,39 +166,30 @@ $(function(){
         if (action == "replace") {
             uploadcaption.html(language.image_replace);
         } else {
-            uploadcaption.html(language.image_upload);
+            uploadcaption.html(language.images_upload);
         }
-
 
     }
 
-
-    setUploadImagesForm(target_node, "add", "new");
-    uploadprogress.hide();
-
-    bindAttachedImagesItems();
-
-
-    $("a#showuploadform").click(function(){
+    showuploadform.click(function(){
 
         coverblur.show();
         popupformwrapper.show();
-
         setUploadImagesForm(target_node, "add", "new");
         return false;
 
     });
 
-
     uploadform.submit(function(){
+        return false;
+    });
 
+    uploadfile.fileupload({
 
-        $(this).hide();
-        uploadprogress.show();
-
-
-        uploadframe.load(function(){
-
+        url: variables.admin_tools_link + "/node-images/upload",
+        dataType: "json",
+        progressInterval: 20,
+        done: function (e, data) {
 
             $.ajax({
 
@@ -279,36 +198,59 @@ $(function(){
                 url: variables.admin_tools_link + "/node-images/view?target=" + target.val(),
                 success: function(response){
 
-
                     if (typeof response.exception != "undefined") {
                         showException(response.exception);
                     } else {
-
                         placeNodeImages(response.images, target_node);
                         popupformwrapper.hide();
                         coverblur.hide();
-
                         bindAttachedImagesItems();
-
                     }
-
-
-                    uploadframe = $("#" + getNewUploadFrame());
-                    setUploadImagesForm(target_node, "add", "new");
 
                     uploadprogress.hide();
                     uploadform.show();
-
 
                 }
 
             });
 
+        }
 
-        });
+    }).on("fileuploadstart", function (e, data) {
 
+        progressstatus.text("0%");
+        uploadprogress.show();
+        uploadform.hide();
+
+    }).on("fileuploadprogressall", function (e, data) {
+
+        var progress = parseInt(data.loaded / data.total * 100, 10);
+        progressstatus.text(progress + "%");
+
+    }).prop("disabled", !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : "disabled");
+
+    $("#deleteallimages").click(function(){
+
+        if (confirmation(language.images_delete_confirm)) {
+            var link = variables.admin_tools_link + "/node-images/delete-all?target=" + target.val() + "&_" + Math.random();
+            $.get(link, function(response) {
+                if (typeof response.exception != "undefined") {
+                    showException(response.exception);
+                } else {
+                    placeNodeImages([], target_node);
+                }
+            });
+        }
+
+        return false;
 
     });
+
+
+    setUploadImagesForm(target_node, "add", "new");
+    uploadprogress.hide();
+    bindAttachedImagesItems();
 
 
 });

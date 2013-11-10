@@ -286,6 +286,68 @@ class node_images extends baseController {
 
 
     /**
+     * delete all images of target node
+     */
+
+    public function delete_all() {
+
+
+        /**
+         * set json output context
+         * and disable changes
+         */
+
+        view::clearPublicVariables();
+        view::setOutputContext("json");
+        view::lockOutputContext();
+
+
+        /**
+         * validate referer of possible CSRF attack
+         */
+
+        request::validateReferer(
+            app::config()->site->admin_tools_link
+                . "/node-images\?target=.+", true
+        );
+
+        $this->chooseMode();
+        $targetNode = request::shiftParam("target");
+
+        if ($this->storageMode) {
+
+            $images = array_keys(
+                member::getStorageData($this->storageDataKey)
+            );
+
+            member::setStorageData($this->storageDataKey, array());
+
+        } else {
+
+            $images = db::normalizeQuery(
+                "SELECT name FROM images WHERE node_id = %u", $targetNode
+            );
+
+            if (!is_array($images)) $images = array($images);
+            db::set("DELETE FROM images WHERE node_id = %u", $targetNode);
+
+        }
+
+        foreach ($images as $image) {
+
+            @ unlink(PUBLIC_HTML . "upload/" . $image);
+            @ unlink(PUBLIC_HTML . "upload/thumb_" . $image);
+            @ unlink(PUBLIC_HTML . "upload/middle_" . $image);
+
+        }
+
+        view::assign("images", array());
+
+
+    }
+
+
+    /**
      * single image upload access point
      */
 

@@ -37,7 +37,10 @@ class variables_js extends baseController {
         $c = app::config();
         $variables = array(
             "language"         => member::getLanguage(),
-            "admin_tools_link" => $c->site->admin_tools_link
+            "admin_tools_link" => $c->site->admin_tools_link,
+            "admin_resources"  => $c->site->admin_resources,
+            "session_name"     => session_name(),
+            "session_id"       => session_id()
         );
 
 
