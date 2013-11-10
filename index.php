@@ -24,7 +24,8 @@ define("APPLICATION", PUBLIC_HTML . "application/");
 
 $bootstrap = APPLICATION . "bootstrap.php";
 if (!file_exists($bootstrap)) {
-    exit("Bootstrap file $bootstrap not found" . PHP_EOL);
+    exit("Bootstrap file $bootstrap "
+            . "not found or don't have read permission" . PHP_EOL);
 }
 
 require_once $bootstrap;
