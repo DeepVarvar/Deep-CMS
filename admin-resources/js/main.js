@@ -90,7 +90,7 @@ $(function(){
             parentAlias += '/';
         }
 
-        str = str.replace(/['"\\]+/g, "").replace(/[\s-]+/g, "-");
+        str = str.replace(/[\?'"\\]+/g, "").replace(/[\s-]+/g, "-");
         $("#pagealias").val( str ? parentAlias + str : "" );
 
     }
