@@ -99,7 +99,9 @@ if (!FAST_RUNNING) {
         "languages",
         "library",
         "logs",
+        "metadata",
         "modules",
+        "prototypes",
         "resources",
         "upload"
 
