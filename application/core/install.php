@@ -1721,6 +1721,11 @@ try {
                 $_SESSION['ins']['errors'] = true;
             }
 
+            $metadataDir = APPLICATION . "metadata";
+            if (!$checkMetadataDir = checkPath($metadataDir)) {
+                $_SESSION['ins']['errors'] = true;
+            }
+
             $modulesDir = APPLICATION . "modules";
             if (!$checkModulesDir = checkPath($modulesDir)) {
                 $_SESSION['ins']['errors'] = true;
