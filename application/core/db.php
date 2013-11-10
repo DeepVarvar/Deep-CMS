@@ -132,7 +132,7 @@ abstract class db {
      * return escaped separated string
      */
 
-    private static function escapeArray($arr) {
+    public static function escapeArray($arr) {
 
         foreach ($arr as $k => $item) {
             $arr[$k] = "'" . self::$mysqli->real_escape_string(str_replace("%", "%%", $item)) . "'";

@@ -38,16 +38,9 @@ abstract class dataHelper {
      * return children array from parent node ID
      */
 
-    public static function getNodeChildren(
-                $id, $more = array(), $limit = 0, $orderBy = null) {
+    public static function getNodeChildren($id, $more = array(), $limit = 0) {
 
-        self::validateIdMore($id, $more);
-        if (!validate::isNumber($limit)) {
-            throw new systemErrorException(
-                "Helper error", "Limit is not number"
-            );
-        }
-
+        self::validateIdMoreLimit($id, $more, $limit);
         $limit = $limit == 0 ? "" : "LIMIT {$limit}";
         $items = db::query(
 
@@ -55,6 +48,50 @@ abstract class dataHelper {
                 page_alias, node_name FROM tree
                     WHERE is_publish = 1 AND parent_id = %u
                         ORDER BY lk {$limit}", $id
+
+        );
+
+        self::joinExtendedData($items, $more);
+        return $items;
+
+    }
+
+
+    /**
+     * return full all levels chain array
+     * of children from parent node ID
+     */
+
+    public static function getChainChildren(
+                $id, $more = array(), $filter = array(), $limit = 0) {
+
+        self::validateIdMoreLimit($id, $more, $limit);
+        if (!is_array($filter)) {
+            throw new systemErrorException(
+                "Helper error", "Filter data names is not array"
+            );
+        }
+
+        foreach ($filter as $item) {
+            if (!is_string($item)) {
+                throw new systemErrorException(
+                    "Helper error", "Invalid filter data name"
+                );
+            }
+        }
+
+        $limit = $limit == 0 ? "" : "LIMIT {$limit}";
+        $filter = $filter
+            ? "t.prototype IN(" . db::escapeArray($filter) . ") AND " : "";
+
+        $items = db::query(
+
+            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                t.page_alias, t.node_name FROM tree t,
+                (SELECT lk, rk FROM tree WHERE id = %u AND is_publish = 1) tk
+                    WHERE {$filter} t.is_publish = 1
+                        AND t.lk > tk.lk AND t.rk < tk.rk
+                            ORDER BY t.lk {$limit}", $id
 
         );
 
@@ -364,6 +401,22 @@ abstract class dataHelper {
                     "Helper error", "Invalid more data name"
                 );
             }
+        }
+
+    }
+
+
+    /**
+     * validate base helper input data + limit
+     */
+
+    private static function validateIdMoreLimit($id, $more, $limit) {
+
+        self::validateIdMore($id, $more);
+        if (!validate::isNumber($limit)) {
+            throw new systemErrorException(
+                "Helper error", "Limit is not number"
+            );
         }
 
     }
