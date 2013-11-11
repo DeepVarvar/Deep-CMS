@@ -636,7 +636,7 @@ class preferences extends baseController {
          * show message for correct new language
          */
 
-        $newConfig = app::config();
+        $newConfig = app::reloadConfig();
         view::setLanguage(
             $newConfig->site->default_language
         );

@@ -243,6 +243,7 @@ abstract class view {
         } else if ($name != self::$currentLanguageName
                        and is_dir($languageDir)) {
 
+            self::$language = array();
             foreach (utils::glob($languageDir . "/*.php") as $lang) {
 
                 self::$language = array_merge(

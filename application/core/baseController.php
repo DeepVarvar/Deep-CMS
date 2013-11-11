@@ -121,50 +121,41 @@ class baseController {
 
     /**
      * this message show only after permanent redirect to same origin URL,
-     * used for reset browser POST request
+     * used for reset browser POST request,
+     * store member before redirection data
      */
 
     protected function redirectMessage($type, $title, $message, $refresh_location = null) {
 
 
-        /**
-         * store member before redirection data
-         */
-
         member::storeData();
-
-
         if (view::getOutputContext() == "html") {
-
 
             storage::write(
 
                 "__message",
                 array(
-
                     "type"    => $type,
                     "title"   => $title,
                     "message" => $message,
-
                     "refresh_location" => $refresh_location
-
                 )
 
             );
 
-
-            request::sameOriginRedirect();
-
+            if ($refresh_location) {
+                request::redirect($refresh_location);
+            } else {
+                request::sameOriginRedirect();
+            }
 
         } else {
-
 
             if ($type == SUCCESS_EXCEPTION) {
                 throw new memberSuccessException($title, $message);
             } else {
                 throw new memberErrorException($title, $message);
             }
-
 
         }
 
