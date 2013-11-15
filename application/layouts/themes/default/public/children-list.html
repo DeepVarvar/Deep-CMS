@@ -1,0 +1,24 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+    <?=$page_text?>
+    <div class="clear"></div>
+
+    <?php $options = array("more" => array("image", "page_text"));
+            foreach (dataHelper::getNodeChildren($id, $options) as $item) { ?>
+
+        <div class="listitem">
+            <img alt="<?=$item['node_name']?>" src="/upload/thumb_<?=$item['image']?>" />
+            <h3><?=$item['node_name']?></h3>
+            <p>
+                <?=helper::contentPreview($item['page_text'], 200)?>
+                <a href="<?=$item['page_alias']?>"><?=view::$language->more?></a>
+            </p>
+            <div class="clear"></div>
+        </div>
+
+    <?php } ?>
+
+
+<?php require $_config->layouts->footer; ?>

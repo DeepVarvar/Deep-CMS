@@ -16,6 +16,7 @@ return array(
     "comment_is_edited"           =>  "Комментарий успешно отредактирован",
     "comment_length_is_empty_on"  =>  "В комментарий влезет еще",
     "comment_length_is_over_on"   =>  "Лимит превышен на",
+    "comments_mod_is_disabled"    =>  "Модуль комментариев не подключен",
     "comment_name_empty"          =>  "Вы не представились",
     "comment_not_found"           =>  "Комментарий не найден",
     "comment_symbol1"             =>  "символ",

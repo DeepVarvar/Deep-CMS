@@ -15,26 +15,26 @@ class feedback extends baseController {
         $layoutName = "feedback.html";
         if (!utils::isExistsProtectedLayout($layoutName)) {
 
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Feedback error",
                     "Dependency protected layout {$layoutName} is not exists"
             );
 
         }
 
-        if (!$captchaModuleUrl = db::normalizeQuery(
+        if (!$captchaUrl = db::normalizeQuery(
             "SELECT page_alias FROM tree WHERE
-                module_name = 'captcha' AND is_publish = 1"
+                module_name = 'captcha' AND is_publish = 1 LIMIT 1"
         )) {
 
-            throw new systemErrorException(
-                "Feedback error",
-                    "Dependency module captcha is not enabled"
+            throw new memberErrorException(
+                view::$language->error,
+                    view::$language->captcha_mod_is_disabled
             );
 
         }
 
-        view::assign("captcha_module_url", $captchaModuleUrl);
+        view::assign("captcha_url", $captchaUrl);
         $this->setProtectedLayout($layoutName);
 
 

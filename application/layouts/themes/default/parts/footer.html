@@ -1,21 +1,25 @@
 
 
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="clear"></div>
         </div>
-
-        <div class="menu">
-
-            <?php foreach (dataHelper::getMenuItems(2) as $item) { ?>
-                <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
-            <?php } ?>
-
+        <div id="footer">
+            <p class="left">|
+                <a href="#top">Наверх</a> |
+                <?php foreach(dataHelper::getMenuItems(2) as $item) { ?>
+                    <a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a> |
+                <?php } ?>
+                <?=helper::getMemoryUsage()?>,
+                <?=db::sumQCount()?> sql,
+                <?=helper::getGenerationTime()?> sec.
+            </p>
+            <p class="right">Deep. &copy; 2011-<?=date("Y")?></p>
+            <div class="clear"></div>
+            <div id="counters"><?=onlineCounter::getInfo()?></div>
+            <div class="h40"></div>
         </div>
-
-        <div id="counters">
-            MySQL: <strong><?=db::sumQCount()?></strong> <?=helper::plural(db::sumQCount(), "транзакция", "транзакции", "транзакций")?>.
-            <?=view::$language->generation_time?> <?=helper::getGenerationTime()?> <?=view::$language->sec?>.
-            <?=view::$language->memory_usage?>: <?=helper::getMemoryUsage()?>.
-        </div>
-
     </div>
 
 </body>

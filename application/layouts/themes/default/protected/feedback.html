@@ -1,0 +1,74 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+
+    <script type="text/javascript">
+        if (typeof $ == "undefined") {
+            alert("Feedback module says: jQuery is required!");
+        } else {
+            $(function() {
+
+                var feedForm = $("#feedform");
+                var feedMess = feedForm.find(".messagewrapper h3");
+
+                feedMess.hide();
+                feedForm.submit(function() {
+
+                    $.post("<?=$page_alias?>/send",
+                        feedForm.serialize(), function(response) {
+
+                        feedMess.hide().html('');
+                        if (response.exception.type == "error") {
+                           feedMess.html(response.exception['message']).show(); 
+                        } else {
+                            feedForm.html(
+                                '<h3>' + response.exception.title + '</h3>'
+                                + '<p>' + response.exception['message'] + '</p>'
+                            );
+                        }
+
+                    });
+
+                    return false;
+
+                });
+
+            });
+        }
+    </script>
+    <div class="form">
+        <form id="feedform" action="/" method="post">
+            <div class="messagewrapper"><h3></h3></div>
+            <div class="longelem">
+                <input type="text" name="name" value=""
+                        placeholder="<?=view::$language->name?>" />
+            </div>
+            <div class="longelem">
+                <input type="text" name="email" value=""
+                        placeholder="E-mail" />
+            </div>
+            <div class="longelem">
+                <textarea name="message"
+                placeholder="<?=view::$language->feedback_message?>"></textarea>
+            </div>
+            <div class="label protection">
+                <img alt="protection"
+                        title=" <?=view::$language->captcha_click_for_update?> "
+                        src="<?=$captcha_url?>"
+                        onclick="this.src = '<?=$captcha_url?>?' + Math.random();" />
+            </div>
+            <div class="elem protection">
+                <input type="text" name="protection" value="" autocomplete="off"
+                        placeholder="<?=view::$language->captcha_pcode?>" />
+            </div>
+            <div class="label">&nbsp;</div>
+            <div class="elem">
+                <input class="button" type="submit"
+                        value=" <?=view::$language->send?> " />
+            </div>
+        </form>
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

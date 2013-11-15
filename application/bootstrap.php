@@ -65,7 +65,8 @@ if (!file_exists(APPLICATION . "config/main.json")) {
 
 $version = phpversion();
 if ((float) $version < 5.2) {
-    exit("Deep-CMS need php version 5.2 or later. Your php version " . $version . PHP_EOL);
+    exit("Deep-CMS need php version 5.2 or later. "
+            . "Your php version " . $version . PHP_EOL);
 }
 
 
@@ -116,7 +117,8 @@ if (!FAST_RUNNING) {
         }
 
         if (!is_writable($dir)) {
-            exit("Core dependency directory $dir don't have writable permission" . PHP_EOL);
+            exit("Core dependency directory $dir "
+                    . "don't have writable permission" . PHP_EOL);
         }
 
     }
