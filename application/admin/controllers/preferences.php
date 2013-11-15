@@ -72,20 +72,17 @@ class preferences extends baseController {
         }
 
         $c = app::config();
-        view::assign(
-            "themes",
-            utils::getAvailableThemes($c->site->theme)
-        );
+        view::assign(array(
 
-        view::assign(
-            "languages",
-            utils::getAvailableLanguages($c->site->default_language)
-        );
+            "themes"           => utils::getAvailableThemes($c->site->theme),
+            "admin_tools_link" => rawurldecode($c->site->admin_tools_link),
+            "languages"        => utils::getAvailableLanguages($c->site->default_language),
+            "cache_enabled"    => $c->system->cache_enabled,
+            "debug_mode_on"    => $c->system->debug_mode
 
-        view::assign("cache_enabled", $c->system->cache_enabled);
-        view::assign("debug_mode_on", $c->system->debug_mode);
+        ));
+
         view::assign("node_name", view::$language->preferences_global);
-
         $this->setProtectedLayout("preferences.html");
 
 
@@ -573,11 +570,12 @@ class preferences extends baseController {
          * validate admin_tools_link
          */
 
-        $adminLinkFilter = filter::input(
-            $preferences['site']['admin_tools_link']
+        $adminLink = utils::normalizeInputUrl(
+            trim((string) $preferences['site']['admin_tools_link']),
+                view::$language->admin_tools_link_invalid
         );
 
-        if (preg_match("/[^a-z0-9\/]/u", $adminLinkFilter->getData())) {
+        if (!preg_match("/^\/[^\/]/s", $adminLink)) {
 
             throw new memberErrorException(
                 view::$language->error,
@@ -586,20 +584,7 @@ class preferences extends baseController {
 
         }
 
-        $adminLinkFilter->trim("/")
-            ->expReplace(array("/\/+/", "/^([^\/])/"), array("", "/$1"));
-
-        $preferences['site']['admin_tools_link']
-            = $adminLinkFilter->getData();
-
-        if (!$preferences['site']['admin_tools_link']) {
-
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->admin_tools_link_invalid
-            );
-
-        }
+        $preferences['site']['admin_tools_link'] = $adminLink;
 
 
         /**

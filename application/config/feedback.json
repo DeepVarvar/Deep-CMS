@@ -1,0 +1,17 @@
+
+
+
+{
+
+
+    // recipient mailbox for feedback
+    "recipient"  : "mailbox@domain.tld",
+
+    // robot name (sender mailbox without AT and domain)
+    "robot_name" : "robot"
+
+
+}
+
+
+

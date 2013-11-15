@@ -251,12 +251,22 @@ class filter {
             if ($lightMode) {
 
                 $this->output[$k] = preg_replace_callback(
-                    "/.*/su", "typoGraphCallback", $item);
+                    "/.+/su", "typoGraphCallback", $item);
 
             } else {
 
+                $ex = join("|", array(
+                    "[^<>]*<strong>[^<>]+<\/strong>[^<>]*",
+                    "[^<>]*<b>[^<>]+<\/b>[^<>]*",
+                    "[^<>]*<i>[^<>]+<\/i>[^<>]*",
+                    "[^<>]*<em>[^<>]+<\/em>[^<>]*",
+                    "[^<>]+" // greedy after all expected
+                ));
+
                 $this->output[$k] = preg_replace_callback(
-                    "/>([^<>]+)</u", "hardTypoGraphCallback", $item);
+                "/(?:(?!code[^>]+)>)({$ex})(?:<(?!\/code))/u",
+                        "hardTypoGraphCallback", $item
+                );
 
             }
 
@@ -273,19 +283,12 @@ class filter {
 
     private function normalizeInnerFormat() {
 
-
         foreach ($this->output as $k => $item) {
-
-
             if (!validate::likeString($item)) {
                 $item = null;
             }
-
             $this->output[$k] = (string) $item;
-
-
         }
-
 
     }
 

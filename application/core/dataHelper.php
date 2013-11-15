@@ -10,17 +10,25 @@ abstract class dataHelper {
 
 
     /**
+     * global inner options values
+     */
+
+    private static $innerOptions = array("filter" => "", "limit" => "");
+
+
+    /**
      * return node data with ID
      */
 
-    public static function getNode($id, $more = array()) {
+    public static function getNode($id, $options = array(
+                "more" => array(), "filter" => array(), "limit" => 0)) {
 
-        self::validateIdMore($id, $more);
+        self::validateOptions($id, $options);
         $node = db::cachedQuery(
 
-            "SELECT id, parent_id, prototype, lvl, lk, rk,
-                page_alias, node_name FROM tree
-                    WHERE is_publish = 1 AND id = %u", $id
+            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                t.page_alias, t.node_name FROM tree t
+                    WHERE t.is_publish = 1 AND t.id = %u", $id
 
         );
 
@@ -28,7 +36,7 @@ abstract class dataHelper {
             throw new systemErrorException("Helper error", "Node not found");
         }
 
-        self::joinExtendedData($node, $more);
+        self::joinExtendedData($node, $options['more']);
         return $node[0];
 
     }
@@ -38,20 +46,23 @@ abstract class dataHelper {
      * return children array from parent node ID
      */
 
-    public static function getNodeChildren($id, $more = array(), $limit = 0) {
+    public static function getNodeChildren($id, $options = array(
+                "more" => array(), "filter" => array(), "limit" => 0)) {
 
-        self::validateIdMoreLimit($id, $more, $limit);
-        $limit = $limit == 0 ? "" : "LIMIT {$limit}";
+        self::validateOptions($id, $options);
+        $filter = self::$innerOptions['filter'];
+        $limit  = self::$innerOptions['limit'];
+
         $items = db::query(
 
-            "SELECT id, parent_id, prototype, lvl, lk, rk,
-                page_alias, node_name FROM tree
-                    WHERE is_publish = 1 AND parent_id = %u
-                        ORDER BY lk {$limit}", $id
+            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                t.page_alias, t.node_name FROM tree t
+                    WHERE t.is_publish = 1 {$filter} AND t.parent_id = %u
+                        ORDER BY t.lk {$limit}", $id
 
         );
 
-        self::joinExtendedData($items, $more);
+        self::joinExtendedData($items, $options['more']);
         return $items;
 
     }
@@ -62,40 +73,25 @@ abstract class dataHelper {
      * of children from parent node ID
      */
 
-    public static function getChainChildren(
-                $id, $more = array(), $filter = array(), $limit = 0) {
+    public static function getChainChildren($id, $options = array(
+                "more" => array(), "filter" => array(), "limit" => 0)) {
 
-        self::validateIdMoreLimit($id, $more, $limit);
-        if (!is_array($filter)) {
-            throw new systemErrorException(
-                "Helper error", "Filter data names is not array"
-            );
-        }
-
-        foreach ($filter as $item) {
-            if (!is_string($item)) {
-                throw new systemErrorException(
-                    "Helper error", "Invalid filter data name"
-                );
-            }
-        }
-
-        $limit = $limit == 0 ? "" : "LIMIT {$limit}";
-        $filter = $filter
-            ? "t.prototype IN(" . db::escapeArray($filter) . ") AND " : "";
+        self::validateOptions($id, $options);
+        $filter = self::$innerOptions['filter'];
+        $limit  = self::$innerOptions['limit'];
 
         $items = db::query(
 
             "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM tree t,
                 (SELECT lk, rk FROM tree WHERE id = %u AND is_publish = 1) tk
-                    WHERE {$filter} t.is_publish = 1
+                    WHERE t.is_publish = 1 {$filter}
                         AND t.lk > tk.lk AND t.rk < tk.rk
                             ORDER BY t.lk {$limit}", $id
 
         );
 
-        self::joinExtendedData($items, $more);
+        self::joinExtendedData($items, $options['more']);
         return $items;
 
     }
@@ -105,20 +101,24 @@ abstract class dataHelper {
      * return menu items array from menu ID
      */
 
-    public static function getMenuItems($id, $more = array()) {
+    public static function getMenuItems($id, $options = array(
+                "more" => array(), "filter" => array(), "limit" => 0)) {
 
-        self::validateIdMore($id, $more);
+        self::validateOptions($id, $options);
+        $filter = self::$innerOptions['filter'];
+        $limit  = self::$innerOptions['limit'];
+
         $items = db::cachedQuery(
 
             "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM menu_items mi
                     JOIN tree t ON t.id = mi.node_id
-                        WHERE t.is_publish = 1 AND mi.menu_id = %u
-                            ORDER BY t.lk ASC", $id
+                        WHERE t.is_publish = 1 {$filter} AND mi.menu_id = %u
+                            ORDER BY t.lk ASC {$limit}", $id
 
         );
 
-        self::joinExtendedData($items, $more);
+        self::joinExtendedData($items, $options['more']);
         return $items;
 
     }
@@ -178,6 +178,12 @@ abstract class dataHelper {
      */
 
     public static function getBreadcrumbs($nodeID, $showHome = false) {
+
+        if (!validate::isNumber($nodeID)) {
+            throw new systemErrorException(
+                "Helper error", "Node ID is not number"
+            );
+        }
 
         return db::query(
 
@@ -378,45 +384,76 @@ abstract class dataHelper {
 
 
     /**
-     * validate base helper input data
+     * validate helper input data
      */
 
-    private static function validateIdMore($id, $more) {
+    private static function validateOptions($id, & $options) {
 
         if (!validate::isNumber($id)) {
             throw new systemErrorException(
-                "Helper error", "Menu ID is not number"
+                "Helper error", "Target ID is not number"
             );
         }
 
-        if (!is_array($more)) {
+        if (!is_array($options)) {
             throw new systemErrorException(
-                "Helper error", "More data names is not array"
+                "Helper error", "Options is not array"
             );
         }
 
-        foreach ($more as $item) {
-            if (!is_string($item)) {
+        if (array_key_exists("more", $options)) {
+            self::validateArrayedOption("more", $options['more']);
+        } else {
+            $options['more'] = array();
+        }
+
+        if (array_key_exists("filter", $options)) {
+            self::validateArrayedOption("filter", $options['filter']);
+        } else {
+            $options['filter'] = array();
+        }
+
+        if ($options['filter']) {
+            $filter = db::escapeArray($options['filter']);
+            self::$innerOptions['filter'] = " AND t.prototype IN({$filter}) ";
+        } else {
+            self::$innerOptions['filter'] = "";
+        }
+
+        if (array_key_exists("limit", $options)) {
+            if (!validate::isNumber($options['limit'])) {
                 throw new systemErrorException(
-                    "Helper error", "Invalid more data name"
+                    "Helper error", "Limit option is not number"
                 );
             }
+        } else {
+            $options['limit'] = 0;
         }
+
+        self::$innerOptions['limit'] = $options['limit'] == 0
+                ? "" : "LIMIT {$options['limit']}";
 
     }
 
 
     /**
-     * validate base helper input data + limit
+     * validate single arrayed option
      */
 
-    private static function validateIdMoreLimit($id, $more, $limit) {
+    private static function validateArrayedOption($key, $option) {
 
-        self::validateIdMore($id, $more);
-        if (!validate::isNumber($limit)) {
+        if (!is_array($option)) {
             throw new systemErrorException(
-                "Helper error", "Limit is not number"
+                "Helper error", "{$key} option is not array"
             );
+        }
+
+        foreach ($option as $value) {
+            if (!is_string($value)) {
+                throw new systemErrorException(
+                    "Helper error", "{$key} option value is not string"
+                );
+            }
         }
 
     }
@@ -437,6 +474,10 @@ abstract class dataHelper {
                     ORDER BY is_master DESC, id ASC", join(",", $IDs)
 
         );
+
+        if (!$images) {
+            return array();
+        }
 
         if ($multi) {
 

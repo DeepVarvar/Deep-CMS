@@ -40,7 +40,6 @@ class sitemap extends baseController {
 
         ));
 
-        view::assign("node_name", view::$language->sitemap);
         $this->setProtectedLayout($layoutName);
 
 

@@ -836,7 +836,8 @@ abstract class view {
         $requiredVariables = array(
 
             "last_modified"      => db::normalizeQuery("SELECT NOW()"),
-            "layout"             => self::getCurrentLayout(),
+            "layout"             => self::$layout,
+            "id"                 => 0,
             "node_name"          => "[This page is not a node]",
             "page_text"          => "",
             "page_h1"            => "",

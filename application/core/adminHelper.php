@@ -48,6 +48,11 @@ abstract class adminHelper {
             array(
                 "name" => "groups",
                 "link" => "/groups"
+            ),
+
+            array(
+                "name" => "comments",
+                "link" => "/manage-comments"
             )
 
         );

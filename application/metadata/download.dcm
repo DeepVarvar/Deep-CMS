@@ -1,0 +1,68 @@
+
+
+
+{
+
+
+    /**
+     * general information of component,
+     * type and system name of component
+     */
+
+    "type"        : "module",
+    "system_name" : "download",
+
+
+    /**
+     * version, author, email, url
+     * and support information of component
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+
+
+    /**
+     * general location of component
+     * on filesystem
+     */
+
+    "main_dir"   : "modules/download",
+    "main_files" : [
+        "modules/download/download.php"
+    ],
+
+
+    /**
+     * component resource directory
+     * and resource files
+     */
+
+    "resource_dir"   : "resources/downloads/",
+    "resource_files" : [],
+
+
+    /**
+     * language file of component
+     */
+
+    "language_files" : ["download.php"],
+
+
+    /**
+     * all available templates of component
+     */
+
+    "admin_parts_templates" : [],
+    "admin_templates"       : [],
+    "parts_templates"       : [],
+    "public_templates"      : [],
+    "protected_templates"   : []
+
+
+}
+
+
+

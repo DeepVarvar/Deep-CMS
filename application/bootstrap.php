@@ -240,18 +240,18 @@ try {
 
 
     /**
-     * before autorun actions
-     */
-
-    autorun::runBefore();
-
-
-    /**
      * set timezone on database connention
      */
 
     $timezone = member::getTimezone();
     db::set("SET time_zone = '{$timezone}'");
+
+
+    /**
+     * before autorun actions
+     */
+
+    autorun::runBefore();
 
 
     /**

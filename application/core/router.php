@@ -67,7 +67,7 @@ abstract class router {
          */
 
         $adminLink = preg_quote($config->site->admin_tools_link, "/");
-        if (preg_match("/^{$adminLink}/", $requestURI)) {
+        if (preg_match("/^{$adminLink}(\/.+)?$/s", $requestURI)) {
             self::$adminMode = true;
         }
 

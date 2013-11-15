@@ -13,19 +13,15 @@ class sitemap_xml extends baseController {
 
 
         /**
-         * set unlimited working time
-         */
-
-        @ set_time_limit(0);
-        @ ignore_user_abort();
-
-
-        /**
+         * set unlimited working time,
          * attempt to set highly memory limit for generation long file
          * 512 megabytes is more for over 60000 url-items
          */
 
+        @ set_time_limit(0);
+        @ ignore_user_abort();
         @ ini_set("memory_limit", "512M");
+
 
         /**
          * clear before added public variables,
@@ -49,21 +45,14 @@ class sitemap_xml extends baseController {
          */
 
         $config  = app::config();
-        $sitemap = db::query("
+        $sitemap = db::query(
 
-            SELECT
-
-                CONCAT('', '%s', page_alias) loc,
+            "SELECT CONCAT('%s', page_alias) loc,
                 DATE_FORMAT(last_modified,'%%Y-%%m-%%d') lastmod,
                 change_freq changefreq,
-                ROUND(searchers_priority,1) priority
-
-            FROM tree
-
-            WHERE is_publish = 1
-                AND page_alias NOT LIKE '%%http://%%'
-
-            ", $config->site->protocol . "://" . $config->site->domain
+                ROUND(searchers_priority,1) priority FROM tree
+                WHERE in_sitemap_xml = 1 AND is_publish = 1",
+                $config->site->protocol . "://" . $config->site->domain
 
         );
 
@@ -80,30 +69,22 @@ class sitemap_xml extends baseController {
 
                 "name"       => "urlset",
                 "attributes" => array(
-
                     array(
                         "name"  => "xmlns",
                         "value" => "http://www.sitemaps.org/schemas/sitemap/0.9"
                     )
-
                 ),
 
                 "children" => array(
-
                     array(
-
                         "name"     => "url",
                         "children" => array(
-
                             array("name" => "lastmod"),
                             array("name" => "changefreq"),
                             array("name" => "loc"),
                             array("name" => "priority")
-
                         )
-
                     )
-
                 )
 
             )

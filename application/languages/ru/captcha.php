@@ -7,7 +7,13 @@
  */
 
 return array(
-    "captcha"  =>  "Капча"
+
+    "captcha"                   =>  "Капча",
+    "captcha_click_for_update"  =>  "Кликни чтобы обновить",
+    "captcha_pcode"             =>  "Защитный код",
+    "captcha_pcode_is_empty"    =>  "Вы не ввели защитный код",
+    "captcha_pcode_invalid"     =>  "Неверный защитный код"
+
 );
 
 

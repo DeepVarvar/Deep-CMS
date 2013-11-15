@@ -3,7 +3,7 @@
 
 
 /**
- * simple search module
+ * search module
  */
 
 class search extends baseController {
@@ -53,7 +53,6 @@ class search extends baseController {
         $searchwords = $searchwords->expReplace(
             array("/\++/", "/\s+/"), array(" ", " "))->getData();
 
-
         $searchPartsSource = explode(" ", $searchwords);
         $searchParts = array();
 
@@ -67,9 +66,13 @@ class search extends baseController {
             $searchParts, 0, $this->maxSearWordsLength
         );
 
-
         if ($searchParts) {
 
+            if (sizeof($searchParts) > 1) {
+                $searchParts = array_merge(
+                    array(join(" ", $searchParts)), $searchParts
+                );
+            }
 
             $searchedFields = array();
             foreach (utils::getAvailableProtoTypes() as $item) {
@@ -97,12 +100,22 @@ class search extends baseController {
 
             }
 
+            $queryPrefix = "";
+            if (sizeof($searchCondition) > 1) {
+
+                $firstCondition = array_shift($searchCondition);
+                $queryPrefix = "SELECT id, parent_id, prototype, lvl, lk, rk,
+                    page_alias, node_name FROM tree WHERE ({$firstCondition})
+                        AND is_publish = 1 GROUP BY id UNION DISTINCT";
+
+            }
+
             $searchCondition = join(" OR ", $searchCondition);
             $searchQuery     = db::buildQueryString(
 
-                "SELECT DISTINCT id, parent_id, prototype,
-                    lvl, lk, rk, page_alias, node_name FROM tree
-                        WHERE ({$searchCondition}) AND is_publish = 1"
+                "{$queryPrefix} SELECT id, parent_id, prototype, lvl, lk, rk,
+                    page_alias, node_name FROM tree WHERE ({$searchCondition})
+                        AND is_publish = 1 GROUP BY id"
 
             );
 
@@ -122,18 +135,14 @@ class search extends baseController {
                 $searchResult, array("image", "page_text")
             );
 
-
         } else {
             $searchResult = array();
             $pages = array();
         }
 
-
         view::assign("pages", $pages);
         view::assign("search_result", $searchResult);
         view::assign("searchwords",   $searchwords);
-
-        view::assign("node_name", view::$language->search_of_site);
         $this->setProtectedLayout($layoutName);
 
 

@@ -556,6 +556,7 @@ function getInstallationQueryString($prefix = "") {
             is_publish          TINYINT(1)  NOT NULL,
             node_name           MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
             in_sitemap          TINYINT(1)  NOT NULL,
+            in_sitemap_xml      TINYINT(1)  NOT NULL,
 
             layout              CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
             page_alias          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,

@@ -1,0 +1,35 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+    <form action="<?=$_config->site->admin_tools_link?>/manage-comments/edit?id=<?=$comment['id']?>" method="post">
+        <div class="form">
+
+            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem">&nbsp;</div>
+
+			<?php if ($comment['author_id'] === null) { ?>
+
+            <div class="label mt-20"><?=view::$language->name?>:</div>
+            <div class="elem mt-20"><input type="text" name="author_name" value="<?=$comment['author_name']?>" /></div>
+
+			<?php } ?>
+
+            <div class="label mt-20"><?=view::$language->comment?>:</div>
+            <div class="elem mt-20"><textarea rows="4" name="comment_text"><?=$comment['comment_text']?></textarea></div>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
+            <div class="label">&nbsp;</div>
+            <div class="elem">
+                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
+                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
+            </div>
+
+            <div class="clear"></div>
+        </div>
+    </form>
+
+
+<?php require $_config->layouts->footer; ?>
