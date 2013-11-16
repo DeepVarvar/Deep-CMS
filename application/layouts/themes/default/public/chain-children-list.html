@@ -9,8 +9,9 @@
 
             $options = array(
                 "more" => array("id", "image", "page_text"),
-                "sort" => array("id" => "asc", "node_name" => "desc"),
-                "limit" => 4
+                "sort" => array("id" => "desc"),
+                "limit" => 4,
+                "pages" => true
             );
 
             foreach (dataHelper::getChainChildren($id, $options) as $item) { ?>
@@ -27,6 +28,13 @@
         </div>
 
     <?php } ?>
+
+    <div class="pages">
+        <?php foreach (dataHelper::getPages() as $item) { ?>
+            <a<?=$item['current']?' class="current"':''?>
+                href="<?=helper::changeOriginURL(array("page" => $item['number']))?>"><?=$item['number']?></a>
+        <?php } ?>
+    </div>
 
 
 <?php require $_config->layouts->footer; ?>

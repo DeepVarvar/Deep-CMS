@@ -10,12 +10,28 @@ abstract class dataHelper {
 
 
     /**
-     * global inner data
+     * inner pages data data
+     */
+
+    private static $pages           = array();
+    private static $number_of_items = 0;
+    private static $number_of_pages = 1;
+    private static $current_page    = 1;
+
+
+    /**
+     * inner global data
      */
 
     private static $expectedSortKeys = null;
-    private static $innerOptions = array(
-        "filter" => "", "sort" => "lk ASC", "limit" => ""
+    private static $perPageLimit     = 10;
+    private static $innerOptions     = array(
+
+        "filter" => "",
+        "sort"   => "lk ASC",
+        "limit"  => "",
+        "pages"  => false
+
     );
 
 
@@ -55,14 +71,17 @@ abstract class dataHelper {
         $sort   = self::$innerOptions['sort'];
         $limit  = self::$innerOptions['limit'];
 
-        $items = db::query(
+        $sourceQuery = db::buildQuery(array(
 
             "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM tree t
                     WHERE t.is_publish = 1 {$filter} AND t.parent_id = %u
                         ORDER BY {$sort} {$limit}", $id
 
-        );
+        ));
+
+        $items = self::$innerOptions['pages']
+            ? self::splitItems($sourceQuery) : db::query($sourceQuery);
 
         self::joinExtendedData($items, $options['more']);
         return $items;
@@ -82,7 +101,7 @@ abstract class dataHelper {
         $sort   = self::$innerOptions['sort'];
         $limit  = self::$innerOptions['limit'];
 
-        $items = db::query(
+        $sourceQuery = db::buildQuery(array(
 
             "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM tree t,
@@ -91,7 +110,10 @@ abstract class dataHelper {
                         AND t.lk > tk.lk AND t.rk < tk.rk
                             ORDER BY {$sort} {$limit}", $id
 
-        );
+        ));
+
+        $items = self::$innerOptions['pages']
+            ? self::splitItems($sourceQuery) : db::query($sourceQuery);
 
         self::joinExtendedData($items, $options['more']);
         return $items;
@@ -110,7 +132,7 @@ abstract class dataHelper {
         $sort   = self::$innerOptions['sort'];
         $limit  = self::$innerOptions['limit'];
 
-        $items = db::cachedQuery(
+        $sourceQuery = db::buildQuery(array(
 
             "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM menu_items mi
@@ -118,7 +140,10 @@ abstract class dataHelper {
                         WHERE t.is_publish = 1 {$filter} AND mi.menu_id = %u
                             ORDER BY {$sort} {$limit}", $id
 
-        );
+        ));
+
+        $items = self::$innerOptions['pages']
+            ? self::splitItems($sourceQuery) : db::cachedQuery($sourceQuery);
 
         self::joinExtendedData($items, $options['more']);
         return $items;
@@ -463,6 +488,12 @@ abstract class dataHelper {
 
         }
 
+        // pages
+        if (array_key_exists("pages", $options)) {
+            self::$innerOptions['pages'] = !!($options['pages']);
+
+        }
+
         // limit
         if (array_key_exists("limit", $options)) {
 
@@ -472,8 +503,12 @@ abstract class dataHelper {
                 );
             }
 
-            self::$innerOptions['limit'] = $options['limit'] == 0
+            if (!self::$innerOptions['pages']) {
+                self::$innerOptions['limit'] = $options['limit'] == 0
                     ? "" : "LIMIT {$options['limit']}";
+            } else if ($options['limit'] > 0) {
+                self::$perPageLimit = $options['limit'];
+            }
 
         }
 
@@ -575,6 +610,32 @@ abstract class dataHelper {
 
 
     /**
+     * split items to pages,
+     * assign pagination data into view
+     */
+
+    private static function splitItems($sourceQuery) {
+
+        self::$innerOptions['pages'] = false;
+        $paginator = new paginator($sourceQuery);
+        $paginator =
+
+            $paginator->setCurrentPage(request::getCurrentPage())
+                ->setItemsPerPage(self::$perPageLimit)
+                ->setSliceSizeByPages(10)
+                ->getResult();
+
+        self::$pages           = $paginator['pages'];
+        self::$number_of_items = $paginator['number_of_items'];
+        self::$number_of_pages = $paginator['number_of_pages'];
+        self::$current_page    = $paginator['current_page'];
+
+        return $paginator['items'];
+
+    }
+
+
+    /**
      * save all expected keys (fields) for sort
      */
 
@@ -585,6 +646,27 @@ abstract class dataHelper {
             array_push(self::$expectedSortKeys, $item['Field']);
         }
 
+    }
+
+
+    /**
+     * inner pages data getters
+     */
+
+    public static function getPages() {
+        return self::$pages;
+    }
+
+    public static function getNumberOfItems() {
+        return self::$number_of_items;
+    }
+
+    public static function getNumberOfPages() {
+        return self::$number_of_pages;
+    }
+
+    public static function getCurrentPage() {
+        return self::$current_page;
     }
 
 

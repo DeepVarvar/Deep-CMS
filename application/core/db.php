@@ -147,7 +147,7 @@ abstract class db {
      * method returned escaped and parsed query string
      */
 
-    private static function buildQuery() {
+    public static function buildQuery() {
 
 
         /**

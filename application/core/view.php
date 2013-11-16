@@ -843,7 +843,12 @@ abstract class view {
             "page_h1"            => "",
             "page_title"         => "",
             "meta_description"   => $config->site->default_description,
-            "meta_keywords"      => $config->site->default_keywords
+            "meta_keywords"      => $config->site->default_keywords,
+
+            "pages"              => array(),
+            "number_of_items"    => 0,
+            "number_of_pages"    => 1,
+            "current_page"       => 1
 
         );
 
