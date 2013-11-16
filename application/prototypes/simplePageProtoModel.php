@@ -14,6 +14,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         "in_sitemap"         => 0,
         "in_sitemap_xml"     => 1,
+        "in_search"          => 1,
         "page_alias"         => "",
         "permanent_redirect" => "",
         "layout"             => "",
@@ -41,6 +42,13 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function in_sitemap_xmlGetData( & $f) {
         $f['type'] = "hidden";
+    }
+
+    protected function in_searchGetData( & $f) {
+
+        $f['description'] = view::$language->show_in_search;
+        $f['type']        = "checkbox";
+
     }
 
     protected function layoutGetData( & $f) {
@@ -145,6 +153,10 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
     protected function in_sitemap_xmlPrepare( & $data) {
         $data = 1;
+    }
+
+    protected function in_searchPrepare( & $data) {
+        $data = !$data ? 0 : 1;
     }
 
     protected function page_aliasPrepare( & $data) {

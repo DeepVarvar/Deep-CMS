@@ -232,6 +232,7 @@ return array(
     "show_in_menu"                        =>  "Показывать в меню",
     "show_in_sitemap"                     =>  "Показывать в карте сайта",
     "show_in_sitemap_xml"                 =>  "Показывать в карте сайта XML",
+    "show_in_search"                      =>  "Индексировать в поиск",
     "show_it"                             =>  "показать",
     "show_order"                          =>  "порядок вывода",
     "sign_in"                             =>  "Войти",

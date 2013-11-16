@@ -10,18 +10,20 @@ abstract class dataHelper {
 
 
     /**
-     * global inner options values
+     * global inner data
      */
 
-    private static $innerOptions = array("filter" => "", "limit" => "");
+    private static $expectedSortKeys = null;
+    private static $innerOptions = array(
+        "filter" => "", "sort" => "lk ASC", "limit" => ""
+    );
 
 
     /**
      * return node data with ID
      */
 
-    public static function getNode($id, $options = array(
-                "more" => array(), "filter" => array(), "limit" => 0)) {
+    public static function getNode($id, $options = array()) {
 
         self::validateOptions($id, $options);
         $node = db::cachedQuery(
@@ -33,7 +35,7 @@ abstract class dataHelper {
         );
 
         if (!$node) {
-            throw new systemErrorException("Helper error", "Node not found");
+            throw new memberErrorException("Helper error", "Node not found");
         }
 
         self::joinExtendedData($node, $options['more']);
@@ -46,11 +48,11 @@ abstract class dataHelper {
      * return children array from parent node ID
      */
 
-    public static function getNodeChildren($id, $options = array(
-                "more" => array(), "filter" => array(), "limit" => 0)) {
+    public static function getNodeChildren($id, $options = array()) {
 
         self::validateOptions($id, $options);
         $filter = self::$innerOptions['filter'];
+        $sort   = self::$innerOptions['sort'];
         $limit  = self::$innerOptions['limit'];
 
         $items = db::query(
@@ -58,7 +60,7 @@ abstract class dataHelper {
             "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
                 t.page_alias, t.node_name FROM tree t
                     WHERE t.is_publish = 1 {$filter} AND t.parent_id = %u
-                        ORDER BY t.lk {$limit}", $id
+                        ORDER BY {$sort} {$limit}", $id
 
         );
 
@@ -73,11 +75,11 @@ abstract class dataHelper {
      * of children from parent node ID
      */
 
-    public static function getChainChildren($id, $options = array(
-                "more" => array(), "filter" => array(), "limit" => 0)) {
+    public static function getChainChildren($id, $options = array()) {
 
         self::validateOptions($id, $options);
         $filter = self::$innerOptions['filter'];
+        $sort   = self::$innerOptions['sort'];
         $limit  = self::$innerOptions['limit'];
 
         $items = db::query(
@@ -87,7 +89,7 @@ abstract class dataHelper {
                 (SELECT lk, rk FROM tree WHERE id = %u AND is_publish = 1) tk
                     WHERE t.is_publish = 1 {$filter}
                         AND t.lk > tk.lk AND t.rk < tk.rk
-                            ORDER BY t.lk {$limit}", $id
+                            ORDER BY {$sort} {$limit}", $id
 
         );
 
@@ -101,11 +103,11 @@ abstract class dataHelper {
      * return menu items array from menu ID
      */
 
-    public static function getMenuItems($id, $options = array(
-                "more" => array(), "filter" => array(), "limit" => 0)) {
+    public static function getMenuItems($id, $options = array()) {
 
         self::validateOptions($id, $options);
         $filter = self::$innerOptions['filter'];
+        $sort   = self::$innerOptions['sort'];
         $limit  = self::$innerOptions['limit'];
 
         $items = db::cachedQuery(
@@ -114,7 +116,7 @@ abstract class dataHelper {
                 t.page_alias, t.node_name FROM menu_items mi
                     JOIN tree t ON t.id = mi.node_id
                         WHERE t.is_publish = 1 {$filter} AND mi.menu_id = %u
-                            ORDER BY t.lk ASC {$limit}", $id
+                            ORDER BY {$sort} {$limit}", $id
 
         );
 
@@ -131,7 +133,7 @@ abstract class dataHelper {
     public static function getAttachedImages($nodeID) {
 
         if (!validate::isNumber($nodeID)) {
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Helper error", "Node ID is not number"
             );
         }
@@ -153,7 +155,7 @@ abstract class dataHelper {
     public static function getNodeFeatures($nodeID) {
 
         if (!validate::isNumber($nodeID)) {
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Helper error", "Node ID is not number"
             );
         }
@@ -180,7 +182,7 @@ abstract class dataHelper {
     public static function getBreadcrumbs($nodeID, $showHome = false) {
 
         if (!validate::isNumber($nodeID)) {
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Helper error", "Node ID is not number"
             );
         }
@@ -390,23 +392,25 @@ abstract class dataHelper {
     private static function validateOptions($id, & $options) {
 
         if (!validate::isNumber($id)) {
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Helper error", "Target ID is not number"
             );
         }
 
         if (!is_array($options)) {
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Helper error", "Options is not array"
             );
         }
 
+        // more
         if (array_key_exists("more", $options)) {
             self::validateArrayedOption("more", $options['more']);
         } else {
             $options['more'] = array();
         }
 
+        // filter
         if (array_key_exists("filter", $options)) {
             self::validateArrayedOption("filter", $options['filter']);
         } else {
@@ -416,22 +420,62 @@ abstract class dataHelper {
         if ($options['filter']) {
             $filter = db::escapeArray($options['filter']);
             self::$innerOptions['filter'] = " AND t.prototype IN({$filter}) ";
-        } else {
-            self::$innerOptions['filter'] = "";
         }
 
+        // sort
+        if (array_key_exists("sort", $options)) {
+            self::validateArrayedOption("sort", $options['sort']);
+        } else {
+            $options['sort'] = array();
+        }
+
+        if ($options['sort']) {
+
+            $sortValues = array_values($options['sort']);
+            $sortKeys   = array_keys($options['sort']);
+
+            if (sizeof($sortKeys) != sizeof($sortValues)) {
+                throw new memberErrorException(
+                    "Helper error", "Broken sort options format"
+                );
+            }
+
+            foreach ($sortValues as $k => $v) {
+                $sortValues[$k] = preg_match("/^desc$/i", $v) ? "DESC" : "ASC";
+            }
+
+            if (self::$expectedSortKeys === null) {
+                self::getExpectedSortKeys();
+            }
+
+            $preparedKeys = array();
+            foreach ($sortKeys as $k => $key) {
+                if (in_array($key, self::$expectedSortKeys)) {
+                    $preKey = "t." . $key . (preg_match("/^desc$/i",
+                                    $sortValues[$k]) ? " DESC" : " ASC");
+                    array_push($preparedKeys, $preKey);
+                }
+            }
+
+            if ($preparedKeys) {
+                self::$innerOptions['sort'] = join(",", $preparedKeys);
+            }
+
+        }
+
+        // limit
         if (array_key_exists("limit", $options)) {
+
             if (!validate::isNumber($options['limit'])) {
-                throw new systemErrorException(
+                throw new memberErrorException(
                     "Helper error", "Limit option is not number"
                 );
             }
-        } else {
-            $options['limit'] = 0;
-        }
 
-        self::$innerOptions['limit'] = $options['limit'] == 0
-                ? "" : "LIMIT {$options['limit']}";
+            self::$innerOptions['limit'] = $options['limit'] == 0
+                    ? "" : "LIMIT {$options['limit']}";
+
+        }
 
     }
 
@@ -443,14 +487,14 @@ abstract class dataHelper {
     private static function validateArrayedOption($key, $option) {
 
         if (!is_array($option)) {
-            throw new systemErrorException(
+            throw new memberErrorException(
                 "Helper error", "{$key} option is not array"
             );
         }
 
         foreach ($option as $value) {
             if (!is_string($value)) {
-                throw new systemErrorException(
+                throw new memberErrorException(
                     "Helper error", "{$key} option value is not string"
                 );
             }
@@ -526,6 +570,20 @@ abstract class dataHelper {
                             ORDER BY tf.feature_id ASC", join(",", $IDs)
 
         );
+
+    }
+
+
+    /**
+     * save all expected keys (fields) for sort
+     */
+
+    private static function getExpectedSortKeys() {
+
+        self::$expectedSortKeys = array();
+        foreach (db::query("SHOW COLUMNS FROM tree") as $item) {
+            array_push(self::$expectedSortKeys, $item['Field']);
+        }
 
     }
 

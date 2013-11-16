@@ -14,6 +14,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
         "in_sitemap"         => 0,
         "in_sitemap_xml"     => 1,
+        "in_search"          => 0,
         "page_alias"         => "",
         "module_name"        => ""
 
@@ -35,6 +36,13 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
         $f['description'] = view::$language->show_in_sitemap_xml;
         $f['type']        = "checkbox";
+
+    }
+
+    protected function in_searchGetData( & $f) {
+
+        $f['description'] = view::$language->show_in_search;
+        $f['type']        = "hidden";
 
     }
 
@@ -85,6 +93,10 @@ class mainModuleProtoModel extends baseProtoTypeModel {
 
     protected function in_sitemap_xmlPrepare( & $data) {
         $data = !$data ? 0 : 1;
+    }
+
+    protected function in_searchPrepare( & $data) {
+        $data = 0;
     }
 
     protected function page_aliasPrepare( & $data) {

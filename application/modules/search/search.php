@@ -105,8 +105,9 @@ class search extends baseController {
 
                 $firstCondition = array_shift($searchCondition);
                 $queryPrefix = "SELECT id, parent_id, prototype, lvl, lk, rk,
-                    page_alias, node_name FROM tree WHERE ({$firstCondition})
-                        AND is_publish = 1 GROUP BY id UNION DISTINCT";
+                    page_alias, node_name FROM tree WHERE in_search = 1
+                        AND ({$firstCondition}) AND is_publish = 1
+                            GROUP BY id UNION DISTINCT";
 
             }
 
@@ -114,8 +115,8 @@ class search extends baseController {
             $searchQuery     = db::buildQueryString(
 
                 "{$queryPrefix} SELECT id, parent_id, prototype, lvl, lk, rk,
-                    page_alias, node_name FROM tree WHERE ({$searchCondition})
-                        AND is_publish = 1 GROUP BY id"
+                    page_alias, node_name FROM tree WHERE in_search = 1
+                        AND ({$searchCondition}) AND is_publish = 1 GROUP BY id"
 
             );
 

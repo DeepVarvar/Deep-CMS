@@ -14,6 +14,7 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
 
         "in_sitemap"         => 0,
         "in_sitemap_xml"     => 1,
+        "in_search"          => 0,
         "page_alias"         => ""
 
     );
@@ -33,6 +34,13 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
     protected function in_sitemap_xmlGetData( & $f) {
 
         $f['description'] = view::$language->show_in_sitemap_xml;
+        $f['type']        = "checkbox";
+
+    }
+
+    protected function in_searchGetData( & $f) {
+
+        $f['description'] = view::$language->show_in_search;
         $f['type']        = "checkbox";
 
     }
@@ -58,6 +66,10 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
     }
 
     protected function in_sitemap_xmlPrepare( & $data) {
+        $data = !$data ? 0 : 1;
+    }
+
+    protected function in_searchPrepare( & $data) {
         $data = !$data ? 0 : 1;
     }
 
