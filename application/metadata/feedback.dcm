@@ -42,7 +42,7 @@
      */
 
     "resource_dir"   : false,
-    "resource_files" : [],
+    "resource_files" : ["application/resources/phpmailer/feedback.html"],
 
 
     /**

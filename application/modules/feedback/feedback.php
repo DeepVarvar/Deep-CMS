@@ -106,7 +106,7 @@ class feedback extends baseController {
             );
         }
 
-        //storage::shift("captcha");
+        storage::shift("captcha");
         $feedCnf = app::loadConfig("feedback.json");
         $mainCnf = app::config();
 
