@@ -1,0 +1,78 @@
+
+
+
+{
+
+
+    /**
+     * general information of component,
+     * type and system name of component
+     */
+
+    "type"        : "module",
+    "system_name" : "rss_xml",
+
+
+    /**
+     * version, author, email, url
+     * and support information of component
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+
+
+    /**
+     * dependency of component
+     */
+
+    "dependency_components": [],
+
+
+    /**
+     * general location of component
+     * on filesystem
+     */
+
+    "main_dir"   : "modules/rss_xml",
+    "main_files" : [
+        "modules/rss_xml/rss_xml.php",
+        "config/rss_xml.json"
+    ],
+
+
+    /**
+     * component resource directory
+     * and resource files
+     */
+
+    "resource_dir"   : false,
+    "resource_files" : [],
+
+
+    /**
+     * language file of component
+     */
+
+    "language_files" : [
+        "rss_xml.php"
+    ],
+
+
+    /**
+     * all available templates of component
+     */
+
+    "admin_parts_templates" : [],
+    "admin_templates"       : [],
+    "parts_templates"       : [],
+    "public_templates"      : [],
+    "protected_templates"   : []
+
+
+}
+
+
+
