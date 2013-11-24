@@ -725,7 +725,8 @@ function getExtendedQueryString($prefix = "") {
         (11, 0, 1, 17, 18, 'mainModule', 'simplePage', 0, 0, '2013-11-15 23:22:50', '2013-11-10 13:14:21', 1, 'Поиск по сайту', 0, 0, 0, NULL, '/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE-%D1%81%D0%B0%D0%B9%D1%82%D1%83', NULL, NULL, NULL, 'search', NULL, NULL, NULL, NULL, NULL),
         (14, 0, 1, 19, 20, 'mainModule', 'simplePage', 0, 0, '2013-11-15 23:08:49', '2013-11-15 23:08:39', 1, 'Обратная связь', 0, 0, 0, NULL, '/%D0%9E%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%B0%D1%8F-%D1%81%D0%B2%D1%8F%D0%B7%D1%8C', NULL, NULL, NULL, 'feedback', NULL, NULL, NULL, NULL, NULL),
         (15, 0, 1, 25, 26, 'mainModule', 'simplePage', 0, 0, '2013-11-15 23:24:23', '2013-11-15 23:12:05', 1, 'Капча', 0, 0, 0, NULL, '/%D0%9A%D0%B0%D0%BF%D1%87%D0%B0', NULL, NULL, NULL, 'captcha', NULL, NULL, NULL, NULL, NULL),
-        (16, 0, 1, 27, 28, 'mainModule', 'simplePage', 0, 0, '2013-11-15 23:24:37', '2013-11-15 23:14:12', 1, 'Комментарии', 0, 0, 0, NULL, '/%D0%9A%D0%BE%D0%BC%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%80%D0%B8%D0%B8', NULL, NULL, NULL, 'comments', NULL, NULL, NULL, NULL, NULL);
+        (16, 0, 1, 27, 28, 'mainModule', 'simplePage', 0, 0, '2013-11-15 23:24:37', '2013-11-15 23:14:12', 1, 'Комментарии', 0, 0, 0, NULL, '/%D0%9A%D0%BE%D0%BC%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%80%D0%B8%D0%B8', NULL, NULL, NULL, 'comments', NULL, NULL, NULL, NULL, NULL),
+        (17, 0, 1, 29, 30, 'mainModule', 'simplePage', 0, 0, '2013-11-15 23:25:06', '2013-11-15 23:25:06', 1, 'RSS', 1, 1, 0, NULL, '/rss.xml', NULL, NULL, NULL, 'rss_xml', NULL, NULL, NULL, NULL, NULL);
 
 
 EXTENDEDINSTALLATIONSTRING;
