@@ -84,6 +84,8 @@ abstract class dataHelper {
             ? self::splitItems($sourceQuery) : db::query($sourceQuery);
 
         self::joinExtendedData($items, $options['more']);
+        self::resetOptions();
+
         return $items;
 
     }
@@ -116,6 +118,8 @@ abstract class dataHelper {
             ? self::splitItems($sourceQuery) : db::query($sourceQuery);
 
         self::joinExtendedData($items, $options['more']);
+        self::resetOptions();
+
         return $items;
 
     }
@@ -146,6 +150,8 @@ abstract class dataHelper {
             ? self::splitItems($sourceQuery) : db::cachedQuery($sourceQuery);
 
         self::joinExtendedData($items, $options['more']);
+        self::resetOptions();
+
         return $items;
 
     }
@@ -511,6 +517,23 @@ abstract class dataHelper {
             }
 
         }
+
+    }
+
+
+    /**
+     * reset all options for new helper call
+     */
+
+    private static function resetOptions() {
+
+        self::$perPageLimit = 10;
+        self::$innerOptions = array(
+            "filter" => "",
+            "sort"   => "lk ASC",
+            "limit"  => "",
+            "pages"  => false
+        );
 
     }
 

@@ -22,21 +22,14 @@ abstract class app {
      * return config object
      */
 
-    public static function loadConfig($name = null) {
-
-
-        /**
-         * set default if not set custom
-         */
+    public static function loadConfig($name = null, $isArray = false) {
 
         if ($name === null) {
             $name = "main.json";
         }
 
-
         return array_key_exists($name, self::$configs)
-            ? self::$configs[$name] : self::reloadConfig($name);
-
+            ? self::$configs[$name] : self::reloadConfig($name, $isArray);
 
     }
 
@@ -46,21 +39,11 @@ abstract class app {
      * return config object
      */
 
-    public static function reloadConfig($name = null) {
-
-
-        /**
-         * set default if not set custom
-         */
+    public static function reloadConfig($name = null, $isArray = false) {
 
         if ($name === null) {
             $name = "main.json";
         }
-
-
-        /**
-         * get config
-         */
 
         $configDir = APPLICATION . "config/";
         $generatedConfig = $configDir . $name . ".generated";
@@ -77,14 +60,12 @@ abstract class app {
         $patterns = array("~/\*.+?\*/~s", "~//.+\\r?\\n~");
         $configData = preg_replace($patterns, "", $configData);
 
-        if (!$configData = @ json_decode($configData)) {
+        if (!$configData = @ json_decode($configData, $isArray)) {
             exit("Configuration file $config is broken or have syntax error" . PHP_EOL);
         }
 
-
         self::$configs[$name] = $configData;
         return self::$configs[$name];
-
 
     }
 
@@ -95,9 +76,7 @@ abstract class app {
 
     private static function mergeConfigData( & $conf, $data) {
 
-
         foreach ($data as $k => $item) {
-
 
             if (isset($conf->{$k})) {
 
@@ -109,9 +88,7 @@ abstract class app {
 
             }
 
-
         }
-
 
     }
 
@@ -150,27 +127,21 @@ abstract class app {
 
 
     /**
-     * return config object or exit
+     * return config object or exit,
+     * set default if not set custom
      */
 
     public static function config($name = null) {
 
-
-        /**
-         * set default if not set custom
-         */
-
         if ($name === null) {
             $name = "main.json";
         }
-
 
         if (!array_key_exists($name, self::$configs)) {
             exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
         }
 
         return self::$configs[$name];
-
 
     }
 
