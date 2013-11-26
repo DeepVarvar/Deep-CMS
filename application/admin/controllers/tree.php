@@ -741,10 +741,10 @@ class tree extends baseController {
             $node = db::normalizeQuery(
 
                 "SELECT ('node') type, t.is_publish, t.id, t.parent_id,
-                    t.node_name, COUNT(c.id) children, p.node_name parent_name
-                        FROM tree t LEFT JOIN tree c ON c.parent_id = t.id
+                    t.node_name, FLOOR((t.rk - t.lk)/2) children,
+                        p.node_name parent_name FROM tree t
                             LEFT JOIN tree p ON p.id = t.parent_id
-                                WHERE t.id = %u GROUP BY t.id", $target
+                                WHERE t.id = %u", $target
 
             );
 
@@ -772,13 +772,9 @@ class tree extends baseController {
     private function branchChildren($parent) {
 
         return db::query(
-
-            "SELECT ('node') type, c.is_publish, c.id, c.parent_id,
-                c.node_name, COUNT(cc.id) children FROM tree c
-                    LEFT JOIN tree cc ON cc.parent_id = c.id
-                        WHERE c.parent_id = %u GROUP BY c.id
-                            ORDER BY c.lk ASC", $parent
-
+            "SELECT ('node') type, is_publish, id, parent_id,
+                node_name, FLOOR((rk - lk)/2) children FROM tree
+                    WHERE parent_id = %u ORDER BY lk ASC", $parent
         );
 
     }
