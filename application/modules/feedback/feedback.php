@@ -118,9 +118,7 @@ class feedback extends baseController {
         $mailer->Subject = view::$language->feedback_new_mail_from
                     . " " . $mainCnf->site->domain;
 
-        $template = APPLICATION
-            . $mainCnf->path->resources . "phpmailer/feedback.html";
-
+        $template = APPLICATION . "resources/phpmailer/feedback.html";
         if (!file_exists($template)) {
             throw new memberErrorException(
                 view::$language->error,

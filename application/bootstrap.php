@@ -267,12 +267,7 @@ try {
         $availableContexts = join(",", $availableContexts);
 
         $items = utils::glob(
-
-            APPLICATION . $config->path->cache
-                . "{{$availableContexts}}---$cachedPage",
-
-            GLOB_BRACE
-
+            APPLICATION . "cache/{{$availableContexts}}---$cachedPage", GLOB_BRACE
         );
 
         if ($items) {

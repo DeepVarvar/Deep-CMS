@@ -15,7 +15,6 @@ class menu extends baseController {
 
     public function setPermissions() {
 
-
         $this->permissions = array(
 
             array(
@@ -52,7 +51,6 @@ class menu extends baseController {
 
         );
 
-
     }
 
 
@@ -62,25 +60,14 @@ class menu extends baseController {
 
     public function index() {
 
-
-        $paginator = new paginator(
-            "SELECT id, name FROM menu ORDER BY id ASC"
-        );
-
-        $paginator =
-
-            $paginator->setCurrentPage(request::getCurrentPage())
-                ->setItemsPerPage(20)
-                ->setSliceSizeByPages(20)
-                ->getResult();
-
+        $paginator = new paginator("SELECT id, name FROM menu ORDER BY id ASC");
+        $paginator = $paginator->setCurrentPage(request::getCurrentPage())
+            ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
         view::assign("menulist", $paginator['items']);
         view::assign("pages", $paginator['pages']);
         view::assign("node_name", view::$language->menu_of_site);
-
         $this->setProtectedLayout("menu.html");
-
 
     }
 
@@ -92,23 +79,12 @@ class menu extends baseController {
 
     public function create() {
 
-
-        /**
-         * save new menu, THROW inside, not working more
-         */
-
         if (request::getPostParam("save") !== null) {
             $this->saveMenu();
         }
 
-
-        /**
-         * append data into view
-         */
-
         view::assign("node_name", view::$language->menu_create_new);
         $this->setProtectedLayout("menu-new.html");
-
 
     }
 
@@ -119,59 +95,28 @@ class menu extends baseController {
 
     public function delete() {
 
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/menu"
-        );
-
-
-        /*
-         * get menu #ID from request
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link;
+        request::validateReferer($adminToolsLink . "/menu");
 
         $menu_id = request::shiftParam("id");
         if (!validate::isNumber($menu_id)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
-
-        /**
-         * delete data
-         */
-
-        db::set("
-            DELETE FROM menu
-            WHERE id = %u", $menu_id
-        );
-
-        db::set("
-            DELETE FROM menu_items
-            WHERE menu_id = %u", $menu_id
-        );
-
-
-        /**
-         * show redirect message
-         */
+        db::set("DELETE FROM menu WHERE id = %u", $menu_id);
+        db::set("DELETE FROM menu_items WHERE menu_id = %u", $menu_id);
 
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->menu_is_deleted,
-                        app::config()->site->admin_tools_link . "/menu"
+                        $adminToolsLink . "/menu"
 
         );
-
 
     }
 
@@ -183,57 +128,32 @@ class menu extends baseController {
 
     public function edit() {
 
-
-        /*
-         * get menu #ID from request
-         */
-
         $menu_id = request::shiftParam("id");
         if (!validate::isNumber($menu_id)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
-
-
-        /*
-         * get menu with #ID
-         */
 
         $menu = db::normalizeQuery(
             "SELECT id,name FROM menu WHERE id = %u", $menu_id
         );
 
         if (!$menu) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->menu_not_found
             );
-
         }
-
-
-        /**
-         * save menu, THROW inside, not working more
-         */
 
         if (request::getPostParam("save") !== null) {
             $this->saveMenu($menu_id);
         }
 
-
-        /**
-         * append data into view
-         */
-
         view::assign("menu", $menu);
         view::assign("node_name", view::$language->menu_edit_exists);
         $this->setProtectedLayout("menu-edit.html");
-
 
     }
 
@@ -245,87 +165,43 @@ class menu extends baseController {
     private function saveMenu($target = null) {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
         $adminToolsLink = app::config()->site->admin_tools_link;
         if ($target === null) {
-
-            request::validateReferer(
-                $adminToolsLink . "/menu/create"
-            );
-
+            request::validateReferer($adminToolsLink . "/menu/create");
         } else {
-
             request::validateReferer(
                 $adminToolsLink . "/menu/edit\?id=\d+", true
             );
-
         }
-
-
-        /**
-         * validate name of menu
-         */
 
         $name = request::getPostParam("name");
         if ($name === null) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_not_enough
             );
-
         }
 
         if (!$name = filter::input($name)->lettersOnly()->getData()) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->menu_name_invalid
             );
-
         }
-
-
-        /**
-         * save data
-         */
 
         if ($target === null) {
-
-            db::set("
-                INSERT INTO menu (id,name)
-                VALUES (NULL,'%s')", $name
-            );
-
+            db::set("INSERT INTO menu (id,name) VALUES (NULL,'%s')", $name);
         } else {
-
-            db::set("
-                UPDATE menu SET name = '%s'
-                WHERE id = %u", $name, $target
-            );
-
+            db::set("UPDATE menu SET name = '%s' WHERE id = %u",$name,$target);
         }
-
 
         $message = ($target === null)
             ? view::$language->menu_is_created
             : view::$language->menu_is_edited;
 
-
-        /**
-         * show redirect message
-         */
-
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    $message,
-                        app::config()->site->admin_tools_link . "/menu"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                $message, $adminToolsLink . "/menu"
         );
 
 

@@ -230,8 +230,8 @@ abstract class view {
 
 
         $config = app::config();
-        $languageDir = APPLICATION . "{$config->path->languages}{$name}";
-        $cachedLang  = APPLICATION . "{$config->path->cache}{$name}_lang";
+        $languageDir = APPLICATION . "languages/{$name}";
+        $cachedLang  = APPLICATION . "cache/{$name}_lang";
 
         if ($config->system->cache_enabled
                 and file_exists($cachedLang)) {
@@ -621,8 +621,8 @@ abstract class view {
                          */
 
                         $themePath = router::isAdmin()
-                            ? $config->layouts->admin
-                            : $config->layouts->themes . $config->site->theme . "/";
+                            ? "layouts/admin/"
+                            : "layouts/themes/" . $config->site->theme . "/";
 
                         set_include_path(
                             get_include_path() . PATH_SEPARATOR . APPLICATION . $themePath
@@ -718,11 +718,8 @@ abstract class view {
 
             if ($match) {
                 file_put_contents(
-
-                    APPLICATION . "{$config->path->cache}{$outputContext}---" . md5($URL),
-                    $layoutContent,
-                    LOCK_EX
-
+                    APPLICATION . "cache/{$outputContext}---" . md5($URL),
+                    $layoutContent, LOCK_EX
                 );
             }
 
@@ -778,7 +775,7 @@ abstract class view {
             throw new systemErrorException("View error", "Caching mode is not enabled");
         }
 
-        $file = APPLICATION . $config->path->cache . $fileName;
+        $file = APPLICATION . "cache/" . $fileName;
         $type = preg_replace("/([a-z]+)---.+/s", "$1", $fileName);
 
 

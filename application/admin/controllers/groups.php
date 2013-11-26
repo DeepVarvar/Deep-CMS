@@ -67,32 +67,23 @@ class groups extends baseController {
 
     public function index() {
 
-
         $condition = (!member::isRoot() or member::getPriority() > 0)
             ? "WHERE priority > " . member::getPriority() : "";
-
 
         $sourceQuery = db::buildQueryString("
             SELECT id,priority,name FROM groups
             {$condition} ORDER BY priority ASC
         ");
 
-
         $paginator = new paginator($sourceQuery);
-        $paginator =
-
-            $paginator->setCurrentPage(request::getCurrentPage())
-                ->setItemsPerPage(20)
-                    ->setSliceSizeByPages(20)
-                        ->getResult();
-
+        $paginator = $paginator->setCurrentPage(request::getCurrentPage())
+            ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
         view::assign("grouplist", $paginator['items']);
         view::assign("pages", $paginator['pages']);
         view::assign("node_name", view::$language->groups);
 
         $this->setProtectedLayout("groups.html");
-
 
     }
 
@@ -104,26 +95,15 @@ class groups extends baseController {
 
     public function create() {
 
-
-        /**
-         * save new group, THROW inside, not working more
-         */
-
         if (request::getPostParam("save") !== null) {
             $this->saveGroup();
         }
-
-
-        /**
-         * append data into view
-         */
 
         view::assign("permissions", $this->getPermissionsList());
         view::assign("priority",    $this->getPriorityList());
 
         view::assign("node_name", view::$language->group_create_new);
         $this->setProtectedLayout("group-new.html");
-
 
     }
 
@@ -135,117 +115,55 @@ class groups extends baseController {
     public function delete() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/groups"
-        );
-
-
-        /*
-         * get group #ID from request
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link;
+        request::validateReferer($adminToolsLink . "/groups");
 
         $group_id = request::shiftParam("id");
         if (!validate::isNumber($group_id)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
-
-        /**
-         * deny for delete system group
-         */
-
         if ((string) $group_id == "0") {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->system_object_action_denied
             );
-
         }
 
-
-        /**
-         * deny for delete same origin group
-         */
-
         if ($group_id == member::getGroupID()) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_cant_delete_so_group
             );
-
         }
 
-
-        /**
-         * get group with ID
-         */
-
         $group = db::normalizeQuery(
-            "SELECT priority FROM groups
-                WHERE id = %u", $group_id
+            "SELECT priority FROM groups WHERE id = %u", $group_id
         );
 
         if (!$group) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_not_found
             );
-
         }
 
-
-        /**
-         * deny for delete high priority group
-         */
-
         if (member::getPriority() >= $group) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_cant_delete_hoep_group
             );
-
         }
 
-
-        /**
-         * delete group
-         */
-
-        db::set(
-            "DELETE FROM groups
-                WHERE id = %u", $group_id
-        );
-
-        db::set(
-            "DELETE FROM group_permissions
-                WHERE group_id = %u", $group_id
-        );
-
-
-        /**
-         * show redirect message
-         */
+        db::set("DELETE FROM groups WHERE id = %u", $group_id);
+        db::set("DELETE FROM group_permissions WHERE group_id = %u",$group_id);
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->group_is_deleted,
-                        app::config()->site->admin_tools_link . "/groups"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->group_is_deleted, $adminToolsLink . "/groups"
         );
 
 
@@ -260,71 +178,36 @@ class groups extends baseController {
     public function edit() {
 
 
-        /*
-         * get group #ID from request
-         */
-
         $group_id = request::shiftParam("id");
         if (!validate::isNumber($group_id)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
-
-        /**
-         * deny for edit system group
-         */
-
         if (!member::isRoot() and (string) $group_id === "0") {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->system_object_action_denied
             );
-
         }
 
-
-        /**
-         * deny for edit same origin group
-         */
-
         if (!member::isRoot() and member::getGroupID() == $group_id) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_cant_edit_so_group
             );
-
         }
 
-
-        /*
-         * get group with #ID
-         */
-
-        $group = db::normalizeQuery(
-            "SELECT id,name,priority FROM groups
-                WHERE id = %u", $group_id
-        );
-
-        if (!$group) {
-
+        if (!$group = db::normalizeQuery(
+            "SELECT id,name,priority FROM groups WHERE id = %u", $group_id
+        )) {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_not_found
             );
-
         }
-
-
-        /**
-         * deny for edit high priority group
-         */
 
         if (!member::isRoot()
                 and member::getPriority() >= $group['priority']) {
@@ -336,32 +219,13 @@ class groups extends baseController {
 
         }
 
-
-        /**
-         * save chenged group,
-         * THROW inside, not working more
-         */
-
         if (request::getPostParam("save") !== null) {
             $this->saveGroup($group_id);
         }
 
-
-        /**
-         * append data into view
-         */
-
         view::assign("group", $group);
-
-        view::assign(
-            "permissions",
-            $this->getPermissionsList($group['id'])
-        );
-
-        view::assign(
-            "priority",
-            $this->getPriorityList($group['priority'])
-        );
+        view::assign("permissions", $this->getPermissionsList($group['id']));
+        view::assign("priority", $this->getPriorityList($group['priority']));
 
         view::assign("node_name", view::$language->group_edit_exists);
         $this->setProtectedLayout("group-edit.html");
@@ -377,58 +241,29 @@ class groups extends baseController {
     private function saveGroup($target = null) {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
         $adminToolsLink = app::config()->site->admin_tools_link;
         if ($target === null) {
-
-            request::validateReferer(
-                $adminToolsLink . "/groups/create"
-            );
-
+            request::validateReferer($adminToolsLink . "/groups/create");
         } else {
-
             request::validateReferer(
                 $adminToolsLink . "/groups/edit\?id=\d+", true
             );
-
         }
-
-
-        /**
-         * get required data
-         */
 
         $required = request::getRequiredPostParams(array("name", "priority"));
         if ($required === null) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_not_enough
             );
-
         }
 
-
-        /**
-         * check priority format
-         */
-
         if (!validate::isNumber($required['priority'])) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_priority_invalid
             );
-
         }
-
-
-        /**
-         * check max allow priority level
-         */
 
         if (!member::isRoot()
                 and member::getPriority() >= $required['priority']) {
@@ -450,27 +285,15 @@ class groups extends baseController {
 
         }
 
-
-        /**
-         * filtered and check name of group
-         */
-
         $required['name'] = filter::input(
             $required['name'])->lettersOnly()->getData();
 
         if (!$required['name']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->group_name_invalid
             );
-
         }
-
-
-        /**
-         * save group data
-         */
 
         if ($target === null) {
 
@@ -487,11 +310,6 @@ class groups extends baseController {
             );
 
         }
-
-
-        /**
-         * set group permissions
-         */
 
         $permissions = request::getPostParam("permissions");
         if (!$permissions) {
@@ -517,11 +335,6 @@ class groups extends baseController {
         }
 
         if ($inDbPermissions) {
-
-
-            /**
-             * set permissions for group
-             */
 
             if ($target === null) {
                 $groupId = db::lastID();
@@ -550,18 +363,9 @@ class groups extends baseController {
             ? view::$language->group_is_created
             : view::$language->group_is_edited;
 
-
-        /**
-         * show redirect message
-         */
-
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    $message,
-                        app::config()->site->admin_tools_link . "/groups"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                $message, $adminToolsLink . "/groups"
         );
 
 
@@ -573,7 +377,6 @@ class groups extends baseController {
      */
 
     private function getPriorityList($current = -1) {
-
 
         $priorityList = array();
         $maxPriority = app::config()->system->max_group_priority_number;
@@ -598,7 +401,6 @@ class groups extends baseController {
 
         return $priorityList;
 
-
     }
 
 
@@ -608,25 +410,13 @@ class groups extends baseController {
 
     private function getPermissionsList($existsGroup = -1) {
 
-
         $permissions = array();
-        $inDbPermissions = db::query("
+        $inDbPermissions = db::query(
 
-            SELECT
-
-                p.name,
-                gp.permission_id
-
-            FROM permissions p
-
-            LEFT JOIN group_permissions gp
-                ON(gp.permission_id = p.id AND gp.group_id = %u)
-
-            ORDER BY p.id
-
-            ",
-
-            $existsGroup
+            "SELECT p.name, gp.permission_id FROM permissions p
+                LEFT JOIN group_permissions gp
+                    ON(gp.permission_id = p.id AND gp.group_id = %u)
+                        ORDER BY p.id", $existsGroup
 
         );
 
@@ -647,7 +437,6 @@ class groups extends baseController {
 
         return $permissions;
 
-
     }
 
 
@@ -657,42 +446,22 @@ class groups extends baseController {
 
     private function getControllerPermissions($name) {
 
-
-        /**
-         * get controllers for first attempt
-         */
-
         if (!$this->controllers) {
             $this->controllers = utils::getAllControllers();
         }
 
-
-        /**
-         * get permission with name
-         */
-
         foreach ($this->controllers as $controller) {
-
             foreach ($controller->getPermissions() as $current) {
-
                 if ($current['permission'] == $name) {
                     return $current;
                 }
-
             }
-
         }
-
-
-        /**
-         * don't have permission?
-         */
 
         throw new memberErrorException(
             "Permission error",
                 "Failure data. You need recalculate site permissions"
         );
-
 
     }
 

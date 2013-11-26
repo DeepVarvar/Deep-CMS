@@ -333,9 +333,8 @@ abstract class utils {
 
     public static function getAvailableLanguages($current = null) {
 
-
         $languages = array();
-        $langPath = APPLICATION . app::config()->path->languages . "/*";
+        $langPath = APPLICATION . "languages/*";
 
         $langGlobDir = self::glob($langPath, GLOB_ONLYDIR | GLOB_NOSORT);
         foreach ($langGlobDir as $language) {
@@ -363,7 +362,6 @@ abstract class utils {
         }
 
         return $languages;
-
 
     }
 
@@ -449,10 +447,7 @@ abstract class utils {
 
     public static function getAvailablePublicModules() {
 
-        $existsTargets = self::glob(
-            APPLICATION . app::config()->path->modules . "*", GLOB_ONLYDIR
-        );
-
+        $existsTargets = self::glob(APPLICATION . "modules/*", GLOB_ONLYDIR);
         $existsTargets = array_merge(array("---"), $existsTargets);
         foreach ($existsTargets as $k => $item) {
             $existsTargets[$k] = basename($item);
@@ -469,25 +464,12 @@ abstract class utils {
 
     public static function getAllControllers() {
 
-
-        $controllers = array();
+        $controllers   = array();
         $existsTargets = array();
 
-
-        /**
-         * get from modules,
-         * get from admin module if need get all controllers
-         */
-
-        $existsTargets = self::globRecursive(
-            APPLICATION . app::config()->path->modules, "*.php"
-        );
-
+        $existsTargets = self::globRecursive(APPLICATION . "modules/*.php");
         $existsTargets = array_merge(
-            $existsTargets,
-            self::globRecursive(
-                APPLICATION . app::config()->path->admin, "*.php"
-            )
+            $existsTargets, self::globRecursive(APPLICATION . "admin/*.php")
         );
 
         foreach ($existsTargets as $item) {
@@ -499,7 +481,6 @@ abstract class utils {
         }
 
         return $controllers;
-
 
     }
 
@@ -576,26 +557,20 @@ abstract class utils {
 
     public static function writeLog($item) {
 
-
         $existsLog = false;
-        $config = app::config();
-
-        $logDir = APPLICATION . $config->path->logs;
-        $logFile = $logDir . "main.log";
+        $logDir    = APPLICATION . "logs/";
+        $logFile   = $logDir . "main.log";
 
         if (file_exists($logFile)) {
 
             $existsLog = true;
             if (!is_writable($logFile)) {
-
                 exit(
-                    "Log file $logFile don't have writable permission"
-                        . PHP_EOL
+                    "Log file $logFile don't have writable permission" . PHP_EOL
                 );
-
             }
 
-            if (filesize($logFile) > $config->system->log_file_max_size) {
+            if (filesize($logFile) > app::config()->system->log_file_max_size) {
 
                 $fixedName = str_replace(
                     array(":", " "), array(".", "_"), $item['datetime']
@@ -612,7 +587,6 @@ abstract class utils {
         file_put_contents(
             $logFile, ($existsLog?",\n":"") . $item, FILE_APPEND | LOCK_EX
         );
-
 
     }
 
@@ -656,13 +630,10 @@ abstract class utils {
 
     public static function clearMainCache() {
 
-        $cacheDir = APPLICATION . app::config()->path->cache . "*";
-        foreach (self::glob($cacheDir) as $item) {
-
+        foreach (self::glob(APPLICATION . "cache/*") as $item) {
             if (is_file($item)) {
                 unlink($item);
             }
-
         }
 
     }

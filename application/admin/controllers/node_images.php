@@ -33,7 +33,6 @@ class node_images extends baseController {
 
         $availableSizes = array(
 
-
             "thumb_sizes" => array(
 
                 array("value" => "100x100", "description" => "100x100",
@@ -66,7 +65,6 @@ class node_images extends baseController {
                 array("value" => "1200x900", "description" => "1200x900")
 
             )
-
 
         ),
 
@@ -185,7 +183,6 @@ class node_images extends baseController {
 
     public function setPermissions() {
 
-
         $this->permissions = array(
 
             array(
@@ -199,7 +196,6 @@ class node_images extends baseController {
 
         );
 
-
     }
 
 
@@ -209,14 +205,10 @@ class node_images extends baseController {
 
     public function index() {
 
-
         $this->view(true);
-
         view::assign("node_name", view::$language->images_attached);
         view::assign($this->availableSizes);
-
         $this->setProtectedLayout("node-images.html");
-
 
     }
 
@@ -227,13 +219,6 @@ class node_images extends baseController {
 
     public function view($fromIndex = false) {
 
-
-        /**
-         * for AJAX request
-         * set json output context
-         * and disable changes
-         */
-
         if (!$fromIndex) {
 
             view::clearPublicVariables();
@@ -242,45 +227,23 @@ class node_images extends baseController {
 
         }
 
-
-        /**
-         * choose mode
-         */
-
         $this->chooseMode();
-
-
-        /**
-         * check for exists attached images exceptions
-         * this checkpoint throw after:
-         * redirect, iframe upload, ajax action
-         */
-
         if ($e = storage::shift("admin-attached-images-exception")) {
-
             if ($e[0] == "success") {
                 throw new memberSuccessException($e[1], $e[2]);
             } else {
                 throw new memberErrorException($e[1], $e[2]);
             }
-
         }
-
-
-        /**
-         * choose mode of view images
-         */
 
         $targetNode = request::shiftParam("target");
         view::assign("target_node", $targetNode);
-
 
         if ($this->storageMode) {
             $this->getImagesListFromStorage();
         } else {
             $this->getImagesListFromDB($targetNode);
         }
-
 
     }
 
@@ -291,20 +254,9 @@ class node_images extends baseController {
 
     public function delete_all() {
 
-
-        /**
-         * set json output context
-         * and disable changes
-         */
-
         view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
-
-
-        /**
-         * validate referer of possible CSRF attack
-         */
 
         request::validateReferer(
             app::config()->site->admin_tools_link
@@ -343,7 +295,6 @@ class node_images extends baseController {
 
         view::assign("images", array());
 
-
     }
 
 
@@ -353,50 +304,16 @@ class node_images extends baseController {
 
     public function upload() {
 
-
-        /**
-         * this always expected request from iframe
-         * always return json string format for exception
-         * set json output context
-         * and disable changes
-         */
-
         view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
-
-        /**
-         * set environment with validation required upload data
-         */
-
         $this->setUploadEnvironment();
-
-
-        /**
-         * file validation
-         */
-
         $this->validateFile();
-
-
-        /**
-         * save image
-         */
-
         $this->saveImage();
-
-
-        /**
-         * this action requested from hidden iframe,
-         * and not need output,
-         * exit now from application
-         * WARNING! need stored member cache before exit!
-         */
 
         member::storeData();
         exit();
-
 
     }
 
@@ -408,91 +325,47 @@ class node_images extends baseController {
     public function master() {
 
 
-        /**
-         * this action always expected request from AJAX
-         * set json output context
-         * and disable changes
-         */
-
         view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
-
-
-        /**
-         * validate referer of possible CSRF attack
-         */
 
         request::validateReferer(
             app::config()->site->admin_tools_link
                 . "/node-images\?target=.+", true
         );
 
-
-        /**
-         * choose mode
-         */
-
         $this->chooseMode();
-
-        $targetNode = request::shiftParam("target");
-        $targetImage    = request::shiftParam("id");
+        $targetNode  = request::shiftParam("target");
+        $targetImage = request::shiftParam("id");
 
         if ($this->storageMode) {
 
-
-            /**
-             * get images list from storage
-             */
-
             $images = member::getStorageData($this->storageDataKey);
-
             if (!array_key_exists($targetImage, $images)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             }
 
-
-            /**
-             * set target image as master
-             */
-
             foreach ($images as $k => $image) {
-
                 if ($k == $targetImage) {
                     $images[$k]['is_master'] = 1;
                 } else {
                     $images[$k]['is_master'] = 0;
                 }
-
             }
 
             member::setStorageData($this->storageDataKey, $images);
 
         } else {
 
-
-            /**
-             * validate input image ID
-             */
-
             if (!validate::isNumber($targetImage)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             }
-
-
-            /**
-             * set image as master
-             */
 
             db::set(
                 "UPDATE images SET is_master = 0
@@ -503,7 +376,6 @@ class node_images extends baseController {
                 "UPDATE images SET is_master = 1
                     WHERE id = %u", $targetImage
             );
-
 
         }
 
@@ -523,121 +395,58 @@ class node_images extends baseController {
     public function delete() {
 
 
-        /**
-         * this action always expected request from AJAX
-         * set json output context
-         * and disable changes
-         */
-
         view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
-
-
-        /**
-         * validate referer of possible CSRF attack
-         */
 
         request::validateReferer(
             app::config()->site->admin_tools_link
                 . "/node-images\?target=.+", true
         );
 
-
-        /**
-         * choose mode,
-         * set empty images array
-         */
-
         $this->chooseMode();
         view::assign("images", array());
 
-
         $targetImage = request::shiftParam("id");
-
         if ($this->storageMode) {
 
-
-            /**
-             * get images list from storage
-             */
-
             $images = member::getStorageData($this->storageDataKey);
-
-
-            /**
-             * validate target image ID
-             */
-
             if (!array_key_exists($targetImage, $images)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             }
-
 
             $changeMaster = ($images[$targetImage]['is_master'] == 1);
             unset($images[$targetImage]);
-
 
             @ unlink(PUBLIC_HTML . "upload/" . $targetImage);
             @ unlink(PUBLIC_HTML . "upload/thumb_" . $targetImage);
             @ unlink(PUBLIC_HTML . "upload/middle_" . $targetImage);
 
-
             if ($changeMaster) {
-
                 foreach ($images as $k => $image) {
                     $images[$k]['is_master'] = 1;
                 }
-
             }
 
             member::setStorageData($this->storageDataKey, $images);
-
-
-            /**
-             * WARNING!
-             * this method assign data into view!
-             */
-
             $this->getImagesListFromStorage();
 
         } else {
 
-
-            /**
-             * validate target image ID
-             */
-
             if (!validate::isNumber($targetImage)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             }
 
-
-            /**
-             * get image information
-             */
-
             $image = db::normalizeQuery(
-
                 "SELECT name, node_id, is_master
                     FROM images WHERE id = %u", $targetImage
-
             );
-
-
-            /**
-             * delete image information and files
-             */
 
             if ($image) {
 
@@ -646,12 +455,6 @@ class node_images extends baseController {
                 @ unlink(PUBLIC_HTML . "upload/" . $image['name']);
                 @ unlink(PUBLIC_HTML . "upload/thumb_" . $image['name']);
                 @ unlink(PUBLIC_HTML . "upload/middle_" . $image['name']);
-
-
-                /**
-                 * set first found image as matster
-                 * if deleted image has been saved is master
-                 */
 
                 if ($image['is_master']) {
 
@@ -671,12 +474,6 @@ class node_images extends baseController {
 
                 }
 
-
-                /**
-                 * WARNING!
-                 * this method assign data into view!
-                 */
-
                 $this->getImagesListFromDB($image['node_id']);
 
             }
@@ -690,10 +487,6 @@ class node_images extends baseController {
     private function saveImage() {
 
 
-        /**
-         * set new random name for image
-         */
-
         $filePath = PUBLIC_HTML . "upload/";
         $fileName = md5(mt_rand()
             . microtime(true)) . "." . $this->fileExtension;
@@ -702,112 +495,50 @@ class node_images extends baseController {
         $middle    = $filePath . "middle_" . $fileName;
         $thumbnail = $filePath . "thumb_" . $fileName;
 
-
-        /**
-         * move uploaded file into public directory
-         */
-
         move_uploaded_file(
             $_FILES['uploadfile']['tmp_name'], $original
         );
 
-
-        /**
-         * create original image object
-         */
-
         $originalImage = new simpleImage($original);
 
-
-        /**
-         * add watermark into image
-         */
-
         if ($this->addWaterMark) {
-
             $originalImage->addWaterMark(
-                APPLICATION . app::config()->path->resources
-                    . "watermarks/" . $this->waterMarkImage
+                APPLICATION . "resources/watermarks/" . $this->waterMarkImage
             );
-
         }
 
-
-        /**
-         * clone middle image object from original
-         */
-
         $middleImage = clone $originalImage;
-
-
-        /**
-         * resize and save original image
-         */
 
         if ($this->squareOriginal) {
             $originalImage->squareCrop();
         }
 
         $originalImage->intelligentResize(
-
-            $this->originalSize[0],
-                $this->originalSize[1],
-                    $this->stretchImage
-
+            $this->originalSize[0], $this->originalSize[1], $this->stretchImage
         );
 
         $originalImage->save($original);
-
-
-        /**
-         * clone thumbnail image object from middle
-         */
-
         $thumbnailImage = clone $middleImage;
-
-
-        /**
-         * resize and save middle image
-         */
 
         if ($this->squareMiddle) {
             $middleImage->squareCrop();
         }
 
         $middleImage->intelligentResize(
-
-            $this->middleSize[0],
-                $this->middleSize[1],
-                    $this->stretchImage
-
+            $this->middleSize[0], $this->middleSize[1], $this->stretchImage
         );
 
         $middleImage->save($middle);
-
-
-        /**
-         * resize and save thumbnail image
-         */
 
         if ($this->squareThumbnail) {
             $thumbnailImage->squareCrop();
         }
 
         $thumbnailImage->intelligentResize(
-
-            $this->thumbnailSize[0],
-                $this->thumbnailSize[1],
-                    $this->stretchImage
-
+            $this->thumbnailSize[0], $this->thumbnailSize[1], $this->stretchImage
         );
 
         $thumbnailImage->save($thumbnail);
-
-
-        /**
-         * save or update image name
-         * add new image for exists node
-         */
 
         switch ($this->uploadActionType) {
 
@@ -914,43 +645,21 @@ class node_images extends baseController {
 
     private function validateFile() {
 
-
-        /**
-         * check for single upload
-         */
-
         if (is_array($_FILES['uploadfile']['tmp_name'])) {
-
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->image_upload_single_only
+                "error", view::$language->error,
+                    view::$language->image_upload_single_only
             );
-
         }
-
-
-        /**
-         * check for upload errors
-         */
 
         if ($_FILES['uploadfile']['error']) {
-
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->image_upload_file_error
+                "error", view::$language->error,
+                    view::$language->image_upload_file_error
             );
-
         }
 
-
-        /**
-         * check real mime type of uloaded file
-         */
-
         $this->checkFileMimeType($_FILES['uploadfile']['tmp_name']);
-
 
     }
 
@@ -961,52 +670,26 @@ class node_images extends baseController {
 
     private function checkFileMimeType($file) {
 
-
-        /**
-         * open finfo if available
-         */
-
         $finfo = null;
         if (!function_exists("mime_content_type")) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
         }
 
-
-        /**
-         * get real mime type
-         */
-
         $mimeType = $finfo !== null
-            ? finfo_file($finfo, $file)
-            : mime_content_type($file);
-
-
-        /**
-         * close before opened finfo
-         */
+            ? finfo_file($finfo, $file) : mime_content_type($file);
 
         if ($finfo !== null) {
             finfo_close($finfo);
         }
 
-
-        /**
-         * check allowed mime type
-         * get file extension of mime type
-         */
-
         if (!array_key_exists($mimeType, $this->allowedFileTypes)) {
-
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->image_upload_broken_mime
+                "error", view::$language->error,
+                    view::$language->image_upload_broken_mime
             );
-
         }
 
         $this->fileExtension = $this->allowedFileTypes[$mimeType];
-
 
     }
 
@@ -1018,75 +701,43 @@ class node_images extends baseController {
     private function setUploadEnvironment() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
         request::validateReferer(
             app::config()->site->admin_tools_link
                 . "/node-images\?target=.+", true
         );
 
-
-        /**
-         * check exists required data
-         */
-
         $required = array(
-
-            "thumbnail_size",
-            "middle_size",
-            "original_size",
-            "target_node",
-            "action",
-            "image_id"
-
+            "thumbnail_size", "middle_size", "original_size",
+                "target_node", "action", "image_id"
         );
 
         if (!$requiredData = request::getRequiredPostParams($required)) {
-
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->data_not_enough
+                "error", view::$language->error,
+                    view::$language->data_not_enough
             );
-
         }
-
-
-        /**
-         * validate action type
-         */
 
         if ($requiredData['action'] !== "replace"
                 and $requiredData['action'] !== "add") {
 
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->data_invalid
+                "error", view::$language->error,
+                    view::$language->data_invalid
             );
 
         }
 
         $this->uploadActionType = $requiredData['action'];
 
-
-        /**
-         * validate target node
-         */
-
         $target = $requiredData['target_node'];
         if ($target !== "new") {
 
             if (!validate::isNumber($target)) {
-
                 $this->exceptionExit(
-                    "error",
-                        view::$language->error,
-                            view::$language->data_invalid
+                    "error", view::$language->error,
+                        view::$language->data_invalid
                 );
-
             }
 
             $exists = db::query(
@@ -1094,13 +745,10 @@ class node_images extends baseController {
             );
 
             if (!$exists) {
-
                 $this->exceptionExit(
-                    "error",
-                        view::$language->error,
-                            view::$language->node_not_found
+                    "error", view::$language->error,
+                        view::$language->node_not_found
                 );
-
             }
 
             $this->targetNode  = $target;
@@ -1110,30 +758,17 @@ class node_images extends baseController {
             $this->storageMode = true;
         }
 
-
-        /**
-         * validate target image
-         */
-
         $target = $requiredData['image_id'];
         if ($this->storageMode and $this->uploadActionType !== "add") {
-
-
-            /**
-             * validate target image for exists ID
-             */
 
             $validate = array_key_exists(
                 $target, member::getStorageData($this->storageDataKey)
             );
 
             if (!$validate) {
-
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->data_invalid
+                    view::$language->error, view::$language->data_invalid
                 );
-
             }
 
         } else {
@@ -1141,13 +776,10 @@ class node_images extends baseController {
             if ($this->uploadActionType !== "add") {
 
                 if (!validate::isNumber($target)) {
-
                     $this->exceptionExit(
-                        "error",
-                            view::$language->error,
-                                view::$language->data_invalid
+                        "error", view::$language->error,
+                            view::$language->data_invalid
                     );
-
                 }
 
                 $exists = db::query(
@@ -1155,13 +787,10 @@ class node_images extends baseController {
                 );
 
                 if (!$exists) {
-
                     $this->exceptionExit(
-                        "error",
-                            view::$language->error,
-                                view::$language->image_not_found
+                        "error", view::$language->error,
+                            view::$language->image_not_found
                     );
-
                 }
 
             }
@@ -1169,11 +798,6 @@ class node_images extends baseController {
         }
 
         $this->targetImage = $target;
-
-
-        /**
-         * set values of sizes
-         */
 
         $this->thumbnailSize = $this->getSizeValueFromData(
             $requiredData['thumbnail_size']
@@ -1186,11 +810,6 @@ class node_images extends baseController {
         $this->originalSize = $this->getSizeValueFromData(
             $requiredData['original_size']
         );
-
-
-        /**
-         * set custom options
-         */
 
         $this->squareOriginal  = request::getPostParam("square_original");
         $this->squareMiddle    = request::getPostParam("square_middle");
@@ -1209,39 +828,21 @@ class node_images extends baseController {
 
     private function getSizeValueFromData($input) {
 
-
-        /**
-         * data is not string
-         */
-
         if (!validate::likeString($input)) {
-
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->data_invalid
+                "error", view::$language->error,
+                    view::$language->data_invalid
             );
-
         }
 
-
-        /**
-         * invalid string format,
-         * or return values of width/height
-         */
-
         if (!preg_match("/^([1-9]\d{0,3})x([1-9]\d{0,3})$/", $input, $m)) {
-
             $this->exceptionExit(
-                "error",
-                    view::$language->error,
-                        view::$language->data_invalid
+                "error", view::$language->error,
+                    view::$language->data_invalid
             );
-
         }
 
         return array($m[1], $m[2]);
-
 
     }
 
@@ -1252,14 +853,10 @@ class node_images extends baseController {
 
     private function getImagesListFromDB($nodeID) {
 
-        view::assign("images",
-
-            db::query(
+        view::assign("images", db::query(
                 "SELECT id, is_master, name FROM images WHERE
                     node_id = %u ORDER BY id ASC", $nodeID
-            )
-
-        );
+        ));
 
     }
 
@@ -1270,22 +867,19 @@ class node_images extends baseController {
 
     private function getImagesListFromStorage() {
 
-
         $images = array();
         foreach (
             member::getStorageData($this->storageDataKey) as $k => $item) {
 
-            array_push(
-                $images,
-                    array(
-                        "id" => $k,
-                            "is_master" => $item['is_master'],
-                                "name" => $k));
+            array_push($images, array(
+                "id"        => $k,
+                "is_master" => $item['is_master'],
+                "name"      => $k
+            ));
 
         }
 
         view::assign("images", $images);
-
 
     }
 
@@ -1296,7 +890,6 @@ class node_images extends baseController {
      */
 
     private function chooseMode() {
-
 
         $targetNode = request::getParam("target");
         switch (true) {
@@ -1310,16 +903,13 @@ class node_images extends baseController {
             break;
 
             default:
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             break;
 
         }
-
 
     }
 

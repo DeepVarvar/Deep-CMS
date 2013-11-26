@@ -305,13 +305,12 @@ abstract class dataHelper {
                 unset($more[$key]);
             }
 
-            $noImage = app::config()->site->no_image;
             $masterImageQueryJoin
                 = "LEFT JOIN images i ON i.node_id = t.id AND i.is_master = 1";
 
             array_push(
                 $wantedFields,
-                "IF(i.name IS NOT NULL,i.name,'{$noImage}') image"
+                "IF(i.name IS NOT NULL,i.name,'no-image.png') image"
             );
 
         }
@@ -567,8 +566,6 @@ abstract class dataHelper {
 
     private static function getAttachedImagesArray($IDs, $multi = true) {
 
-
-        $noImage = app::config()->site->no_image;
         $images = db::query(
 
             "SELECT node_id, name
@@ -588,7 +585,7 @@ abstract class dataHelper {
                 if (!in_array($image['node_id'], $IDs)) {
                     $noImages[] = array(
                         "node_id" => $id,
-                        "name"    => $noImage
+                        "name"    => "no-image.png"
                     );
                 }
             }
@@ -599,7 +596,7 @@ abstract class dataHelper {
                 foreach ($IDs as $id) {
                     $images[] = array(
                         "node_id" => $id,
-                        "name"    => $noImage
+                        "name"    => "no-image.png"
                     );
                 }
 
@@ -608,7 +605,6 @@ abstract class dataHelper {
         }
 
         return $images;
-
 
     }
 

@@ -196,7 +196,7 @@ abstract class router {
 
             }
 
-            $path = self::isAdmin() ? "" : $config->path->modules;
+            $path = self::isAdmin() ? "" : "modules/";
             self::loadModule(
                 APPLICATION . $path . $loadedPage['module_name'] . "/",
                     $loadedPage['module_name']
@@ -216,7 +216,6 @@ abstract class router {
 
 
         $config  = app::config();
-        $noImage = $config->site->no_image;
 
         $pagePrototype   = new $loadedPage['prototype'];
         $prototypeFields = join(",d.", $pagePrototype->getPublicFields());
@@ -230,7 +229,7 @@ abstract class router {
                 u1.login author_name,
                 u2.id modifier_id,
                 u2.login modifier_name,
-                IF(i.name IS NOT NULL,i.name,'{$noImage}') image
+                IF(i.name IS NOT NULL,i.name,'no-image.png') image
 
             FROM tree d
 
@@ -272,11 +271,9 @@ abstract class router {
          */
 
         if (self::getParamsCount() > 2) {
-
             throw new systemErrorException(
                 "Load module error", "Request of parameters too long"
             );
-
         }
 
 

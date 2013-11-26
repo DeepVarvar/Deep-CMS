@@ -48,7 +48,6 @@ class manage_comments extends baseController {
 
     public function index() {
 
-
         $paginator = new paginator("
 
             SELECT c.id, c.author_ip, c.author_id, c.creation_date,
@@ -61,12 +60,8 @@ class manage_comments extends baseController {
 
         ");
 
-        $paginator =
-
-            $paginator->setCurrentPage(request::getCurrentPage())
-                ->setItemsPerPage(10)
-                ->setSliceSizeByPages(10)
-                ->getResult();
+        $paginator = $paginator->setCurrentPage(request::getCurrentPage())
+            ->setItemsPerPage(10)->setSliceSizeByPages(10)->getResult();
 
         view::assign("comments", $paginator['items']);
         view::assign("pages", $paginator['pages']);
@@ -74,28 +69,13 @@ class manage_comments extends baseController {
 
         $this->setProtectedLayout("comments.html");
 
-
     }
 
 
     public function delete() {
 
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        $adminLink = app::config()->site->admin_tools_link;
-        request::validateReferer(
-            $adminLink . "/manage-comments"
-        );
-
-
-        /*
-         * get comment ID from request,
-         * delete comment,
-         * show redirect message
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link;
+        request::validateReferer($adminToolsLink . "/manage-comments");
 
         $commentID = request::shiftParam("id");
         if (!validate::isNumber($commentID)) {
@@ -115,21 +95,14 @@ class manage_comments extends baseController {
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->comment_is_deleted,
-                        $adminLink . "/manage-comments"
+                        $adminToolsLink . "/manage-comments"
 
         );
-
 
     }
 
 
     public function edit() {
-
-
-        /*
-         * get comment ID from request,
-         * get comment with ID
-         */
 
         $commentID = request::shiftParam("id");
         if (!validate::isNumber($commentID)) {
@@ -139,21 +112,13 @@ class manage_comments extends baseController {
         }
 
         if (!$comment = db::normalizeQuery(
-
             "SELECT id, author_id, author_name,
                 comment_text FROM comments WHERE id = %u", $commentID
-
         )) {
             throw new memberErrorException(
                 view::$language->error, view::$language->comment_not_found
             );
         }
-
-
-        /**
-         * save comment, THROW inside, not working more,
-         * or append data into view
-         */
 
         if (request::getPostParam("save") !== null) {
             $this->saveComment($commentID);
@@ -161,18 +126,14 @@ class manage_comments extends baseController {
 
         view::assign("comment", $comment);
         view::assign("page_title", view::$language->comment_edit_exists);
-        $this->setProtectedLayout("comment-edit.html");
 
+        $this->setProtectedLayout("comment-edit.html");
 
     }
 
 
     private function saveComment($id) {
 
-
-        /**
-         * validate referer of possible CSRF attack
-         */
 
         $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer(
@@ -204,12 +165,10 @@ class manage_comments extends baseController {
             );
 
         } else {
-
             db::set(
                 "UPDATE comments SET comment_text = '%s'
                     WHERE id = %u", $comment, $id
             );
-
         }
 
         $this->redirectMessage(

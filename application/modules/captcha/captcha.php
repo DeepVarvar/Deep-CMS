@@ -66,9 +66,7 @@ class captcha extends baseController {
         }
 
         $keyString = "";
-        if (!$fonts = utils::glob(
-            APPLICATION . app::config()->path->resources . "/captcha/*.png"
-        )) {
+        if (!$fonts = utils::glob(APPLICATION . "resources/captcha/*.png")) {
             throw new systemErrorException(
                 "Captcha error", "Fonts on resources not found"
             );

@@ -278,28 +278,17 @@ class tree extends baseController {
     public function delete() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
+        $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer(
-            app::config()->site->admin_tools_link
-                . "/tree(/branch\?id=\d+)?", true
+            $adminToolsLink . "/tree(/branch\?id=\d+)?", true
         );
-
-
-        /**
-         * validate deleted node ID
-         */
 
         $nodeID = request::shiftParam("id");
         if (!validate::isNumber($nodeID)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
 
@@ -309,19 +298,15 @@ class tree extends baseController {
          */
 
         $deletedNode = db::normalizeQuery(
-
             "SELECT id, parent_id, lk, rk, (rk - lk + 1) gap
                 FROM tree WHERE id = %u", $nodeID
-
         );
 
         if (!$deletedNode) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->node_not_found
             );
-
         }
 
 
@@ -330,20 +315,16 @@ class tree extends baseController {
          */
 
         $deletedCount = db::normalizeQuery(
-
             "SELECT (COUNT(1) - 1) cnt
                 FROM tree WHERE lk BETWEEN %u
                     AND %u", $deletedNode['lk'], $deletedNode['rk']
-
         );
 
         if ($deletedCount > 100) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->node_delete_count_is_over
             );
-
         }
 
 
@@ -352,14 +333,9 @@ class tree extends baseController {
          */
 
         db::set(
-
             "DELETE FROM menu_items WHERE node_id IN(
-
-                SELECT id FROM tree
-                    WHERE lk BETWEEN %u AND %u
-
+                SELECT id FROM tree WHERE lk BETWEEN %u AND %u
             )", $deletedNode['lk'], $deletedNode['rk']
-
         );
 
 
@@ -368,35 +344,23 @@ class tree extends baseController {
          */
 
         $images = db::query(
-
             "SELECT name FROM images WHERE node_id IN(
-
-                SELECT id FROM tree
-                    WHERE lk BETWEEN %u AND %u
-
+                SELECT id FROM tree WHERE lk BETWEEN %u AND %u
             )", $deletedNode['lk'], $deletedNode['rk']
-
         );
 
         if ($images) {
 
             db::set(
-
                 "DELETE FROM images WHERE node_id IN(
-
-                    SELECT id FROM tree
-                        WHERE lk BETWEEN %u AND %u
-
+                    SELECT id FROM tree WHERE lk BETWEEN %u AND %u
                 )", $deletedNode['lk'], $deletedNode['rk']
-
             );
 
             foreach ($images as $image) {
-
                 @ unlink(PUBLIC_HTML . "upload/" . $image['name']);
                 @ unlink(PUBLIC_HTML . "upload/thumb_" . $image['name']);
                 @ unlink(PUBLIC_HTML . "upload/middle_" . $image['name']);
-
             }
 
         }
@@ -407,15 +371,10 @@ class tree extends baseController {
          */
 
         $existsFeatureIDs = db::normalizeQuery(
-
             "SELECT feature_id FROM tree_features
                 WHERE node_id IN(
-
-                    SELECT id FROM tree
-                        WHERE lk BETWEEN %u AND %u
-
+                    SELECT id FROM tree WHERE lk BETWEEN %u AND %u
             )", $deletedNode['lk'], $deletedNode['rk']
-
         );
 
         if (!is_array($existsFeatureIDs)) {
@@ -423,77 +382,52 @@ class tree extends baseController {
         }
 
         db::set(
-
             "DELETE FROM tree_features WHERE node_id IN(
-
-                SELECT id FROM tree
-                    WHERE lk BETWEEN %u AND %u
-
+                SELECT id FROM tree WHERE lk BETWEEN %u AND %u
             )", $deletedNode['lk'], $deletedNode['rk']
-
         );
 
         if ($existsFeatureIDs) {
 
             $existsFeatureIDs = join(",", $existsFeatureIDs);
-            $lostIDs = db::normalizeQuery("
-
-                SELECT f.id FROM features f
-
-                LEFT JOIN tree_features tf
-                    ON tf.feature_id = f.id
-
-                WHERE f.id IN({$existsFeatureIDs})
-                    AND tf.feature_id IS NULL
-
-            ");
+            $lostIDs = db::normalizeQuery(
+                "SELECT f.id FROM features f LEFT JOIN tree_features tf
+                    ON tf.feature_id = f.id WHERE f.id IN({$existsFeatureIDs})
+                        AND tf.feature_id IS NULL"
+            );
 
             if (!is_array($lostIDs)) {
                 $lostIDs = array($lostIDs);
             }
 
             if ($lostIDs) {
-
                 db::set(
-
                     "DELETE FROM features WHERE id
                         IN(" . join(",", $lostIDs) . ")"
-
                 );
-
             }
 
         }
 
 
         /**
-         * delete branch
-         */
-
-        db::set(
-
-            "DELETE FROM tree WHERE lk BETWEEN
-                %u AND %u", $deletedNode['lk'], $deletedNode['rk']
-
-        );
-
-
-        /**
+         * delete branch,
          * update keys for other nodes
          */
 
         db::set(
-
-            "UPDATE tree SET rk = rk - %u WHERE rk > %u",
-                $deletedNode['gap'], $deletedNode['rk']
-
+            "DELETE FROM tree WHERE lk BETWEEN
+                %u AND %u", $deletedNode['lk'], $deletedNode['rk']
         );
 
         db::set(
+            "UPDATE tree SET rk = rk - %u WHERE rk > %u",
+                $deletedNode['gap'], $deletedNode['rk']
+        );
 
+        db::set(
             "UPDATE tree SET lk = lk - %u WHERE lk > %u",
                 $deletedNode['gap'], $deletedNode['rk']
-
         );
 
 
@@ -501,15 +435,13 @@ class tree extends baseController {
          * redirect to show message
          */
 
-        $location = app::config()->site->admin_tools_link
-            . "/tree/branch?id=" . $deletedNode['parent_id'];
-
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->node_is_deleted,
-                        $location
+                        $adminToolsLink . "/tree/branch?id="
+                        . $deletedNode['parent_id']
 
         );
 
@@ -524,37 +456,20 @@ class tree extends baseController {
     public function move_node() {
 
 
-        /**
-         * set main output context
-         * and disable changes
-         */
-
         view::clearPublicVariables();
         view::setOutputContext("json");
         view::lockOutputContext();
 
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
+        $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer(
-            app::config()->site->admin_tools_link
-                . "/tree(/branch\?id=\d+)?", true
+            $adminToolsLink . "/tree(/branch\?id=\d+)?", true
         );
 
-
-        /**
-         * only post request type
-         */
-
         if (!request::isPost()) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
 
@@ -609,21 +524,17 @@ class tree extends baseController {
         );
 
         if (!$movedNode) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->node_not_found
             );
-
         }
 
         if ($movedNode['parent_id'] > 0 and !$movedNode['parent_rk']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->parent_node_not_found
             );
-
         }
 
 
@@ -746,24 +657,14 @@ class tree extends baseController {
             $distance = $newPos - $tmpPos;
             $tmpRight = $tmpPos + $width;
 
-
-            /**
-             * create new space for subtree,
-             * move subtree into new space,
-             * remove old space vacated by subtree
-             */
-
             db::query("
 
                 UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
                     rk = rk + %2\$u WHERE rk >= %1\$u;
-
                 UPDATE tree SET lvl = lvl + (%3\$s), lk = lk + (%4\$s),
                     rk = rk + (%4\$s) WHERE lk >= %5\$u AND rk <= %6\$u;
-
                 UPDATE tree SET lk = IF(lk >= %5\$u, lk - %2\$u, lk),
                     rk = rk - %2\$u WHERE rk >= %6\$u;
-
                 ", $newPos, $width, $skewLevel,
                         $distance, $tmpPos, $tmpRight
 
@@ -781,24 +682,14 @@ class tree extends baseController {
             $distance = $newPos - $movedNode['lk'];
             $tmpLeft  = $movedNode['rk'] + 1;
 
+            db::query(
 
-            /**
-             * create new space for subtree,
-             * move subtree into new space,
-             * remove old space vacated by subtree
-             */
-
-            db::query("
-
-                UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
+                "UPDATE tree SET lk = IF(lk >= %1\$u, lk + %2\$u, lk),
                     rk = rk + %2\$u WHERE rk >= %1\$u;
-
                 UPDATE tree SET lvl = lvl + (%3\$s), rk = rk + %4\$u,
                     lk = lk + %4\$u WHERE lk >= %5\$u AND rk <= %6\$u;
-
                 UPDATE tree SET lk = IF(lk >= %7\$u, lk - %2\$u, lk),
                     rk = rk - %2\$u WHERE rk >= %7\$u
-
                 ", $newPos, $width, $skewLevel, $distance,
                         $movedNode['lk'], $movedNode['rk'], $tmpLeft
 
@@ -813,12 +704,10 @@ class tree extends baseController {
          */
 
         if ($movedNode['parent_id'] != $parentID) {
-
             db::set(
                 "UPDATE tree SET parent_id = %u
                     WHERE id = %u", $parentID, $nodeID
             );
-
         }
 
 
@@ -844,51 +733,26 @@ class tree extends baseController {
 
     private function branchNode($target) {
 
-
         if ($target == 0) {
-
             $node = $this->root;
             $node['node_name'] = view::$language->root_of_site;
-
         } else {
 
-            // TODO можно переделать запрос на lk, rk без лишних джойнов
-            $node = db::normalizeQuery("
+            $node = db::normalizeQuery(
 
-                SELECT
-
-                    ('node') type,
-                    t.is_publish,
-                    t.id,
-                    t.parent_id,
-                    t.node_name,
-                    COUNT(c.id) children,
-                    p.node_name parent_name
-
-                FROM tree t
-                LEFT JOIN tree c ON c.parent_id = t.id
-                LEFT JOIN tree p ON p.id = t.parent_id
-
-                WHERE t.id = %u
-                GROUP BY t.id
-
-                ",
-
-                $target
+                "SELECT ('node') type, t.is_publish, t.id, t.parent_id,
+                    t.node_name, COUNT(c.id) children, p.node_name parent_name
+                        FROM tree t LEFT JOIN tree c ON c.parent_id = t.id
+                            LEFT JOIN tree p ON p.id = t.parent_id
+                                WHERE t.id = %u GROUP BY t.id", $target
 
             );
 
         }
 
-
-        /**
-         * not exists target
-         */
-
         if (!$node) {
 
             storage::remove("__branchParent");
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->branch_children_not_found
@@ -897,7 +761,6 @@ class tree extends baseController {
         }
 
         return $node;
-
 
     }
 
@@ -908,32 +771,15 @@ class tree extends baseController {
 
     private function branchChildren($parent) {
 
+        return db::query(
 
-        return db::query("
-
-            SELECT
-
-                ('node') type,
-                c.is_publish,
-                c.id,
-                c.parent_id,
-                c.node_name,
-                COUNT(cc.id) children
-
-            FROM tree c
-            LEFT JOIN tree cc ON cc.parent_id = c.id
-
-            WHERE c.parent_id = %u
-
-            GROUP BY c.id
-            ORDER BY c.lk ASC
-
-            ",
-
-            $parent
+            "SELECT ('node') type, c.is_publish, c.id, c.parent_id,
+                c.node_name, COUNT(cc.id) children FROM tree c
+                    LEFT JOIN tree cc ON cc.parent_id = c.id
+                        WHERE c.parent_id = %u GROUP BY c.id
+                            ORDER BY c.lk ASC", $parent
 
         );
-
 
     }
 
@@ -945,17 +791,14 @@ class tree extends baseController {
 
     private function getProtoType($protoName) {
 
-
         $protoName = $protoName !== null
             ? $protoName : $this->defaultProtoType;
 
         if (!preg_match("/^[a-z]+$/i", $protoName)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
         if ($this->availableProtoTypes === null) {
@@ -963,16 +806,13 @@ class tree extends baseController {
         }
 
         if (!array_key_exists($protoName, $this->availableProtoTypes)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->prototype_not_found
             );
-
         }
 
         return $this->availableProtoTypes[$protoName];
-
 
     }
 
@@ -997,18 +837,15 @@ class tree extends baseController {
 
     private function getProtoTypesList($current) {
 
-
         if ($this->availableProtoTypes === null) {
             $this->getAvailableProtoTypes();
         }
 
         if (!$this->availableProtoTypes) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->prototypes_not_available
             );
-
         }
 
         $prototypes = array(
@@ -1031,7 +868,6 @@ class tree extends baseController {
 
         return $prototypes;
 
-
     }
 
 
@@ -1041,19 +877,16 @@ class tree extends baseController {
 
     private function getAvailableMenuList($current = -1) {
 
-
         $menuItems = array();
         $menu = db::query("SELECT id,name FROM menu");
 
         if ($current < 1) {
             $inMenu = array();
         } else {
-
             $inMenu = db::query("
                 SELECT menu_id FROM menu_items
                 WHERE node_id = $current
             ");
-
         }
 
         foreach ($menu as $item) {
@@ -1080,7 +913,6 @@ class tree extends baseController {
 
         return $menuItems;
 
-
     }
 
 
@@ -1090,11 +922,6 @@ class tree extends baseController {
      */
 
     private function assignNewNodeIntoView($parentID, $protoName) {
-
-
-        /**
-         * set defaults
-         */
 
         $parentNode = array();
         $newNode = array(
@@ -1109,11 +936,6 @@ class tree extends baseController {
 
         );
 
-
-        /**
-         * set different values
-         */
-
         if ($parentID == 0) {
 
             $newNode['parent_name'] = view::$language->root_of_site;
@@ -1123,63 +945,37 @@ class tree extends baseController {
 
         } else {
 
-
-            /**
-             * get exists parent
-             */
-
             $parentNode = db::normalizeQuery(
-
                 "SELECT node_name, prototype,
                     children_prototype cpt, page_alias
                         FROM tree WHERE id = %u", $newNode['parent_id']
-
             );
 
             if (!$parentNode) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->parent_node_not_found
                 );
-
             }
 
+            $newNode['parent_name'] = $parentNode['node_name'];
             $newNode['prototype'] = $protoName
                 ? $protoName : $parentNode['cpt'];
-
-            $newNode['parent_name'] = $parentNode['node_name'];
-
-
-            /**
-             * get parent alias
-             */
 
             $parentProto  = $this->getProtoType($parentNode['prototype']);
             $parentFields = $parentProto->getPublicFields();
 
             if (in_array("page_alias", $parentFields, true)) {
-
                 $newNode['parent_alias'] = rawurldecode(
                     $parentNode['page_alias']
                 );
-
             }
-
 
         }
 
-
-        /**
-         * build new node prototype properties,
-         * assign data into view
-         */
-
         $this->buildNodeProperties($newNode);
-
         view::assign("in_menu", $this->getAvailableMenuList());
         view::assign("node", $newNode);
-
 
     }
 
@@ -1191,55 +987,26 @@ class tree extends baseController {
 
     private function assignEditedNodeIntoView($nodeID, $protoName) {
 
+        $editedNode = db::normalizeQuery(
 
-        /**
-         * get defaults
-         */
-
-        $editedNode = db::normalizeQuery("
-
-            SELECT
-
-                t.id,
-                t.parent_id,
-                t.prototype,
-                t.children_prototype,
-                t.is_publish,
-                t.node_name,
-                p.prototype parent_prototype,
-                p.page_alias parent_alias,
-                p.node_name parent_name
-
-            FROM tree t
-            LEFT JOIN tree p ON p.id = t.parent_id
-            WHERE t.id = %u
-
-            ", $nodeID
+            "SELECT t.id, t.parent_id, t.prototype, t.children_prototype,
+                t.is_publish, t.node_name, p.prototype parent_prototype,
+                    p.page_alias parent_alias, p.node_name parent_name
+                        FROM tree t LEFT JOIN tree p ON p.id = t.parent_id
+                            WHERE t.id = %u", $nodeID
 
         );
 
         if (!$editedNode) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->node_not_found
             );
-
         }
-
-
-        /**
-         * set new prototype of edited node
-         */
 
         if ($protoName) {
             $editedNode['prototype'] = $protoName;
         }
-
-
-        /**
-         * set different values
-         */
 
         if ($editedNode['parent_id'] == 0) {
 
@@ -1248,18 +1015,11 @@ class tree extends baseController {
 
         } else {
 
-
-            /**
-             * get parent alias
-             */
-
             if (!$editedNode['parent_prototype']) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->parent_node_not_found
                 );
-
             }
 
             $parentProto = $this->getProtoType(
@@ -1268,27 +1028,16 @@ class tree extends baseController {
 
             $parentFields = $parentProto->getPublicFields();
             if (in_array("page_alias", $parentFields, true)) {
-
                 $editedNode['parent_alias'] = rawurldecode(
                     $editedNode['parent_alias']
                 );
-
             }
-
 
         }
 
-
-        /**
-         * build edited node prototype properties,
-         * assign data into view
-         */
-
         $this->buildNodeProperties($editedNode, $nodeID);
-
         view::assign("in_menu", $this->getAvailableMenuList($nodeID));
         view::assign("node", $editedNode);
-
 
     }
 
@@ -1331,50 +1080,25 @@ class tree extends baseController {
 
         }
 
-
-        /**
-         * id field values
-         */
-
         $mainProperties['id']['type'] = "hidden";
         $mainProperties['id']['selector'] = "nodeid";
         unset($mainProperties['id']['description']);
         unset($mainProperties['id']['editor']);
 
-
-        /**
-         * parent_id field values
-         */
-
         $mainProperties['parent_id']['type'] = "hidden";
         unset($mainProperties['parent_id']['description']);
         unset($mainProperties['parent_id']['editor']);
-
-
-        /**
-         * parent_alias field values
-         */
 
         $mainProperties['parent_alias']['type'] = "hidden";
         $mainProperties['parent_alias']['selector'] = "parentalias";
         unset($mainProperties['parent_alias']['description']);
         unset($mainProperties['parent_alias']['editor']);
 
-
-        /**
-         * node_name field values
-         */
-
         $mainProperties['node_name']['top']  = 20;
         $mainProperties['node_name']['type'] = "longtext";
         $mainProperties['node_name']['selector'] = "pagename";
         $mainProperties['node_name']['description']
             = view::$language->node_name;
-
-
-        /**
-         * prototype field values
-         */
 
         $mainProperties['prototype']['top']  = 20;
         $mainProperties['prototype']['type'] = "select";
@@ -1386,11 +1110,6 @@ class tree extends baseController {
             $mainProperties['prototype']['value']
         );
 
-
-        /**
-         * children_prototype field values
-         */
-
         $chpt = "children_prototype";
         $mainProperties[$chpt]['type'] = "select";
         $mainProperties[$chpt]['description']
@@ -1400,21 +1119,11 @@ class tree extends baseController {
             $mainProperties[$chpt]['value']
         );
 
-
-        /**
-         * is_publish field values
-         */
-
         $mainProperties['is_publish']['top']  = 20;
         $mainProperties['is_publish']['required'] = false;
         $mainProperties['is_publish']['type'] = "checkbox";
         $mainProperties['is_publish']['description']
             = view::$language->publish;
-
-
-        /**
-         * return all builded main properties
-         */
 
         return $mainProperties;
 
@@ -1428,7 +1137,6 @@ class tree extends baseController {
 
     private function buildNodeProperties( & $node, $nodeID = null) {
 
-
         $this->getPrototype($node['prototype']);
         $protoModel = $this->getNodeProtoModel($node['prototype']);
 
@@ -1438,7 +1146,6 @@ class tree extends baseController {
 
         utils::loadSortArrays();
         uasort($node, "sortArrays");
-
 
     }
 
@@ -1450,174 +1157,93 @@ class tree extends baseController {
     private function getFilteredRequiredInputData($nodeID = null) {
 
 
-        /**
-         * required properties
-         */
-
         $requiredParams = array(
             "parent_id", "prototype", "children_prototype", "node_name"
         );
 
-
-        /**
-         * fragmentation form data?
-         */
-
         $requiredData = request::getRequiredPostParams($requiredParams);
         if ($requiredData === null) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_not_enough
             );
-
         }
-
-
-        /**
-         * validate parent ID
-         */
 
         if (!validate::isNumber($requiredData['parent_id'])) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
-
-        /**
-         * validate node prototype
-         */
-
-        $requiredData['prototype']
-            = (string) $requiredData['prototype'];
-
+        $requiredData['prototype'] = (string) $requiredData['prototype'];
         if (!$requiredData['prototype']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
         $this->getPrototype($requiredData['prototype']);
-
-
-        /**
-         * validate node children prototype
-         */
 
         $requiredData['children_prototype']
             = (string) $requiredData['children_prototype'];
 
         if (!$requiredData['children_prototype']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
         $this->getPrototype($requiredData['children_prototype']);
-
-
-        /**
-         * validate name of node
-         */
 
         $requiredData['node_name'] = filter::input(
             $requiredData['node_name'])
                 ->stripTags()->typoGraph(true)->getData();
 
         if (!$requiredData['node_name']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->node_name_invalid
             );
-
         }
-
-
-        /**
-         * check for exists parent
-         */
 
         if ($requiredData['parent_id'] > 0) {
 
-
-            /**
-             * check exists parent
-             */
-
             $existsParent = db::normalizeQuery(
-
-                "SELECT lk, rk FROM tree
-                    WHERE id = %u", $requiredData['parent_id']
-
+                "SELECT lk, rk FROM tree WHERE id = %u",
+                    $requiredData['parent_id']
             );
 
             if (!$existsParent) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->parent_node_not_found
                 );
-
             }
-
 
         }
 
-
-        /**
-         * check for correct parent (1)
-         */
-
         if ($nodeID !== null and $nodeID == $requiredData['parent_id']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->node_cant_itself_parent
             );
-
         }
 
-
-        /**
-         * check for exists and valid node,
-         * check for correct parent (2)
-         */
-
         if ($nodeID) {
-
-
-            /**
-             * node is exists?
-             */
 
             $currentKeys = db::normalizeQuery(
                 "SELECT lk, rk FROM tree WHERE id = %u", $nodeID
             );
 
             if (!$currentKeys) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->node_not_found
                 );
-
             }
-
-
-            /**
-             * children is parent?
-             */
 
             if (isset($existsParent)) {
 
@@ -1635,19 +1261,8 @@ class tree extends baseController {
 
         }
 
-
-        /**
-         * add is_publish property
-         */
-
         $requiredData['is_publish']
             = request::getPostParam("is_publish") ? 1 : 0;
-
-
-        /**
-         * get main prototype model,
-         * get main properties
-         */
 
         $mainProtoModelName = $requiredData['prototype'] . "ProtoModel";
         $mainProtoModel = new $mainProtoModelName;
@@ -1675,23 +1290,19 @@ class tree extends baseController {
         if ($menuList !== null) {
 
             if (!is_array($menuList)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             }
 
             foreach ($menuList as $k => $appendix) {
 
                 if (!validate::isNumber($k)) {
-
                     throw new memberErrorException(
                         view::$language->error,
                             view::$language->data_invalid
                     );
-
                 }
 
                 array_push($inMenu, $k);
@@ -1711,17 +1322,7 @@ class tree extends baseController {
 
     private function saveMenuItems($nodeID) {
 
-
-        /**
-         * delete exists rows from menu_items,
-         * insert new inMenu data
-         */
-
-        db::set(
-            "DELETE FROM menu_items
-                WHERE node_id = %u", $nodeID
-        );
-
+        db::set("DELETE FROM menu_items WHERE node_id = %u", $nodeID);
         if ($inMenu = $this->getInMenuList()) {
 
             $insertedRows = array();
@@ -1790,17 +1391,15 @@ class tree extends baseController {
         if ($newParentKeys['rk'] < $currentPos['rk']) {
 
             $skewEdit = $newParentKeys['rk'] - $currentPos['lk'] + 1;
-            db::set("
+            db::set(
 
-                UPDATE tree SET
+                "UPDATE tree SET
 
                     rk = IF(lk >= %u, rk + (%s), IF(rk < %u, rk + (%s), rk)),
                     lvl = IF(lk >= %u, lvl + (%s), lvl),
                     lk = IF(lk >= %u, lk + (%s), IF(lk > %u, lk + (%s), lk))
 
-                WHERE rk > %u AND lk < %u
-
-                ",
+                WHERE rk > %u AND lk < %u",
 
                 $currentPos['lk'],
                 $skewEdit,
@@ -1822,17 +1421,15 @@ class tree extends baseController {
             $skewEdit = $newParentKeys['rk']
                 - $currentPos['lk'] + 1 - $skewTree;
 
-            db::set("
+            db::set(
 
-                UPDATE tree SET
+                "UPDATE tree SET
 
                     lk=IF(rk <= %u, lk + (%s), IF(lk > %u, lk - (%s), lk)),
                     lvl=IF(rk <= %u, lvl + (%s), lvl),
                     rk=IF(rk <= %u, rk + (%s), IF(rk <= %u, rk - (%s), rk))
 
-                WHERE rk > %u AND lk <= %u
-
-                ",
+                WHERE rk > %u AND lk <= %u",
 
                 $currentPos['rk'],
                 $skewEdit,
@@ -1862,31 +1459,21 @@ class tree extends baseController {
     private function saveNewNode() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
+        $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer(
-            app::config()->site->admin_tools_link
-                . "/tree/create\?parent=\d+", true
+            $adminToolsLink . "/tree/create\?parent=\d+", true
         );
 
 
         /**
-         * get and check filtered data of new node
-         */
-
-        $newNode = $this->getFilteredRequiredInputData();
-
-
-        /**
-         * get nested set keys for new inserted node
+         * get and check filtered data of new node,
+         * get nested set keys for new inserted node,
          * check for exists parent
          */
 
+        $newNode = $this->getFilteredRequiredInputData();
         $nestedSetKeys = db::normalizeQuery(
-            "SELECT lk, lvl FROM tree
-                WHERE id = %u", $newNode['parent_id']
+            "SELECT lk, lvl FROM tree WHERE id = %u", $newNode['parent_id']
         );
 
         if (!$nestedSetKeys) {
@@ -1937,39 +1524,29 @@ class tree extends baseController {
 
 
         /**
-         * update nested set keys before insert new node
-         */
-
-        db::set(
-            "UPDATE tree SET lk = lk + 2
-                WHERE lk > %u", $nestedSetKeys['lk']
-        );
-
-        db::set(
-            "UPDATE tree SET rk = rk + 2
-                WHERE rk > %u", $nestedSetKeys['lk']
-        );
-
-
-        /**
+         * update nested set keys before insert new node,
          * insert all data of new node
          */
+
+        db::set(
+            "UPDATE tree SET lk = lk + 2 WHERE lk > %u", $nestedSetKeys['lk']
+        );
+
+        db::set(
+            "UPDATE tree SET rk = rk + 2 WHERE rk > %u", $nestedSetKeys['lk']
+        );
 
         db::set($insertQuery);
 
 
         /**
          * get last insert ID of new node,
-         * save menu items
+         * save menu items,
+         * save attached images
          */
 
         $newNode['id'] = db::lastID();
         $this->saveMenuItems($newNode['id']);
-
-
-        /**
-         * save attached images
-         */
 
         $attachedImages = array();
         foreach (member::getStorageData($this->storageImagesKey) as $k => $v) {
@@ -1985,13 +1562,9 @@ class tree extends baseController {
         if ($attachedImages) {
 
             $attachedImages = join(",", $attachedImages);
-
             db::set(
-
-                "INSERT INTO images
-                    (id,node_id,is_master,name)
+                "INSERT INTO images (id,node_id,is_master,name)
                         VALUES {$attachedImages}"
-
             );
 
         }
@@ -2011,13 +1584,10 @@ class tree extends baseController {
 
         $updFeatures = array();
         $existsFeatures = array();
-
         if ($fNames) {
-
             $existsFeatures = db::query(
                 "SELECT id,name FROM features WHERE name IN(%s)", $fNames
             );
-
         }
 
         $insFeatures = array();
@@ -2062,15 +1632,10 @@ class tree extends baseController {
          */
 
         if ($updFeatures) {
-
             db::set(
-
-                "INSERT INTO tree_features
-                    (node_id, feature_id, feature_value)
+                "INSERT INTO tree_features (node_id, feature_id, feature_value)
                         VALUES " . join(",", $updFeatures)
-
             );
-
         }
 
 
@@ -2081,10 +1646,7 @@ class tree extends baseController {
         if ($insNames) {
 
             db::set(
-
-                "INSERT INTO features (id, name)
-                    VALUES " . join(",", $insNames)
-
+                "INSERT INTO features (id, name) VALUES " . join(",", $insNames)
             );
 
             $newNames = array_keys($insFeatures);
@@ -2106,36 +1668,28 @@ class tree extends baseController {
 
             }
 
-            db::set("
-
-                INSERT INTO tree_features
-                    (node_id, feature_id, feature_value)
+            db::set(
+                "INSERT INTO tree_features (node_id, feature_id, feature_value)
                         VALUES " . join(",", $updNewFeatures)
-
             );
 
         }
 
 
         /**
-         * reset member cache
+         * reset member cache,
+         * redirect to show message
          */
 
         member::setStorageData($this->storageImagesKey, array());
         member::setStorageData($this->storageFeaturesKey, array());
-
-
-        /**
-         * redirect to show message
-         */
-
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->node_is_created,
-                        app::config()->site->admin_tools_link
-                            . "/tree/branch?id={$newNode['parent_id']}"
+                        $adminToolsLink
+                        . "/tree/branch?id={$newNode['parent_id']}"
 
         );
 
@@ -2150,29 +1704,14 @@ class tree extends baseController {
     private function saveEditedNode($nodeID) {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
+        $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer(
-            app::config()->site->admin_tools_link
-                . "/tree/edit\?id=\d+", true
+            $adminToolsLink . "/tree/edit\?id=\d+", true
         );
 
-
-        /**
-         * get and check filtered data of edited node
-         */
-
         $editedNode = $this->getFilteredRequiredInputData($nodeID);
-
         $parentID = $editedNode['parent_id'];
         unset($editedNode['parent_id']);
-
-
-        /**
-         * set auto properties for edited node
-         */
 
         $editedNode['modified_author'] = member::getID();
         $editedNode['last_modified']
@@ -2201,30 +1740,20 @@ class tree extends baseController {
 
 
         /**
-         * update edited node data
+         * update edited node data,
+         * save menu items,
+         * redirect to show message
          */
 
         db::set($updateQuery);
-
-
-        /**
-         * save menu items
-         */
-
         $this->saveMenuItems($nodeID);
-
-
-        /**
-         * redirect to show message
-         */
 
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->node_is_edited,
-                        app::config()->site->admin_tools_link
-                            . "/tree/branch?id={$parentID}"
+                        $adminToolsLink . "/tree/branch?id={$parentID}"
 
         );
 

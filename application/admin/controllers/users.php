@@ -15,7 +15,6 @@ class users extends baseController {
 
     public function setPermissions() {
 
-
         $this->permissions = array(
 
             array(
@@ -52,7 +51,6 @@ class users extends baseController {
 
         );
 
-
     }
 
 
@@ -62,45 +60,30 @@ class users extends baseController {
 
     public function index() {
 
-
         $priorityCondition = (!member::isRoot() or member::getPriority() > 0)
             ? "WHERE g.priority > "
                 . member::getPriority() . " OR g.priority IS NULL" : "";
 
-        $sourceQuery = db::buildQueryString("
+        $sourceQuery = db::buildQueryString(
 
-            SELECT
+            "SELECT u.id, IFNULL(g.name,'---') groupname,
+                IFNULL(g.priority,1001) priority, u.login, u.email,
+                    u.registration_date, u.last_ip FROM users u
+                        LEFT JOIN groups g ON g.id = u.group_id
+                            {$priorityCondition}
+                                ORDER BY priority ASC, u.login ASC"
 
-                u.id,
-                IFNULL(g.name,'---') groupname,
-                IFNULL(g.priority,1001) priority,
-                u.login,
-                u.email,
-                u.registration_date,
-                u.last_ip
-
-            FROM users u
-            LEFT JOIN groups g ON g.id = u.group_id
-
-            {$priorityCondition}
-            ORDER BY priority ASC, u.login ASC
-
-        ");
+        );
 
         $paginator = new paginator($sourceQuery);
-        $paginator =
-
-            $paginator->setCurrentPage(request::getCurrentPage())
-                ->setItemsPerPage(20)
-                    ->setSliceSizeByPages(20)
-                        ->getResult();
+        $paginator = $paginator->setCurrentPage(request::getCurrentPage())
+            ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
         view::assign("node_name", view::$language->users);
         view::assign("users", $paginator['items']);
         view::assign("pages", $paginator['pages']);
 
         $this->setProtectedLayout("users.html");
-
 
     }
 
@@ -112,39 +95,16 @@ class users extends baseController {
 
     public function create() {
 
-
-        /**
-         * save new user action
-         * THROW inside, not working more
-         */
-
         if (request::getPostParam("save") !== null) {
             return $this->saveUser();
         }
 
-
-        /**
-         * append data into view
-         */
-
-        view::assign(
-            "grouplist",
-            $this->getAvailableGroupList()
-        );
-
-        view::assign(
-            "statuslist",
-            $this->getUserStatusList()
-        );
-
-        view::assign(
-            "languages",
-            utils::getAvailableLanguages()
-        );
+        view::assign("grouplist", $this->getAvailableGroupList());
+        view::assign("statuslist", $this->getUserStatusList());
+        view::assign("languages", utils::getAvailableLanguages());
 
         view::assign("node_name", view::$language->user_create_new);
         $this->setProtectedLayout("user-new.html");
-
 
     }
 
@@ -157,70 +117,43 @@ class users extends baseController {
     public function edit() {
 
 
-        /**
-         * get exists user,
-         * check main permissions and priority
-         */
-
         $user_id = request::shiftParam("id");
         if (!validate::isNumber($user_id)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
         if (!member::isRoot() and (string) $user_id === "0") {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->system_object_action_denied
             );
-
         }
 
-        $existsUser = db::normalizeQuery("
+        $existsUser = db::normalizeQuery(
 
-            SELECT
-
-                u.id,
-                u.group_id,
-                u.status,
-                u.timezone,
-                u.language,
-                u.avatar,
-                u.login,
-                u.email,
-                u.about,
-                IFNULL(g.priority,1001) priority
-
-            FROM users u
-            LEFT JOIN groups g ON g.id = u.group_id
-
-            WHERE u.id = %u
-
-            ", $user_id
+            "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
+                u.avatar, u.login, u.email, u.about,
+                    IFNULL(g.priority,1001) priority FROM users u
+                        LEFT JOIN groups g ON g.id = u.group_id
+                            WHERE u.id = %u", $user_id
 
         );
 
         if (!$existsUser) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->user_not_found
             );
-
         }
 
         if (!member::isRoot() and member::getID() == $existsUser['id']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->user_cant_edit_so_profile
             );
-
         }
 
         if (!member::isRoot()
@@ -233,39 +166,24 @@ class users extends baseController {
 
         }
 
-
-        /**
-         * update user action
-         * THROW inside, not working more
-         */
-
         if (request::getPostParam("save") !== null) {
             return $this->saveUser($existsUser['id'], $existsUser);
         }
 
-
-        /**
-         * append data into view
-         */
-
         view::assign(
-            "grouplist",
-            $this->getAvailableGroupList($existsUser['group_id'])
+            "grouplist", $this->getAvailableGroupList($existsUser['group_id'])
         );
 
         view::assign(
-            "statuslist",
-            $this->getUserStatusList($existsUser['status'])
+            "statuslist", $this->getUserStatusList($existsUser['status'])
         );
 
         view::assign(
-            "languages",
-            utils::getAvailableLanguages($existsUser['language'])
+            "languages", utils::getAvailableLanguages($existsUser['language'])
         );
 
         view::assign("user", $existsUser);
         view::assign("node_name", view::$language->user_edit_exists);
-
         $this->setProtectedLayout("user-edit.html");
 
 
@@ -279,72 +197,44 @@ class users extends baseController {
     public function delete() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/users"
-        );
-
-
-        /**
-         * get exists user,
-         * check main permissions and priority
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link
+        request::validateReferer($adminToolsLink . "/users");
 
         $user_id = request::shiftParam("id");
         if (!validate::isNumber($user_id)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
-
         }
 
         if ((string) $user_id === "0") {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->system_object_action_denied
             );
-
         }
 
+        $existsUser = db::normalizeQuery(
 
-        $existsUser = db::normalizeQuery("
-
-            SELECT
-
-                u.id,
-                IFNULL(g.priority,1001) priority
-
-            FROM users u
-            LEFT JOIN groups g ON g.id = u.group_id
-
-            WHERE u.id = %u
-
-            ", $user_id
+            "SELECT u.id, IFNULL(g.priority,1001) priority FROM users u
+                LEFT JOIN groups g ON g.id = u.group_id
+                    WHERE u.id = %u", $user_id
 
         );
 
         if (!$existsUser) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->user_not_found
             );
-
         }
 
         if (member::getID() == $existsUser['id']) {
-
             throw new memberErrorException(
                 view::$language->ouch,
                     view::$language->user_suicide_not_allowed
             );
-
         }
 
         if (!member::isRoot()
@@ -357,27 +247,10 @@ class users extends baseController {
 
         }
 
-
-        /**
-         * now delete user
-         */
-
-        db::set(
-            "DELETE FROM users WHERE id = %u", $existsUser['id']
-        );
-
-
-        /**
-         * show redirect message
-         */
-
+        db::set("DELETE FROM users WHERE id = %u", $existsUser['id']);
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->user_is_deleted,
-                        app::config()->site->admin_tools_link . "/users"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->user_is_deleted, $adminToolsLink . "/users"
         );
 
 
@@ -390,37 +263,18 @@ class users extends baseController {
 
     private function getAvailableGroupList($target = null) {
 
-
-        /**
-         * get available groups
-         */
-
         $groups = db::query(
             "SELECT id, priority, name
                 FROM groups ORDER BY priority DESC"
         );
 
-
-        /**
-         * build grouplist
-         */
-
         $grouplist = array();
         $emptyOption = array(
-
-            "description" => " --- ",
-            "value"       => "none",
-            "selected"    => false
-
+            "description" => " --- ", "value" => "none", "selected" => false
         );
 
         array_push($grouplist, $emptyOption);
         foreach ($groups as $group) {
-
-
-            /**
-             * check group priority for available items
-             */
 
             if (!member::isRoot()
                     and member::getPriority() >= $group['priority']) {
@@ -443,7 +297,6 @@ class users extends baseController {
 
         return $grouplist;
 
-
     }
 
 
@@ -453,7 +306,6 @@ class users extends baseController {
 
     private function getUserStatusList($type = 0) {
 
-
         $statustypes = array(
 
             "3" => view::$language->user_status_email_not_confirm,
@@ -462,11 +314,6 @@ class users extends baseController {
             "0" => view::$language->user_status_free,
 
         );
-
-
-        /**
-         * build statuslist
-         */
 
         $statuslist = array();
         foreach ($statustypes as $k => $status) {
@@ -485,7 +332,6 @@ class users extends baseController {
 
         return $statuslist;
 
-
     }
 
 
@@ -496,29 +342,15 @@ class users extends baseController {
     private function saveUser($target = null) {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
         $adminToolsLink = app::config()->site->admin_tools_link;
         if ($target === null) {
-
-            request::validateReferer(
-                $adminToolsLink . "/users/create"
-            );
-
+            request::validateReferer($adminToolsLink . "/users/create");
         } else {
-
             request::validateReferer(
                 $adminToolsLink . "/users/edit\?id=\d+", true
             );
-
         }
 
-
-        /**
-         * get required user data
-         */
 
         $requiredParams = array(
 
@@ -535,36 +367,20 @@ class users extends baseController {
 
         $userData = request::getRequiredPostParams($requiredParams);
         if ($userData === null) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_not_enough
             );
-
         }
 
-
-        /**
-         * check like string params
-         */
-
         foreach ($requiredParams as $strKey) {
-
             if (!validate::likeString($userData[$strKey])) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->data_invalid
                 );
-
             }
-
         }
-
-
-        /**
-         * check user status type
-         */
 
         if (!validate::isNumber($userData['status'])
                 or $userData['status'] > 3) {
@@ -576,70 +392,38 @@ class users extends baseController {
 
         }
 
-
-        /**
-         * check user language
-         */
-
         if (!preg_match("/^[a-z-]+$/", $userData['language'])) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->language_name_need_iso639_std
             );
-
         }
 
-        $languageDir = APPLICATION
-            . app::config()->path->languages . $userData['language'];
-
+        $languageDir = APPLICATION . "languages/" . $userData['language'];
         if (!is_dir($languageDir)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->language_not_found
             );
-
         }
-
-
-        /**
-         * check user login
-         */
 
         $userData['login']
             = filter::input($userData['login'])
                 ->stripTags()->getData();
 
         if (!$userData['login']) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->user_login_invalid
             );
-
         }
 
-
-        /**
-         * check user email
-         */
-
         if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->email_invalid
             );
-
         }
-
-
-        /**
-         * check password,
-         * password for new user is required,
-         * password for exists user is required only if isset
-         */
 
         $userData['confirmpassword']
             = filter::input($userData['confirmpassword'])->getData();
@@ -647,55 +431,39 @@ class users extends baseController {
         $userData['password']
             = filter::input($userData['password'])->getData();
 
-
         $requiredPassword = (
             $target === null or ($userData['password']
                 or $userData['confirmpassword'])
         );
 
-
         if ($requiredPassword) {
 
             if (!$userData['password'] or !$userData['confirmpassword']) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->password_confirm_req_depend
                 );
-
             }
 
             if ($userData['password'] !== $userData['confirmpassword']) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->password_confirm_dont_match
                 );
-
             }
 
         }
 
-
-        /**
-         * check group of user,
-         * allow set only lower priority
-         */
-
         if ($userData['group_id'] === "none") {
-
             $userData['group_id'] = "NULL";
             $existsGroup = array("priority" => null, "id" => null);
-
         } else {
 
             if (!validate::isNumber($userData['group_id'])) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->group_id_invalid
                 );
-
             }
 
             $existsGroup = db::normalizeQuery(
@@ -704,12 +472,10 @@ class users extends baseController {
             );
 
             if (!$existsGroup) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->group_not_found
                 );
-
             }
 
             if (!member::isRoot()
@@ -724,86 +490,30 @@ class users extends baseController {
 
         }
 
-
-        /**
-         * lead user about info
-         */
-
         $userData['about']
             = filter::input($userData['about'])
                 ->stripTags()->getData();
 
-
-        /**
-         * save user data
-         */
-
         if ($target === null) {
 
-
-            /**
-             * get pasword hash value
-             */
-
             $password = helper::getHash($userData['password']);
+            db::set(
 
+                "INSERT INTO users (id, group_id, status, language, login,
+                    password, email, hash, last_ip, registration_date,
+                        last_visit, about, working_cache) VALUES (
+                            NULL, %s, %u, '%s', '%s', '%s', '%s', NULL,
+                                '0.0.0.0', NOW(), NOW(), '%s', '[]')",
 
-            /**
-             * create new user
-             */
-
-            db::set("
-
-                INSERT INTO users (
-
-                    id,
-                    group_id,
-                    status,
-                    language,
-                    login,
-                    password,
-                    email,
-                    hash,
-                    last_ip,
-                    registration_date,
-                    last_visit,
-                    about,
-                    working_cache
-
-                ) VALUES (
-
-                    NULL,
-                    %s,
-                    %u,
-                   '%s',
-                   '%s',
-                   '%s',
-                   '%s',
-                    NULL,
-                   '0.0.0.0',
-                    NOW(),
-                    NOW(),
-                   '%s',
-                   '[]'
-
-                )
-
-                ",
-
-                $userData['group_id'],
-                $userData['status'],
-                $userData['language'],
-                $userData['login'],
-                $password,
-                $userData['email'],
-                $userData['about']
+                                $userData['group_id'],
+                                $userData['status'],
+                                $userData['language'],
+                                $userData['login'],
+                                $password,
+                                $userData['email'],
+                                $userData['about']
 
             );
-
-
-            /**
-             * set valid hash value
-             */
 
             $newUserID = db::lastID();
             $userHash = helper::getHash(
@@ -821,19 +531,9 @@ class users extends baseController {
 
         } else {
 
-
-            /**
-             * get user password hash
-             */
-
             $uPass = db::normalizeQuery(
                 "SELECT password FROM users WHERE id = %u", $target
             );
-
-
-            /**
-             * build user hash
-             */
 
             $password = $requiredPassword
                 ? helper::getHash($userData['password']) : $uPass;
@@ -846,68 +546,43 @@ class users extends baseController {
 
             );
 
-
-            /**
-             * update user now
-             */
-
             if ($requiredPassword) {
 
-                db::set("
+                db::set(
 
-                    UPDATE users SET
+                    "UPDATE users SET group_id = %s, status = %u,
+                        language = '%s', login = '%s', password = '%s',
+                            email = '%s', hash = '%s', about = '%s'
+                                WHERE id = %u",
 
-                        group_id = %s,
-                        status = %u,
-                        language = '%s',
-                        login = '%s',
-                        password = '%s',
-                        email = '%s',
-                        hash = '%s',
-                        about = '%s'
-
-                    WHERE id = %u
-
-                    ",
-
-                    $userData['group_id'],
-                    $userData['status'],
-                    $userData['language'],
-                    $userData['login'],
-                    $password,
-                    $userData['email'],
-                    $userHash,
-                    $userData['about'],
-                    $target
+                                $userData['group_id'],
+                                $userData['status'],
+                                $userData['language'],
+                                $userData['login'],
+                                $password,
+                                $userData['email'],
+                                $userHash,
+                                $userData['about'],
+                                $target
 
                 );
 
             } else {
 
-                db::set("
+                db::set(
 
-                    UPDATE users SET
+                    "UPDATE users SET group_id = %s, status = %u,
+                        language = '%s', login = '%s', email = '%s',
+                            hash = '%s', about = '%s' WHERE id = %u",
 
-                        group_id = %s,
-                        status = %u,
-                        language = '%s',
-                        login = '%s',
-                        email = '%s',
-                        hash = '%s',
-                        about = '%s'
-
-                    WHERE id = %u
-
-                    ",
-
-                    $userData['group_id'],
-                    $userData['status'],
-                    $userData['language'],
-                    $userData['login'],
-                    $userData['email'],
-                    $userHash,
-                    $userData['about'],
-                    $target
+                            $userData['group_id'],
+                            $userData['status'],
+                            $userData['language'],
+                            $userData['login'],
+                            $userData['email'],
+                            $userHash,
+                            $userData['about'],
+                            $target
 
                 );
 
@@ -915,24 +590,14 @@ class users extends baseController {
 
         }
 
-
         /* TODO view::setLanguage($userData['language']);*/
         $message = ($target === null)
             ? view::$language->user_is_created
             : view::$language->user_is_edited;
 
-
-        /**
-         * show redirect message
-         */
-
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    $message,
-                        app::config()->site->admin_tools_link . "/users"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                $message, $adminToolsLink . "/users"
         );
 
 

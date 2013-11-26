@@ -95,30 +95,17 @@ class preferences extends baseController {
 
     public function clear_cache() {
 
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/preferences"
-        );
-
-
-        /**
-         * show redirect message,
-         * WARNING! Success exception always cleared cache!
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link;
+        request::validateReferer($adminToolsLink . "/preferences");
 
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->cache_is_cleared,
-                        app::config()->site->admin_tools_link . "/preferences"
+                        $adminToolsLink . "/preferences"
 
         );
-
 
     }
 
@@ -129,42 +116,23 @@ class preferences extends baseController {
 
     public function reset() {
 
-
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/preferences"
-        );
-
-
-        /**
-         * delete main.json.generated file
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link;
+        request::validateReferer($adminToolsLink . "/preferences");
 
         $generatedConfig = APPLICATION . "config/main.json.generated";
-
         if (file_exists($generatedConfig)) {
             unlink($generatedConfig);
         }
 
-        app::loadConfig();
-
-
-        /**
-         * show redirect message
-         */
-
+        $newConfig = app::reloadConfig();
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->preferences_global_is_reseted,
-                        app::config()->site->admin_tools_link . "/preferences"
+                        $newConfig->site->admin_tools_link . "/preferences"
 
         );
-
 
     }
 
@@ -176,18 +144,8 @@ class preferences extends baseController {
     public function recalculate() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
-        request::validateReferer(
-            app::config()->site->admin_tools_link . "/preferences"
-        );
-
-
-        /**
-         * get all permissions from controllers
-         */
+        $adminToolsLink = app::config()->site->admin_tools_link;
+        request::validateReferer($adminToolsLink . "/preferences");
 
         $controllersPermissions = array();
         $controllers = utils::getAllControllers();
@@ -210,79 +168,28 @@ class preferences extends baseController {
 
         }
 
+        $groupExistsPermissions = db::query(
 
-        /**
-         * get exists permissions of groups in datatbase
-         */
-
-        $groupExistsPermissions = db::query("
-
-            SELECT
-
-                p.id,
-                p.name,
-                gp.group_id
-
-            FROM permissions p
-            INNER JOIN group_permissions gp ON gp.permission_id = p.id
-
-            WHERE p.name IN(%s) AND gp.group_id != 0
-
-            ",
-
-            $controllersPermissions
+            "SELECT p.id, p.name, gp.group_id FROM permissions p
+                INNER JOIN group_permissions gp ON gp.permission_id = p.id
+                    WHERE p.name IN(%s) AND gp.group_id != 0",
+                        $controllersPermissions
 
         );
-
-
-        /**
-         * truncate tables group_permissions and permissions
-         */
 
         db::set("TRUNCATE TABLE group_permissions");
         db::set("TRUNCATE TABLE permissions");
 
-
-        /**
-         * insert new list of permissions
-         */
-
         $permissionValues
             = "('". join("'), ('", $controllersPermissions) . "')";
 
-        db::set(
-            "INSERT INTO permissions (name)
-                VALUES {$permissionValues}"
-        );
-
-
-        /**
-         * get new list of permissions
-         */
-
-        $newPermissions = db::query(
-            "SELECT id, name FROM permissions"
-        );
-
-
-        /**
-         * build new groups permissions
-         */
+        db::set("INSERT INTO permissions (name) VALUES {$permissionValues}");
+        $newPermissions = db::query("SELECT id, name FROM permissions");
 
         $newGroupsPermissions = array();
         foreach ($newPermissions as $permission) {
 
-
-            /**
-             * push new permission for root
-             */
-
             array_push($newGroupsPermissions, "(0,{$permission['id']})");
-
-
-            /**
-             * push for other users
-             */
 
             foreach ($groupExistsPermissions as $groupPermission) {
 
@@ -299,28 +206,18 @@ class preferences extends baseController {
 
         }
 
-
-        /**
-         * insert new groups permissions
-         */
-
         $newGroupsPermissionsValues = join(", ", $newGroupsPermissions);
         db::set(
             "INSERT INTO group_permissions (group_id,permission_id)
                 VALUES {$newGroupsPermissionsValues}"
         );
 
-
-        /**
-         * show redirect message
-         */
-
         $this->redirectMessage(
 
             SUCCESS_EXCEPTION,
                 view::$language->success,
                     view::$language->permissions_is_recalculated,
-                        app::config()->site->admin_tools_link . "/preferences"
+                        $adminToolsLink . "/preferences"
 
         );
 

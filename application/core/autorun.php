@@ -21,11 +21,8 @@ abstract class autorun {
 
     private static function init($type = autorun::RUN_BEFORE) {
 
-        $config = app::config();
         $autorunDirectory = ($type == self::RUN_BEFORE)
-
-            ? $config->path->autorun_before
-            : $config->path->autorun_after;
+            ? "autorun/before/" : "autorun/after/";
 
         $autorunDirectory = APPLICATION . $autorunDirectory;
         set_include_path(

@@ -48,7 +48,7 @@ if (!array_key_exists("ins", $_SESSION)) {
 function getConfig() {
 
     if (!array_key_exists("config", $_SESSION['ins'])) {
-        $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/","no_image":"no-image.png","no_avatar":"no-avatar.png"},"application":{"name":"Deep-CMS","version":"2.92.134","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"path":{"admin":"admin\/","autorun_after":"autorun\/after\/","autorun_before":"autorun\/before\/","cache":"cache\/","languages":"languages\/","library":"library\/","logs":"logs\/","metadata":"metadata\/","modules":"modules\/","resources":"resources\/","tmp":"tmp\/","upload_dir":"upload\/"},"layouts":{"admin":"layouts\/admin\/","system":"layouts\/system\/","themes":"layouts\/themes\/","parts":"parts\/","public":"public\/","protected":"protected\/","header":"parts\/header.html","footer":"parts\/footer.html","exception":"protected\/exception.html","debug":"layouts\/system\/debug.html","txt":"layouts\/system\/txt.html","json":"layouts\/system\/json.html","xml":"layouts\/system\/xml.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
+        $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/"},"application":{"name":"Deep-CMS","version":"2.92.134","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"layouts":{"admin":"layouts\/admin\/","system":"layouts\/system\/","themes":"layouts\/themes\/","parts":"parts\/","public":"public\/","protected":"protected\/","header":"parts\/header.html","footer":"parts\/footer.html","exception":"protected\/exception.html","debug":"layouts\/system\/debug.html","txt":"layouts\/system\/txt.html","json":"layouts\/system\/json.html","xml":"layouts\/system\/xml.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
     }
 
     return $_SESSION['ins']['config'];
@@ -157,15 +157,7 @@ function saveConfigIntoFile($config) {
 
 
         // relative URL path of administrative tools resources
-        "admin_resources": "/admin-resources/",
-
-
-        // no_image-image filename
-        "no_image": "no-image.png",
-
-
-        // no_avatar-image filename
-        "no_avatar": "no-avatar.png"
+        "admin_resources": "/admin-resources/"
 
 
     },
@@ -255,64 +247,6 @@ function saveConfigIntoFile($config) {
         /*"/\\\/sitemap\\\.xml/"*/
 
     ],
-
-
-    /**
-     * inside system application path's
-     */
-
-    "path": {
-
-
-        // relative path of global admin directory
-        "admin": "admin/",
-
-
-        // relative path of after autorun directory
-        "autorun_after": "autorun/after/",
-
-
-        // relative path of before autorun directory
-        "autorun_before": "autorun/before/",
-
-
-        // relative path of languages directory
-        "cache": "cache/",
-
-
-        // relative path of languages directory
-        "languages": "languages/",
-
-
-        // relative path of library directory
-        "library": "library/",
-
-
-        // relative path of log directory
-        "logs": "logs/",
-
-
-        // relative path of metadata directory
-        "metadata": "metadata/",
-
-
-        // relative path of member modules directory
-        "modules": "modules/",
-
-
-        // relative path of resources
-        "resources": "resources/",
-
-
-        // relative path of temporary files directory
-        "tmp": "tmp/",
-
-
-        // relative path of public uploading directory
-        "upload_dir": "upload/"
-
-
-    },
 
 
     /**

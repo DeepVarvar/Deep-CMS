@@ -88,7 +88,7 @@ abstract class member {
         self::$profile['language'] = $config->site->default_language;
 
         self::$profile['login']  = view::$language->guest;
-        self::$profile['avatar'] = $config->site->no_avatar;
+        self::$profile['avatar'] = "no-avatar.png";
 
 
         /**
