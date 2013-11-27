@@ -29,6 +29,7 @@ CKEDITOR.editorConfig = function( config ) {
     config.uiColor = "#bfbdb2";
     config.removePlugins = 'entities,elementspath,save,about,forms,a11yhelp,dialogadvtab,templates,div,smiley,newpage,iframe,scayt';
     config.height = 240;
+    //config.extraPlugins = 'attachments';
 
     config.toolbar = [
 
@@ -39,11 +40,9 @@ CKEDITOR.editorConfig = function( config ) {
         [ "RemoveFormat", "-", "Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "-", "TextColor", "BGColor" ],
         [ "NumberedList", "BulletedList", "Blockquote", "Table", "HorizontalRule" ],
         [ "Outdent", "Indent", "-", "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", "-", "BidiLtr", "BidiRtl" ],
-        [ "Link", "Unlink", "Anchor", "-", "Image", "-", "oembed", "-", "SpecialChar" ],
+        [ "Link", "Unlink", "Anchor", "-", "Image", "-", "oembed", "-", "Attachments", "-", "SpecialChar" ],
         [ "Styles", "Format" ]
 
     ];
-
-    //config.toolbar = null;
 
 };
