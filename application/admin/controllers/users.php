@@ -197,7 +197,7 @@ class users extends baseController {
     public function delete() {
 
 
-        $adminToolsLink = app::config()->site->admin_tools_link
+        $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer($adminToolsLink . "/users");
 
         $user_id = request::shiftParam("id");
