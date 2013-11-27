@@ -26,7 +26,7 @@ hr {
 }
 
 a {
-    color: #cc0000;
+    color: #0000cc;
     text-decoration: none;
 }
 
@@ -40,7 +40,7 @@ h1 {
     font-size: 26px;
     font-family: Arial;
     font-weight: 300;
-    color: #cc0000;
+    color: #0000cc;
 }
 
 h2 {
@@ -49,7 +49,7 @@ h2 {
     font-size: 18px;
     font-family: Arial;
     font-weight: 300;
-    color: #cc0000;
+    color: #0000cc;
 }
 
 h3 {
@@ -58,7 +58,7 @@ h3 {
     font-size: 16px;
     font-family: Arial;
     font-weight: 300;
-    color: #cc0000;
+    color: #0000cc;
     font-style: italic;
 }
 
@@ -84,8 +84,8 @@ input[type="submit"] {
     font-family: Verdana;
     text-align: center;
     color: #ffffff;
-    background-color: #cc0000;
-    border: solid 1px #cc0000;
+    background-color: #0000cc;
+    border: solid 1px #0000cc;
     box-shadow: 0 0 2px #cccccc;
 }
 
@@ -136,7 +136,7 @@ textarea {
     font-size: 28px;
     font-family: Arial;
     font-weight: 300;
-    color: #cc0000;
+    color: #0000cc;
 }
 
 #header .h2 {
@@ -197,7 +197,7 @@ textarea {
 }
 
 #leftmenu ul a.current, #left ul a:hover {
-    color: #cc0000;
+    color: #0000cc;
     text-decoration: underline;
 }
 
@@ -314,7 +314,7 @@ textarea {
 #commentmessage {
 	padding: 2px 6px;
 	color: #ffffff;
-	background: #cc0000;
+	background: #0000cc;
 }
 
 .form {
@@ -329,7 +329,7 @@ textarea {
 .form .messagewrapper h3 {
 	padding: 2px 6px;
 	color: #ffffff;
-	background: #cc0000;
+	background: #0000cc;
 }
 
 .form .label, .form .elem, .form .longelem {

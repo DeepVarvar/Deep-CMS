@@ -467,9 +467,9 @@ abstract class utils {
         $controllers   = array();
         $existsTargets = array();
 
-        $existsTargets = self::globRecursive(APPLICATION . "modules/*.php");
+        $existsTargets = self::globRecursive(APPLICATION . "modules/", "*.php");
         $existsTargets = array_merge(
-            $existsTargets, self::globRecursive(APPLICATION . "admin/*.php")
+            $existsTargets, self::globRecursive(APPLICATION . "admin/", "*.php")
         );
 
         foreach ($existsTargets as $item) {

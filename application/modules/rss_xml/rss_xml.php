@@ -98,17 +98,16 @@ class rss_xml extends baseController {
 
         $items = db::query("
 
-            SET @m= (SELECT (MAX(creation_date) - INTERVAL 10 DAY) FROM tree);
+            SET @m= (SELECT (MAX(last_modified) - INTERVAL 1 DAY) FROM tree);
             SET @n= (NOW());
             SELECT node_name title, CONCAT('%s', page_alias) link,
                 page_text description,
                 DATE_FORMAT(
-                    creation_date,'%%a, %%d %%b %%Y %%H:%%i:%%s %s'
+                    last_modified,'%%a, %%d %%b %%Y %%H:%%i:%%s %s'
                 ) pubDate
                 FROM tree WHERE is_publish = 1 AND in_sitemap_xml = 1
-                    AND creation_date BETWEEN @m AND @n
-                        ORDER BY creation_date DESC
-                        LIMIT 30",
+                    AND last_modified BETWEEN @m AND @n
+                        ORDER BY last_modified DESC LIMIT 30",
 
                 $this->mainHostUrl,
                 str_replace(":", "", app::config()->site->default_timezone)
