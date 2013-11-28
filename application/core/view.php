@@ -111,24 +111,15 @@ abstract class view {
 
 
         /**
-         * set memory usage and start timer
+         * set memory usage and start timer,
+         * get main configuration,
+         * set default environment
          */
 
         self::$memory = $memory;
         self::$timer  = $timestart;
 
-
-        /**
-         * get main configuration
-         */
-
         $config = app::config();
-
-
-        /**
-         * set default environment
-         */
-
         self::setOutputContext($config->system->default_output_context);
         self::setLanguage($config->site->default_language);
 
@@ -141,10 +132,8 @@ abstract class view {
      */
 
     public static function setXSDSchema($schema) {
-
         xmlValidator::validateXmlSchemaElement($schema);
         self::$XSDSchema = $schema;
-
     }
 
 
@@ -155,13 +144,15 @@ abstract class view {
     public static function setOutputContext($type) {
 
         if (self::$lockedOutputContext) {
-            throw new systemErrorException("View error", "Attempt change locked output context");
+            throw new systemErrorException(
+                "View error", "Attempt change locked output context"
+            );
         }
-
         if (!in_array($type, self::$availableOutputContexts)) {
-            throw new systemErrorException("View error", "Unavailable output context");
+            throw new systemErrorException(
+                "View error", "Unavailable output context"
+            );
         }
-
         self::$outputContext = $type;
 
     }
@@ -201,13 +192,10 @@ abstract class view {
     public static function getAvailableOutputContexts() {
 
         foreach ((array) app::config()->output_contexts as $context) {
-
             if ($context->enabled === true) {
                 array_push(self::$availableOutputContexts, $context->name);
             }
-
         }
-
         return self::$availableOutputContexts;
 
     }
@@ -255,11 +243,9 @@ abstract class view {
             self::$currentLanguageName = $name;
             self::$language = (object) self::$language;
             if ($config->system->cache_enabled) {
-
                 file_put_contents(
                     $cachedLang, serialize(self::$language), LOCK_EX
                 );
-
             }
 
         }
@@ -293,7 +279,9 @@ abstract class view {
     public static function checkLayout() {
 
         if (self::$outputContext == "html" and self::$layout === null) {
-            throw new memberErrorException("View error", "Layout file is not set");
+            throw new memberErrorException(
+                "View error", "Layout file is not set"
+            );
         }
 
     }
@@ -323,38 +311,32 @@ abstract class view {
 
     private static function assignData($item, $i = null, $toPublic = false) {
 
-
         $data = array();
-
         switch (true) {
-
 
             case (!is_array($item) and $i !== null):
                 $data[$item] = $i;
             break;
-
             case (is_array($item) and $i === null):
                 $data = $item;
             break;
-
             case (is_object($item) and $i === null):
                 $data = array($item);
             break;
-
             default:
-                throw new systemErrorException("View error", 'Assign method expects: view::assign("name", $var);');
+                throw new systemErrorException(
+                    "View error",
+                        'Assign method expects: view::assign("name", $var);'
+                );
             break;
 
-
         }
-
 
         if ($toPublic) {
             self::$vars = array_merge(self::$vars, $data);
         } else {
             self::$protectedVars = array_merge(self::$protectedVars, $data);
         }
-
 
     }
 
@@ -373,75 +355,42 @@ abstract class view {
      * choose layout to exception
      */
 
-    public static function assignException($e) {
+    public static function assignException($e, $isDebugMode = false) {
 
 
         try {
 
-
             if (!($e instanceof systemException)) {
-                utils::takeUnexpectedException($e);
+                utils::takeUnexpectedException($e, $isDebugMode);
             } else {
 
-
-                $report = $e->getReport();
-                $config = app::config();
-
-
-                /**
-                 * reset XSD-schema for XML output context,
-                 * delete all public vars from output
-                 */
-
-                $XSDSchema = self::$defaultXSDSchema;
+                $report     = $e->getReport();
+                $XSDSchema  = self::$defaultXSDSchema;
                 self::$vars = array();
 
-
-                /**
-                 * set refresh location
-                 */
-
                 if (isset($report['refresh_location'])) {
-                    self::assignProtected("refresh_location", $report['refresh_location']);
+                    self::assignProtected(
+                        "refresh_location", $report['refresh_location']
+                    );
                 }
 
-
-                /**
-                 * select layout for exception
-                 * with exception instance or mode
-                 */
-
-                if ($config->system->debug_mode) {
-
-                    self::setLayout($config->layouts->debug);
+                if ($isDebugMode) {
+                    self::setLayout("layouts/system/debug.html");
                     self::assign("exception", $report);
-
                 } else {
 
-
-                    self::setLayout($config->layouts->exception);
-
-
+                    self::setLayout("protected/exception.html");
                     if ($e instanceof systemErrorException) {
-
                         $report['code']    = 404;
                         $report['title']   = view::$language->error . " 404";
                         $report['message'] = view::$language->page_not_found;
-
                     }
 
-
-                    /**
-                     * assign based report data
-                     */
-
                     $basedReport = array(
-
                         "code"       => 0,
                         "type"       => "error",
                         "title"      => "Untitled based report",
                         "message"    => "Undescription based report"
-
                     );
 
                     foreach ($basedReport as $k => $v) {
@@ -451,27 +400,27 @@ abstract class view {
                     $basedReport['page_title'] = $report['title'];
                     $basedReport['node_name']  = $report['title'];
 
-
                     self::assign("exception", $basedReport);
-
                     if (self::getOutputContext() == "html") {
                         self::assign($basedReport);
                     }
 
-
                 }
 
 
-                if ($report['code'] == 404 and self::getOutputContext() != "json") {
-                    request::addHeader( $_SERVER['SERVER_PROTOCOL'] . " 404 Not Found" );
-                }
+                if ($report['code'] == 404
+                        and self::getOutputContext() != "json") {
 
+                    request::addHeader(
+                        $_SERVER['SERVER_PROTOCOL'] . " 404 Not Found"
+                    );
+
+                }
 
             }
 
-
         } catch (Exception $e) {
-            utils::takeUnexpectedException($e);
+            utils::takeUnexpectedException($e, $isDebugMode);
         }
 
 
@@ -485,141 +434,47 @@ abstract class view {
     public static function draw() {
 
 
-        /**
-         * get configuration environment
-         */
-
         $config = app::config();
-
-
-        /**
-         * assign member data and config into extracted protected vars
-         */
-
         self::assignProtected("_member", member::getProfile());
         self::assignProtected("_config", $config);
-
-
-        /**
-         * tryed draw layout for tries range
-         */
 
         foreach (range(1, 2) as $try) {
 
 
-            /**
-             * exception wrapper for layout context
-             */
-
             try {
 
 
-                /**
-                 * get current output context
-                 */
-
                 $outputContext = self::getOutputContext();
-
-
-                /**
-                 * buffered silent output
-                 */
-
                 ob_start();
-
-
-                /**
-                 * build output context
-                 */
 
                 switch ($outputContext) {
 
-
                     case "txt":
-
-
-                        /**
-                         * build text plain output
-                         */
-
                         request::addHeader("Content-Type: text/plain");
-
                         $txt = textPlainOutput::buildString(self::$vars);
-                        $layout = $config->layouts->txt;
-
-
+                        $layout = "layouts/system/txt.html";
                     break;
-
 
                     case "json":
-
-
-                        /**
-                         * build JSON output
-                         */
-
                         request::addHeader("Content-Type: application/json");
-
                         $json = json_encode(self::$vars);
-                        $layout = $config->layouts->json;
-
-
+                        $layout = "layouts/system/json.html";
                     break;
-
 
                     case "xml":
-
-
-                        /**
-                         * build XML output
-                         */
-
                         request::addHeader("Content-Type: application/xml");
-
                         $xml = xmlOutput::buildXMLString(self::$vars, self::$XSDSchema, self::$docType);
-                        $layout = $config->layouts->xml;
-
-
+                        $layout = "layouts/system/xml.html";
                     break;
-
 
                     default:
 
-
-                        /**
-                         * add utf-8 header
-                         */
-
                         request::addHeader("Content-Type: text/html; charset=utf-8");
-
-
-                        /**
-                         * normalize page variables
-                         * add required environment
-                         */
-
                         self::normalizePageVariables();
-
-
-                        /**
-                         * extract all vars
-                         */
-
                         extract(self::$protectedVars);
                         extract(self::$vars);
 
-
-                        /**
-                         * set layout
-                         */
-
                         $layout = self::$layout;
-
-
-                        /**
-                         * set include path for parts of layouts
-                         */
-
                         $themePath = router::isAdmin()
                             ? "layouts/admin/"
                             : "layouts/themes/" . $config->site->theme . "/";
@@ -628,92 +483,40 @@ abstract class view {
                             get_include_path() . PATH_SEPARATOR . APPLICATION . $themePath
                         );
 
-
                     break;
-
 
                 }
 
-
-                /**
-                 * require and draw layout
-                 */
-
                 require $layout;
-
-
-                /**
-                 * store member data
-                 */
-
                 member::storeData();
-
-
-                /**
-                 * run after autorun actions
-                 */
-
                 autorun::runAfter();
 
 
             } catch (Exception $e) {
 
-
-                /**
-                 * clean silent output,
-                 * assign exception
-                 */
-
                 ob_clean();
-                self::assignException($e);
-
-
-                /**
-                 * goto new draw try
-                 */
-
+                self::assignException($e, $config->system->debug_mode);
                 continue;
-
 
             }
 
 
-            /**
-             * get layout content,
-             * clean silent output
-             */
-
             $layoutContent = ob_get_clean();
-
-
-            /**
-             * out of tries range
-             */
-
             break;
 
 
         }
 
-
-        /**
-         * cache output content
-         */
-
         if ($config->system->cache_enabled === true) {
-
 
             $URL = request::getOriginURL();
             $match = false;
 
-
             foreach ($config->cached_pages as $pattern) {
-
                 if (preg_match($pattern, $URL)) {
                     $match = true;
                     break;
                 }
-
             }
 
             if ($match) {
@@ -725,13 +528,7 @@ abstract class view {
 
         }
 
-
-        /**
-         * flush page
-         */
-
         request::sendHeaders();
-
         echo $layoutContent;
         exit();
 
@@ -745,43 +542,11 @@ abstract class view {
 
     public static function readFromCache($fileName) {
 
-
-        /**
-         * store member data
-         */
-
         member::storeData();
-
-
-        /**
-         * run after autorun actions
-         */
-
         autorun::runAfter();
-
-
-        /**
-         * get main config settings
-         */
-
-        $config = app::config();
-
-
-        /**
-         * check enabled caching mode
-         */
-
-        if ($config->system->cache_enabled !== true) {
-            throw new systemErrorException("View error", "Caching mode is not enabled");
-        }
 
         $file = APPLICATION . "cache/" . $fileName;
         $type = preg_replace("/([a-z]+)---.+/s", "$1", $fileName);
-
-
-        /**
-         * set header with filetype
-         */
 
         switch ($type) {
 
@@ -803,16 +568,9 @@ abstract class view {
 
         }
 
-
-        /**
-         * flush output content
-         */
-
         request::sendHeaders();
-
         readfile($file);
         exit();
-
 
     }
 
@@ -824,12 +582,7 @@ abstract class view {
     public static function normalizePageVariables() {
 
 
-        /**
-         * set required page variables
-         */
-
         $config = app::config();
-
         $requiredVariables = array(
 
             "last_modified"      => db::normalizeQuery("SELECT NOW()"),
@@ -850,22 +603,14 @@ abstract class view {
         );
 
         foreach ($requiredVariables as $key => $value) {
-
             if (!isset(self::$vars[$key]) or self::$vars[$key] === "") {
                 self::$vars[$key] = $value;
             }
-
         }
-
-
-        /**
-         * dependency values for h1 and title of node
-         */
 
         if (!self::$vars['page_h1']) {
             self::$vars['page_h1'] = self::$vars['node_name'];
         }
-
         if (!self::$vars['page_title']) {
             self::$vars['page_title'] = self::$vars['page_h1'];
         }
@@ -881,7 +626,8 @@ abstract class view {
     public static function getRefreshMetaData() {
 
         if (array_key_exists("refresh_location", self::$protectedVars)) {
-            return '<meta http-equiv="Refresh" content="2; url=' . self::$protectedVars['refresh_location'] . '">';
+            return '<meta http-equiv="Refresh" content="2; url='
+                . self::$protectedVars['refresh_location'] . '">';
         }
 
     }

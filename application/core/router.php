@@ -250,7 +250,7 @@ abstract class router {
         view::assign($pageData);
 
         if (array_key_exists("layout", $pageData)) {
-            view::setLayout($config->layouts->public . $pageData['layout']);
+            view::setLayout("public/" . $pageData['layout']);
         }
 
 

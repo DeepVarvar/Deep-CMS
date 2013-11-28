@@ -106,7 +106,7 @@ class baseController {
      */
 
     public function setProtectedLayout($name) {
-        view::setLayout(app::config()->layouts->protected . $name);
+        view::setLayout("protected/" . $name);
     }
 
 
@@ -115,7 +115,7 @@ class baseController {
      */
 
     public function setPublicLayout($name) {
-        view::setLayout(app::config()->layouts->public . $name);
+        view::setLayout("public/" . $name);
     }
 
 

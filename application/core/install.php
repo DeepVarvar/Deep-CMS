@@ -115,10 +115,8 @@ function saveConfigIntoFile($config) {
 
         "check_unused_params": false,
 
-
         // default language environment
         "default_language": "ru",
-
 
         // default timezone
         "default_timezone": "+04:00",
@@ -151,14 +149,11 @@ function saveConfigIntoFile($config) {
 
         "protocol": "{$config->site->protocol}",
 
-
         // URL path of administrative tools
         "admin_tools_link": "/admin",
 
-
         // relative URL path of administrative tools resources
         "admin_resources": "/admin-resources/"
-
 
     },
 
@@ -169,15 +164,12 @@ function saveConfigIntoFile($config) {
 
     "application": {
 
-
         // name signature and version of application
         "name": "Deep-CMS",
         "version": "2.92.134",
 
-
         // email address of technical support
         "support_email": "support@deep-cms.ru"
-
 
     },
 
@@ -196,26 +188,20 @@ function saveConfigIntoFile($config) {
 
         "debug_mode": {$config->system->debug_mode},
 
-
         // enable or disable filesystem cache support
         "cache_enabled": false,
-
 
         // write logs of application (members) events
         "write_log": true,
 
-
         // max size of separated log file
         "log_file_max_size": 16384,
-
 
         // block prefetch requests
         "block_prefetch_requests": true,
 
-
         // default output context
         "default_output_context": "html",
-
 
         // cookie expires time (sec)
         "cookie_expires_time": "259200",
@@ -227,7 +213,6 @@ function saveConfigIntoFile($config) {
          */
 
         "session_name": "deepcms",
-
 
         // member groups priority range number
         "max_group_priority_number": 10
@@ -256,53 +241,14 @@ function saveConfigIntoFile($config) {
 
     "layouts": {
 
-
-        // relative path of admin templates directory
-        "admin": "layouts/admin/",
-
-
-        // relative path of system templates directory
-        "system": "layouts/system/",
-
-
-        // relative path of member themes directory
-        "themes": "layouts/themes/",
-
-
         // relative path of parts templates directory
         "parts": "parts/",
-
-
-        // relative path of public templates directory
-        "public": "public/",
-
-
-        // relative path of protected templates directory
-        "protected": "protected/",
-
 
         // relative path of required header template
         "header": "parts/header.html",
 
-
         // relative path of required footer template
-        "footer": "parts/footer.html",
-
-
-        // relative path of required exception template
-        "exception": "protected/exception.html",
-
-
-        /**
-         * relative path's of system required
-         * output-context-templates and debugging template
-         */
-
-        "debug": "layouts/system/debug.html",
-        "txt": "layouts/system/txt.html",
-        "json": "layouts/system/json.html",
-        "xml": "layouts/system/xml.html"
-
+        "footer": "parts/footer.html"
 
     },
 
@@ -328,34 +274,26 @@ function saveConfigIntoFile($config) {
 
     "db": {
 
-
         // host or IP of database server
         "host": "{$config->db->host}",
-
 
         // port of connection
         "port": {$config->db->port},
 
-
         // database tables prefix
         "prefix": "{$config->db->prefix}",
-
 
         // name of database
         "name": "{$config->db->name}",
 
-
         // name of database user
         "user": "{$config->db->user}",
-
 
         // database user password
         "password": "{$config->db->password}",
 
-
         // client connection charset
         "connection_charset": "utf8"
-
 
     }
 

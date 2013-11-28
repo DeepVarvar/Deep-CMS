@@ -16,71 +16,56 @@ abstract class utils {
 
     public static function glob($pattern, $flags = 0) {
 
-
         if (!$result = glob($pattern, $flags)) {
             $result = array();
         }
-
         return $result;
-
 
     }
 
 
     /**
-     * validate theme format and collection of files
+     * validate theme,
+     * each and check required directories and files for theme
      */
 
     public static function validateTheme($theme) {
 
 
-        /**
-         * required directories and files for theme,
-         * each and check required directories and files for theme
-         */
-
         $required = array(
-
             "parts"     => array("header.html", "footer.html"),
             "protected" => array("exception.html"),
             "public"    => array("page.html")
-
         );
 
         foreach ($required as $dir => $files) {
 
             $path = $theme . $dir;
             if (!file_exists($path)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->required_directory_not_found
                             . ": {$path}"
                 );
-
             }
 
             if (!is_dir($path)) {
-
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->path_is_not_a_directory
                             . ": {$path}"
                 );
-
             }
 
             foreach ($files as $name) {
 
                 $file = $path . "/" . $name;
                 if (!is_file($file)) {
-
                     throw new memberErrorException(
                         view::$language->error,
                             view::$language->required_file_not_found
                                 . ": {$file}"
                     );
-
                 }
 
             }
@@ -99,16 +84,12 @@ abstract class utils {
 
         $options = array();
         foreach ($inputArr as $item) {
-
             $option = array("value" => $item, "description" => $item);
             if ($value == $item) {
                 $option['selected'] = true;
             }
-
             array_push($options, $option);
-
         }
-
         return $options;
 
     }
@@ -137,11 +118,9 @@ abstract class utils {
             preg_match("/^{$domain}\/{$path}{$params}{$hash}$/s", $url, $m);
 
             if (!$m) {
-
                 throw new memberErrorException(
                     view::$language->error, $errorMessage
                 );
-
             }
 
             $cParts = array();
@@ -162,7 +141,6 @@ abstract class utils {
 
                 $cParts = array();
                 $sParts = trim(preg_replace("/&+/", "&", $m['params']), "&");
-
                 foreach (explode("&", $sParts) as $part) {
                     array_push($cParts, rawurlencode($part));
                 }
@@ -194,7 +172,6 @@ abstract class utils {
     public static function getDefaultField($value) {
 
         return array(
-
             "top"         => 0,
             "sort"        => 0,
             "required"    => false,
@@ -203,7 +180,6 @@ abstract class utils {
             "type"        => "text",
             "selector"    => "f" . md5(mt_rand() . microtime(true)),
             "value"       => $value
-
         );
 
     }
@@ -215,10 +191,9 @@ abstract class utils {
 
     public static function isExistsProtectedLayout($name) {
 
-        $c = app::config();
         return file_exists(
-            APPLICATION . $c->layouts->themes
-                . $c->site->theme . "/protected/" . $name
+            APPLICATION . "layouts/themes/"
+                . app::config()->site->theme . "/protected/" . $name
         );
 
     }
@@ -238,7 +213,6 @@ abstract class utils {
             }
             array_push($prototypes, $protoName);
         }
-
         return $prototypes;
 
     }
@@ -250,18 +224,13 @@ abstract class utils {
 
     public static function getAvailablePublicLayouts() {
 
-        $c = app::config();
         $layouts = array();
-
-        $layoutsPath = $c->layouts->themes
-            . $c->site->theme . "/" . $c->layouts->public;
-
-        $layoutsPath = APPLICATION . $layoutsPath . "*.html";
+        $layoutsPath = APPLICATION . "layouts/themes/"
+            . app::config()->site->theme . "/public/*.html";
 
         foreach (self::glob($layoutsPath) as $item) {
             array_push($layouts, basename($item));
         }
-
         return $layouts;
 
     }
@@ -297,32 +266,21 @@ abstract class utils {
 
      public static function getAvailableThemes($current = null) {
 
-
         $themes = array();
-        $themesPath = APPLICATION . app::config()->layouts->themes . "*";
-
+        $themesPath = APPLICATION . "layouts/themes/*";
         foreach (self::glob($themesPath) as $theme) {
-
             if (is_dir($theme)) {
-
                 self::validateTheme($theme . "/");
-                $name = basename($theme);
+                $name   = basename($theme);
                 $option = array(
-
                     "description" => $name,
                     "value"       => $name,
                     "selected"    => ($current !== null and $current == $name)
-
                 );
-
                 array_push($themes, $option);
-
             }
-
         }
-
         return $themes;
-
 
      }
 
@@ -341,20 +299,16 @@ abstract class utils {
 
             $language = basename($language);
             if (!preg_match("/^[a-z-]+$/", $language)) {
-
                 throw new systemErrorException(
                     "Language error",
                         "Unexpected name $name"
                 );
-
             }
 
             $option = array(
-
                 "description" => $language,
                 "value"       => $language,
                 "selected"    => ($current == $language)
-
             );
 
             array_push($languages, $option);
@@ -372,49 +326,26 @@ abstract class utils {
 
     public static function checkAllow($c, & $action, & $argument = null) {
 
-
-        /**
-         * check for exists action
-         */
-
         if (!method_exists($c, $action)) {
-
-
-            /**
-             * check for available overloading
-             */
-
+            // check for available overloading
             if (method_exists($c, "__call")) {
-
                 $argument = $action;
                 $action = "__call";
-
             } else {
-
                 throw new systemErrorException(
                     "Controller error",
                         "Action $action of $c controller not found"
                 );
-
             }
-
         }
-
-
-        /**
-         * check for callable action
-         */
 
         $checkMethod = new ReflectionMethod($c, $action);
         if (!$checkMethod->isPublic()) {
-
             throw new systemErrorException(
                 "Controller error",
                     "Method $action of $c controller is not public"
             );
-
         }
-
 
     }
 
@@ -427,15 +358,11 @@ abstract class utils {
 
         $items = self::glob($path . $mask);
         $dirs = self::glob($path . "*", GLOB_ONLYDIR | GLOB_NOSORT);
-
         foreach ($dirs as $dir) {
-
             $items = array_merge(
                 $items, self::globRecursive($dir . "/", $mask)
             );
-
         }
-
         return $items;
 
     }
@@ -452,7 +379,6 @@ abstract class utils {
         foreach ($existsTargets as $k => $item) {
             $existsTargets[$k] = basename($item);
         }
-
         return $existsTargets;
 
     }
@@ -466,20 +392,17 @@ abstract class utils {
 
         $controllers   = array();
         $existsTargets = array();
-
         $existsTargets = self::globRecursive(APPLICATION . "modules/", "*.php");
         $existsTargets = array_merge(
             $existsTargets, self::globRecursive(APPLICATION . "admin/", "*.php")
         );
 
         foreach ($existsTargets as $item) {
-
             $name = basename($item, ".php");
             node::loadController($item, $name);
             array_push($controllers, node::call($name));
 
         }
-
         return $controllers;
 
     }
@@ -491,10 +414,8 @@ abstract class utils {
      */
 
     public static function checkPermissionAccess($controller, $action) {
-
         $permissions = node::call($controller)->getPermissions();
         self::initCheckPermissionAccess($permissions, $action);
-
     }
 
 
@@ -503,7 +424,6 @@ abstract class utils {
      */
 
     public static function initCheckPermissionAccess($cp, $action) {
-
 
         $memberPermissions = member::getPermissions();
         foreach ($cp as $item) {
@@ -526,7 +446,6 @@ abstract class utils {
 
         }
 
-
     }
 
 
@@ -538,13 +457,10 @@ abstract class utils {
         arrayChangeKeyCaseRecursive($arr, $type = CASE_LOWER) {
 
         foreach ($arr as $k => $item) {
-
             if (is_array($item)) {
                 $arr[$k] = self::arrayChangeKeyCaseRecursive($item);
             }
-
         }
-
         return array_change_key_case($arr, $type);
 
     }
@@ -571,14 +487,11 @@ abstract class utils {
             }
 
             if (filesize($logFile) > app::config()->system->log_file_max_size) {
-
                 $fixedName = str_replace(
                     array(":", " "), array(".", "_"), $item['datetime']
                 );
-
                 rename($logFile, $logDir . "main_" . $fixedName . ".log");
                 $existsLog = false;
-
             }
 
         }
@@ -596,30 +509,23 @@ abstract class utils {
      * exit application
      */
 
-    public static function takeUnexpectedException($e) {
-
+    public static function takeUnexpectedException($e, $isDebugMode = false) {
 
         if ($e instanceof systemException) {
-
             $report = $e->getReport();
-            $config = app::config();
-            if ($config->system->debug_mode) {
+            if ($isDebugMode) {
                 dump($report);
             } else {
                 echo "Unexpected system {$report['type']} "
                         . "exception inside catch context" . PHP_EOL;
             }
-
         } else {
-
-            if ($config->system->debug_mode) {
+            if ($isDebugMode) {
                 dump($e->getMessage(), $e->getTrace());
             } else {
                 echo "Unexpected exception inside catch context" . PHP_EOL;
             }
-
         }
-
 
     }
 
@@ -657,10 +563,7 @@ abstract class utils {
  */
 
 function sortArrays($a, $b) {
-
-    return $a['sort'] == $b['sort']
-        ? 0 : ($a['sort'] < $b['sort'] ? -1 : 1);
-
+    return $a['sort'] == $b['sort'] ? 0 : ($a['sort'] < $b['sort'] ? -1 : 1);
 }
 
 

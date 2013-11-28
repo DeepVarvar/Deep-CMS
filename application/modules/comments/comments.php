@@ -167,6 +167,7 @@ class comments extends baseController {
             }
         }
 
+        storage::shift("captcha");
         db::set(
 
             "INSERT INTO comments (

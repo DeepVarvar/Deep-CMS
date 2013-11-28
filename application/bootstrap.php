@@ -17,12 +17,10 @@ define("SUCCESS_EXCEPTION",  1);
  */
 
 set_include_path(
-
     APPLICATION . PATH_SEPARATOR . APPLICATION .
     join(PATH_SEPARATOR . APPLICATION, array(
         "core/", "library/", "prototypes/"
     ))
-
 );
 
 
@@ -32,18 +30,12 @@ set_include_path(
 
 function dump() {
 
-
     foreach (func_get_args() as $target) {
-
         echo '<hr /> <pre>';
         var_dump($target);
         echo '</pre> <hr />';
-
     }
-
-
     exit();
-
 
 }
 
@@ -74,14 +66,12 @@ if ((float) $version < 5.2) {
  * autoload function
  */
 
-function DeepCmsSimpleAutoload($fileName) {
-
+function deepCmsSimpleAutoload($fileName) {
     $file = "{$fileName}.php";
     require_once $file;
-
 }
 
-spl_autoload_register("DeepCmsSimpleAutoload", false);
+spl_autoload_register("deepCmsSimpleAutoload", false);
 
 
 /**
@@ -92,7 +82,6 @@ spl_autoload_register("DeepCmsSimpleAutoload", false);
 if (!FAST_RUNNING) {
 
     $dirs = array(
-
         "autorun/after",
         "autorun/before",
         "cache",
@@ -105,22 +94,17 @@ if (!FAST_RUNNING) {
         "prototypes",
         "resources",
         "upload"
-
     );
 
     foreach ($dirs as $dir) {
-
         $dir = ($dir == "upload" ? PUBLIC_HTML : APPLICATION) . $dir;
-
         if (!is_dir($dir)) {
             exit("Core dependency target $dir is not directory" . PHP_EOL);
         }
-
         if (!is_writable($dir)) {
             exit("Core dependency directory $dir "
                     . "don't have writable permission" . PHP_EOL);
         }
-
     }
 
 }
@@ -139,17 +123,13 @@ $config = app::loadConfig();
  */
 
 if ($config->system->debug_mode) {
-
     ini_set("display_errors", "On");
     ini_set("html_errors", "On");
     error_reporting(E_ALL | E_STRICT);
-
 } else {
-
     ini_set("display_errors", "Off");
     ini_set("html_errors", "Off");
     error_reporting(0);
-
 }
 
 
@@ -184,24 +164,13 @@ try {
 
 
     /**
-     * get and stored client info,
-     * this action need for member environment
-     */
-
-    request::identifyClient();
-
-
-    /**
-     * init session storage
-     */
-
-    storage::init();
-
-
-    /**
+     * get and stored client info - action need for member environment,
+     * init session storage,
      * init view
      */
 
+    request::identifyClient();
+    storage::init();
     view::init($memory, $timestart);
 
 
@@ -212,7 +181,6 @@ try {
      */
 
     define("DB_PREFIX", $config->db->prefix);
-
     db::connect(
 
         $config->db->host,
@@ -227,47 +195,27 @@ try {
 
 
     /**
-     * current member environment
-     */
-
-    member::init();
-
-
-    /**
+     * current member environment,
      * request initialization,
      * parse and check request string, headers, etc
      */
 
+    member::init();
     request::init();
-
-
-    /**
-     * set timezone on database connention
-     */
 
     $timezone = member::getTimezone();
     db::set("SET time_zone = '{$timezone}'");
 
-
-    /**
-     * before autorun actions
-     */
-
     autorun::runBefore();
-
-
-    /**
-     * cached pages
-     */
 
     $pageOnCache = false;
     if ($config->system->cache_enabled) {
 
         $cachedPage = md5(request::getOriginURL());
         $availableContexts = join(",", $availableContexts);
-
         $items = utils::glob(
-            APPLICATION . "cache/{{$availableContexts}}---$cachedPage", GLOB_BRACE
+            APPLICATION . "cache/{{$availableContexts}}---$cachedPage",
+            GLOB_BRACE
         );
 
         if ($items) {
@@ -277,58 +225,42 @@ try {
 
     }
 
-
-    /**
-     * if page content is not exists on cache
-     */
-
     if (!$pageOnCache) {
 
 
         /**
-         * run route process,
-         * execute module, controller, action
+         * run route process, execute module, controller, action,
+         * check exists layout,
+         * SEO: check for unused request parameters
          */
 
         router::init();
-
-
-        /**
-         * check exists layout
-         */
-
         view::checkLayout();
-
-
-        /**
-         * check for unused request parameters,
-         * SEO optimization
-         */
-
         request::checkUnusedParams();
 
-
-    /**
-     * WARNING!
-     * flush cached content and exit application
-     * not working more!
-     */
-
     } else {
+
+
+        /**
+         * WARNING!
+         * flush cached content and exit application
+         * not working more!
+         */
+
+        if ($config->system->cache_enabled !== true) {
+            throw new systemErrorException(
+                "View error", "Caching mode is not enabled"
+            );
+        }
+
         view::readFromCache($cachedPage);
+
     }
 
-
 } catch (Exception $e) {
-    view::assignException($e);
+    view::assignException($e, $config->system->debug_mode);
 }
 
-
-/**
- * flush page
- */
-
 view::draw();
-
 
 
