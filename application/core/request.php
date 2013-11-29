@@ -411,37 +411,32 @@ abstract class request {
 
     public static function identifyClient() {
 
-
-        /**
-         * get etc. params
-         */
-
         $keys = array(
-
             "HTTP_USER_AGENT",
             "HTTP_REFERER",
             "HTTP_ACCEPT",
             "HTTP_ACCEPT_LANGUAGE",
             "HTTP_ACCEPT_ENCODING"
-
         );
 
         foreach ($keys as $v) {
-
             self::$client[$v] = isset($_SERVER[$v])
                 ? $_SERVER[$v] : "[no match]";
-
         }
 
+        $hcip = getenv("HTTP_CLIENT_IP");
+        $hxff = getenv("HTTP_X_FORWARDED_FOR");
+        $radd = getenv("REMOTE_ADDR");
 
-        /**
-         * get client IP
-         */
+        if ($hcip) {
+            $ip = $hcip;
+        } else if ($hxff) {
+            $ip = $hxff;
+        } else {
+            $ip = false;
+        }
 
-        $ip = getenv("HTTP_X_FORWARDED_FOR");
-        self::$client['IP'] = ($ip == "" or $ip == "unknown")
-            ? getenv('REMOTE_ADDR') : $ip;
-
+        self::$client['IP'] = (!$ip or $ip == "unknown") ? $radd : $ip;
 
     }
 
