@@ -16,7 +16,7 @@
 
         <?php foreach ($events as $event) { ?>
 
-            <?php if (member::isRoot() or member::getPriority() >= $event['initiator_group_priority']) { ?>
+            <?php if (member::isProtected() or member::getPriority() >= $event['initiator_group_priority']) { ?>
 
                 <tr<?=$event['type']=="error"?' class="error"':""?>>
                     <td><?=$event['datetime']?></td>

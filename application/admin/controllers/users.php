@@ -16,39 +16,26 @@ class users extends baseController {
     public function setPermissions() {
 
         $this->permissions = array(
-
             array(
-
                 "action"      => null,
                 "permission"  => "users_manage",
                 "description" => view::$language->permission_users_manage
-
             ),
-
             array(
-
                 "action"      => "create",
                 "permission"  => "user_create",
                 "description" => view::$language->permission_user_create
-
             ),
-
             array(
-
                 "action"      => "delete",
                 "permission"  => "user_delete",
                 "description" => view::$language->permission_user_delete
-
             ),
-
             array(
-
                 "action"      => "edit",
                 "permission"  => "user_edit",
                 "description" => view::$language->permission_user_edit
-
             )
-
         );
 
     }
@@ -60,9 +47,9 @@ class users extends baseController {
 
     public function index() {
 
-        $priorityCondition = (!member::isRoot() or member::getPriority() > 0)
-            ? "WHERE g.priority > "
-                . member::getPriority() . " OR g.priority IS NULL" : "";
+        $pri = member::getPriority();
+        $con = $pri > 0
+            ? "WHERE g.priority > " . $pri . " OR g.priority IS NULL" : "";
 
         $sourceQuery = db::buildQueryString(
 
@@ -70,8 +57,7 @@ class users extends baseController {
                 IFNULL(g.priority,1001) priority, u.login, u.email,
                     u.registration_date, u.last_ip FROM users u
                         LEFT JOIN groups g ON g.id = u.group_id
-                            {$priorityCondition}
-                                ORDER BY priority ASC, u.login ASC"
+                            {$con} ORDER BY priority ASC, u.login ASC"
 
         );
 
@@ -117,53 +103,49 @@ class users extends baseController {
     public function edit() {
 
 
-        $user_id = request::shiftParam("id");
-        if (!validate::isNumber($user_id)) {
+        $userID = request::shiftParam("id");
+        if (!validate::isNumber($userID)) {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
         }
 
-        if (!member::isRoot() and (string) $user_id === "0") {
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->system_object_action_denied
-            );
-        }
-
-        $existsUser = db::normalizeQuery(
+        if (!$existsUser = db::normalizeQuery(
 
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
                 u.avatar, u.login, u.email, u.about,
-                    IFNULL(g.priority,1001) priority FROM users u
-                        LEFT JOIN groups g ON g.id = u.group_id
-                            WHERE u.id = %u", $user_id
+                    IFNULL(g.priority,1001) priority,
+                    IFNULL(g.is_protected,0) is_proteced
+                        FROM users u LEFT JOIN groups g ON g.id = u.group_id
+                            WHERE u.id = %u", $userID
 
-        );
-
-        if (!$existsUser) {
+        )) {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->user_not_found
             );
         }
 
-        if (!member::isRoot() and member::getID() == $existsUser['id']) {
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->user_cant_edit_so_profile
-            );
-        }
-
-        if (!member::isRoot()
-                and member::getPriority() >= $existsUser['priority']) {
-
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->user_cant_edit_hoep_user
-            );
-
+        if (!member::isProtected()) {
+            if ($existsUser['is_proteced']) {
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->system_object_action_denied
+                );
+            }
+            if (member::getID() == $existsUser['id']) {
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->user_cant_edit_so_profile
+                );
+            }
+            if (member::getPriority() >= $existsUser['priority']) {
+                throw new memberErrorException(
+                    view::$language->error,
+                        view::$language->user_cant_edit_hoep_user
+                );
+            }
         }
 
         if (request::getPostParam("save") !== null) {
@@ -200,30 +182,19 @@ class users extends baseController {
         $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer($adminToolsLink . "/users");
 
-        $user_id = request::shiftParam("id");
-        if (!validate::isNumber($user_id)) {
+        $userID = request::shiftParam("id");
+        if (!validate::isNumber($userID)) {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->data_invalid
             );
         }
 
-        if ((string) $user_id === "0") {
-            throw new memberErrorException(
-                view::$language->error,
-                    view::$language->system_object_action_denied
-            );
-        }
-
-        $existsUser = db::normalizeQuery(
-
+        if (!$existsUser = db::normalizeQuery(
             "SELECT u.id, IFNULL(g.priority,1001) priority FROM users u
                 LEFT JOIN groups g ON g.id = u.group_id
-                    WHERE u.id = %u", $user_id
-
-        );
-
-        if (!$existsUser) {
+                    WHERE u.id = %u", $userID
+        )) {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->user_not_found
@@ -237,7 +208,7 @@ class users extends baseController {
             );
         }
 
-        if (!member::isRoot()
+        if (!member::isProtected()
                 and member::getPriority() >= $existsUser['priority']) {
 
             throw new memberErrorException(
@@ -264,8 +235,7 @@ class users extends baseController {
     private function getAvailableGroupList($target = null) {
 
         $groups = db::query(
-            "SELECT id, priority, name
-                FROM groups ORDER BY priority DESC"
+            "SELECT id, priority, name FROM groups ORDER BY priority DESC"
         );
 
         $grouplist = array();
@@ -276,7 +246,7 @@ class users extends baseController {
         array_push($grouplist, $emptyOption);
         foreach ($groups as $group) {
 
-            if (!member::isRoot()
+            if (!member::isProtected()
                     and member::getPriority() >= $group['priority']) {
 
                 break;
@@ -284,13 +254,10 @@ class users extends baseController {
             }
 
             $option = array(
-
                 "description" => $group['name'],
                 "value"       => $group['id'],
                 "selected"    => ($target !== null and $target == $group['id'])
-
             );
-
             array_push($grouplist, $option);
 
         }
@@ -307,27 +274,20 @@ class users extends baseController {
     private function getUserStatusList($type = 0) {
 
         $statustypes = array(
-
             "3" => view::$language->user_status_email_not_confirm,
             "2" => view::$language->user_status_banned,
             "1" => view::$language->user_status_readonly,
             "0" => view::$language->user_status_free,
-
         );
 
         $statuslist = array();
         foreach ($statustypes as $k => $status) {
-
             $option = array(
-
                 "description" => $status,
                 "value"       => $k,
                 "selected"    => ($type == $k)
-
             );
-
             array_push($statuslist, $option);
-
         }
 
         return $statuslist;
@@ -351,9 +311,7 @@ class users extends baseController {
             );
         }
 
-
         $requiredParams = array(
-
             "group_id",
             "status",
             "language",
@@ -362,7 +320,6 @@ class users extends baseController {
             "password",
             "confirmpassword",
             "about"
-
         );
 
         $userData = request::getRequiredPostParams($requiredParams);
@@ -437,21 +394,18 @@ class users extends baseController {
         );
 
         if ($requiredPassword) {
-
             if (!$userData['password'] or !$userData['confirmpassword']) {
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->password_confirm_req_depend
                 );
             }
-
             if ($userData['password'] !== $userData['confirmpassword']) {
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->password_confirm_dont_match
                 );
             }
-
         }
 
         if ($userData['group_id'] === "none") {
@@ -466,19 +420,17 @@ class users extends baseController {
                 );
             }
 
-            $existsGroup = db::normalizeQuery(
-                "SELECT id,priority FROM groups
+            if (!$existsGroup = db::normalizeQuery(
+                "SELECT id, priority FROM groups
                     WHERE id = %u", $userData['group_id']
-            );
-
-            if (!$existsGroup) {
+            )) {
                 throw new memberErrorException(
                     view::$language->error,
                         view::$language->group_not_found
                 );
             }
 
-            if (!member::isRoot()
+            if (!member::isProtected()
                     and member::getPriority() >= $existsGroup['priority']) {
 
                 throw new memberErrorException(

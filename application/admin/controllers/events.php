@@ -16,15 +16,11 @@ class events extends baseController {
     public function setPermissions() {
 
         $this->permissions = array(
-
             array(
-
                 "action"      => null,
                 "permission"  => "events_view",
                 "description" => view::$language->permission_events_view
-
             )
-
         );
 
     }

@@ -329,7 +329,7 @@ function getInstallationQueryString($prefix = "") {
 
             id                  BIGINT(20) NOT NULL AUTO_INCREMENT,
             group_id            BIGINT(20) DEFAULT NULL,
-            status              INT(1)     NOT NULL DEFAULT '0',
+            status              TINYINT(1) NOT NULL DEFAULT '0',
             language            CHAR(16)   CHARACTER SET utf8 COLLATE utf8_bin,
             timezone            CHAR(8)    CHARACTER SET utf8 COLLATE utf8_bin,
             avatar              CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin,
@@ -345,18 +345,16 @@ function getInstallationQueryString($prefix = "") {
 
             PRIMARY KEY (id),
 
-            KEY group_id (group_id),
-            KEY status   (status),
-            KEY hash     (hash)
+            KEY group_id     (group_id),
+            KEY status       (status),
+            KEY hash         (hash)
 
         ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
         INSERT INTO {$prefix}users
         (id, group_id, status, login, password, email, hash, last_ip, registration_date, last_visit, about)
         VALUES
-        (1, 0, 0, '', '', 'support@deep-cms.ru', '', '127.0.0.1', NOW(), NOW(), '');
-
-        UPDATE {$prefix}users SET id = 0 WHERE id = 1;
+        (1, 1, 0, '', '', 'support@deep-cms.ru', '', '127.0.0.1', NOW(), NOW(), '');
 
 
         DROP TABLE IF EXISTS {$prefix}permissions;
@@ -382,16 +380,16 @@ function getInstallationQueryString($prefix = "") {
         DROP TABLE IF EXISTS {$prefix}groups;
         CREATE TABLE {$prefix}groups (
 
-            id         BIGINT(20) NOT NULL AUTO_INCREMENT,
-            priority   BIGINT(20) NOT NULL,
-            name       CHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            id            BIGINT(20) NOT NULL AUTO_INCREMENT,
+            is_protected  TINYINT(1) NOT NULL DEFAULT '0',
+            priority      BIGINT(20) NOT NULL,
+            name          CHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 
             PRIMARY KEY (id)
 
         ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-        INSERT INTO {$prefix}groups (id, priority, name) VALUES (1, 0, 'root');
-        UPDATE {$prefix}groups SET id = 0 WHERE id = 1;
+        INSERT INTO {$prefix}groups (id, is_protected, priority, name) VALUES (1, 1, 0, 'root');
 
 
         DROP TABLE IF EXISTS {$prefix}images;
@@ -1101,7 +1099,7 @@ try {
 
                 $rootpassword = md5(md5(md5($rootpassword)));
                 $roothash = md5(md5(md5(
-                    "0{$rootlogin}{$rootpassword}00support@deep-cms.ru"
+                    "1{$rootlogin}{$rootpassword}10support@deep-cms.ru"
                 )));
 
 
@@ -1140,7 +1138,7 @@ try {
                             SET login = '{$rootlogin}',
                                 password = '{$rootpassword}',
                                     hash = '{$roothash}'
-                                        WHERE id = 0"
+                                        WHERE id = 1"
 
                     );
 
@@ -1241,7 +1239,7 @@ try {
 
                         "INSERT INTO {$_config->db->prefix}group_permissions
                             (group_id,permission_id)
-                                SELECT (0) group_id, id
+                                SELECT (1) group_id, id
                                     FROM {$_config->db->prefix}permissions"
 
                     );
