@@ -6,9 +6,11 @@
 
     /**
      * general information of component,
+     * this is protected component?
      * type and system name of component
      */
 
+    "protected"   : true,
     "type"        : "prototype",
     "system_name" : "simpleLink",
 
