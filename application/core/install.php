@@ -1616,18 +1616,6 @@ try {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            // finfo and mime fix
-            $checkFinfo = function_exists("finfo_open");
-            $checkMime  = function_exists("mime_content_type");
-
-            $checkFinfoOrMime = true;
-            if (!$checkFinfo and !$checkMime) {
-
-                $checkFinfoOrMime   = false;
-                $_SESSION['ins']['errors'] = true;
-
-            }
-
 
             /**
              * check writable permissions

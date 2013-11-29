@@ -13,21 +13,6 @@ class node_images extends baseController {
 
 
         /**
-         * allowed types of uploaded images
-         */
-
-        $allowedFileTypes = array(
-
-            "image/gif"   => "gif",
-            "image/jpeg"  => "jpg",
-            "image/pjpeg" => "jpg",
-            "image/png"   => "png",
-            "image/x-png" => "png"
-
-        ),
-
-
-        /**
          * available resize options
          */
 
@@ -81,13 +66,6 @@ class node_images extends baseController {
          */
 
         $storageDataKey = "__stored_images",
-
-
-        /**
-         * extension of saved images
-         */
-
-        $fileExtension = null,
 
 
         /**
@@ -487,10 +465,8 @@ class node_images extends baseController {
     private function saveImage() {
 
 
-        $filePath = PUBLIC_HTML . "upload/";
-        $fileName = md5(mt_rand()
-            . microtime(true)) . "." . $this->fileExtension;
-
+        $filePath  = PUBLIC_HTML . "upload/";
+        $fileName  = md5(mt_rand() . microtime(true)) . ".jpg";
         $original  = $filePath . $fileName;
         $middle    = $filePath . "middle_" . $fileName;
         $thumbnail = $filePath . "thumb_" . $fileName;
@@ -500,7 +476,6 @@ class node_images extends baseController {
         );
 
         $originalImage = new simpleImage($original);
-
         if ($this->addWaterMark) {
             $originalImage->addWaterMark(
                 APPLICATION . "resources/watermarks/" . $this->waterMarkImage
@@ -659,37 +634,13 @@ class node_images extends baseController {
             );
         }
 
-        $this->checkFileMimeType($_FILES['uploadfile']['tmp_name']);
-
-    }
-
-
-    /**
-     * check real mime type of uploaded file
-     */
-
-    private function checkFileMimeType($file) {
-
-        $finfo = null;
-        if (!function_exists("mime_content_type")) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        }
-
-        $mimeType = $finfo !== null
-            ? finfo_file($finfo, $file) : mime_content_type($file);
-
-        if ($finfo !== null) {
-            finfo_close($finfo);
-        }
-
-        if (!array_key_exists($mimeType, $this->allowedFileTypes)) {
+        if (!getimagesize($_FILES['uploadfile']['tmp_name'])) {
+            @ unlink($_FILES['uploadfile']['tmp_name']);
             $this->exceptionExit(
                 "error", view::$language->error,
                     view::$language->image_upload_broken_mime
             );
         }
-
-        $this->fileExtension = $this->allowedFileTypes[$mimeType];
 
     }
 

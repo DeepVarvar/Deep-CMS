@@ -27,7 +27,6 @@ return array(
     "install_disabled"                  =>  "Выкл.",
     "install_enabled"                   =>  "Вкл.",
     "install_file_uploads"              =>  "Загрузка файлов",
-    "install_finfo_or_mime"             =>  "finfo_file() или mime_content_type()",
     "install_full"                      =>  'Установка была успешно завершена. Спасибо что выбрали <b>Deep-CMS</b>. Приятного использования. Пожалуйста, пройдите в <a href="/admin">административный раздел</a> и начните работу.',
     "install_gd"                        =>  "GD-библиотека для работы с изображениями",
     "install_generate"                  =>  "сгенерировать",
