@@ -39,6 +39,7 @@ return array(
     "default"                             =>  "по умолчанию",
     "default_language"                    =>  "Язык системы",
     "delete_now"                          =>  "Удалить",
+    "deleted_user"                        =>  "пользователь удалён",
     "documents_tree"                      =>  "Дерево документов",
     "documents_tree_level_up"             =>  "Подняться на уровень выше",
     "documents_tree_return_to_root"       =>  "Вернуться в корень",
