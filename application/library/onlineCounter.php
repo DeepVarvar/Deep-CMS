@@ -74,10 +74,13 @@ abstract class onlineCounter {
 
     public static function getExtendedMembersList($withIDs = false) {
 
-        $withIDs = $withIDs ? "id," : "";
+        $withIDs = $withIDs ? "u.id," : "";
         $members = db::cachedQuery(
-            "SELECT {$withIDs} login FROM users WHERE (last_visit + INTERVAL "
-                . self::$onlineInterval . " MINUTE) > NOW() AND id > 0"
+            "SELECT {$withIDs} u.login FROM users u
+                LEFT JOIN groups g ON g.id = u.group_id
+                WHERE (u.last_visit + INTERVAL "
+                    . self::$onlineInterval . " MINUTE) > NOW()
+                        AND (g.priority IS NULL OR g.priority > 0)"
         );
 
         if (!$withIDs) {
@@ -98,9 +101,11 @@ abstract class onlineCounter {
                 . self::$onlineInterval . " MINUTE";
 
             self::$counterData = db::query(
-                "SELECT COUNT(1) cnt FROM users
-                    WHERE ({$lastInterval}) > NOW() AND id > 0 UNION ALL
-                    SELECT COUNT(1) cnt FROM online_guests
+                "SELECT COUNT(1) cnt FROM users u
+                    LEFT JOIN groups g ON g.id = u.group_id
+                        WHERE (u.{$lastInterval}) > NOW()
+                            AND (g.priority IS NULL OR g.priority > 0)
+                    UNION ALL SELECT COUNT(1) cnt FROM online_guests
                         WHERE ({$lastInterval}) > NOW()"
             );
 

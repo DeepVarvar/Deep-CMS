@@ -122,7 +122,7 @@ abstract class view {
         $config = app::config();
         self::setOutputContext($config->system->default_output_context);
         self::setLanguage($config->site->default_language);
-
+        storage::write("nodeID", -1);
 
     }
 
@@ -505,6 +505,10 @@ abstract class view {
             break;
 
 
+        }
+
+        if (!isset($layoutContent)) {
+            exit("Recursive exception.." . PHP_EOL);
         }
 
         if ($config->system->cache_enabled === true) {

@@ -100,7 +100,7 @@
          * this option show very verbosity trace of application events
          */
 
-        "debug_mode": true,
+        "debug_mode": false,
 
         // enable or disable filesystem cache support
         "cache_enabled": false,

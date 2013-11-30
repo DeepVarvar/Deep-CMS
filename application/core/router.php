@@ -204,6 +204,8 @@ abstract class router {
 
         }
 
+        storage::write("nodeID", $loadedPage['id']);
+
 
     }
 

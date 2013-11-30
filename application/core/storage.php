@@ -31,7 +31,7 @@ abstract class storage {
         session_name($sessionName);
 
         if (array_key_exists($sessionName, $_POST)
-                and $sessionID = ((string) $_POST[$sessionName])) {
+                and $sessionID == ((string) $_POST[$sessionName])) {
 
             session_id($sessionID);
 
@@ -54,7 +54,6 @@ abstract class storage {
          */
 
         @ session_start();
-
         if (!isset($_SESSION[self::$storageKey])) {
             self::clear();
         }
@@ -102,12 +101,9 @@ abstract class storage {
 
     public static function shift($key) {
 
-
         $data = self::read($key);
         self::remove($key);
-
         return $data;
-
 
     }
 
