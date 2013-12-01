@@ -439,6 +439,7 @@ function getInstallationQueryString($prefix = "") {
             page_h1             MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
             meta_keywords       MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
             meta_description    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            page_announce       LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
             page_text           LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
 
             PRIMARY KEY (id),
