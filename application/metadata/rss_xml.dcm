@@ -41,6 +41,7 @@
     "main_dir"   : "modules/rss_xml",
     "main_files" : [
         "modules/rss_xml/rss_xml.php",
+        "modules/rss_xml/autoloaded",
         "config/rss_xml.json"
     ],
 

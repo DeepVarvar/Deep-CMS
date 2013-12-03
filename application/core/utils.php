@@ -376,10 +376,14 @@ abstract class utils {
 
         $existsTargets = self::glob(APPLICATION . "modules/*", GLOB_ONLYDIR);
         $existsTargets = array_merge(array("---"), $existsTargets);
-        foreach ($existsTargets as $k => $item) {
-            $existsTargets[$k] = basename($item);
+
+        $availableModules = array();
+        foreach ($existsTargets as $item) {
+            if (!file_exists($item . "/autoloaded")) {
+                $availableModules[] = basename($item);
+            }
         }
-        return $existsTargets;
+        return $availableModules;
 
     }
 

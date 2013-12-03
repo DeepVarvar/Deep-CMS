@@ -41,7 +41,7 @@
     "main_dir"   : "modules/comments",
     "main_files" : [
         "modules/comments/comments.php",
-        "library/commentsHelper.php",
+        "modules/comments/autoloaded",
         "admin/controllers/manage_comments.php"
     ],
 

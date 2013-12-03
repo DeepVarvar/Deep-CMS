@@ -1,13 +1,12 @@
 
 
-    <?php $commentsEnv = commentsHelper::getEnvironment(); ?>
     <script type="text/javascript">
         if (typeof $ == "undefined") {
             alert("Comments module says: jQuery is required!");
         } else {
             $(function(){
 
-                var commentsUrl        = "<?=$commentsEnv['m']?>";
+                var commentsUrl        = "/comments";
                 var commentsWrapper    = $("#comments");
                 var commentFormWrapper = $("#commentformwrapper");
                 var commentForm        = commentFormWrapper.find("form");
@@ -56,8 +55,8 @@
 
                 function loadComments() {
 
-                    var link = "<?=$commentsEnv['m']?>?target=<?=$id?>&offset="
-                                + offset + "&_" + Math.random();
+                    var link = "/comments?target="
+                        + "<?=$id?>&offset=" + offset + "&_" + Math.random();
 
                     moreComments.hide();
                     $.get(link, function(response){
@@ -101,7 +100,7 @@
                     commentExc.html('');
                     var that = $(this);
 
-                    $.post("<?=$commentsEnv['m']?>/add",
+                    $.post("/comments/add",
                         that.serializeArray(), function(response){
 
                         if (response.exception) {
@@ -110,7 +109,7 @@
                             tas.html('');
                             that.find("input[type=text], textarea").val('');
                             that.find(".protection img").attr(
-                                "src", "/<?=$commentsEnv['c']?>?"+Math.random()
+                                "src", "/captcha.jpg?"+Math.random()
                             );
                             placeComments(response.comments, true);
                             setTimeout(function(){
@@ -196,8 +195,8 @@
                     <div class="label protection">
                         <img alt="protection"
                                 title=" <?=view::$language->captcha_click_for_update?> "
-                                src="<?=$commentsEnv['c']?>"
-                                onclick="this.src = '<?=$commentsEnv['c']?>?' + Math.random();" />
+                                src="/captcha.jpg"
+                                onclick="this.src = '/captcha.jpg?' + Math.random();" />
                     </div>
                     <div class="elem protection">
                         <input type="text" name="protection"

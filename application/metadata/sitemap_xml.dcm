@@ -40,7 +40,8 @@
 
     "main_dir"   : "modules/sitemap_xml",
     "main_files" : [
-        "modules/sitemap_xml/sitemap_xml.php"
+        "modules/sitemap_xml/sitemap_xml.php",
+        "modules/sitemap_xml/autoloaded"
     ],
 
 

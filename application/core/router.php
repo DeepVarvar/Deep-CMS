@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * route modules and dynamic pages
  */
@@ -60,11 +59,7 @@ abstract class router {
 
         $config = app::config();
         $requestURI = request::getURI();
-
-
-        /**
-         * is admin mode?
-         */
+        $moduleName = self::getParam();
 
         $adminLink = preg_quote($config->site->admin_tools_link, "/");
         if (preg_match("/^{$adminLink}(\/.+)?$/s", $requestURI)) {
@@ -81,38 +76,36 @@ abstract class router {
 
             extract(storage::shift("__message"));
             if ($type == SUCCESS_EXCEPTION) {
-
                 throw new memberRefreshSuccessException(
                     $title, $message, $refresh_location
                 );
-
             } else {
-
                 throw new memberRefreshErrorException(
                     $title, $message, $refresh_location
                 );
-
             }
 
         }
 
-
-        /**
-         * messages not found,
-         * working more,
-         * get siblings pages
-         */
-
         if (self::isAdmin()) {
 
             $loadedPage = array(
-
                 "id"             => 0,
                 "prototype"      => "mainModule",
                 "page_alias"     => $config->site->admin_tools_link,
                 "page_is_module" => 1,
                 "module_name"    => "admin"
+            );
 
+        } else if (file_exists(APPLICATION
+            . "modules/" . $moduleName . "/autoloaded")) {
+
+            $loadedPage = array(
+                "id"             => 0,
+                "prototype"      => "mainModule",
+                "page_alias"     => "/" . $moduleName,
+                "page_is_module" => 1,
+                "module_name"    => $moduleName
             );
 
         } else {
@@ -121,28 +114,16 @@ abstract class router {
             $excProtos = "'" . join("','", self::$exceptedPrototypes) . "'";
             if (!$loadedPage = db::query("
 
-                SELECT
-
-                    id,
-                    prototype,
-                    page_alias,
-                    IF(prototype = 'mainModule', 1, 0) page_is_module,
-                    module_name
-
+                SELECT id, prototype, page_alias, module_name,
+                    IF(prototype = 'mainModule', 1, 0) page_is_module
                 FROM tree WHERE prototype NOT IN({$excProtos}) AND (
-
-                    (page_alias = '%1\$s'
-                        AND prototype != 'mainModule')
-
+                    (page_alias = '%1\$s' AND prototype != 'mainModule')
                     OR ('%1\$s' REGEXP CONCAT(
                             '^', REPLACE(page_alias, '.', '\\\.') , '(/.*)?$'
                         ) AND prototype = 'mainModule')
-
                 ) AND is_publish = 1
                     ORDER BY page_is_module ASC,
-                        LENGTH(page_alias) ASC LIMIT 2
-
-                ", $requestURI
+                        LENGTH(page_alias) ASC LIMIT 2", $requestURI
 
             )) {
 
@@ -153,47 +134,28 @@ abstract class router {
 
             }
 
-
-            /**
-             * get correctly page type from result
-             */
-
             $siblingsKey = 0;
             if (sizeof($loadedPage) > 1) {
                 foreach ($loadedPage as $siblingsKey => $item) {
                     if ($item['page_is_module']) break;
                 }
             }
-
             $loadedPage = $loadedPage[$siblingsKey];
 
 
         }
 
-
-        /**
-         * get rejected params level,
-         * delete main rejected params
-         */
-
         $rejectedLevel = substr_count($loadedPage['page_alias'], "/");
         self::$params  = array_slice(self::$params, $rejectedLevel);
-
-
-        /**
-         * load page data, include module
-         */
 
         self::loadPageData($loadedPage);
         if ($loadedPage['page_is_module']) {
 
             if (!$loadedPage['module_name']) {
-
                 throw new systemErrorException(
                     view::$language->error,
                         view::$language->module_not_enabled
                 );
-
             }
 
             $path = self::isAdmin() ? "" : "modules/";
@@ -222,24 +184,17 @@ abstract class router {
         $pagePrototype   = new $loadedPage['prototype'];
         $prototypeFields = join(",d.", $pagePrototype->getPublicFields());
 
-        $pageData = db::normalizeQuery("
+        $pageData = db::normalizeQuery(
 
-            SELECT
+            "SELECT d.{$prototypeFields}, u1.id author_id,
+                u1.login author_name, u2.id modifier_id,
+                    u2.login modifier_name,
+                        IF(i.name IS NOT NULL,i.name,'no-image.png') image
 
-                d.{$prototypeFields},
-                u1.id author_id,
-                u1.login author_name,
-                u2.id modifier_id,
-                u2.login modifier_name,
-                IF(i.name IS NOT NULL,i.name,'no-image.png') image
-
-            FROM tree d
-
-            LEFT JOIN users u1 ON u1.id = d.author
-            LEFT JOIN users u2 ON u2.id = d.modified_author
-            LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
-
-            WHERE d.id = %u", $loadedPage['id']
+                FROM tree d LEFT JOIN users u1 ON u1.id = d.author
+                    LEFT JOIN users u2 ON u2.id = d.modified_author
+                    LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
+                        WHERE d.id = %u", $loadedPage['id']
 
         );
 
@@ -267,67 +222,27 @@ abstract class router {
     public static function loadModule($path, $module) {
 
 
-        /**
-         * too long request for exists modules,
-         * expects maximum 2 parameters after module name
-         */
-
         if (self::getParamsCount() > 2) {
             throw new systemErrorException(
                 "Load module error", "Request of parameters too long"
             );
         }
 
-
-        /**
-         * load bootstrap of module
-         */
-
         node::loadController($path . "{$module}.php", $module);
         utils::checkPermissionAccess($module, null);
 
-
-        /**
-         * get controller of module (submodule)
-         */
-
         if (self::getParamsCount() > 0) {
-
 
             $subModule = self::getParam();
             $controller = "{$path}controllers/{$subModule}.php";
 
-
-            /**
-             * load submodule
-             */
-
             if (file_exists($controller) and !is_dir($controller)) {
-
-
                 node::loadController($controller, $subModule);
                 utils::checkPermissionAccess($subModule, null);
-
-
-                /**
-                 * WARNING!
-                 * shift parameter only after loading submodule!
-                 * set/use $subModuleMode like bool
-                 */
-
                 $subModuleMode = self::shiftParam();
-
-
             }
 
-
         }
-
-
-        /**
-         * submodule action have high priority for bootstrap action,
-         * because submodule is action of module bootstrap
-         */
 
         if (isset($subModuleMode)) {
             $target = $subModule;
@@ -335,11 +250,6 @@ abstract class router {
         } else {
             $target = $module;
         }
-
-
-        /**
-         * execute action of target controller
-         */
 
         self::executeAction($target);
 
@@ -355,53 +265,25 @@ abstract class router {
 
 
         $action = router::shiftParam();
-
-
-        /**
-         * denied execute for custom public actions of controller
-         */
-
         if (self::isDenyAction($action)) {
-
             throw new systemErrorException(
-                "Execute action error",
-                    "Public action $action of controller "
-                        . "$controller set is denied"
+                "Execute action error", "Public action $action of controller "
+                    . "$controller set is denied"
             );
-
         }
 
-
-        /**
-         * denied for index action on URI
-         */
-
         if ($action == "index") {
-
             throw new systemErrorException(
                 "Execute action error",
                     "Action index of controller $controller is denied"
             );
-
         }
-
-
-        /**
-         * fix value of action,
-         * set index action as default
-         */
 
         if (is_null($action)) {
             $action = "index";
         }
 
-
-        /**
-         * check for exists and callable action, run action
-         */
-
         $argument = null;
-
         utils::checkAllow($controller, $action, $args);
         utils::checkPermissionAccess($controller, $action);
 
@@ -467,10 +349,7 @@ abstract class router {
      */
 
     public static function shiftParam() {
-
-        return (self::$params)
-            ? self::normalize(array_shift(self::$params)) : null;
-
+        return (self::$params) ? self::normalize(array_shift(self::$params)) : null;
     }
 
 
@@ -479,10 +358,7 @@ abstract class router {
      */
 
     public static function shiftLastParam() {
-
-        return (self::$params)
-            ? self::normalize(array_pop(self::$params)) : null;
-
+        return (self::$params) ? self::normalize(array_pop(self::$params)) : null;
     }
 
 
@@ -491,10 +367,7 @@ abstract class router {
      */
 
     public static function getParam() {
-
-        return (self::$params)
-            ? self::normalize(current(self::$params)) : null;
-
+        return (self::$params) ? self::normalize(current(self::$params)) : null;
     }
 
 
@@ -504,10 +377,7 @@ abstract class router {
 
     public static function getLastParam() {
 
-        if (!self::$params) {
-            return null;
-        }
-
+        if (!self::$params) return null;
         $end = end(self::$params);
         reset(self::$params);
         return self::normalize($end);
@@ -521,19 +391,13 @@ abstract class router {
 
     private static function normalize($name) {
 
-        if (!$name) {
-            return null;
-        }
-
-        $name = str_replace(array("_", "-", "."),
-                    array(md5(microtime(true)), "_", "_"), $name);
-
-        return $name;
+        return !$name ? null : str_replace(
+            array("_", "-", "."), array(md5(microtime(true)), "_", "_"), $name
+        );
 
     }
 
 
 }
-
 
 

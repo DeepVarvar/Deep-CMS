@@ -7,7 +7,7 @@
  * rewrite of RECAPTCHA
  */
 
-class captcha extends baseController {
+class captcha_jpg extends baseController {
 
 
     private

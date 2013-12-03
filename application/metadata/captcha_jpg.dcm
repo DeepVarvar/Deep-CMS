@@ -12,7 +12,7 @@
 
     "protected"   : false,
     "type"        : "module",
-    "system_name" : "captcha",
+    "system_name" : "captcha_jpg",
 
 
     /**
@@ -38,9 +38,10 @@
      * on filesystem
      */
 
-    "main_dir"   : "modules/captcha",
+    "main_dir"   : "modules/captcha_jpg",
     "main_files" : [
-        "modules/captcha/captcha.php"
+        "modules/captcha_jpg/captcha_jpg.php",
+        "modules/captcha_jpg/autoloaded"
     ],
 
 

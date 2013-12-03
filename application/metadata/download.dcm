@@ -40,7 +40,8 @@
 
     "main_dir"   : "modules/download",
     "main_files" : [
-        "modules/download/download.php"
+        "modules/download/download.php",
+        "modules/download/autoloaded"
     ],
 
 
