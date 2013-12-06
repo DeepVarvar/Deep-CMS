@@ -48,7 +48,7 @@ if (!array_key_exists("ins", $_SESSION)) {
 function getConfig() {
 
     if (!array_key_exists("config", $_SESSION['ins'])) {
-        $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/"},"application":{"name":"Deep-CMS","version":"2.97.189","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"layouts":{"parts":"parts\/","header":"parts\/header.html","footer":"parts\/footer.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
+        $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/"},"application":{"name":"Deep-CMS","version":"2.114.395","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"layouts":{"parts":"parts\/","header":"parts\/header.html","footer":"parts\/footer.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
     }
 
     return $_SESSION['ins']['config'];
@@ -166,7 +166,7 @@ function saveConfigIntoFile($config) {
 
         // name signature and version of application
         "name": "Deep-CMS",
-        "version": "2.97.189",
+        "version": "2.114.395",
 
         // email address of technical support
         "support_email": "support@deep-cms.ru"
