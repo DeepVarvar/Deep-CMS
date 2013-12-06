@@ -123,57 +123,55 @@ class preferences extends baseController {
         $controllers = utils::getAllControllers();
 
         foreach ($controllers as $controller) {
-
             foreach ($controller->getPermissions() as $current) {
-
                 $check = in_array(
                     $current['permission'], $controllersPermissions
                 );
-
                 if (!$check) {
                     array_push(
                         $controllersPermissions, $current['permission']
                     );
                 }
-
             }
-
         }
 
         $groupExistsPermissions = db::query(
-
-            "SELECT p.id, p.name, gp.group_id FROM permissions p
+            "SELECT p.name, gp.group_id FROM permissions p
                 INNER JOIN group_permissions gp ON gp.permission_id = p.id
-                    WHERE p.name IN(%s) AND gp.group_id != 0",
-                        $controllersPermissions
-
+                    INNER JOIN groups g ON g.id = gp.group_id
+                        WHERE p.name IN(%s) AND g.is_protected = 0",
+                            $controllersPermissions
         );
 
         db::set("TRUNCATE TABLE group_permissions");
         db::set("TRUNCATE TABLE permissions");
 
-        $permissionValues
-            = "('". join("'), ('", $controllersPermissions) . "')";
+        $permissionValues = "('"
+            . join("'), ('", $controllersPermissions) . "')";
 
         db::set("INSERT INTO permissions (name) VALUES {$permissionValues}");
         $newPermissions = db::query("SELECT id, name FROM permissions");
 
         $newGroupsPermissions = array();
+        $protectedGroups = db::query(
+            "SELECT id FROM groups WHERE is_protected = 1"
+        );
+
         foreach ($newPermissions as $permission) {
 
-            array_push($newGroupsPermissions, "(0,{$permission['id']})");
+            foreach ($protectedGroups as $pg) {
+                array_push(
+                    $newGroupsPermissions, "({$pg['id']},{$permission['id']})"
+                );
+            }
 
             foreach ($groupExistsPermissions as $groupPermission) {
-
                 if ($permission['name'] == $groupPermission['name']) {
-
                     array_push(
                         $newGroupsPermissions,
                         "({$groupPermission['group_id']},{$permission['id']})"
                     );
-
                 }
-
             }
 
         }
