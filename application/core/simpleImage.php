@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * simple image library class
  */
@@ -348,6 +347,5 @@ class simpleImage {
 
 
 }
-
 
 

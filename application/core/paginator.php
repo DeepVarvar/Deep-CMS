@@ -14,16 +14,11 @@ class paginator {
      */
 
     private static $empty = array(
-
         "number_of_items" => 0,
         "number_of_pages" => 1,
-        "current_page" => 1,
-        "items" => array(),
-
-        "pages" => array(
-            array("number" => 1, "current" => true)
-        )
-
+        "current_page"    => 1,
+        "items"           => array(),
+        "pages"           => array(array("number" => 1, "current" => true))
     );
 
 
@@ -104,11 +99,15 @@ class paginator {
     public function setCurrentPage($number) {
 
         if (!validate::isNumber($number)) {
-            throw new systemErrorException("Pagination error", "Current page is not number");
+            throw new systemErrorException(
+                "Pagination error", "Current page is not number"
+            );
         }
 
         if ($number == 0) {
-            throw new systemErrorException("Pagination error", "Current page can't be zero");
+            throw new systemErrorException(
+                "Pagination error", "Current page can't be zero"
+            );
         }
 
         $this->currentPage = (int) $number;
@@ -124,11 +123,15 @@ class paginator {
     public function setItemsPerPage($number) {
 
         if (!validate::isNumber($number)) {
-            throw new systemErrorException("Pagination error", "Items per page is not number");
+            throw new systemErrorException(
+                "Pagination error", "Items per page is not number"
+            );
         }
 
         if ($number == 0) {
-            throw new systemErrorException("Pagination error", "Items per page can't be zero");
+            throw new systemErrorException(
+                "Pagination error", "Items per page can't be zero"
+            );
         }
 
         $this->itemsPerPage = $number;
@@ -144,11 +147,15 @@ class paginator {
     public function setSliceSizeByPages($number) {
 
         if (!validate::isNumber($number)) {
-            throw new systemErrorException("Pagination error", "Slice size by pages is not number");
+            throw new systemErrorException(
+                "Pagination error", "Slice size by pages is not number"
+            );
         }
 
         if ($number == 0) {
-            throw new systemErrorException("Pagination error", "Slice size by pages can't be zero");
+            throw new systemErrorException(
+                "Pagination error", "Slice size by pages can't be zero"
+            );
         }
 
         $this->sliceSizeByPages = $number;
@@ -169,7 +176,9 @@ class paginator {
             ? $this->result['number_of_pages'] : 1);
 
         if ($availableNumber < $this->currentPage) {
-            throw new systemErrorException("Pagination error", "Current page is more maximum page number");
+            throw new systemErrorException(
+                "Pagination error", "Current page is more maximum page number"
+            );
         }
 
         $this->getPages();

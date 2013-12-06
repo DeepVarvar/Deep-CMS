@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * session storage class
  */
@@ -21,11 +20,6 @@ abstract class storage {
      */
 
     public static function init() {
-
-
-        /**
-         * set name of session
-         */
 
         $sessionName = app::config()->system->session_name;
         session_name($sessionName);
@@ -57,7 +51,6 @@ abstract class storage {
         if (!isset($_SESSION[self::$storageKey])) {
             self::clear();
         }
-
 
     }
 
@@ -130,6 +123,5 @@ abstract class storage {
 
 
 }
-
 
 

@@ -288,13 +288,6 @@ abstract class member {
 
     public static function getStorageData($key) {
 
-        if (!validate::likeString($key)) {
-            throw new systemErrorException(
-                "Member error",
-                    "Storage data key is not string"
-            );
-        }
-
         $cache = storage::read(self::$storageKey);
         return $cache
             ? ( array_key_exists($key, $cache) ? $cache[$key] : array() )
@@ -308,13 +301,6 @@ abstract class member {
      */
 
     public static function setStorageData($key, $data) {
-
-        if (!validate::likeString($key)) {
-            throw new systemErrorException(
-                "Member error",
-                    "Storage data key is not string"
-            );
-        }
 
         $cache = storage::read(self::$storageKey);
         if (!$cache) {

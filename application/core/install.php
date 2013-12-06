@@ -625,8 +625,7 @@ function getLanguage($name) {
     if (!file_exists($lf)) {
 
         throw new installException(
-            "Language error",
-                "Language file $lf is not exists"
+            "Language error", "Language file $lf is not exists"
         );
 
     }
@@ -722,8 +721,7 @@ abstract class node {
         if (!class_exists($class)) {
 
             throw new installException(
-                "Node initialization class error",
-                    "Class $class not found"
+                "Node initialization class error", "Class $class not found"
             );
 
         }
@@ -741,8 +739,7 @@ abstract class node {
         if (!isset(self::$objects[$key])) {
 
             throw new installException(
-                "Node call to object error",
-                    "Object $key not found inside"
+                "Node call to object error", "Object $key not found inside"
             );
 
         }
@@ -762,8 +759,7 @@ abstract class node {
         if (!file_exists($path)) {
 
             throw new installException(
-                "Node load file error",
-                    "File $path not exists"
+                "Node load file error", "File $path not exists"
             );
 
         }
@@ -771,8 +767,7 @@ abstract class node {
         if (is_dir($path)) {
 
             throw new installException(
-                "Node load file error",
-                    "File $path is directory"
+                "Node load file error", "File $path is directory"
             );
 
         }
@@ -1069,8 +1064,7 @@ try {
                     if (!array_key_exists($key, $_POST)) {
 
                         throw new installException(
-                            $language->error,
-                                $language->data_not_enough
+                            $language->error, $language->data_not_enough
                         );
 
                     }
@@ -1315,8 +1309,7 @@ try {
                     if (!array_key_exists($key, $_POST)) {
 
                         throw new installException(
-                            $language->error,
-                                $language->data_not_enough
+                            $language->error, $language->data_not_enough
                         );
 
                     }

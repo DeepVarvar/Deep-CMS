@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * xml output context builder class
  */
@@ -78,12 +77,10 @@ abstract class xmlOutput {
                 $isNumericItems   = true;
 
                 $currentSchema = array(
-
                     "name"       => "item",
                     "attributes" => array(),
                     "attrvalues" => array(),
                     "repeat"     => false
-
                 );
 
                 if (!validate::isNumber($key)) {
@@ -259,6 +256,5 @@ abstract class xmlOutput {
 
 
 }
-
 
 

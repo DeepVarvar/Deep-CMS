@@ -10,14 +10,11 @@
 abstract class commandLine {
 
 
-    protected static
+    /**
+     * status of CLI mode
+     */
 
-
-        /**
-         * status of CLI mode
-         */
-
-        $isCLI;
+    protected static $isCLI;
 
 
     /**

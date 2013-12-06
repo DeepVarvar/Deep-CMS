@@ -34,33 +34,18 @@ abstract class autorun {
 
         foreach ($autorunItems as $item) {
 
-            $component = basename($item, ".php");
+            $runner = basename($item, ".php");
             $action = "run";
-
-            if (!method_exists($component, $action)) {
-                throw new systemErrorException(
-                    "Autoload error",
-                        "Impossible execute {$component}::{$action}()"
-                );
+            if (!method_exists($runner, $action)) {
+                continue;
             }
 
-            $checkMethod = new ReflectionMethod($component, $action);
-
-            if (!$checkMethod->isPublic()) {
-                throw new systemErrorException(
-                    "Autoload error",
-                        "Method {$action}() on $component is not public"
-                );
+            $checkMethod = new ReflectionMethod($runner, $action);
+            if (!$checkMethod->isPublic() or !$checkMethod->isStatic()) {
+                continue;
             }
 
-            if (!$checkMethod->isStatic()) {
-                throw new systemErrorException(
-                    "Autoload error",
-                        "Method {$action}() on $component is not static"
-                );
-            }
-
-            call_user_func(array($component, $action));
+            call_user_func(array($runner, $action));
 
         }
 

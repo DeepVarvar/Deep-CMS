@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * text plain output context builder class
  */
@@ -16,27 +15,19 @@ abstract class textPlainOutput {
     public static function buildString($vars, $lastPad = 0) {
 
 
-        /**
-         * fix input data format
-         */
-
         if (!is_array($vars)) {
             $vars = array($vars);
         }
-
 
         $output = "";
         $currentPad = self::getPadSize(array_keys($vars));
         $leftPad = str_repeat(" ", $lastPad);
 
-
         foreach ($vars as $k => $v) {
-
 
             if (is_object($v)) {
                 $v = (array) $v;
             }
-
 
             $k = (validate::isNumber($k)) ? "" : ($k . ": ");
             $output .= PHP_EOL . $leftPad . str_pad($k, $currentPad, " ", STR_PAD_RIGHT);
@@ -47,12 +38,9 @@ abstract class textPlainOutput {
                 $output .= $v;
             }
 
-
         }
 
-
         return $output;
-
 
     }
 
@@ -63,19 +51,15 @@ abstract class textPlainOutput {
 
     private static function getPadSize($names) {
 
-
         $len = array();
         foreach ($names as $name) {
             array_push($len, mb_strlen($name, "UTF-8"));
         }
-
         return max($len) + 2;
-
 
     }
 
 
 }
-
 
 

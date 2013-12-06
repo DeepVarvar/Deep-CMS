@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * view counter component class
  */
@@ -37,6 +36,5 @@ abstract class viewCounter {
 
 
 }
-
 
 

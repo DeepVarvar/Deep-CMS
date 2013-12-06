@@ -219,7 +219,7 @@ try {
         );
 
         if ($items) {
-            $cachedPage = basename($items[0]);
+            $cachedPage  = basename($items[0]);
             $pageOnCache = true;
         }
 
@@ -239,22 +239,7 @@ try {
         request::checkUnusedParams();
 
     } else {
-
-
-        /**
-         * WARNING!
-         * flush cached content and exit application
-         * not working more!
-         */
-
-        if ($config->system->cache_enabled !== true) {
-            throw new systemErrorException(
-                "View error", "Caching mode is not enabled"
-            );
-        }
-
         view::readFromCache($cachedPage);
-
     }
 
 } catch (Exception $e) {

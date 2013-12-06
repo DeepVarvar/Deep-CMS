@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * validation class
  */
@@ -32,11 +31,10 @@ abstract class validate {
      */
 
     public static function likeString($v) {
-        return ($v !== null and !is_array($v) and !is_object($v) and !is_resource($v) and !is_bool($v));
+        return (is_number($v) or is_string($v));
     }
 
 
 }
-
 
 

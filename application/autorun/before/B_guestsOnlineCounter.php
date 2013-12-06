@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * guests online count runner
  */
@@ -13,6 +12,5 @@ abstract class B_guestsOnlineCounter {
     }
 
 }
-
 
 

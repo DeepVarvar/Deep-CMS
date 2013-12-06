@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * online counter component class
  */
@@ -115,6 +114,5 @@ abstract class onlineCounter {
 
 
 }
-
 
 

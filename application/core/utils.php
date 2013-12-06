@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * some utilis
  */
@@ -569,6 +568,5 @@ abstract class utils {
 function sortArrays($a, $b) {
     return $a['sort'] == $b['sort'] ? 0 : ($a['sort'] < $b['sort'] ? -1 : 1);
 }
-
 
 

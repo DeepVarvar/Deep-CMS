@@ -16,7 +16,6 @@ abstract class router {
          */
 
         $deniedPublicActions = array(
-
             "__call",
             "setLayout",
             "getPermissions",
@@ -25,7 +24,6 @@ abstract class router {
             "preLoad",
             "runBefore",
             "runAfter"
-
         ),
 
 
@@ -302,7 +300,6 @@ abstract class router {
 
         $actionList = is_array($actionList)
             ? $actionList : self::$deniedPublicActions;
-
         return in_array($action, $actionList);
 
     }

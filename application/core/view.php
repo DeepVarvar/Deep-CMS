@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * global view class
  */
@@ -589,7 +588,6 @@ abstract class view {
 
     public static function normalizePageVariables() {
 
-
         $config = app::config();
         $requiredVariables = array(
 
@@ -622,7 +620,6 @@ abstract class view {
         if (!self::$vars['page_title']) {
             self::$vars['page_title'] = self::$vars['page_h1'];
         }
-
 
     }
 
@@ -660,6 +657,5 @@ abstract class view {
 
 
 }
-
 
 

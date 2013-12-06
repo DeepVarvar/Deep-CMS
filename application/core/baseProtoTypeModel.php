@@ -17,7 +17,6 @@ class baseProtoTypeModel {
 
     public function getValues($nodeID) {
 
-
         if (!$this->returnedFields) {
             return array();
         }
@@ -30,12 +29,7 @@ class baseProtoTypeModel {
             );
 
             if (!$values) {
-
-                throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->node_properties_not_found
-                );
-
+                return $this->returnedFields;
             }
 
             return $values;
@@ -43,7 +37,6 @@ class baseProtoTypeModel {
         }
 
         return $this->returnedFields;
-
 
     }
 
@@ -90,12 +83,9 @@ class baseProtoTypeModel {
             } else {
 
                 if ($this->preparedProperties[$key] === null) {
-
                     throw new memberErrorException(
-                        view::$language->error,
-                            view::$language->data_not_enough
+                        view::$language->error, view::$language->data_not_enough
                     );
-
                 }
 
                 $this->preparedProperties[$key] = filter::input(

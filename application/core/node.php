@@ -23,15 +23,9 @@ abstract class node {
 
     public static function load($class) {
 
-
-        if (!class_exists($class)) {
-            throw new systemErrorException("Node initialization class error", "Class $class not found");
-        }
-
         if (!isset(self::$objects[$class])) {
             self::$objects[$class] = new $class;
         }
-
 
     }
 
@@ -42,15 +36,7 @@ abstract class node {
      */
 
     public static function call($key) {
-
-
-        if (!isset(self::$objects[$key])) {
-            throw new systemErrorException("Node call to object error", "Object $key not found inside");
-        }
-
         return self::$objects[$key];
-
-
     }
 
 
@@ -61,23 +47,12 @@ abstract class node {
 
     public static function loadClass($path, $className) {
 
-
         if (isset(self::$objects[$className])) {
             return;
         }
 
-        if (!file_exists($path)) {
-            throw new systemErrorException("Node load file error", "File $path not exists");
-        }
-
-        if (is_dir($path)) {
-            throw new systemErrorException("Node load file error", "File $path is directory");
-        }
-
-
         require_once $path;
         self::load($className);
-
 
     }
 
@@ -89,26 +64,18 @@ abstract class node {
 
     public static function loadController($path, $controllerName) {
 
-
         self::loadClass($path, $controllerName);
 
         if (!(self::call($controllerName) instanceof baseController)) {
-            throw new systemErrorException("Node load controller error", "Class $controllerName not instance of baseController");
+            throw new systemErrorException(
+                "Node load controller error",
+                    "Class $controllerName not instance of baseController"
+            );
         }
-
-
-        /**
-         * you known..
-         * here you find great music: http://www.youtube.com/watch?v=0lTKErnmmoA
-         *
-         * good, yeah? :)
-         *
-         */
 
         $controller = self::call($controllerName);
         $controller->preLoad();
         $controller->runBefore();
-
 
     }
 

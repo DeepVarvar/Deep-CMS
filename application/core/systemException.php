@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * system exception class
  */
@@ -27,8 +26,7 @@ class systemException extends Exception {
 
 
         /**
-         * exception type,
-         * use for identify on client side,
+         * exception type, use for identify on client side,
          * "system" value by default
          */
 
@@ -38,20 +36,10 @@ class systemException extends Exception {
     public function __construct() {
 
 
-        /**
-         * get arguments
-         */
-
         $args = func_get_args();
         $size = sizeof($args);
 
-
-        /**
-         * get exists expects
-         */
-
         $expects = array_slice($this->expects, 3 - $size, $size);
-
         foreach ($expects as $k => $name) {
             $this->report[$name] = $args[$k];
         }
@@ -59,11 +47,6 @@ class systemException extends Exception {
         if (!isset($this->report['title'])) {
             $this->report['title'] = "Untitled exception";
         }
-
-
-        /**
-         * normalize report parameters
-         */
 
         if (!isset($this->report['code'])) {
             $this->report['code'] = 0;
@@ -73,51 +56,24 @@ class systemException extends Exception {
             $this->report['message'] = "[empty exception message]";
         }
 
-
-        /**
-         * additional info
-         */
-
         $profile = member::getProfile();
 
         $this->report['initiator_id'] = $profile['id'];
         $this->report['initiator'] = $profile['login'];
         $this->report['initiator_group_priority'] = $profile['group_priority'];
 
-
         $this->report['datetime'] = date("Y-m-d H:i:s");
         $this->report['type'] = $this->type;
-
-
-        /**
-         * more additional debug info
-         */
 
         $this->report['file']  = $this->file;
         $this->report['line']  = $this->line;
         $this->report['trace'] = parent::getTrace();
 
-
-        /**
-         * write log
-         */
-
         if (app::config()->system->write_log == "On") {
-
-
-            utils::writeLog(
-
-                array_merge(
-
-                    $this->report,
-                    request::getClientInfo(),
+            utils::writeLog(array_merge(
+                $this->report, request::getClientInfo(),
                     array("url" => request::getOriginURL())
-
-                )
-
-            );
-
-
+            ));
         }
 
 
@@ -143,6 +99,5 @@ class systemException extends Exception {
 
 
 }
-
 
 

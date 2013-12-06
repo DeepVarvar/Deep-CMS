@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * request environment,
  * get and set headers, redirect, refresh
@@ -70,19 +69,14 @@ abstract class request {
                 and isset($_SERVER['HTTP_X_MOZ'])
                 and $_SERVER['HTTP_X_MOZ'] == "prefetch") {
 
-
 	        self::addHeader("HTTP/1.1 403 Prefetching Forbidden");
 	        self::addHeader("Expires: Thu, 21 Jul 1977 07:30:00 GMT");
-
-	        self::addHeader("Last-Modified: "
-                                . gmdate("D, d M Y H:i:s") . " GMT");
-
+	        self::addHeader("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 	        self::addHeader("Cache-Control: post-check=0, pre-check=0", false);
 	        self::addHeader("Pragma: no-cache");
 
             self::sendHeaders();
 	        exit();
-
 
         }
 
@@ -92,50 +86,37 @@ abstract class request {
          * Content-Length bug fix on php 5.4
          * see more information:
          * http://www.exploit-db.com/exploits/18665/
-         */
-
-
-        /**
-         * long request?
+         *
+         * long request
          * i'm expected request string maximum of 2048 bytes length
          */
 
         if (strlen($_SERVER['REQUEST_URI']) > 2048) {
-
             $_SERVER['REQUEST_URI'] = "";
             throw new systemErrorException(
-                "Request error",
-                    "Request string too long"
+                "Request error", "Request string too long"
             );
-
         }
 
-
-        /**
-         * base64, WTF?
-         */
-
+        // base64
         if (stristr($_SERVER['REQUEST_URI'], "data:")) {
-
             throw new systemErrorException(
-                "Request error",
-                    "Base64 data found on request URI"
+                "Request error", "Base64 data found on request URI"
             );
-
         }
 
-
-        /**
-         * double slash, WTF?
-         */
-
+        // double slash
         if (strstr($_SERVER['REQUEST_URI'], "//")) {
-
             throw new systemErrorException(
-                "Request error",
-                    "Double slash found on request URI"
+                "Request error", "Double slash found on request URI"
             );
+        }
 
+        // bad spaces
+        if (preg_match("/(%20)+$/", $_SERVER['REQUEST_URI'])) {
+            throw new systemErrorException(
+                "Request error", "Bad spaces on request URI"
+            );
         }
 
 
@@ -145,24 +126,8 @@ abstract class request {
          */
 
         $source = $_SERVER['REQUEST_URI'];
-
         $_SERVER['REQUEST_URI'] = "";
         $_GET = array();
-
-
-        /**
-         * bad spaces
-         */
-
-        // TODO
-        /*if (preg_match("/(%20)+$/", $source)) {
-
-            throw new systemErrorException(
-                "Request error",
-                    "Bad spaces on request URI"
-            );
-
-        }*/
 
 
         /**
@@ -205,22 +170,14 @@ abstract class request {
                     . "?(?:(?:&[^\/=\?&]+(?:=[^\/=\?&]*)?)+)?))?";
 
         if (!preg_match("/^{$mca}{$gp}$/u", $destination, $parts)) {
-
             throw new systemErrorException(
-                "Request error",
-                    "Broken query string format"
+                "Request error", "Broken query string format"
             );
-
         }
 
         if (!isset($parts['mca'])) {
             $parts['mca'] = "";
         }
-
-
-        /**
-         * deletefirst page from request string
-         */
 
         $withoutFirstPage = preg_replace(
             "/^(.+)(?:(?:page=1&(.+))|(?:\?|&)page=1$)/", "$1$2", $destination
@@ -230,42 +187,16 @@ abstract class request {
             self::redirect($withoutFirstPage);
         }
 
-
-        /**
-         * stored RAW URL
-         */
-
         self::$rawURL = $destination;
-
-
-        /**
-         * stored URI
-         */
-
         self::$uri = "/" . $parts['mca'];
-
-
-        /**
-         * set router parameters
-         */
 
         foreach (explode("/", $parts['mca']) as $param) {
             router::pushParam(rawurldecode($param));
         }
 
-
-        /**
-         * stored GET parameters only as STRING!
-         */
-
         if (isset($parts['gp'])) {
             self::storeGETParams($parts['gp']);
         }
-
-
-        /**
-         * set output context for ajax jquery requests
-         */
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             view::setOutputContext("json");
@@ -288,72 +219,33 @@ abstract class request {
          * need correct stored GET params
          */
 
-
         $params = explode("&", $str);
-        if (!$params) {
-            $params = array();
-        }
-
+        if (!$params) $params = array();
 
         foreach ($params as $param) {
-
-
-            /**
-             * get key and value
-             */
 
             @ list($key, $value) = explode("=", $param);
             $key = rawurldecode($key);
 
-
-            /**
-             * is empty key
-             */
-
             if (!$key) {
-
                 throw new systemErrorException(
-                    "Request error",
-                        "GET key is empty"
+                    "Request error", "GET key is empty"
                 );
-
             }
-
-
-            /**
-             * array is broken key
-             */
 
             if (preg_match("/^(.+)\[(.*)\]$/u", $key)) {
-
                 throw new systemErrorException(
-                    "Request error",
-                        "GET key is array"
+                    "Request error", "GET key is array"
                 );
-
             }
-
-
-            /**
-             * broken if exists key
-             */
 
             if (isset(self::$params[$key])) {
-
                 throw new systemErrorException(
-                    "Request error",
-                        "Duplicate GET keys"
+                    "Request error", "Duplicate GET keys"
                 );
-
             }
 
-
-            /**
-             * set new key and value
-             */
-
-            self::$params[$key] = isset($value)
-                ? rawurldecode($value) : true;
+            self::$params[$key] = isset($value) ? rawurldecode($value) : true;
 
         }
 
@@ -386,20 +278,14 @@ abstract class request {
 
     public static function getRequiredPostParams($required = array()) {
 
-
         $data = array();
         foreach ($required as $key) {
-
             if (!array_key_exists($key, $_POST)) {
                 return null;
             }
-
             $data[$key] = $_POST[$key];
-
         }
-
         return (sizeof($data) > 0) ? $data : null;
-
 
     }
 
@@ -463,27 +349,18 @@ abstract class request {
         $c->site->domain = preg_replace("/^www\./", "", $c->site->domain);
         $currentReferer = preg_replace("/(\/\/)www\./", "$1", $currentReferer);
 
-
         if (!$useExpression) {
-
             $ref = "{$c->site->protocol}://{$c->site->domain}{$referer}";
             $status = ($ref === $currentReferer);
-
         } else {
-
             $ref = "#{$c->site->protocol}://{$c->site->domain}{$referer}#";
             $status = (preg_match($ref, $currentReferer));
-
         }
 
-
         if (!$status) {
-
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->referer_invalid_or_csrf
+                view::$language->error, view::$language->referer_invalid_or_csrf
             );
-
         }
 
 
@@ -545,17 +422,13 @@ abstract class request {
 
     public static function shiftParam($key) {
 
-
         if (!isset(self::$params[$key])) {
             return null;
         } else {
-
             $value = self::$params[$key];
             unset(self::$params[$key]);
             return $value;
-
         }
-
 
     }
 
@@ -566,40 +439,27 @@ abstract class request {
 
     public static function getCurrentPage() {
 
-
-
         if (self::$currentPage === null) {
 
             $currentPage = self::getParam("page");
             if ($currentPage !== null) {
-
                 if (!validate::isNumber($currentPage)) {
-
                     throw new systemErrorException(
-                        "Request error",
-                            "Current page is not number"
+                        "Request error", "Current page is not number"
                     );
-
                 }
-
                 if ($currentPage === "0") {
-
                     throw new systemErrorException(
-                        "Request error",
-                            "Current page is can't be zero"
+                        "Request error", "Current page is can't be zero"
                     );
-
                 }
-
             }
 
-            self::$currentPage = $currentPage
-                ? request::shiftParam("page") : 1;
+            self::$currentPage = $currentPage ? request::shiftParam("page") : 1;
 
         }
 
         return self::$currentPage;
-
 
     }
 
@@ -640,12 +500,11 @@ abstract class request {
          */
 
         self::$headers = array();
-
         self::addHeader("HTTP/1.1 301 Moved Permanently");
         self::addHeader("Location: $destination");
-
         self::sendHeaders();
         exit();
+
 
     }
 
@@ -678,18 +537,14 @@ abstract class request {
 
         $check = app::config()->site->check_unused_params;
         if ($check and (router::getParamsCount() or self::$params)) {
-
             throw new systemErrorException(
-                "Request error",
-                    "Request string have unused parameters"
+                "Request error", "Request string have unused parameters"
             );
-
         }
 
     }
 
 
 }
-
 
 

@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * view count runner
  */
@@ -13,6 +12,5 @@ abstract class A_viewCounter {
     }
 
 }
-
 
 
