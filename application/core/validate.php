@@ -31,7 +31,7 @@ abstract class validate {
      */
 
     public static function likeString($v) {
-        return (is_number($v) or is_string($v));
+        return (is_int($v) or is_string($v));
     }
 
 
