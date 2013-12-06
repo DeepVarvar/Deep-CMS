@@ -16,40 +16,27 @@ class preferences extends baseController {
     public function setPermissions() {
 
         $this->permissions = array(
-
             array(
-
                 "action"      => null,
                 "permission"  => "preferences_manage",
                 "description" => view::$language->permission_preferences_manage
-
             ),
-
             array(
-
                 "action"      => "recalculate",
                 "permission"  => "preferences_recalc",
                 "description" => view::$language->permission_preferences_recalc
-
             ),
-
             array(
-
                 "action"      => "reset",
                 "permission"  => "preferences_reset",
                 "description" => view::$language->permission_preferences_reset
-
             ),
-
             array(
-
                 "action"      => "clear_cache",
                 "permission"  => "preferences_clear_cache",
                 "description"
                     => view::$language->permission_preferences_clear_cache
-
             )
-
         );
 
     }
@@ -61,30 +48,21 @@ class preferences extends baseController {
 
     public function index() {
 
-
-        /**
-         * save preferences,
-         * THROW inside, not working more
-         */
-
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             return $this->savePreferences();
         }
 
         $c = app::config();
         view::assign(array(
-
             "themes"           => utils::getAvailableThemes($c->site->theme),
             "admin_tools_link" => rawurldecode($c->site->admin_tools_link),
             "languages"        => utils::getAvailableLanguages($c->site->default_language),
             "cache_enabled"    => $c->system->cache_enabled,
             "debug_mode_on"    => $c->system->debug_mode
-
         ));
 
         view::assign("node_name", view::$language->preferences_global);
         $this->setProtectedLayout("preferences.html");
-
 
     }
 
@@ -99,12 +77,9 @@ class preferences extends baseController {
         request::validateReferer($adminToolsLink . "/preferences");
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->cache_is_cleared,
-                        $adminToolsLink . "/preferences"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->cache_is_cleared,
+                    $adminToolsLink . "/preferences"
         );
 
     }
@@ -126,12 +101,9 @@ class preferences extends baseController {
 
         $newConfig = app::reloadConfig();
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->preferences_global_is_reseted,
-                        $newConfig->site->admin_tools_link . "/preferences"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->preferences_global_is_reseted,
+                    $newConfig->site->admin_tools_link . "/preferences"
         );
 
     }
@@ -213,12 +185,9 @@ class preferences extends baseController {
         );
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->permissions_is_recalculated,
-                        $adminToolsLink . "/preferences"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->permissions_is_recalculated,
+                    $adminToolsLink . "/preferences"
         );
 
 
@@ -232,211 +201,127 @@ class preferences extends baseController {
     private function savePreferences() {
 
 
-        /**
-         * validate referer of possible CSRF attack
-         */
-
         request::validateReferer(
             app::config()->site->admin_tools_link . "/preferences"
         );
-
-
-        /**
-         * get required data
-         */
 
         $preferences = request::getRequiredPostParams(
             array("site", "system")
         );
 
         if ($preferences === null) {
-
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_not_enough
+                view::$language->error, view::$language->data_not_enough
             );
-
         }
 
-
-        /**
-         * check required system data
-         */
-
-        $requiredSystemData = array(
-            "cookie_expires_time"
-        );
-
+        $requiredSystemData = array("cookie_expires_time");
         foreach ($requiredSystemData as $item) {
-
             if (!array_key_exists($item, $preferences['system'])) {
-
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->data_not_enough
+                    view::$language->error, view::$language->data_not_enough
                 );
-
             }
-
         }
-
-
-        /**
-         * check required site data
-         */
 
         $requiredSiteData = array(
-
             "theme",
             "default_language",
             "admin_tools_link",
             "default_keywords",
             "default_description"
-
         );
 
         foreach ($requiredSiteData as $item) {
-
             if (!array_key_exists($item, $preferences['site'])) {
-
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->data_not_enough
+                    view::$language->error, view::$language->data_not_enough
                 );
-
             }
-
         }
-
-
-        /**
-         * set debug mode
-         */
 
         $preferences['system']['debug_mode']
             = array_key_exists("debug_mode", $preferences['system'])
                 ? true : false;
 
-
-        /**
-         * set cache enabled
-         */
-
         $preferences['system']['cache_enabled']
             = array_key_exists("cache_enabled", $preferences['system'])
                 ? true : false;
-
-
-        /**
-         * validate cookie_expires_time
-         */
 
         $validate = validate::isNumber(
             $preferences['system']['cookie_expires_time']
         );
 
         if (!$validate) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->cookie_expires_need_is_number
             );
-
         }
 
         if ($preferences['system']['cookie_expires_time'] >= 2147483646) {
-
             throw new systemErrorException(
                 view::$language->error,
                     view::$language->cookie_expires_is_too_long
             );
-
         }
 
         if ($preferences['system']['cookie_expires_time'] < 600) {
-
             throw new systemErrorException(
                 view::$language->error,
                     view::$language->cookie_expires_is_too_small
             );
-
         }
 
         $futureTime = time()
             + $preferences['system']['cookie_expires_time'];
 
         if ($futureTime >= 2147483646) {
-
             throw new systemErrorException(
                 view::$language->error,
                     view::$language->cookie_expires_is_too_long
             );
-
         }
 
-
-        /**
-         * validate theme (metapackage view templates)
-         */
-
         if (!validate::likeString($preferences['site']['theme'])) {
-
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
+                view::$language->error, view::$language->data_invalid
             );
-
         }
 
         $existsTheme = false;
         foreach (utils::getAvailableThemes() as $theme) {
-
             if ($theme['value'] == $preferences['site']['theme']) {
                 $existsTheme = true;
                 break;
             }
-
         }
 
         if (!$existsTheme) {
-
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->theme_of_site_not_found
+                view::$language->error, view::$language->theme_of_site_not_found
             );
-
         }
-
-
-        /**
-         * validate default_language
-         */
 
         $validate = validate::likeString(
             $preferences['site']['default_language']
         );
 
         if (!$validate) {
-
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
+                view::$language->error, view::$language->data_invalid
             );
-
         }
 
         $validate = preg_match(
-            "/^[a-z-]+$/",
-            $preferences['site']['default_language']
+            "/^[a-z-]+$/", $preferences['site']['default_language']
         );
 
         if (!$validate) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->language_name_need_iso639_std
             );
-
         }
 
         $existsLanguage = false;
@@ -454,18 +339,10 @@ class preferences extends baseController {
         }
 
         if (!$existsLanguage) {
-
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->language_not_found
+                view::$language->error, view::$language->language_not_found
             );
-
         }
-
-
-        /**
-         * validate admin_tools_link
-         */
 
         $adminLink = utils::normalizeInputUrl(
             trim((string) $preferences['site']['admin_tools_link']),
@@ -473,68 +350,34 @@ class preferences extends baseController {
         );
 
         if (!preg_match("/^\/[^\/]/s", $adminLink)) {
-
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->admin_tools_link_invalid
             );
-
         }
 
         $preferences['site']['admin_tools_link'] = $adminLink;
 
-
-        /**
-         * stored default site keywords
-         */
-
         $preferences['site']['default_keywords']
             = filter::input($preferences['site']['default_keywords'])
-                ->textOnly()
-                ->getData();
-
-
-        /**
-         * stored default site description
-         */
+                ->textOnly()->getData();
 
         $preferences['site']['default_description']
             = filter::input($preferences['site']['default_description'])
-                ->textOnly()
-                ->getData();
-
-
-        /**
-         * update configuration,
-         * save config into generated file
-         */
+                ->textOnly()->getData();
 
         app::changeConfig("main.json", $preferences);
         app::saveConfig("main.json");
-
-
-        /**
-         * reset view language before redirect,
-         * show message for correct new language
-         */
 
         $newConfig = app::reloadConfig();
         view::setLanguage(
             $newConfig->site->default_language
         );
 
-
-        /**
-         * show redirect message
-         */
-
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->preferences_global_is_changed,
-                        $newConfig->site->admin_tools_link . "/preferences"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->preferences_global_is_changed,
+                    $newConfig->site->admin_tools_link . "/preferences"
         );
 
 

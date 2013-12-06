@@ -16,39 +16,26 @@ class menu extends baseController {
     public function setPermissions() {
 
         $this->permissions = array(
-
             array(
-
                 "action"      => null,
                 "permission"  => "menu_manage",
                 "description" => view::$language->permission_menu_manage
-
             ),
-
             array(
-
                 "action"      => "create",
                 "permission"  => "menu_create",
                 "description" => view::$language->permission_menu_create
-
             ),
-
             array(
-
                 "action"      => "delete",
                 "permission"  => "menu_delete",
                 "description" => view::$language->permission_menu_delete
-
             ),
-
             array(
-
                 "action"      => "edit",
                 "permission"  => "menu_edit",
                 "description" => view::$language->permission_menu_edit
-
             )
-
         );
 
     }
@@ -79,10 +66,7 @@ class menu extends baseController {
 
     public function create() {
 
-        if (request::getPostParam("save") !== null) {
-            $this->saveMenu();
-        }
-
+        if (request::isPost()) $this->saveMenu();
         view::assign("node_name", view::$language->menu_create_new);
         $this->setProtectedLayout("menu-new.html");
 
@@ -101,8 +85,7 @@ class menu extends baseController {
         $menu_id = request::shiftParam("id");
         if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
+                view::$language->error, view::$language->data_invalid
             );
         }
 
@@ -110,12 +93,8 @@ class menu extends baseController {
         db::set("DELETE FROM menu_items WHERE menu_id = %u", $menu_id);
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->menu_is_deleted,
-                        $adminToolsLink . "/menu"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->menu_is_deleted, $adminToolsLink . "/menu"
         );
 
     }
@@ -131,8 +110,7 @@ class menu extends baseController {
         $menu_id = request::shiftParam("id");
         if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
+                view::$language->error, view::$language->data_invalid
             );
         }
 
@@ -142,12 +120,11 @@ class menu extends baseController {
 
         if (!$menu) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->menu_not_found
+                view::$language->error, view::$language->menu_not_found
             );
         }
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             $this->saveMenu($menu_id);
         }
 
@@ -177,23 +154,25 @@ class menu extends baseController {
         $name = request::getPostParam("name");
         if ($name === null) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_not_enough
+                view::$language->error, view::$language->data_not_enough
             );
         }
 
         if (!$name = filter::input($name)->lettersOnly()->getData()) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->menu_name_invalid
+                view::$language->error, view::$language->menu_name_invalid
             );
         }
 
         if ($target === null) {
             db::set("INSERT INTO menu (id,name) VALUES (NULL,'%s')", $name);
+            $target = db::lastID();
         } else {
             db::set("UPDATE menu SET name = '%s' WHERE id = %u",$name,$target);
         }
+
+        $location = request::getPostParam("silentsave")
+            ? "/edit?id=" . $target : "";
 
         $message = ($target === null)
             ? view::$language->menu_is_created
@@ -201,7 +180,7 @@ class menu extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION, view::$language->success,
-                $message, $adminToolsLink . "/menu"
+                $message, $adminToolsLink . "/menu" . $location
         );
 
 

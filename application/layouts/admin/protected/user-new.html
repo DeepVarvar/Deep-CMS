@@ -3,7 +3,7 @@
 
     <h1><?=$page_h1?></h1>
 
-    <form action="<?=$_config->site->admin_tools_link?>/users/create" method="post">
+    <form class="silentform" action="<?=$_config->site->admin_tools_link?>/users/create" method="post">
         <div class="form">
 
             <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
@@ -60,7 +60,8 @@
             <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
             <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
             <div class="elem">
-                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
+                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
             </div>
 
             <div class="clear"></div>

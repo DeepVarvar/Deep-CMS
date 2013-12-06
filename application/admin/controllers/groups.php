@@ -81,7 +81,7 @@ class groups extends baseController {
 
     public function create() {
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             $this->saveGroup();
         }
 
@@ -201,7 +201,7 @@ class groups extends baseController {
             }
         }
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             $this->saveGroup($groupID);
         }
 
@@ -237,22 +237,19 @@ class groups extends baseController {
         $required = request::getRequiredPostParams(array("name", "priority"));
         if ($required === null) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_not_enough
+                view::$language->error, view::$language->data_not_enough
             );
         }
 
         if (!validate::isNumber($required['priority'])) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->group_priority_invalid
+                view::$language->error, view::$language->group_priority_invalid
             );
         }
 
         if ($required['priority'] > $cnf->system->max_group_priority_number) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->group_priority_invalid
+                view::$language->error, view::$language->group_priority_invalid
             );
         }
 
@@ -271,31 +268,27 @@ class groups extends baseController {
 
         if (!$required['name']) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->group_name_invalid
+                view::$language->error, view::$language->group_name_invalid
             );
         }
 
         if ($target === null) {
             db::set(
-                "INSERT INTO groups (is_protected, name, priority)
-                    VALUES (0, '%s', %u)",
-                        $required['name'], $required['priority']
+                "INSERT INTO groups (is_protected, name, priority) VALUES
+                    (0, '%s', %u)", $required['name'], $required['priority']
             );
         } else {
             db::set(
                 "UPDATE groups SET name = '%s', priority = %u WHERE id = %u",
-                $required['name'], $required['priority'], $target
+                    $required['name'], $required['priority'], $target
             );
         }
 
         $permissions = request::getPostParam("permissions");
-        if (!$permissions) {
-            $permissions = array();
-        }
+        if (!$permissions) $permissions = array();
 
-        $permissions = filter::input(
-            array_keys($permissions))->lettersOnly()->getData();
+        $permissions = filter::input(array_keys($permissions))
+            ->lettersOnly()->getData();
 
         if ($permissions) {
 
@@ -304,7 +297,7 @@ class groups extends baseController {
                 WHERE name IN(%s)", $permissions
             );
 
-            if (is_string($inDbPermissions)) {
+            if (!is_array($inDbPermissions)) {
                 $inDbPermissions = array($inDbPermissions);
             }
 
@@ -312,23 +305,17 @@ class groups extends baseController {
             $inDbPermissions = array();
         }
 
+        $groupID = $target === null ? db::lastID() : $target;
         if ($inDbPermissions) {
 
-            if ($target === null) {
-                $groupId = db::lastID();
-            } else {
-
-                db::set("
-                    DELETE FROM group_permissions
-                    WHERE group_id = %u", $target
+            if ($target !== null) {
+                db::set(
+                    "DELETE FROM group_permissions WHERE group_id = %u", $target
                 );
-
-                $groupId = $target;
-
             }
 
-            $insertData = "(" . $groupId . ","
-                . join("), (" . $groupId . ",", $inDbPermissions) . ");";
+            $insertData = "(" . $groupID . ","
+                . join("), (" . $groupID . ",", $inDbPermissions) . ");";
 
             db::set(
                 "INSERT INTO group_permissions
@@ -337,13 +324,16 @@ class groups extends baseController {
 
         }
 
-        $message = ($target === null)
+        $location = request::getPostParam("silentsave")
+            ? "/edit?id=" . $groupID : "";
+
+        $message = $target === null
             ? view::$language->group_is_created
             : view::$language->group_is_edited;
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION, view::$language->success,
-                $message, $adminToolsLink . "/groups"
+                $message, $adminToolsLink . "/groups" . $location
         );
 
 

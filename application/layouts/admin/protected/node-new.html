@@ -4,12 +4,13 @@
     <h1><?=$page_h1?></h1>
 
 
-    <form id="docproperies" action="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$node['parent_id']['value']?>" method="post">
+    <form class="silentform" action="<?=$_config->site->admin_tools_link?>/tree/create?parent=<?=$node['parent_id']['value']?>" method="post">
         <div class="form">
 
             <div class="label mt-20">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
             <div class="elem mt-20">
-                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
+                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
             </div>
 
             <div id="showpagename" class="longblock mt-20 c"></div>
@@ -61,7 +62,8 @@
             <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
             <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
             <div class="elem">
-                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
+                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
             </div>
 
             <div class="clear"></div>

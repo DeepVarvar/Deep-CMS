@@ -1,6 +1,8 @@
 
 
 
+var isEditedMode = new RegExp(/edit/i).test(document.location.href.toString());
+
 /**
  * string trimmer
  */
@@ -195,40 +197,52 @@ $(function(){
      * all form submit wrapper
      */
 
-    $('input[name="silentsave"]:submit').click(function(){
-
+    $("form.silentform input:submit").click(function(){
 
         var myForm = $(this).parents("form").eq(0);
+        var isSilentSave = $(this).attr("name") == "silentsave";
+
         updateTextareas(myForm);
 
         var data = myForm.serializeArray();
-        data.push({"name":"save"});
+        var formElements = myForm.find("input, textarea, button, select");
+
+        formElements.attr("disabled", true);
+        if (isSilentSave) {
+            data.push({"name":"silentsave","value":1});
+        }
 
         $.ajax({
-
             type: "POST",
             url: myForm.attr("action"),
             data: data,
             success: function(response){
 
-                if (typeof response.exception != "undefined") {
+                if (response.exception) {
+
                     showException(response.exception);
+                    setTimeout(function() {
+                        var isReloc = (!isSilentSave || (isSilentSave && !isEditedMode));
+                        if (isReloc && response.exception.refresh_location) {
+                            document.location.href = response.exception.refresh_location;
+                        } else {
+                            formElements.removeAttr("disabled");
+                        }
+                    }, ((response.exception.type == "success") ? 2000 : 0));
+
                 }
 
             },
             cache: false
-
         });
-
 
         return false;
 
-
     });
 
-    $("form").submit(function(){
+    /*$("form").submit(function(){
         updateTextareas($(this));
-    });
+    });*/
 
 
     /**

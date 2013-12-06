@@ -1,7 +1,6 @@
 
 
 
-
 /**
  * return string of tree branch item
  */
@@ -81,17 +80,22 @@ $(function(){
      * page alias generator
      */
 
+    var parentAlias  = $("#parentalias");
+    var pageAlias    = $("#pagealias");
+    var pageName     = $("#pagename");
+    var showPageName = $("#showpagename");
+
     function generatePageAlias(str) {
 
         var str = str || "";
-        var parentAlias = $("#parentalias").val();
+        var parentAliasVal = parentAlias.val();
 
-        if (!parentAlias.match(new RegExp(/\/$/))) {
-            parentAlias += '/';
+        if (!parentAliasVal.match(new RegExp(/\/$/))) {
+            parentAliasVal += '/';
         }
 
         str = str.replace(/[\?'"\\]+/g, "").replace(/[\s-]+/g, "-");
-        $("#pagealias").val( str ? parentAlias + str : "" );
+        pageAlias.val( str ? parentAliasVal + str : "" );
 
     }
 
@@ -101,7 +105,7 @@ $(function(){
      */
 
     function setNameOfNode(str) {
-        $("#showpagename").text(str);
+        showPageName.text(str);
     }
 
 
@@ -109,7 +113,7 @@ $(function(){
      * refresh viewed name of node
      */
 
-    setNameOfNode(trim($("#pagename").val()));
+    setNameOfNode(trim(pageName.val()));
 
 
     /**
@@ -126,9 +130,9 @@ $(function(){
      * refresh name and generate alias
      */
 
-    $("#pagename").focus().keyup(function(){
+    pageName.focus().keyup(function(){
 
-        var sourceName = trim($("#pagename").val());
+        var sourceName = trim(pageName.val());
         setNameOfNode(sourceName);
         generatePageAlias(sourceName);
 
@@ -457,14 +461,10 @@ $(function(){
 
         if (proto.match(/[a-z]+/i)) {
 
-            loc = loc.replace(
-                /(prototype=)([a-z]+)/i, "$1" + proto
-            );
-
+            loc = loc.replace(/(prototype=)([a-z]+)/i, "$1" + proto);
             if (loc == document.location.href) {
                 loc = document.location.href + "&prototype=" + proto;
             }
-
             document.location = loc;
 
         }

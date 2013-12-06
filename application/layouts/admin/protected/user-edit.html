@@ -3,7 +3,7 @@
 
     <h1><?=$page_h1?></h1>
 
-    <form action="<?=$_config->site->admin_tools_link?>/users/edit?id=<?=$user['id']?>" method="post">
+    <form class="silentform" action="<?=$_config->site->admin_tools_link?>/users/edit?id=<?=$user['id']?>" method="post">
         <div class="form">
 
             <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>

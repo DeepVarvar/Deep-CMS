@@ -81,7 +81,7 @@ class users extends baseController {
 
     public function create() {
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             return $this->saveUser();
         }
 
@@ -106,8 +106,7 @@ class users extends baseController {
         $userID = request::shiftParam("id");
         if (!validate::isNumber($userID)) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
+                view::$language->error, view::$language->data_invalid
             );
         }
 
@@ -122,8 +121,7 @@ class users extends baseController {
 
         )) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->user_not_found
+                view::$language->error, view::$language->user_not_found
             );
         }
 
@@ -148,8 +146,8 @@ class users extends baseController {
             }
         }
 
-        if (request::getPostParam("save") !== null) {
-            return $this->saveUser($existsUser['id'], $existsUser);
+        if (request::isPost()) {
+            return $this->saveUser($existsUser['id']);
         }
 
         view::assign(
@@ -185,8 +183,7 @@ class users extends baseController {
         $userID = request::shiftParam("id");
         if (!validate::isNumber($userID)) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_invalid
+                view::$language->error, view::$language->data_invalid
             );
         }
 
@@ -196,15 +193,13 @@ class users extends baseController {
                     WHERE u.id = %u", $userID
         )) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->user_not_found
+                view::$language->error, view::$language->user_not_found
             );
         }
 
         if (member::getID() == $existsUser['id']) {
             throw new memberErrorException(
-                view::$language->ouch,
-                    view::$language->user_suicide_not_allowed
+                view::$language->ouch, view::$language->user_suicide_not_allowed
             );
         }
 
@@ -325,16 +320,14 @@ class users extends baseController {
         $userData = request::getRequiredPostParams($requiredParams);
         if ($userData === null) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->data_not_enough
+                view::$language->error, view::$language->data_not_enough
             );
         }
 
         foreach ($requiredParams as $strKey) {
             if (!validate::likeString($userData[$strKey])) {
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->data_invalid
+                    view::$language->error, view::$language->data_invalid
                 );
             }
         }
@@ -343,8 +336,7 @@ class users extends baseController {
                 or $userData['status'] > 3) {
 
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->user_status_invalid
+                view::$language->error, view::$language->user_status_invalid
             );
 
         }
@@ -359,26 +351,22 @@ class users extends baseController {
         $languageDir = APPLICATION . "languages/" . $userData['language'];
         if (!is_dir($languageDir)) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->language_not_found
+                view::$language->error, view::$language->language_not_found
             );
         }
 
-        $userData['login']
-            = filter::input($userData['login'])
+        $userData['login'] = filter::input($userData['login'])
                 ->stripTags()->getData();
 
         if (!$userData['login']) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->user_login_invalid
+                view::$language->error, view::$language->user_login_invalid
             );
         }
 
         if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
             throw new memberErrorException(
-                view::$language->error,
-                    view::$language->email_invalid
+                view::$language->error, view::$language->email_invalid
             );
         }
 
@@ -415,8 +403,7 @@ class users extends baseController {
 
             if (!validate::isNumber($userData['group_id'])) {
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->group_id_invalid
+                    view::$language->error, view::$language->group_id_invalid
                 );
             }
 
@@ -425,8 +412,7 @@ class users extends baseController {
                     WHERE id = %u", $userData['group_id']
             )) {
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->group_not_found
+                    view::$language->error, view::$language->group_not_found
                 );
             }
 
@@ -442,8 +428,7 @@ class users extends baseController {
 
         }
 
-        $userData['about']
-            = filter::input($userData['about'])
+        $userData['about'] = filter::input($userData['about'])
                 ->stripTags()->getData();
 
         if ($target === null) {
@@ -468,7 +453,8 @@ class users extends baseController {
             );
 
             $newUserID = db::lastID();
-            $userHash = helper::getHash(
+            $target    = $newUserID;
+            $userHash  = helper::getHash(
 
                 $newUserID . $userData['login']
                     . $password . $existsGroup['id']
@@ -542,6 +528,9 @@ class users extends baseController {
 
         }
 
+        $location = request::getPostParam("silentsave")
+            ? "/edit?id=" . $target : "";
+
         /* TODO view::setLanguage($userData['language']);*/
         $message = ($target === null)
             ? view::$language->user_is_created
@@ -549,7 +538,7 @@ class users extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION, view::$language->success,
-                $message, $adminToolsLink . "/users"
+                $message, $adminToolsLink . "/users" . $location
         );
 
 

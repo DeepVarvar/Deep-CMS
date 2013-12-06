@@ -57,23 +57,6 @@
 #   }
 #
 
-
-# SWF upload fix begin
-<IfModule mod_security.c>
-    SecFilterEngine Off
-    SecFilterScanPOST Off
-</IfModule>
-<IfModule security_module>
-    SecFilterEngine Off
-    SecFilterScanPOST Off
-</IfModule>
-<IfModule security2_module>
-    SecFilterEngine Off
-    SecFilterScanPOST Off
-</IfModule>
-# SWF upload fix end
-
-
 Options -Indexes
 AddDefaultCharset utf-8
 

@@ -11,6 +11,7 @@ return array(
     "comment"                     =>  "Комментарий",
     "comment_add"                 =>  "Оставить комментарий",
     "comment_cant_epmty"          =>  "Комментарий не может быть пустым",
+    "comment_delete_confirm"      =>  "Вы действительно хотите удалить этот комментарий?",
     "comment_edit_exists"         =>  "Редактирование комментария",
     "comment_is_deleted"          =>  "Комментарий успешно удален",
     "comment_is_edited"           =>  "Комментарий успешно отредактирован",

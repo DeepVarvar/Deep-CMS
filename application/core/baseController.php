@@ -152,9 +152,21 @@ class baseController {
         } else {
 
             if ($type == SUCCESS_EXCEPTION) {
-                throw new memberSuccessException($title, $message);
+                if ($refresh_location) {
+                    throw new memberRefreshSuccessException(
+                        $title, $message, $refresh_location
+                    );
+                } else {
+                    throw new memberSuccessException($title, $message);
+                }
             } else {
-                throw new memberErrorException($title, $message);
+                if ($refresh_location) {
+                    throw new memberRefreshErrorException(
+                        $title, $message, $refresh_location
+                    );
+                } else {
+                    throw new memberErrorException($title, $message);
+                }
             }
 
         }

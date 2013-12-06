@@ -16,31 +16,21 @@ class manage_comments extends baseController {
     public function setPermissions() {
 
         $this->permissions = array(
-
             array(
-
                 "action"      => null,
                 "permission"  => "comments_manage",
                 "description" => view::$language->permission_comments_manage
-
             ),
-
             array(
-
                 "action"      => "delete",
                 "permission"  => "comment_delete",
                 "description" => view::$language->permission_comment_delete
-
             ),
-
             array(
-
                 "action"      => "edit",
                 "permission"  => "comment_edit",
                 "description" => view::$language->permission_comment_edit
-
             )
-
         );
 
     }
@@ -120,7 +110,7 @@ class manage_comments extends baseController {
             );
         }
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             $this->saveComment($commentID);
         }
 
@@ -172,12 +162,9 @@ class manage_comments extends baseController {
         }
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->comment_is_edited,
-                        $adminToolsLink . "/manage-comments"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->comment_is_edited,
+                    $adminToolsLink . "/manage-comments"
         );
 
 

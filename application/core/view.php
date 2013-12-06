@@ -400,6 +400,10 @@ abstract class view {
                     $basedReport['page_title'] = $report['title'];
                     $basedReport['node_name']  = $report['title'];
 
+                    if (isset($report['refresh_location'])) {
+                        $basedReport['refresh_location'] = $report['refresh_location'];
+                    }
+
                     self::assign("exception", $basedReport);
                     if (self::getOutputContext() == "html") {
                         self::assign($basedReport);

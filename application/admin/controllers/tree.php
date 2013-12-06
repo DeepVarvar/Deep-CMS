@@ -205,7 +205,7 @@ class tree extends baseController {
          * save new node, THROW inside, not working more
          */
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             $this->saveNewNode();
         }
 
@@ -252,7 +252,7 @@ class tree extends baseController {
          * save new node, THROW inside, not working more
          */
 
-        if (request::getPostParam("save") !== null) {
+        if (request::isPost()) {
             $this->saveEditedNode($nodeID);
         }
 
@@ -436,13 +436,10 @@ class tree extends baseController {
          */
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->node_is_deleted,
-                        $adminToolsLink . "/tree/branch?id="
-                        . $deletedNode['parent_id']
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->node_is_deleted,
+                    $adminToolsLink
+                        . "/tree/branch?id=" . $deletedNode['parent_id']
         );
 
 
@@ -1679,16 +1676,16 @@ class tree extends baseController {
          * redirect to show message
          */
 
+        $location = request::getPostParam("silentsave")
+            ? "/edit?id=" . $newNode['id']
+            : "/branch?id=" . $newNode['parent_id'];
+
         member::setStorageData($this->storageImagesKey, array());
         member::setStorageData($this->storageFeaturesKey, array());
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->node_is_created,
-                        $adminToolsLink
-                        . "/tree/branch?id={$newNode['parent_id']}"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->node_is_created,
+                    $adminToolsLink . "/tree" . $location
         );
 
 
@@ -1747,12 +1744,9 @@ class tree extends baseController {
         $this->saveMenuItems($nodeID);
 
         $this->redirectMessage(
-
-            SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->node_is_edited,
-                        $adminToolsLink . "/tree/branch?id={$parentID}"
-
+            SUCCESS_EXCEPTION, view::$language->success,
+                view::$language->node_is_edited,
+                    $adminToolsLink . "/tree/branch?id={$parentID}"
         );
 
 
