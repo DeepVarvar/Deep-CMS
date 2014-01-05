@@ -11,11 +11,13 @@ $timestart = microtime(true);
 
 
 /**
- * defined application path
+ * defined application environment
  */
 
 define("PUBLIC_HTML", dirname(__FILE__) . "/");
 define("APPLICATION", PUBLIC_HTML . "application/");
+
+mb_internal_encoding("UTF-8");
 
 
 /**

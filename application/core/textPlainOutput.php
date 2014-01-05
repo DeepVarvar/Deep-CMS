@@ -53,7 +53,7 @@ abstract class textPlainOutput {
 
         $len = array();
         foreach ($names as $name) {
-            array_push($len, mb_strlen($name, "UTF-8"));
+            array_push($len, mb_strlen($name));
         }
         return max($len) + 2;
 

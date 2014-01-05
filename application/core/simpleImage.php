@@ -16,6 +16,25 @@ class simpleImage {
 
 
     /**
+     * return image extension string
+     */
+
+    public static function typeToExtension($type) {
+
+        $allowedTypes = array(
+            IMAGETYPE_GIF  => "gif",
+            IMAGETYPE_JPEG => "jpg",
+            IMAGETYPE_PNG  => "png"
+        );
+
+        if (array_key_exists($type, $allowedTypes)) {
+            return $allowedTypes[$type];
+        }
+
+    }
+
+
+    /**
      * load image file
      */
 
@@ -83,7 +102,7 @@ class simpleImage {
      */
 
     public function save($file, $permissions = 0664,
-                            $quality = 100, $type = IMAGETYPE_JPEG) {
+                            $quality = 100, $type = null) {
 
         if(!$type) {
             $type = $this->type;
@@ -123,7 +142,7 @@ class simpleImage {
      * flush image data
      */
 
-    public function output($type = IMAGETYPE_JPEG) {
+    public function output($type = null) {
 
         if(!$type) {
             $type = $this->type;

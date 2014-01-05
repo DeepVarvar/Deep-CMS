@@ -102,6 +102,7 @@ return array(
     "image_upload_file_error"             =>  "Загрузка изображения не удалась",
     "image_upload_now"                    =>  "Загрузить изображение",
     "image_upload_single_only"            =>  "Множественная загрузка невозможна",
+    "image_upload_unsupported_type"       =>  "Формат загружаемого изображения не поддерживается",
     "images_attached"                     =>  "Прикрепленные изображения",
     "images_delete_all"                   =>  "Удалить все",
     "images_delete_confirm"               =>  "Вы уверены, что хотите удалить все изображения этого узла?",

@@ -118,6 +118,34 @@ abstract class helper {
 
 
     /**
+     * wordwrap multibytes string
+     */
+
+    public static function wordWrap($inputString, $limit = 10) {
+
+        $outputString = "";
+        $words = preg_split("/\s+/u", $inputString, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($words as $word) {
+            $wordLen = mb_strlen($word);
+            if ($wordLen <= $limit) {
+                $outputString .= $word . " ";
+            } else {
+                $swLen = ceil($wordLen / $limit);
+                $pos = 0;
+                while ($swLen > 0 or $pos < $wordLen) {
+                    $outputString .= mb_substr($word, $pos, $limit) . " ";
+                    $pos += $limit;
+                    $swLen --;
+                }
+            }
+        }
+
+        return trim($outputString);
+
+    }
+
+
+    /**
      * content preview, text limiter
      */
 

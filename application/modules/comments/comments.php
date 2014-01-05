@@ -94,8 +94,8 @@ class comments extends baseController {
             );
         }
 
-        $data['comment'] = mb_substr($data['comment'], 0, 2048, "UTF-8");
-        $data['comment'] = wordwrap($data['comment'], 20, " ", true);
+        $data['comment'] = mb_substr($data['comment'], 0, 2048);
+        $data['comment'] = helper::wordWrap($data['comment'], 20);
         $data['comment'] = nl2br($data['comment'], true);
 
         if (!member::isAuth()) {

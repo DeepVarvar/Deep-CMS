@@ -55,6 +55,13 @@ class node_images extends baseController {
 
 
         /**
+         * uploaded image extension
+         */
+
+        $imgExt = null,
+
+
+        /**
          * storage saved mode for new node
          */
 
@@ -466,7 +473,7 @@ class node_images extends baseController {
 
 
         $filePath  = PUBLIC_HTML . "upload/";
-        $fileName  = md5(mt_rand() . microtime(true)) . ".jpg";
+        $fileName  = md5(mt_rand() . microtime(true)) . "." . $this->imgExt;
         $original  = $filePath . $fileName;
         $middle    = $filePath . "middle_" . $fileName;
         $thumbnail = $filePath . "thumb_" . $fileName;
@@ -634,11 +641,19 @@ class node_images extends baseController {
             );
         }
 
-        if (!getimagesize($_FILES['uploadfile']['tmp_name'])) {
+        if (!$info = getimagesize($_FILES['uploadfile']['tmp_name'])) {
             @ unlink($_FILES['uploadfile']['tmp_name']);
             $this->exceptionExit(
                 "error", view::$language->error,
                     view::$language->image_upload_broken_mime
+            );
+        }
+
+        if (!$this->imgExt = simpleImage::typeToExtension($info[2])) {
+            @ unlink($_FILES['uploadfile']['tmp_name']);
+            $this->exceptionExit(
+                "error", view::$language->error,
+                    view::$language->image_upload_unsupported_type
             );
         }
 

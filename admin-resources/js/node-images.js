@@ -32,7 +32,7 @@ $(function(){
             output += ' <div class="image' + isMaster + '"> ';
                 output += ' <div class="imagewrapper"> ';
                     output += ' <a class="selectme" target="_blank" href="/upload/' + images[i].name + '"> ';
-                        output += ' <img alt="" src="/upload/thumb_' + images[i].name + '" /> ';
+                        output += ' <img alt="Loading..." src="/upload/thumb_' + images[i].name + '" /> ';
                     output += ' </a> ';
                 output += ' </div> ';
                 output += ' <div class="actions c"> ';

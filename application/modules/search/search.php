@@ -57,7 +57,7 @@ class search extends baseController {
         $searchParts = array();
 
         foreach ($searchPartsSource as $v) {
-            if (mb_strlen($v, "UTF-8") > 2) {
+            if (mb_strlen($v) > 2) {
                 array_push($searchParts, db::escapeString($v));
             }
         }

@@ -47,7 +47,7 @@ class feedback extends baseController {
             );
         }
 
-        if (mb_strlen($data['name'], "UTF-8") < 2) {
+        if (mb_strlen($data['name']) < 2) {
             throw new memberErrorException(
                 view::$language->error,
                     view::$language->feedback_name_is_short

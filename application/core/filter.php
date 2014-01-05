@@ -372,7 +372,8 @@ function cleanRichTextCallback($args) {
 
         "/\s+(id|class|name|type|value|alt|title|src|href|"
         . "allowfullscreen|allowscriptaccess|frameborder|"
-        . "scrolling|height|width|target|style"
+        . "scrolling|height|width|target|style|border|"
+        . "cellpadding|cellspacing|colspan|rowspan|align|valign"
         . ")=\"[^\"]+\"/u", $args[1], $sub
 
     );
