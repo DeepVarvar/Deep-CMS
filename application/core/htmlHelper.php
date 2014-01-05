@@ -14,7 +14,8 @@ abstract class htmlHelper {
      * by level without recursion
      */
 
-    public static function drawTreeLinksList($arr) {
+    public static function drawTreeLinksList(
+                    $arr, $currentURL = '', $noStrict = false) {
 
 
         $output = '';
@@ -22,8 +23,12 @@ abstract class htmlHelper {
 
         foreach ($arr as $k => $i) {
 
-            $link = '<a href="' . $i['page_alias']
-                . '">' . $i['node_name'] . '</a>';
+            $current = $noStrict
+                ? (strstr($i['page_alias'], $currentURL))
+                : ($i['page_alias'] == $currentURL);
+
+            $link = '<a' . ($current ? ' class="current"' : '') . ' href="'
+                . $i['page_alias'] . '">' . $i['node_name'] . '</a>';
 
             if ($lvl === null) {
 

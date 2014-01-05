@@ -42,12 +42,14 @@
 
     <div class="top-status-line">
         <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><?=view::$language->hello?>, <b><?=$_member['login']?></b></div>
-        <div class="right-item up"><a class="screw" href="<?=$_config->site->admin_tools_link?>/preferences" title=" <?=view::$language->preferences_global?> "><?=view::$language->preferences_global?></a></div>
+        <?php if (member::isPermission("preferences_manage")) { ?>
+            <div class="right-item up"><a class="screw" href="<?=$_config->site->admin_tools_link?>/preferences" title=" <?=view::$language->preferences_global?> "><?=view::$language->preferences_global?></a></div>
+        <?php } ?>
     </div>
 
-
-    <?php require $_config->layouts->parts . "menu.html"; ?>
-
+    <div id="menu">
+        <?=adminHelper::getAdminMenu()?>
+    </div>
 
     <div id="outer-place">
 

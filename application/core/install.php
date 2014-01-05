@@ -1622,6 +1622,11 @@ try {
              * check writable permissions
              */
 
+            $adminInMenuDir = APPLICATION . "admin/in-menu";
+            if (!$checkAdminInMenuDir = checkPath($adminInMenuDir)) {
+                $_SESSION['ins']['errors'] = true;
+            }
+
             $autorunAfterDir = APPLICATION . "autorun/after";
             if (!$checkAutorunAfterDir = checkPath($autorunAfterDir)) {
                 $_SESSION['ins']['errors'] = true;

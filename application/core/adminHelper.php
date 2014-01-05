@@ -22,40 +22,29 @@ abstract class adminHelper {
 
 
     /**
-     * return admin menu items array
+     * return admin menu items string
      */
 
-    public static function getMenuItems() {
+    public static function getAdminMenu() {
 
 
-        return array(
+        $adminLink = app::config()->site->admin_tools_link;
+        $menuItems = array();
 
-            array(
-                "name" => "documents_tree",
-                "link" => "/tree"
-            ),
+        foreach (utils::glob(APPLICATION . "admin/in-menu/*.php") as $item) {
+            $item = require_once $item;
+            if (member::isPermission($item['permission'])) {
+                $item['page_alias'] = $adminLink . $item['page_alias'];
+                $item['node_name']  = view::$language->{$item['node_name']};
+                array_push($menuItems, $item);
+            }
+        }
 
-            array(
-                "name" => "menu_of_site",
-                "link" => "/menu"
-            ),
+        utils::loadSortArrays();
+        uasort($menuItems, "sortArrays");
+        $menuItems = array_values($menuItems);
 
-            array(
-                "name" => "users",
-                "link" => "/users"
-            ),
-
-            array(
-                "name" => "groups",
-                "link" => "/groups"
-            ),
-
-            array(
-                "name" => "comments",
-                "link" => "/manage-comments"
-            )
-
-        );
+        return htmlHelper::drawTreeLinksList($menuItems, request::getURI());
 
 
     }

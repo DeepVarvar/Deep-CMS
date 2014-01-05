@@ -82,6 +82,7 @@ spl_autoload_register("deepCmsSimpleAutoload", false);
 if (!FAST_RUNNING) {
 
     $dirs = array(
+        "admin/in-menu",
         "autorun/after",
         "autorun/before",
         "cache",

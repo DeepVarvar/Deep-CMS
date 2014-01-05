@@ -683,34 +683,75 @@ form.feature div.name input[type="text"], form.feature div.value input[type="tex
     background: url(../images/top-status-line-item-separator.png) no-repeat left;
 }
 
-ul#menu {
+#menu {
     height: 49px;
     line-height: 45px;
+    white-space: nowrap;
     border-left: solid 1px #94b1c4;
     border-right: solid 1px #94b1c4;
-    background: url(../images/menu-background.png) repeat-x;
+    background: url(../images/menu-background.png) repeat-x center center;
 }
 
-ul#menu li {
+#menu ul {
+    display: block;
     list-style: none;
-    float: left;
+    padding: 0;
+}
+
+#menu ul li {
+    position: relative;
+    min-width: 40px;
     height: 49px;
-    line-height: 45px;
+    line-height: 49px;
 }
 
-ul#menu li:hover {
-    background: url(../images/menu-item-gray-background.png) repeat-x;
+#menu > ul > li {
+    float: left;
 }
 
-ul#menu li.current {
-    background: url(../images/menu-item-blue-background.png) repeat-x;
+#menu ul > li > ul li {
+    height: 32px;
+    line-height: 32px;
 }
 
-ul#menu li a {
+#menu ul li a {
     display: block;
     padding: 0 12px;
+    height: 49px;
     color: #ffffff;
     text-shadow: 1px 1px  #577a99;
+    background: url(../images/menu-background.png) repeat-x center center;
+}
+
+#menu ul > li > ul li a {
+    height: 32px;
+}
+
+#menu ul li a:hover {
+    background: url(../images/menu-item-gray-background.png) repeat-x center center;
+}
+
+#menu ul li a.current {
+    background: url(../images/menu-item-blue-background.png) repeat-x center center;
+}
+
+#menu ul li ul {
+    display: none;
+    position: absolute;
+    z-index: 1100;
+}
+
+#menu ul li ul {
+    left: 10px;
+}
+
+#menu ul li ul li ul {
+    left: 100%;
+    top: 0;
+}
+
+#menu ul li:hover > ul {
+    display: block;
 }
 
 #bottom-status-block {
@@ -992,6 +1033,7 @@ p.installinfo {
 }
 
 ul#root {
+    z-index: 1000;
     margin: 0;
     border: none;
 }
