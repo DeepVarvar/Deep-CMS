@@ -360,7 +360,7 @@ a#showfeatureform {
 }
 
 #uploadprogress {
-    margin-top: 80px;
+    margin-top: 30px;
     height: 24px;
     line-height: 32px;
     text-align: center;
@@ -1132,6 +1132,15 @@ ul#root a.create {
 ul#root a.delete {
     width: 20px;
     background: url(../images/delete.png) no-repeat center 3px;
+}
+
+#globalcover {
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 #notifier {

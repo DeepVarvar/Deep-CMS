@@ -5,6 +5,7 @@ $(function(){
 
 
     var coverblur = $("#coverblur");
+    var globalcover = $("#globalcover");
     var popupformwrapper = $("#popupformwrapper");
     var popupchooseimage = $("#popupchooseimage");
 
@@ -189,7 +190,18 @@ $(function(){
         url: variables.admin_tools_link + "/node-images/upload",
         dataType: "json",
         progressInterval: 20,
-        done: function (e, data) {
+        sequentialUploads: true,
+        start: function (e, data) {
+            globalcover.show();
+            progressstatus.text("0%");
+            uploadprogress.show();
+            uploadform.hide();
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            progressstatus.text(progress + "%");
+        },
+        stop: function (e, data) {
 
             $.ajax({
 
@@ -209,23 +221,13 @@ $(function(){
 
                     uploadprogress.hide();
                     uploadform.show();
+                    globalcover.hide();
 
                 }
 
             });
 
         }
-
-    }).on("fileuploadstart", function (e, data) {
-
-        progressstatus.text("0%");
-        uploadprogress.show();
-        uploadform.hide();
-
-    }).on("fileuploadprogressall", function (e, data) {
-
-        var progress = parseInt(data.loaded / data.total * 100, 10);
-        progressstatus.text(progress + "%");
 
     }).prop("disabled", !$.support.fileInput)
         .parent().addClass($.support.fileInput ? undefined : "disabled");
@@ -248,9 +250,14 @@ $(function(){
     });
 
 
+    globalcover.click(function(e) {
+        e.stopPropagation();
+    });
+
     setUploadImagesForm(target_node, "add", "new");
     uploadprogress.hide();
     bindAttachedImagesItems();
+    globalcover.hide();
 
 
 });

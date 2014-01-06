@@ -75,8 +75,12 @@
 <div id="popupformwrapper">
 
     <div id="uploadprogress">
+
+        <h3><?=view::$language->images_upload?></h3>
+        <p><?=view::$language->images_upload_dont_close?></p>
         <div id="progressstatus">0%</div>
-        <img alt="" src="<?=$_config->site->admin_resources?>images/progress.gif" />
+        <img alt="Loading..." src="<?=$_config->site->admin_resources?>images/progress.gif" />
+
     </div>
 
     <form id="uploadform" action="<?=$_config->site->admin_tools_link?>/node-images/upload" enctype="multipart/form-data" method="post">
@@ -149,6 +153,8 @@
     </div>
 
 </div>
+
+<div id="globalcover"></div>
 
 <div id="notifier">
     <div class="notify">

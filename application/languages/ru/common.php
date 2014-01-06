@@ -107,6 +107,7 @@ return array(
     "images_delete_all"                   =>  "Удалить все",
     "images_delete_confirm"               =>  "Вы уверены, что хотите удалить все изображения этого узла?",
     "images_upload"                       =>  "Загрузка изображений",
+    "images_upload_dont_close"            =>  "Пожалуйста не закрывайте окно до окончания загрузки!",
     "images_upload_now"                   =>  "Загрузить изображения",
     "language"                            =>  "Язык",
     "language_name_need_iso639_std"       =>  "Имя языкового пакета не соответствует стандарту ISO 639",
