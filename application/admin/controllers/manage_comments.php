@@ -114,6 +114,7 @@ class manage_comments extends baseController {
             $this->saveComment($commentID);
         }
 
+        $comment = preg_replace("/\s*<br\s?\/?>\s*/", "\n", $comment);
         view::assign("comment", $comment);
         view::assign("page_title", view::$language->comment_edit_exists);
 
@@ -132,6 +133,8 @@ class manage_comments extends baseController {
 
         $comment = request::getPostParam("comment_text");
         $comment = filter::input($comment)->stripTags()->getData();
+        $comment = helper::wordWrap($comment, 20);
+        $comment = nl2br($comment, true);
 
         if (!$comment) {
             throw new memberErrorException(

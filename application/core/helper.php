@@ -124,7 +124,9 @@ abstract class helper {
     public static function wordWrap($inputString, $limit = 10) {
 
         $outputString = "";
-        $words = preg_split("/\s+/u", $inputString, -1, PREG_SPLIT_NO_EMPTY);
+        $pattern = "/[^\r\S]?[^\n\S]+/u";
+        $words = preg_split($pattern, $inputString, -1, PREG_SPLIT_NO_EMPTY);
+
         foreach ($words as $word) {
             $wordLen = mb_strlen($word);
             if ($wordLen <= $limit) {

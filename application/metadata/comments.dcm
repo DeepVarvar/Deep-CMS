@@ -42,6 +42,7 @@
     "main_files" : [
         "modules/comments/comments.php",
         "modules/comments/autoloaded",
+        "admin/in-menu/manage_comments.php",
         "admin/controllers/manage_comments.php"
     ],
 
