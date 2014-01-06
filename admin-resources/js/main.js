@@ -457,16 +457,11 @@ $(function(){
     $("#prototype").change(function(){
 
         var proto = $(this).val();
-        var loc = document.location.href;
+        var loc = document.location.href
+                    .replace(/([?&]prototype)=([^#&]*)/g, "$1=" + proto);
 
-        if (proto.match(/[a-z]+/i)) {
-
-            loc = loc.replace(/(prototype=)([a-z]+)/i, "$1" + proto);
-            if (loc == document.location.href) {
-                loc = document.location.href + "&prototype=" + proto;
-            }
+        if (proto.match(/[a-z]+/i) && loc != document.location.href) {
             document.location = loc;
-
         }
 
     });

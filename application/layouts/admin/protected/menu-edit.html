@@ -10,11 +10,14 @@
             <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
             <div class="elem">&nbsp;</div>
 
-            <div class="label mt-20"><?=view::$language->menu_name?>:</div>
-            <div class="elem mt-20"><input id="menu-name" class="required" type="text" name="name" value="<?=$menu['name']?>" /></div>
+            <div class="label mt-20"><?=view::$language->menu_mirror_id?>:</div>
+            <div class="elem mt-20"><input id="menu-mirror-id" class="mini required" type="text" name="mirror_id" value="<?=$menu['mirror_id']?>" /></div>
+
+            <div class="label"><?=view::$language->menu_name?>:</div>
+            <div class="elem"><input class="required" type="text" name="name" value="<?=$menu['name']?>" /></div>
 
             <script type="text/javascript">
-                document.getElementById("menu-name").focus();
+                document.getElementById("menu-mirror-id").focus();
             </script>
 
             <div class="label mt-20">&nbsp;</div>

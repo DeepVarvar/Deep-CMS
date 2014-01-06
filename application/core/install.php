@@ -490,11 +490,13 @@ function getInstallationQueryString($prefix = "") {
         CREATE TABLE {$prefix}menu (
 
             id          BIGINT(20) NOT NULL AUTO_INCREMENT,
+            mirrir_id   BIGINT(20) NOT NULL,
             parent_id   BIGINT(20) NOT NULL DEFAULT '0',
             name        CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
 
             PRIMARY KEY (id),
 
+            KEY mirror_id (mirror_id),
             KEY parent_id (parent_id)
 
         ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
@@ -590,7 +592,7 @@ function getExtendedQueryString($prefix = "") {
     return <<<EXTENDEDINSTALLATIONSTRING
 
 
-        INSERT INTO {$prefix}menu (id, parent_id, name) VALUES (1, 0, 'Левое меню'), (2, 0, 'Нижнее меню');
+        INSERT INTO {$prefix}menu (id, mirror_id, parent_id, name) VALUES (1, 1, 0, 'Левое меню'), (2, 2, 0, 'Нижнее меню');
         INSERT INTO {$prefix}menu_items (menu_id, node_id) VALUES (1, 1), (2, 1), (1, 2), (1, 5), (2, 5), (1, 9), (1, 10), (1, 11), (2, 11), (1, 12), (1, 13), (2, 13);
 
         INSERT INTO {$prefix}tree (id, parent_id, lvl, lk, rk, prototype, children_prototype, author, modified_author, last_modified, creation_date, is_publish, node_name, in_sitemap, in_sitemap_xml, in_search, layout, page_alias, permanent_redirect, change_freq, searchers_priority, module_name, page_title, page_h1, meta_keywords, meta_description, page_announce, page_text) VALUES

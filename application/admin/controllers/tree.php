@@ -873,15 +873,17 @@ class tree extends baseController {
     private function getAvailableMenuList($current = -1) {
 
         $menuItems = array();
-        $menu = db::query("SELECT id,name FROM menu");
+        $menu = db::query(
+            "SELECT mirror_id id, name FROM menu ORDER BY mirror_id"
+        );
 
         if ($current < 1) {
             $inMenu = array();
         } else {
-            $inMenu = db::query("
-                SELECT menu_id FROM menu_items
-                WHERE node_id = $current
-            ");
+            $inMenu = db::query(
+                "SELECT menu_id FROM menu_items
+                    WHERE node_id = %u", $current
+            );
         }
 
         foreach ($menu as $item) {
@@ -1291,6 +1293,11 @@ class tree extends baseController {
                 );
             }
 
+            $existsMenu = db::normalizeQuery("SELECT mirror_id FROM menu");
+            if (!is_array($existsMenu)) {
+                $existsMenu = array($existsMenu);
+            }
+
             foreach ($menuList as $k => $appendix) {
 
                 if (!validate::isNumber($k)) {
@@ -1300,7 +1307,9 @@ class tree extends baseController {
                     );
                 }
 
-                array_push($inMenu, $k);
+                if (in_array($k, $existsMenu)) {
+                    array_push($inMenu, $k);
+                }
 
             }
 

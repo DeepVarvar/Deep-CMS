@@ -47,7 +47,9 @@ class menu extends baseController {
 
     public function index() {
 
-        $paginator = new paginator("SELECT id, name FROM menu ORDER BY id ASC");
+        $paginator = new paginator(
+            "SELECT id, mirror_id, name FROM menu ORDER BY mirror_id ASC"
+        );
         $paginator = $paginator->setCurrentPage(request::getCurrentPage())
             ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
@@ -90,8 +92,6 @@ class menu extends baseController {
         }
 
         db::set("DELETE FROM menu WHERE id = %u", $menu_id);
-        db::set("DELETE FROM menu_items WHERE menu_id = %u", $menu_id);
-
         $this->redirectMessage(
             SUCCESS_EXCEPTION, view::$language->success,
                 view::$language->menu_is_deleted, $adminToolsLink . "/menu"
@@ -115,7 +115,7 @@ class menu extends baseController {
         }
 
         $menu = db::normalizeQuery(
-            "SELECT id,name FROM menu WHERE id = %u", $menu_id
+            "SELECT id, mirror_id, name FROM menu WHERE id = %u", $menu_id
         );
 
         if (!$menu) {
@@ -164,15 +164,58 @@ class menu extends baseController {
             );
         }
 
+        $mirrorID = request::getPostParam("mirror_id");
+        if ($mirrorID === null) {
+            throw new memberErrorException(
+                view::$language->error, view::$language->data_not_enough
+            );
+        }
+
+        if (!validate::isNumber($mirrorID) or $mirrorID < 1) {
+            throw new memberErrorException(
+                view::$language->error, view::$language->menu_mirror_id_invalid
+            );
+        }
+
+        if ($mirrorID > 10000) {
+            throw new memberErrorException(
+                view::$language->error, view::$language->menu_mirror_id_less
+            );
+        }
+
         if ($target === null) {
-            db::set("INSERT INTO menu (id,name) VALUES (NULL,'%s')", $name);
-            $target = db::lastID();
+            db::set(
+                "INSERT INTO menu (id, mirror_id, name)
+                    VALUES (NULL, %u, '%s')", $mirrorID, $name
+            );
+            $menuID = db::lastID();
         } else {
-            db::set("UPDATE menu SET name = '%s' WHERE id = %u",$name,$target);
+
+            $menuID = $target;
+            $exCheck = "SELECT (1) ex FROM menu WHERE id != %u
+                            AND mirror_id = %u LIMIT 1";
+
+            if (db::query($exCheck, $target, $mirrorID)) {
+                throw new memberErrorException(
+                    view::$language->error,
+                    view::$language->menu_mirror_id_is_not_uniq
+                );
+            }
+
+            db::set(
+                "UPDATE menu_items SET menu_id = %u WHERE menu_id IN(
+                    SELECT mirror_id FROM menu WHERE id = %u
+                )", $mirrorID, $target
+            );
+
+            db::set(
+                "UPDATE menu SET mirror_id = %u, name = '%s'
+                    WHERE id = %u", $mirrorID, $name, $target);
+
         }
 
         $location = request::getPostParam("silentsave")
-            ? "/edit?id=" . $target : "";
+            ? "/edit?id=" . $menuID : "";
 
         $message = ($target === null)
             ? view::$language->menu_is_created
