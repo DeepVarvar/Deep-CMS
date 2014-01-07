@@ -218,7 +218,7 @@ abstract class view {
         } else if ($name != self::$currentLanguageName and is_dir($languageDir)) {
 
             self::$language = array();
-            foreach (utils::glob($languageDir . '/*.php') as $lang) {
+            foreach (fsUtils::glob($languageDir . '/*.php') as $lang) {
                 self::$language = array_merge(
                     self::$language, (require_once $lang)
                 );
@@ -343,7 +343,7 @@ abstract class view {
         try {
 
             if (!($e instanceof systemException)) {
-                utils::takeUnexpectedException($e, $isDebugMode);
+                unexpectedException::take($e, $isDebugMode);
             } else {
 
                 $report     = $e->getReport();
@@ -402,7 +402,7 @@ abstract class view {
             }
 
         } catch (Exception $e) {
-            utils::takeUnexpectedException($e, $isDebugMode);
+            unexpectedException::take($e, $isDebugMode);
         }
 
     }

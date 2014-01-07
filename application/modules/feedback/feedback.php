@@ -11,7 +11,7 @@ class feedback extends baseController {
     public function index() {
 
         $layoutName = 'feedback.html';
-        if (!utils::isExistsProtectedLayout($layoutName)) {
+        if (!layoutUtils::isExistsProtectedLayout($layoutName)) {
             throw new memberErrorException(
                 'Feedback error',
                 'Dependency protected layout ' . $layoutName . ' is not exists'

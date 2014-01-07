@@ -53,9 +53,9 @@ class preferences extends baseController {
 
         $c = app::config();
         view::assign(array(
-            'themes'           => utils::getAvailableThemes($c->site->theme),
+            'themes'           => themeUtils::getAvailableThemes($c->site->theme),
             'admin_tools_link' => rawurldecode($c->site->admin_tools_link),
-            'languages'        => utils::getAvailableLanguages($c->site->default_language),
+            'languages'        => languageUtils::getAvailableLanguages($c->site->default_language),
             'cache_enabled'    => $c->system->cache_enabled,
             'debug_mode_on'    => $c->system->debug_mode
         ));
@@ -120,7 +120,7 @@ class preferences extends baseController {
         request::validateReferer($adminToolsLink . '/preferences');
 
         $controllersPermissions = array();
-        $controllers = utils::getAllControllers();
+        $controllers = controllerUtils::getAllControllers();
 
         foreach ($controllers as $controller) {
             foreach ($controller->getPermissions() as $current) {
@@ -281,7 +281,7 @@ class preferences extends baseController {
         }
 
         $existsTheme = false;
-        foreach (utils::getAvailableThemes() as $theme) {
+        foreach (themeUtils::getAvailableThemes() as $theme) {
             if ($theme['value'] == $preferences['site']['theme']) {
                 $existsTheme = true;
                 break;
@@ -317,7 +317,7 @@ class preferences extends baseController {
         }
 
         $existsLanguage = false;
-        foreach (utils::getAvailableLanguages() as $language) {
+        foreach (languageUtils::getAvailableLanguages() as $language) {
             if ($language['value'] == $preferences['site']['default_language']) {
                 $existsLanguage = true;
                 break;
@@ -330,7 +330,7 @@ class preferences extends baseController {
             );
         }
 
-        $adminLink = utils::normalizeInputUrl(
+        $adminLink = protoUtils::normalizeInputUrl(
             trim((string) $preferences['site']['admin_tools_link']),
             view::$language->admin_tools_link_invalid
         );

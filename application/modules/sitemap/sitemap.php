@@ -15,7 +15,7 @@ class sitemap extends baseController {
     public function index() {
 
         $layoutName = 'sitemap.html';
-        if (!utils::isExistsProtectedLayout($layoutName)) {
+        if (!layoutUtils::isExistsProtectedLayout($layoutName)) {
             throw new systemErrorException(
                 'Sitemap error',
                 'Dependency protected layout ' . $layoutName . ' is not exists'

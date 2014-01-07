@@ -134,6 +134,7 @@ abstract class request {
         if (!$destination) {
             $destination = '/';
         }
+
         if ($destination != $source) {
             self::redirect($destination);
         }
@@ -471,7 +472,7 @@ abstract class request {
 
         self::$headers = array();
         self::addHeader('HTTP/1.1 301 Moved Permanently');
-        self::addHeader('Location: $destination');
+        self::addHeader('Location: ' . $destination);
         self::sendHeaders();
         exit();
 

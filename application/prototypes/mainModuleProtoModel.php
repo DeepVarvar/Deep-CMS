@@ -59,7 +59,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
     protected function module_nameGetData( & $f) {
 
         $options = array();
-        foreach (utils::getAvailablePublicModules() as $item) {
+        foreach (protoUtils::getAvailablePublicModules() as $item) {
 
             $description = $item;
             if (isset(view::$language->{$item})) {
@@ -106,7 +106,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
             );
         }
 
-        $data = utils::normalizeInputUrl(
+        $data = protoUtils::normalizeInputUrl(
             $data, view::$language->page_alias_invalid
         );
 
@@ -117,7 +117,7 @@ class mainModuleProtoModel extends baseProtoTypeModel {
         $data = (string) $data;
         if ($data == '---') {
             $data = 'NULL';
-        } else if (!in_array($data, utils::getAvailablePublicModules(), true)) {
+        } else if (!in_array($data, protoUtils::getAvailablePublicModules(), true)) {
             throw new memberErrorException(
                 view::$language->error,
                 view::$language->main_module_module_not_found

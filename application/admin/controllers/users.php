@@ -85,7 +85,7 @@ class users extends baseController {
 
         view::assign('grouplist', $this->getAvailableGroupList());
         view::assign('statuslist', $this->getUserStatusList());
-        view::assign('languages', utils::getAvailableLanguages());
+        view::assign('languages', languageUtils::getAvailableLanguages());
         view::assign('node_name', view::$language->user_create_new);
         $this->setProtectedLayout('user-new.html');
 
@@ -155,7 +155,7 @@ class users extends baseController {
         );
 
         view::assign(
-            'languages', utils::getAvailableLanguages($existsUser['language'])
+            'languages', languageUtils::getAvailableLanguages($existsUser['language'])
         );
 
         view::assign('user', $existsUser);

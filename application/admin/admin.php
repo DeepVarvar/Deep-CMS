@@ -36,7 +36,9 @@ class admin extends baseController {
         if (member::isAuth()) {
 
             $this->setPermissions();
-            utils::initCheckPermissionAccess($this->getPermissions(), null);
+            permissionUtils::initCheckPermissionAccess(
+                $this->getPermissions(), null
+            );
 
             if ($uri == $cnf->site->admin_tools_link) {
                 request::redirect($cnf->site->admin_tools_link . '/tree');

@@ -56,8 +56,8 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $f['type'] = 'select';
         $f['required'] = true;
         $f['description'] = view::$language->layout;
-        $f['value'] = utils::makeOptionsArray(
-            utils::getAvailablePublicLayouts(), $f['value']
+        $f['value'] = protoUtils::makeOptionsArray(
+            layoutUtils::getAvailablePublicLayouts(), $f['value']
         );
 
     }
@@ -86,8 +86,8 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $f['top']  = 20;
         $f['type'] = 'select';
         $f['description'] = view::$language->change_freq;
-        $f['value'] = utils::makeOptionsArray(
-            utils::getAvailableChangeFreq(), $f['value']
+        $f['value'] = protoUtils::makeOptionsArray(
+            protoUtils::getAvailableChangeFreq(), $f['value']
         );
 
     }
@@ -96,8 +96,8 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         $f['type'] = 'select';
         $f['description'] = view::$language->searchers_priority;
-        $f['value'] = utils::makeOptionsArray(
-            utils::getAvailableSearchersPriority(), $f['value']
+        $f['value'] = protoUtils::makeOptionsArray(
+            protoUtils::getAvailableSearchersPriority(), $f['value']
         );
 
     }
@@ -168,7 +168,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
             );
         }
 
-        $data = utils::normalizeInputUrl(
+        $data = protoUtils::normalizeInputUrl(
             $data, view::$language->page_alias_invalid
         );
 
@@ -178,7 +178,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
 
         $data = (string) $data;
         if ($data) {
-            $data = utils::normalizeInputUrl(
+            $data = protoUtils::normalizeInputUrl(
                 $data, view::$language->permanent_redirect_invalid
             );
         }
@@ -188,7 +188,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
     protected function layoutPrepare( & $data) {
 
         $data = (string) $data;
-        if (!in_array($data, utils::getAvailablePublicLayouts())) {
+        if (!in_array($data, layoutUtils::getAvailablePublicLayouts())) {
             throw new memberErrorException(
                 view::$language->error,
                 view::$language->layout_not_found
@@ -218,7 +218,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $data = (string) $data;
         if ($data == '---') {
             $data = 'NULL';
-        } else if (!in_array($data, utils::getAvailableChangeFreq(), true)) {
+        } else if (!in_array($data, protoUtils::getAvailableChangeFreq(), true)) {
             throw new memberErrorException(
                 view::$language->error,
                 view::$language->change_freq_invalid
@@ -232,7 +232,7 @@ class simplePageProtoModel extends baseProtoTypeModel {
         $data = (string) $data;
         if ($data == '---') {
             $data = 'NULL';
-        } else if (!in_array($data, utils::getAvailableSearchersPriority(), true)) {
+        } else if (!in_array($data, protoUtils::getAvailableSearchersPriority(), true)) {
             throw new memberErrorException(
                 view::$language->error,
                 view::$language->searchers_priority_invalid

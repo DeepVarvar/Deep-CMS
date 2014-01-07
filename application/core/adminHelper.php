@@ -29,7 +29,7 @@ abstract class adminHelper {
         $adminLink = app::config()->site->admin_tools_link;
         $menuItems = array();
 
-        foreach (utils::glob(APPLICATION . 'admin/in-menu/*.php') as $item) {
+        foreach (fsUtils::glob(APPLICATION . 'admin/in-menu/*.php') as $item) {
             $item = require_once $item;
             if (member::isPermission($item['permission'])) {
                 $item['page_alias'] = $adminLink . $item['page_alias'];
@@ -38,7 +38,7 @@ abstract class adminHelper {
             }
         }
 
-        utils::loadSortArrays();
+        arrayUtils::loadSortArrays();
         uasort($menuItems, 'sortArrays');
         $menuItems = array_values($menuItems);
 

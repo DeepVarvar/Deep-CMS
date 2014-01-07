@@ -407,7 +407,7 @@ class groups extends baseController {
     private function getControllerPermissions($name) {
 
         if (!$this->controllers) {
-            $this->controllers = utils::getAllControllers();
+            $this->controllers = controllerUtils::getAllControllers();
         }
 
         foreach ($this->controllers as $controller) {

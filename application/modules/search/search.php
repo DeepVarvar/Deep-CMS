@@ -36,7 +36,7 @@ class search extends baseController {
     public function index() {
 
         $layoutName = 'search.html';
-        if (!utils::isExistsProtectedLayout($layoutName)) {
+        if (!layoutUtils::isExistsProtectedLayout($layoutName)) {
             throw new systemErrorException(
                 'Simple search module error',
                 'Dependency protected layout ' . $layoutName . ' is not exists'
@@ -73,7 +73,7 @@ class search extends baseController {
             }
 
             $searchedFields = array();
-            foreach (utils::getAvailableProtoTypes() as $item) {
+            foreach (protoUtils::getAvailableProtoTypes() as $item) {
 
                 $proto = new $item;
                 $protoFields[$item] = $proto->getSearchedFields();

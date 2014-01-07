@@ -213,7 +213,7 @@ try {
 
         $cachedPage = md5(request::getOriginURL());
         $availableContexts = join(',', $availableContexts);
-        $items = utils::glob(
+        $items = fsUtils::glob(
             APPLICATION . 'cache/{' . $availableContexts . '}---' . $cachedPage,
             GLOB_BRACE
         );

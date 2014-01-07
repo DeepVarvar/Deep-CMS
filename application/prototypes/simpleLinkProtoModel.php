@@ -82,7 +82,7 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
             );
         }
 
-        $data = utils::normalizeInputUrl(
+        $data = protoUtils::normalizeInputUrl(
             $data, view::$language->simple_link_alias_invalid
         );
 

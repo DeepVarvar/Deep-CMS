@@ -457,11 +457,19 @@ $(function(){
     $("#prototype").change(function(){
 
         var proto = $(this).val();
-        var loc = document.location.href
-                    .replace(/([?&]prototype)=([^#&]*)/g, "$1=" + proto);
+        var href = document.location.href;
+        if (proto.match(/[a-z]+/i)) {
 
-        if (proto.match(/[a-z]+/i) && loc != document.location.href) {
-            document.location = loc;
+            if (href.match(/[?&]prototype=[a-z]+/i)) {
+                href = href.replace(/([?&]prototype)=([a-z]+)/ig, "$1=" + proto);
+            } else {
+                href += (href.match(/\?/) ? '&' : '?') + 'prototype=' + proto;
+            }
+
+            if (href != document.location.href) {
+                document.location = href;
+            }
+
         }
 
     });

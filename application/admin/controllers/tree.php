@@ -616,7 +616,7 @@ class tree extends baseController {
     private function getAvailableProtoTypes() {
 
         $this->availableProtoTypes = array();
-        foreach (utils::getAvailableProtoTypes() as $item) {
+        foreach (protoUtils::getAvailableProtoTypes() as $item) {
             $this->availableProtoTypes[$item] = new $item;
         }
 
@@ -860,7 +860,7 @@ class tree extends baseController {
         );
 
         foreach ($fieldedProperties as $iterator => $k) {
-            $mainProperties[$k] = utils::getDefaultField($nodeProps[$k]);
+            $mainProperties[$k] = protoUtils::getDefaultField($nodeProps[$k]);
             $mainProperties[$k]['required'] = true;
             $mainProperties[$k]['sort'] = $iterator;
         }
@@ -928,7 +928,7 @@ class tree extends baseController {
             $this->getNodeProps($node), $protoModel->getProperties($nodeID)
         );
 
-        utils::loadSortArrays();
+        arrayUtils::loadSortArrays();
         uasort($node, 'sortArrays');
 
     }

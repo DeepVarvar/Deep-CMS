@@ -2,8 +2,7 @@
 
 
 /**
- * application class,
- * now exists only for config files
+ * application class
  */
 
 abstract class app {
@@ -133,6 +132,44 @@ abstract class app {
             exit('Application [' . $name . '] cofiguration is not loaded' . PHP_EOL);
         }
         return self::$configs[$name];
+
+    }
+
+
+    /**
+     * write log file,
+     * fucking windows can't use ":" for timestamp
+     */
+
+    public static function writeLog($item) {
+
+        $existsLog = false;
+        $logDir    = APPLICATION . 'logs/';
+        $logFile   = $logDir . 'main.log';
+
+        if (file_exists($logFile)) {
+
+            $existsLog = true;
+            if (!is_writable($logFile)) {
+                exit(
+                    "Log file $logFile don't have writable permission" . PHP_EOL
+                );
+            }
+
+            if (filesize($logFile) > self::config()->system->log_file_max_size) {
+                $fixedName = str_replace(
+                    array(':', ' '), array('.', '_'), $item['datetime']
+                );
+                rename($logFile, $logDir . 'main_' . $fixedName . '.log');
+                $existsLog = false;
+            }
+
+        }
+
+        $item = json_encode(arrayUtils::arrayChangeKeyCaseRecursive($item));
+        file_put_contents(
+            $logFile, ($existsLog?",\n":'') . $item, FILE_APPEND | LOCK_EX
+        );
 
     }
 

@@ -61,7 +61,7 @@ class systemException extends Exception {
         $this->report['trace'] = parent::getTrace();
 
         if (app::config()->system->write_log) {
-            utils::writeLog(array_merge(
+            app::writeLog(array_merge(
                 $this->report,
                 request::getClientInfo(),
                 array('url' => request::getOriginURL())

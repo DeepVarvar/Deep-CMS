@@ -45,7 +45,7 @@ class baseProtoTypeModel {
         foreach ($nodeProps as $k => $v) {
 
             $getter = $k . 'GetData';
-            $mainProperties[$k] = utils::getDefaultField($v);
+            $mainProperties[$k] = protoUtils::getDefaultField($v);
             $mainProperties[$k]['sort'] = 10 + $iterator++;
 
             if (method_exists($this, $getter)) {

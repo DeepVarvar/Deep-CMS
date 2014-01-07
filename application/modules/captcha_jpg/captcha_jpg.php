@@ -56,7 +56,7 @@ class captcha_jpg extends baseController {
         }
 
         $keyString = '';
-        if (!$fonts = utils::glob(APPLICATION . 'resources/captcha/*.png')) {
+        if (!$fonts = fsUtils::glob(APPLICATION . 'resources/captcha/*.png')) {
             throw new systemErrorException(
                 'Captcha error', 'Fonts on resources not found'
             );

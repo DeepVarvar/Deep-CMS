@@ -29,7 +29,7 @@ abstract class autorun {
             get_include_path() . PATH_SEPARATOR . $autorunDirectory
         );
 
-        $autorunItems = utils::glob($autorunDirectory . '*.php');
+        $autorunItems = fsUtils::glob($autorunDirectory . '*.php');
         natsort($autorunItems);
 
         foreach ($autorunItems as $item) {

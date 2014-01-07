@@ -214,7 +214,7 @@ abstract class router {
         }
 
         node::loadController($path . $module . '.php', $module);
-        utils::checkPermissionAccess($module, null);
+        permissionUtils::checkPermissionAccess($module, null);
 
         if (self::getParamsCount() > 0) {
 
@@ -223,7 +223,7 @@ abstract class router {
 
             if (file_exists($controller) and !is_dir($controller)) {
                 node::loadController($controller, $subModule);
-                utils::checkPermissionAccess($subModule, null);
+                permissionUtils::checkPermissionAccess($subModule, null);
                 $subModuleMode = self::shiftParam();
             }
 
@@ -268,8 +268,8 @@ abstract class router {
         }
 
         $argument = null;
-        utils::checkAllow($controller, $action, $args);
-        utils::checkPermissionAccess($controller, $action);
+        permissionUtils::checkAllow($controller, $action, $args);
+        permissionUtils::checkPermissionAccess($controller, $action);
 
         node::call($controller)->{$action}($args);
         node::call($controller)->runAfter();
