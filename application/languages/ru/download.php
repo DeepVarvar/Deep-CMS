@@ -7,7 +7,7 @@
  */
 
 return array(
-    "download"  =>  "Загрузка файлов"
+    'download'  =>  'Загрузка файлов'
 );
 
 

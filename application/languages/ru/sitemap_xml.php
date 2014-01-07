@@ -7,7 +7,7 @@
  */
 
 return array(
-    "sitemap_xml"  =>  "Карта сайта XML-формата"
+    'sitemap_xml'  =>  'Карта сайта XML-формата'
 );
 
 

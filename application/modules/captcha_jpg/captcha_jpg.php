@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * captcha module,
  * rewrite of RECAPTCHA
@@ -10,44 +9,40 @@
 class captcha_jpg extends baseController {
 
 
-    private
+    /**
+     * captcha string length,
+     * set integer value or "random" for random length
+     */
+
+    private $length = 'random';
 
 
-        /**
-         * captcha string length,
-         * set integer value or "random" for random length
-         */
+    /**
+     * dimension of captcha image
+     */
 
-        $length = "random",
-
-
-        /**
-         * dimension of captcha image
-         */
-
-        $width  = 140,
-        $height = 52,
+    private $width  = 140, $height = 52;
 
 
-        /**
-         * foreground color RGB array (0-255, 0-255, 0-255) or "random"
-         */
+    /**
+     * foreground color RGB array (0-255, 0-255, 0-255) or "random"
+     */
 
-        $foregroundColor = "random",
-
-
-        /**
-         * jpeg image quality percentes
-         */
-
-        $jpegQuality = 100,
+    private $foregroundColor = 'random';
 
 
-        /**
-         * wave fluctuation amplitude of image
-         */
+    /**
+     * jpeg image quality percentes
+     */
 
-        $fluctuationAmplitude = 5;
+    private $jpegQuality = 100;
+
+
+    /**
+     * wave fluctuation amplitude of image
+     */
+
+    private $fluctuationAmplitude = 5;
 
 
     /**
@@ -56,27 +51,22 @@ class captcha_jpg extends baseController {
 
     public function index() {
 
-
-        /**
-         * set configuration environment of image generation
-         */
-
-        if ($this->length === "random") {
+        if ($this->length === 'random') {
             $this->length = mt_rand(5, 8);
         }
 
-        $keyString = "";
-        if (!$fonts = utils::glob(APPLICATION . "resources/captcha/*.png")) {
+        $keyString = '';
+        if (!$fonts = utils::glob(APPLICATION . 'resources/captcha/*.png')) {
             throw new systemErrorException(
-                "Captcha error", "Fonts on resources not found"
+                'Captcha error', 'Fonts on resources not found'
             );
         }
 
-        $alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
+        $alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
         $alphabetLength = strlen($alphabet);
-        $allowedSymbols = "23456789abcdeghkmnpqsuvxyz";
+        $allowedSymbols = '23456789abcdeghkmnpqsuvxyz';
 
-        if ($this->foregroundColor === "random") {
+        if ($this->foregroundColor === 'random') {
             $this->foregroundColor = array(
                 mt_rand(0,150), mt_rand(0,150), mt_rand(0,15)
             );
@@ -102,7 +92,7 @@ class captcha_jpg extends baseController {
                 $transparent = (imagecolorat($font, $i, 0) >> 24) == 127;
                 if(!$readingSymbol && !$transparent) {
 
-                    $fontMetrics[$alphabet{$symbol}] = array("start" => $i);
+                    $fontMetrics[$alphabet{$symbol}] = array('start' => $i);
                     $readingSymbol = true;
                     continue;
 
@@ -282,22 +272,20 @@ class captcha_jpg extends baseController {
         }
 
         imagedestroy($img);
-        storage::write("captcha", $keyString);
-        request::addHeader("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-        request::addHeader("Cache-Control: no-store, no-cache, must-revalidate");
-        request::addHeader("Cache-Control: post-check=0, pre-check=0", false);
-        request::addHeader("Pragma: no-cache");
-        request::addHeader("Content-Type: image/jpeg");
+        storage::write('captcha', $keyString);
+        request::addHeader('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        request::addHeader('Cache-Control: no-store, no-cache, must-revalidate');
+        request::addHeader('Cache-Control: post-check=0, pre-check=0');
+        request::addHeader('Pragma: no-cache');
+        request::addHeader('Content-Type: image/jpeg');
 
         request::sendHeaders();
         imagejpeg($img2, null, $this->jpegQuality);
         exit();
 
-
     }
 
 
 }
-
 
 

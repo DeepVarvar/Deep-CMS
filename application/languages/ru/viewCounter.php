@@ -7,7 +7,7 @@
  */
 
 return array(
-    "viewed" =>  "Просмотров"
+    'viewed' =>  'Просмотров'
 );
 
 

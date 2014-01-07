@@ -8,8 +8,8 @@
 
 return array(
 
-    "simple_page_prototype_name"  =>  "Обычная страница",
-    "simple_page_page_text"       =>  "Содержимое страницы"
+    'simple_page_prototype_name'  =>  'Обычная страница',
+    'simple_page_page_text'       =>  'Содержимое страницы'
 
 );
 

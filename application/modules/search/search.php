@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * search module
  */
@@ -36,24 +35,23 @@ class search extends baseController {
 
     public function index() {
 
-
-        $layoutName = "search.html";
+        $layoutName = 'search.html';
         if (!utils::isExistsProtectedLayout($layoutName)) {
             throw new systemErrorException(
-                "Simple search module error",
-                    "Dependency protected layout {$layoutName} is not exists"
+                'Simple search module error',
+                'Dependency protected layout ' . $layoutName . ' is not exists'
             );
         }
 
         $searchwords = rawurldecode(
-            (string) request::shiftParam("searchwords")
+            (string) request::shiftParam('searchwords')
         );
 
         $searchwords = filter::input($searchwords)->stripTags();
         $searchwords = $searchwords->expReplace(
-            array("/\++/", "/\s+/"), array(" ", " "))->getData();
+            array('/\++/', '/\s+/'), array(' ', ' '))->getData();
 
-        $searchPartsSource = explode(" ", $searchwords);
+        $searchPartsSource = explode(' ', $searchwords);
         $searchParts = array();
 
         foreach ($searchPartsSource as $v) {
@@ -70,7 +68,7 @@ class search extends baseController {
 
             if (sizeof($searchParts) > 1) {
                 $searchParts = array_merge(
-                    array(join(" ", $searchParts)), $searchParts
+                    array(join(' ', $searchParts)), $searchParts
                 );
             }
 
@@ -93,31 +91,28 @@ class search extends baseController {
                 $sw   = db::escapeString($sw);
                 $join = " LIKE '%%{$sw}%%' OR ";
                 $suff = " LIKE '%%{$sw}%%' ";
-
                 array_push(
                     $searchCondition, join($join, $searchedFields) . $suff
                 );
 
             }
 
-            $queryPrefix = "";
+            $queryPrefix = '';
             if (sizeof($searchCondition) > 1) {
 
                 $firstCondition = array_shift($searchCondition);
-                $queryPrefix = "SELECT id, parent_id, prototype, lvl, lk, rk,
+                $queryPrefix = 'SELECT id, parent_id, prototype, lvl, lk, rk,
                     page_alias, node_name FROM tree WHERE in_search = 1
-                        AND ({$firstCondition}) AND is_publish = 1
-                            GROUP BY id UNION DISTINCT";
+                        AND (' . $firstCondition . ') AND is_publish = 1
+                            GROUP BY id UNION DISTINCT';
 
             }
 
-            $searchCondition = join(" OR ", $searchCondition);
-            $searchQuery     = db::buildQueryString(
-
-                "{$queryPrefix} SELECT id, parent_id, prototype, lvl, lk, rk,
+            $searchCondition = join(' OR ', $searchCondition);
+            $searchQuery = db::buildQueryString(
+                $queryPrefix . ' SELECT id, parent_id, prototype, lvl, lk, rk,
                     page_alias, node_name FROM tree WHERE in_search = 1
-                        AND ({$searchCondition}) AND is_publish = 1 GROUP BY id"
-
+                AND (' . $searchCondition . ') AND is_publish = 1 GROUP BY id'
             );
 
             $paginator = new paginator($searchQuery);
@@ -125,15 +120,15 @@ class search extends baseController {
 
                 $paginator->setCurrentPage(request::getCurrentPage())
                     ->setItemsPerPage($this->itemsPerPage)
-                        ->setSliceSizeByPages($this->sliceSizeByPages)
-                            ->getResult();
+                    ->setSliceSizeByPages($this->sliceSizeByPages)
+                    ->getResult();
 
             $searchResult = $paginator['items'];
             $pages = $paginator['pages'];
 
             unset($paginator);
             dataHelper::joinExtendedData(
-                $searchResult, array("image", "page_text")
+                $searchResult, array('image', 'page_text')
             );
 
         } else {
@@ -141,16 +136,14 @@ class search extends baseController {
             $pages = array();
         }
 
-        view::assign("pages", $pages);
-        view::assign("search_result", $searchResult);
-        view::assign("searchwords",   $searchwords);
+        view::assign('pages', $pages);
+        view::assign('search_result', $searchResult);
+        view::assign('searchwords',   $searchwords);
         $this->setProtectedLayout($layoutName);
-
 
     }
 
 
 }
-
 
 

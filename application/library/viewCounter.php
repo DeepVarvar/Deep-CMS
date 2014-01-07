@@ -10,7 +10,7 @@ abstract class viewCounter {
 
     public static function init() {
 
-        $nodeID = storage::read("nodeID");
+        $nodeID = storage::read('nodeID');
         if ($nodeID > 0) {
             $sid = !member::isAuth() ? session_id() : md5(member::getID());
             db::set(
@@ -25,11 +25,11 @@ abstract class viewCounter {
 
         if (!validate::isNumber($id)) {
             throw new memberErrorException(
-                "View counter error", "Target ID is not number"
+                'View counter error', 'Target ID is not number'
             );
         }
         return db::cachedNormalizeQuery(
-            "SELECT COUNT(1) cnt FROM view_count WHERE node_id = %u", $id
+            'SELECT COUNT(1) cnt FROM view_count WHERE node_id = %u', $id
         );
 
     }

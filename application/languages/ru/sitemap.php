@@ -7,7 +7,7 @@
  */
 
 return array(
-    "sitemap"  =>  "Карта сайта"
+    'sitemap'  =>  'Карта сайта'
 );
 
 

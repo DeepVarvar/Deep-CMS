@@ -10,11 +10,11 @@ class feedback extends baseController {
 
     public function index() {
 
-        $layoutName = "feedback.html";
+        $layoutName = 'feedback.html';
         if (!utils::isExistsProtectedLayout($layoutName)) {
             throw new memberErrorException(
-                "Feedback error",
-                    "Dependency protected layout {$layoutName} is not exists"
+                'Feedback error',
+                'Dependency protected layout ' . $layoutName . ' is not exists'
             );
         }
         $this->setProtectedLayout($layoutName);
@@ -24,18 +24,17 @@ class feedback extends baseController {
 
     public function send() {
 
-
         view::clearPublicVariables();
-        view::setOutputContext("json");
+        view::setOutputContext('json');
         view::lockOutputContext();
 
-        $fields = array("name", "email", "message", "protection");
+        $fields = array('name', 'email', 'message', 'protection');
         $data = request::getRequiredPostParams($fields);
 
         if ($data === null) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->data_not_enough
+                view::$language->data_not_enough
             );
         }
 
@@ -43,14 +42,14 @@ class feedback extends baseController {
         if (!$data['name']) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->feedback_name_is_empty
+                view::$language->feedback_name_is_empty
             );
         }
 
         if (mb_strlen($data['name']) < 2) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->feedback_name_is_short
+                view::$language->feedback_name_is_short
             );
         }
 
@@ -69,53 +68,53 @@ class feedback extends baseController {
         if (!$data['message']) {
              throw new memberErrorException(
                 view::$language->error,
-                    view::$language->feedback_message_is_empty
+                view::$language->feedback_message_is_empty
             );
         }
 
         if (!$data['protection']) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->captcha_pcode_is_empty
+                view::$language->captcha_pcode_is_empty
             );
         }
 
-        if ($data['protection'] !== storage::read("captcha")) {
+        if ($data['protection'] !== storage::read('captcha')) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->captcha_pcode_invalid
+                view::$language->captcha_pcode_invalid
             );
         }
 
-        storage::shift("captcha");
-        $feedCnf = app::loadConfig("feedback.json");
+        storage::shift('captcha');
+        $feedCnf = app::loadConfig('feedback.json');
         $mainCnf = app::config();
 
         $mailer = new PHPMailer();
-        $mailer->CharSet = "utf-8";
-        $mailer->SetFrom($feedCnf->robot_name . "@" . $mainCnf->site->domain);
+        $mailer->CharSet = 'utf-8';
+        $mailer->SetFrom($feedCnf->robot_name . '@' . $mainCnf->site->domain);
 
         $mailer->AddAddress($feedCnf->recipient);
         $mailer->Subject = view::$language->feedback_new_mail_from
-                    . " " . $mainCnf->site->domain;
+                    . ' ' . $mainCnf->site->domain;
 
-        $template = APPLICATION . "resources/phpmailer/feedback.html";
+        $template = APPLICATION . 'resources/phpmailer/feedback.html';
         if (!file_exists($template)) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->feedback_mail_tpl_not_found
+                view::$language->feedback_mail_tpl_not_found
             );
         }
 
         $mailer->MsgHTML(
             str_replace(
                 array(
-                    "{{name}}",
-                    "{{email}}",
-                    "{{message}}",
-                    "{{subject}}",
-                    "{{sender_is}}",
-                    "{{email_is}}"
+                    '{{name}}',
+                    '{{email}}',
+                    '{{message}}',
+                    '{{subject}}',
+                    '{{sender_is}}',
+                    '{{email_is}}'
                 ),
                 array(
                     $data['name'],
@@ -131,7 +130,7 @@ class feedback extends baseController {
         $mailer->Send();
         throw new memberSuccessException(
             view::$language->feedback_thanks,
-                view::$language->feedback_we_will_get
+            view::$language->feedback_we_will_get
         );
 
     }

@@ -7,7 +7,7 @@
  */
 
 return array(
-    "rss_xml"  =>  "RSS-генератор"
+    'rss_xml'  =>  'RSS-генератор'
 );
 
 
