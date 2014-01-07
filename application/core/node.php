@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * node, all objects and controllers are located inside
  * you can use any of the objects into global node
@@ -50,7 +49,6 @@ abstract class node {
         if (isset(self::$objects[$className])) {
             return;
         }
-
         require_once $path;
         self::load($className);
 
@@ -65,11 +63,10 @@ abstract class node {
     public static function loadController($path, $controllerName) {
 
         self::loadClass($path, $controllerName);
-
         if (!(self::call($controllerName) instanceof baseController)) {
             throw new systemErrorException(
-                "Node load controller error",
-                    "Class $controllerName not instance of baseController"
+                'Node load controller error',
+                'Class ' . $controllerName . ' not instance of baseController'
             );
         }
 
@@ -95,6 +92,5 @@ abstract class node {
 
 
 }
-
 
 

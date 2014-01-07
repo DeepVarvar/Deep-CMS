@@ -8,44 +8,41 @@
 abstract class router {
 
 
-    protected static
+    /**
+     * denied public actions of controllers
+     */
+
+    protected static $deniedPublicActions = array(
+        '__call',
+        'setLayout',
+        'getPermissions',
+        'setPermissions',
+        'getDenyActions',
+        'preLoad',
+        'runBefore',
+        'runAfter'
+    );
 
 
-        /**
-         * denied public actions of controllers
-         */
+    /**
+     * excepted prototypes
+     */
 
-        $deniedPublicActions = array(
-            "__call",
-            "setLayout",
-            "getPermissions",
-            "setPermissions",
-            "getDenyActions",
-            "preLoad",
-            "runBefore",
-            "runAfter"
-        ),
+    protected static $exceptedPrototypes = array('none', 'simpleLink');
 
 
-        /**
-         * excepted prototypes
-         */
+    /**
+     * main parameters
+     */
 
-        $exceptedPrototypes = array("none", "simpleLink"),
-
-
-        /**
-         * main parameters
-         */
-
-        $params = array(),
+    protected static $params = array();
 
 
-        /**
-         * admin mode status
-         */
+    /**
+     * admin mode status
+     */
 
-        $adminMode = false;
+    protected static $adminMode = false;
 
 
     /**
@@ -54,13 +51,12 @@ abstract class router {
 
     public static function init() {
 
-
         $config = app::config();
         $requestURI = request::getURI();
         $moduleName = self::getParam();
 
-        $adminLink = preg_quote($config->site->admin_tools_link, "/");
-        if (preg_match("/^{$adminLink}(\/.+)?$/s", $requestURI)) {
+        $adminLink = preg_quote($config->site->admin_tools_link, '/');
+        if (preg_match('/^' . $adminLink . '(\/.+)?$/s', $requestURI)) {
             self::$adminMode = true;
         }
 
@@ -70,9 +66,9 @@ abstract class router {
          * WARNING! this throw can only after check admin mode!
          */
 
-        if (storage::exists("__message")) {
+        if (storage::exists('__message')) {
 
-            extract(storage::shift("__message"));
+            extract(storage::shift('__message'));
             if ($type == SUCCESS_EXCEPTION) {
                 throw new memberRefreshSuccessException(
                     $title, $message, $refresh_location
@@ -88,31 +84,29 @@ abstract class router {
         if (self::isAdmin()) {
 
             $loadedPage = array(
-                "id"             => 0,
-                "prototype"      => "mainModule",
-                "page_alias"     => $config->site->admin_tools_link,
-                "page_is_module" => 1,
-                "module_name"    => "admin"
+                'id'             => 0,
+                'prototype'      => 'mainModule',
+                'page_alias'     => $config->site->admin_tools_link,
+                'page_is_module' => 1,
+                'module_name'    => 'admin'
             );
 
         } else if (file_exists(APPLICATION
-            . "modules/" . $moduleName . "/autoloaded")) {
+            . 'modules/' . $moduleName . '/autoloaded')) {
 
             $loadedPage = array(
-                "id"             => 0,
-                "prototype"      => "mainModule",
-                "page_alias"     => "/" . $moduleName,
-                "page_is_module" => 1,
-                "module_name"    => $moduleName
+                'id'             => 0,
+                'prototype'      => 'mainModule',
+                'page_alias'     => '/' . $moduleName,
+                'page_is_module' => 1,
+                'module_name'    => $moduleName
             );
 
         } else {
 
-
             $excProtos = "'" . join("','", self::$exceptedPrototypes) . "'";
-            if (!$loadedPage = db::query("
-
-                SELECT id, prototype, page_alias, module_name,
+            if (!$loadedPage = db::query(
+                "SELECT id, prototype, page_alias, module_name,
                     IF(prototype = 'mainModule', 1, 0) page_is_module
                 FROM tree WHERE prototype NOT IN({$excProtos}) AND (
                     (page_alias = '%1\$s' AND prototype != 'mainModule')
@@ -122,12 +116,11 @@ abstract class router {
                 ) AND is_publish = 1
                     ORDER BY page_is_module ASC,
                         LENGTH(page_alias) ASC LIMIT 2", $requestURI
-
             )) {
 
                 throw new systemErrorException(
                     view::$language->error,
-                        view::$language->page_not_found
+                    view::$language->page_not_found
                 );
 
             }
@@ -135,15 +128,16 @@ abstract class router {
             $siblingsKey = 0;
             if (sizeof($loadedPage) > 1) {
                 foreach ($loadedPage as $siblingsKey => $item) {
-                    if ($item['page_is_module']) break;
+                    if ($item['page_is_module']) {
+                        break;
+                    }
                 }
             }
             $loadedPage = $loadedPage[$siblingsKey];
 
-
         }
 
-        $rejectedLevel = substr_count($loadedPage['page_alias'], "/");
+        $rejectedLevel = substr_count($loadedPage['page_alias'], '/');
         self::$params  = array_slice(self::$params, $rejectedLevel);
 
         self::loadPageData($loadedPage);
@@ -152,20 +146,19 @@ abstract class router {
             if (!$loadedPage['module_name']) {
                 throw new systemErrorException(
                     view::$language->error,
-                        view::$language->module_not_enabled
+                    view::$language->module_not_enabled
                 );
             }
 
-            $path = self::isAdmin() ? "" : "modules/";
+            $path = self::isAdmin() ? '' : 'modules/';
             self::loadModule(
-                APPLICATION . $path . $loadedPage['module_name'] . "/",
-                    $loadedPage['module_name']
+                APPLICATION . $path . $loadedPage['module_name'] . '/',
+                $loadedPage['module_name']
             );
 
         }
 
-        storage::write("nodeID", $loadedPage['id']);
-
+        storage::write('nodeID', $loadedPage['id']);
 
     }
 
@@ -176,27 +169,23 @@ abstract class router {
 
     private static function loadPageData($loadedPage) {
 
-
         $config  = app::config();
-
         $pagePrototype   = new $loadedPage['prototype'];
-        $prototypeFields = join(",d.", $pagePrototype->getPublicFields());
+        $prototypeFields = join(',d.', $pagePrototype->getPublicFields());
 
         $pageData = db::normalizeQuery(
-
             "SELECT d.{$prototypeFields}, u1.id author_id,
-                u1.login author_name, u2.id modifier_id,
+                    u1.login author_name, u2.id modifier_id,
                     u2.login modifier_name,
-                        IF(i.name IS NOT NULL,i.name,'no-image.png') image
-
-                FROM tree d LEFT JOIN users u1 ON u1.id = d.author
-                    LEFT JOIN users u2 ON u2.id = d.modified_author
-                    LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
-                        WHERE d.id = %u", $loadedPage['id']
-
+                    IF(i.name IS NOT NULL,i.name,'no-image.png') image
+                FROM tree d
+                LEFT JOIN users u1 ON u1.id = d.author
+                LEFT JOIN users u2 ON u2.id = d.modified_author
+                LEFT JOIN images i ON i.node_id = d.id AND i.is_master = 1
+                WHERE d.id = %u", $loadedPage['id']
         );
 
-        $pm = "permanent_redirect";
+        $pm = 'permanent_redirect';
         if (array_key_exists($pm, $pageData) and $pageData[$pm]) {
             request::redirect($pageData[$pm]);
         }
@@ -204,10 +193,9 @@ abstract class router {
         $pageData = array_merge($pageData, $loadedPage);
         view::assign($pageData);
 
-        if (array_key_exists("layout", $pageData)) {
-            view::setLayout("public/" . $pageData['layout']);
+        if (array_key_exists('layout', $pageData)) {
+            view::setLayout('public/' . $pageData['layout']);
         }
-
 
     }
 
@@ -219,20 +207,19 @@ abstract class router {
 
     public static function loadModule($path, $module) {
 
-
         if (self::getParamsCount() > 2) {
             throw new systemErrorException(
-                "Load module error", "Request of parameters too long"
+                'Load module error', 'Request of parameters too long'
             );
         }
 
-        node::loadController($path . "{$module}.php", $module);
+        node::loadController($path . $module . '.php', $module);
         utils::checkPermissionAccess($module, null);
 
         if (self::getParamsCount() > 0) {
 
             $subModule = self::getParam();
-            $controller = "{$path}controllers/{$subModule}.php";
+            $controller = $path . 'controllers/' . $subModule . '.php';
 
             if (file_exists($controller) and !is_dir($controller)) {
                 node::loadController($controller, $subModule);
@@ -251,7 +238,6 @@ abstract class router {
 
         self::executeAction($target);
 
-
     }
 
 
@@ -261,24 +247,24 @@ abstract class router {
 
     private static function executeAction($controller) {
 
-
         $action = router::shiftParam();
         if (self::isDenyAction($action)) {
             throw new systemErrorException(
-                "Execute action error", "Public action $action of controller "
-                    . "$controller set is denied"
+                'Execute action error',
+                'Public action ' . $action
+                    . ' of controller ' . $controller . ' set is denied'
             );
         }
 
-        if ($action == "index") {
+        if ($action == 'index') {
             throw new systemErrorException(
-                "Execute action error",
-                    "Action index of controller $controller is denied"
+                'Execute action error',
+                'Action index of controller ' . $controller . ' is denied'
             );
         }
 
         if (is_null($action)) {
-            $action = "index";
+            $action = 'index';
         }
 
         $argument = null;
@@ -287,7 +273,6 @@ abstract class router {
 
         node::call($controller)->{$action}($args);
         node::call($controller)->runAfter();
-
 
     }
 
@@ -389,7 +374,7 @@ abstract class router {
     private static function normalize($name) {
 
         return !$name ? null : str_replace(
-            array("_", "-", "."), array(md5(microtime(true)), "_", "_"), $name
+            array('_', '-', '.'), array(md5(microtime(true)), '_', '_'), $name
         );
 
     }

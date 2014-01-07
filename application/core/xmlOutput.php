@@ -23,7 +23,6 @@ abstract class xmlOutput {
 
     public static function buildXMLString($data, $schema, $docType) {
 
-
         if ($docType === null) {
             self::$xmlDOM = new DOMDocument("1.0", "utf-8");
         } else {
@@ -34,7 +33,7 @@ abstract class xmlOutput {
             );
 
             self::$xmlDOM = $imp->createDocument("", "", $dtd);
-            self::$xmlDOM->encoding = "utf-8";
+            self::$xmlDOM->encoding = 'utf-8';
 
         }
 
@@ -42,12 +41,12 @@ abstract class xmlOutput {
         self::$xmlDOM->substituteEntities = true;
 
         $mainAttributes = array();
-        if(array_key_exists("attributes", $schema)) {
+        if(array_key_exists('attributes', $schema)) {
             $mainAttributes = $schema['attributes'];
         }
 
         if (sizeof($data) > 1) {
-            $data = array("response" => $data);
+            $data = array('response' => $data);
         }
 
         self::createXmlChildren(
@@ -55,7 +54,6 @@ abstract class xmlOutput {
         );
 
         return self::$xmlDOM->saveXML();
-
 
     }
 
@@ -67,7 +65,6 @@ abstract class xmlOutput {
     private static function createXmlChildren(
         & $data, & $parentNode, & $parentSchema, $schemaElements = null) {
 
-
         if (is_array($data)) {
 
             $dataLength = sizeof($data);
@@ -77,10 +74,10 @@ abstract class xmlOutput {
                 $isNumericItems   = true;
 
                 $currentSchema = array(
-                    "name"       => "item",
-                    "attributes" => array(),
-                    "attrvalues" => array(),
-                    "repeat"     => false
+                    'name'       => 'item',
+                    'attributes' => array(),
+                    'attrvalues' => array(),
+                    'repeat'     => false
                 );
 
                 if (!validate::isNumber($key)) {
@@ -116,7 +113,7 @@ abstract class xmlOutput {
                 if (is_array($value)) {
 
                     $childrenSchema = null;
-                    if (array_key_exists("children", $currentSchema)) {
+                    if (array_key_exists('children', $currentSchema)) {
                         $childrenSchema = $currentSchema['children'];
                     }
 
@@ -156,24 +153,22 @@ abstract class xmlOutput {
 
                     if (is_object($value) or is_resource($value)) {
                         throw new systemErrorException(
-                            "Schema XML error",
-                                "Value of schema element is not string"
+                            'Schema XML error',
+                            'Value of schema element is not string'
                         );
                     }
 
                     $isParentAttributeSet = false;
                     foreach ($parentSchema['attributes'] as $k => $attribute) {
-
                         if ($currentSchema['name'] == $attribute['name']) {
                             $parentSchema['attrvalues'][$attribute['name']]
                                 = $value;
                             $isParentAttributeSet = true;
                         }
-
                     }
 
                     $acceptValue = (!is_bool($value)
-                        and $value !== "" and $value !== null);
+                        and $value !== '' and $value !== null);
 
                     if (!$isParentAttributeSet and $acceptValue) {
 
@@ -212,7 +207,6 @@ abstract class xmlOutput {
 
         }
 
-
     }
 
 
@@ -222,7 +216,7 @@ abstract class xmlOutput {
 
     private static function setElementAttributes( & $element, & $data) {
 
-        if (array_key_exists("attributes", $data)) {
+        if (array_key_exists('attributes', $data)) {
 
             foreach ($data['attributes'] as $attribute) {
 
@@ -235,7 +229,7 @@ abstract class xmlOutput {
                 // custom value from data
                 } else if ($value === false) {
                     if (array_key_exists($name, $data['attrvalues'])) {
-                        if ($data['attrvalues'][$name] != "") {
+                        if ($data['attrvalues'][$name] != '') {
                             $element->setAttribute(
                                 $name, $data['attrvalues'][$name]
                             );

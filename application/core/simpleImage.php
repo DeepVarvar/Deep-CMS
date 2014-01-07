@@ -22,9 +22,9 @@ class simpleImage {
     public static function typeToExtension($type) {
 
         $allowedTypes = array(
-            IMAGETYPE_GIF  => "gif",
-            IMAGETYPE_JPEG => "jpg",
-            IMAGETYPE_PNG  => "png"
+            IMAGETYPE_GIF  => 'gif',
+            IMAGETYPE_JPEG => 'jpg',
+            IMAGETYPE_PNG  => 'png'
         );
 
         if (array_key_exists($type, $allowedTypes)) {
@@ -40,12 +40,11 @@ class simpleImage {
 
     public function __construct($file) {
 
-
         if(is_file($file)) {
 
             if (!$info = getimagesize($file)) {
                 throw new systemErrorException(
-                    "Load image error", "File is not image"
+                    'Load image error', 'File is not image'
                 );
             }
 
@@ -82,7 +81,7 @@ class simpleImage {
 
                 default:
                     throw new systemErrorException(
-                        "Load image error", "Unsupported image format"
+                        'Load image error', 'Unsupported image format'
                     );
                 break;
 
@@ -93,7 +92,6 @@ class simpleImage {
 
         }
 
-
     }
 
 
@@ -101,8 +99,8 @@ class simpleImage {
      * save image file
      */
 
-    public function save($file, $permissions = 0664,
-                            $quality = 100, $type = null) {
+    public function save(
+                $file, $permissions = 0664, $quality = 100, $type = null) {
 
         if(!$type) {
             $type = $this->type;
@@ -126,7 +124,7 @@ class simpleImage {
 
             default:
                 throw new systemErrorException(
-                    "Save image error", "Unsupported image format"
+                    'Save image error', 'Unsupported image format'
                 );
             break;
 
@@ -151,19 +149,19 @@ class simpleImage {
         switch ($type) {
 
             case IMAGETYPE_JPEG:
-                request::addHeader("Content-Type: image/jpeg");
+                request::addHeader('Content-Type: image/jpeg');
                 request::sendHeaders();
                 imagejpeg($this->image);
             break;
 
             case IMAGETYPE_GIF:
-                request::addHeader("Content-Type: image/gif");
+                request::addHeader('Content-Type: image/gif');
                 request::sendHeaders();
                 imagegif($this->image);
             break;
 
             case IMAGETYPE_PNG:
-                request::addHeader("Content-Type: image/x-png");
+                request::addHeader('Content-Type: image/x-png');
                 request::sendHeaders();
                 imagealphablending($this->image, false);
                 imagesavealpha($this->image, true);
@@ -172,7 +170,7 @@ class simpleImage {
 
             default:
                 throw new systemErrorException(
-                    "Flush image error", "Unsupported image format"
+                    'Flush image error', 'Unsupported image format'
                 );
             break;
 

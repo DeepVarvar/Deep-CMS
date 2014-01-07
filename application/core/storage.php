@@ -12,7 +12,7 @@ abstract class storage {
      * storage key of session array
      */
 
-    protected static $storageKey = "__storage";
+    protected static $storageKey = '__storage';
 
 
     /**

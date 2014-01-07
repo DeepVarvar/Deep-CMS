@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * pagination class
  */
@@ -14,57 +13,54 @@ class paginator {
      */
 
     private static $empty = array(
-        "number_of_items" => 0,
-        "number_of_pages" => 1,
-        "current_page"    => 1,
-        "items"           => array(),
-        "pages"           => array(array("number" => 1, "current" => true))
+        'number_of_items' => 0,
+        'number_of_pages' => 1,
+        'current_page' => 1,
+        'items' => array(),
+        'pages' => array(array('number' => 1, 'current' => true))
     );
 
 
-    private
+    /**
+     * source query of pages without limits
+     */
+
+    private $sourceQuery = null;
 
 
-        /**
-         * source query of pages without limits
-         */
+    /**
+     * source query of count items
+     */
 
-        $sourceQuery = null,
-
-
-        /**
-         * source query of count items
-         */
-
-        $countQuery = null,
+    private $countQuery = null;
 
 
-        /**
-         * number of items per page
-         */
+    /**
+     * number of items per page
+     */
 
-        $itemsPerPage = 10,
-
-
-        /**
-         * slice size by pages
-         */
-
-        $sliceSizeByPages = 10,
+    private $itemsPerPage = 10;
 
 
-        /**
-         * number of current page
-         */
+    /**
+     * slice size by pages
+     */
 
-        $currentPage = 1,
+    private $sliceSizeByPages = 10;
 
 
-        /**
-         * output result
-         */
+    /**
+     * number of current page
+     */
 
-        $result = null;
+    private $currentPage = 1;
+
+
+    /**
+     * output result
+     */
+
+    private $result = null;
 
 
     /**
@@ -82,10 +78,9 @@ class paginator {
 
     public function __construct($sourceQuery) {
 
-        $sourceQuery = str_replace("%", "%%", $sourceQuery);
+        $sourceQuery = str_replace('%', '%%', $sourceQuery);
         $this->sourceQuery = $sourceQuery;
         $this->countQuery  = $sourceQuery;
-
         $this->result = self::$empty;
         return $this;
 
@@ -100,13 +95,13 @@ class paginator {
 
         if (!validate::isNumber($number)) {
             throw new systemErrorException(
-                "Pagination error", "Current page is not number"
+                'Pagination error', 'Current page is not number'
             );
         }
 
         if ($number == 0) {
             throw new systemErrorException(
-                "Pagination error", "Current page can't be zero"
+                'Pagination error', "Current page can't be zero"
             );
         }
 
@@ -124,13 +119,13 @@ class paginator {
 
         if (!validate::isNumber($number)) {
             throw new systemErrorException(
-                "Pagination error", "Items per page is not number"
+                'Pagination error', 'Items per page is not number'
             );
         }
 
         if ($number == 0) {
             throw new systemErrorException(
-                "Pagination error", "Items per page can't be zero"
+                'Pagination error', "Items per page can't be zero"
             );
         }
 
@@ -148,13 +143,13 @@ class paginator {
 
         if (!validate::isNumber($number)) {
             throw new systemErrorException(
-                "Pagination error", "Slice size by pages is not number"
+                'Pagination error', 'Slice size by pages is not number'
             );
         }
 
         if ($number == 0) {
             throw new systemErrorException(
-                "Pagination error", "Slice size by pages can't be zero"
+                'Pagination error', "Slice size by pages can't be zero"
             );
         }
 
@@ -177,13 +172,12 @@ class paginator {
 
         if ($availableNumber < $this->currentPage) {
             throw new systemErrorException(
-                "Pagination error", "Current page is more maximum page number"
+                'Pagination error', 'Current page is more maximum page number'
             );
         }
 
         $this->getPages();
         $this->getItems();
-
         return $this->result;
 
     }
@@ -203,7 +197,7 @@ class paginator {
      */
 
     private function getNumberOfAllItems() {
-        $this->countQuery = "SELECT COUNT(1) cnt FROM ({$this->countQuery}) tmp_table";
+        $this->countQuery = 'SELECT COUNT(1) cnt FROM (' . $this->countQuery . ') tmp_table';
         $this->result['number_of_items'] = db::cachedNormalizeQuery($this->countQuery);
     }
 
@@ -236,7 +230,7 @@ class paginator {
 
         foreach ($pagesRange as $item) {
             if ($item > 0 and $item <= $this->result['number_of_pages']) {
-                $page = array("number" => $item, "current" => ($item == $this->currentPage));
+                $page = array('number' => $item, 'current' => ($item == $this->currentPage));
                 array_push($this->result['pages'], $page);
             }
         }
@@ -252,13 +246,12 @@ class paginator {
 
         $offset = ($this->currentPage - 1) * $this->itemsPerPage;
         $this->result['items'] = db::query(
-            "{$this->sourceQuery} LIMIT {$offset}, {$this->itemsPerPage}"
+            $this->sourceQuery . ' LIMIT ' . $offset . ',' . $this->itemsPerPage
         );
 
     }
 
 
 }
-
 
 

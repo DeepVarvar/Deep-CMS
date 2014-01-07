@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * member success exception type
  */
@@ -9,7 +8,7 @@
 class memberSuccessException extends memberException {
 
 
-    protected $type = "success";
+    protected $type = 'success';
 
 
     /**
@@ -25,6 +24,5 @@ class memberSuccessException extends memberException {
 
 
 }
-
 
 

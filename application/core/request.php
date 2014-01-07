@@ -9,49 +9,46 @@
 abstract class request {
 
 
-    protected static
+    /**
+     * full URL, with $_GET parameters
+     */
+
+    protected static $rawURL = null;
 
 
-        /**
-         * full URL, with $_GET parameters
-         */
+    /**
+     * only URI, without $_GET parameters
+     */
 
-        $rawURL = null,
-
-
-        /**
-         * only URI, without $_GET parameters
-         */
-
-        $uri = "/",
+    protected static $uri = '/';
 
 
-        /**
-         * $_GET parameters
-         */
+    /**
+     * $_GET parameters
+     */
 
-        $params = array(),
-
-
-        /**
-         * current page number
-         */
-
-        $currentPage = null,
+    protected static $params = array();
 
 
-        /**
-         * stack of responsed headers
-         */
+    /**
+     * current page number
+     */
 
-        $headers = array(),
+    protected static $currentPage = null;
 
 
-        /**
-         * client info
-         */
+    /**
+     * stack of responsed headers
+     */
 
-        $client = array();
+    protected static $headers = array();
+
+
+    /**
+     * client info
+     */
+
+    protected static $client = array();
 
 
     /**
@@ -60,21 +57,16 @@ abstract class request {
 
     public static function init() {
 
-
-        /**
-         * block prefetch requests
-         */
-
         if (app::config()->system->block_prefetch_requests
                 and isset($_SERVER['HTTP_X_MOZ'])
-                and $_SERVER['HTTP_X_MOZ'] == "prefetch") {
+                and $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
 
-	        self::addHeader("HTTP/1.1 403 Prefetching Forbidden");
-	        self::addHeader("Expires: Thu, 21 Jul 1977 07:30:00 GMT");
-	        self::addHeader("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-	        self::addHeader("Cache-Control: post-check=0, pre-check=0", false);
-	        self::addHeader("Pragma: no-cache");
-
+            self::$headers = array();
+	        self::addHeader('HTTP/1.1 403 Prefetching Forbidden');
+	        self::addHeader('Expires: Thu, 21 Jul 1977 07:30:00 GMT');
+	        self::addHeader('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	        self::addHeader('Cache-Control: post-check=0, pre-check=0');
+	        self::addHeader('Pragma: no-cache');
             self::sendHeaders();
 	        exit();
 
@@ -92,30 +84,30 @@ abstract class request {
          */
 
         if (strlen($_SERVER['REQUEST_URI']) > 2048) {
-            $_SERVER['REQUEST_URI'] = "";
+            $_SERVER['REQUEST_URI'] = '';
             throw new systemErrorException(
-                "Request error", "Request string too long"
+                'Request error', 'Request string too long'
             );
         }
 
         // base64
-        if (stristr($_SERVER['REQUEST_URI'], "data:")) {
+        if (stristr($_SERVER['REQUEST_URI'], 'data:')) {
             throw new systemErrorException(
-                "Request error", "Base64 data found on request URI"
+                'Request error', 'Base64 data found on request URI'
             );
         }
 
         // double slash
-        if (strstr($_SERVER['REQUEST_URI'], "//")) {
+        if (strstr($_SERVER['REQUEST_URI'], '//')) {
             throw new systemErrorException(
-                "Request error", "Double slash found on request URI"
+                'Request error', 'Double slash found on request URI'
             );
         }
 
         // bad spaces
-        if (preg_match("/(%20)+$/", $_SERVER['REQUEST_URI'])) {
+        if (preg_match('/(%20)+$/', $_SERVER['REQUEST_URI'])) {
             throw new systemErrorException(
-                "Request error", "Bad spaces on request URI"
+                'Request error', 'Bad spaces on request URI'
             );
         }
 
@@ -126,7 +118,7 @@ abstract class request {
          */
 
         $source = $_SERVER['REQUEST_URI'];
-        $_SERVER['REQUEST_URI'] = "";
+        $_SERVER['REQUEST_URI'] = '';
         $_GET = array();
 
 
@@ -136,18 +128,12 @@ abstract class request {
          */
 
         $destination = rtrim(
-            preg_replace("/([^\/=\?&]+)\/(\?)/", "$1$2", $source), "/"
+            preg_replace('/([^\/=\?&]+)\/(\?)/', '$1$2', $source), '/'
         );
 
-
-        /**
-         * destination empty fix
-         */
-
         if (!$destination) {
-            $destination = "/";
+            $destination = '/';
         }
-
         if ($destination != $source) {
             self::redirect($destination);
         }
@@ -165,22 +151,22 @@ abstract class request {
          */
 
         $parts = array();
-        $mca = "\/(?P<mca>[^\/=\?&]+(?:(?:\/[^\/=\?&]+)+)?)?";
-        $gp  = "(?:\?(?P<gp>[^\/=\?&]+(?:=[^\/=\?&]*)"
-                    . "?(?:(?:&[^\/=\?&]+(?:=[^\/=\?&]*)?)+)?))?";
+        $mca   = '\/(?P<mca>[^\/=\?&]+(?:(?:\/[^\/=\?&]+)+)?)?';
+        $gp    = '(?:\?(?P<gp>[^\/=\?&]+(?:=[^\/=\?&]*)';
+        $gp   .= '?(?:(?:&[^\/=\?&]+(?:=[^\/=\?&]*)?)+)?))?';
 
-        if (!preg_match("/^{$mca}{$gp}$/u", $destination, $parts)) {
+        if (!preg_match('/^' . $mca . $gp . '$/u', $destination, $parts)) {
             throw new systemErrorException(
-                "Request error", "Broken query string format"
+                'Request error', 'Broken query string format'
             );
         }
 
         if (!isset($parts['mca'])) {
-            $parts['mca'] = "";
+            $parts['mca'] = '';
         }
 
         $withoutFirstPage = preg_replace(
-            "/^(.+)(?:(?:page=1&(.+))|(?:\?|&)page=1$)/", "$1$2", $destination
+            '/^(.+)(?:(?:page=1&(.+))|(?:\?|&)page=1$)/', '$1$2', $destination
         );
 
         if ($withoutFirstPage != $destination) {
@@ -188,9 +174,9 @@ abstract class request {
         }
 
         self::$rawURL = $destination;
-        self::$uri = "/" . $parts['mca'];
+        self::$uri = '/' . $parts['mca'];
 
-        foreach (explode("/", $parts['mca']) as $param) {
+        foreach (explode('/', $parts['mca']) as $param) {
             router::pushParam(rawurldecode($param));
         }
 
@@ -199,56 +185,48 @@ abstract class request {
         }
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            view::setOutputContext("json");
+            view::setOutputContext('json');
         }
-
 
     }
 
 
     /**
      * store GET parameters only as STRING!
+     * you known parse_str and parse_url functions?
+     * but it's broken functions for SEO optimization,
+     * need correct stored GET params
      */
 
     public static function storeGETParams($str) {
 
-
-        /**
-         * you known parse_str and parse_url functions?
-         * but it's broken functions for SEO optimization,
-         * need correct stored GET params
-         */
-
-        $params = explode("&", $str);
+        $params = explode('&', $str);
         if (!$params) $params = array();
 
         foreach ($params as $param) {
 
-            @ list($key, $value) = explode("=", $param);
-            $key = rawurldecode($key);
-
-            if (!$key) {
+            @ list($key, $value) = explode('=', $param);
+            if (!$key = rawurldecode($key)) {
                 throw new systemErrorException(
-                    "Request error", "GET key is empty"
+                    'Request error', 'GET key is empty'
                 );
             }
 
-            if (preg_match("/^(.+)\[(.*)\]$/u", $key)) {
+            if (preg_match('/^(.+)\[(.*)\]$/u', $key)) {
                 throw new systemErrorException(
-                    "Request error", "GET key is array"
+                    'Request error', 'GET key is array'
                 );
             }
 
             if (isset(self::$params[$key])) {
                 throw new systemErrorException(
-                    "Request error", "Duplicate GET keys"
+                    'Request error', 'Duplicate GET keys'
                 );
             }
 
             self::$params[$key] = isset($value) ? rawurldecode($value) : true;
 
         }
-
 
     }
 
@@ -298,21 +276,21 @@ abstract class request {
     public static function identifyClient() {
 
         $keys = array(
-            "HTTP_USER_AGENT",
-            "HTTP_REFERER",
-            "HTTP_ACCEPT",
-            "HTTP_ACCEPT_LANGUAGE",
-            "HTTP_ACCEPT_ENCODING"
+            'HTTP_USER_AGENT',
+            'HTTP_REFERER',
+            'HTTP_ACCEPT',
+            'HTTP_ACCEPT_LANGUAGE',
+            'HTTP_ACCEPT_ENCODING'
         );
 
         foreach ($keys as $v) {
             self::$client[$v] = isset($_SERVER[$v])
-                ? $_SERVER[$v] : "[no match]";
+                ? $_SERVER[$v] : '[no match]';
         }
 
-        $hcip = getenv("HTTP_CLIENT_IP");
-        $hxff = getenv("HTTP_X_FORWARDED_FOR");
-        $radd = getenv("REMOTE_ADDR");
+        $hcip = getenv('HTTP_CLIENT_IP');
+        $hxff = getenv('HTTP_X_FORWARDED_FOR');
+        $radd = getenv('REMOTE_ADDR');
 
         if ($hcip) {
             $ip = $hcip;
@@ -322,7 +300,7 @@ abstract class request {
             $ip = false;
         }
 
-        self::$client['IP'] = (!$ip or $ip == "unknown") ? $radd : $ip;
+        self::$client['IP'] = (!$ip or $ip == 'unknown') ? $radd : $ip;
 
     }
 
@@ -333,12 +311,11 @@ abstract class request {
 
     public static function validateReferer($referer, $useExpression = false) {
 
-
         $c = app::config();
         $status = true;
 
         $currentReferer = isset($_SERVER['HTTP_REFERER'])
-            ? strip_tags($_SERVER['HTTP_REFERER']) : "";
+            ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 
 
         /**
@@ -346,14 +323,15 @@ abstract class request {
          * even when it's there..
          */
 
-        $c->site->domain = preg_replace("/^www\./", "", $c->site->domain);
-        $currentReferer = preg_replace("/(\/\/)www\./", "$1", $currentReferer);
+        $c->site->domain = preg_replace('/^www\./', '', $c->site->domain);
+        $currentReferer = preg_replace('/(\/\/)www\./', '$1', $currentReferer);
 
         if (!$useExpression) {
-            $ref = "{$c->site->protocol}://{$c->site->domain}{$referer}";
+            $ref = $c->site->protocol . '://' . $c->site->domain . $referer;
             $status = ($ref === $currentReferer);
         } else {
-            $ref = "#{$c->site->protocol}://{$c->site->domain}{$referer}#";
+            $ref = '#' . $c->site->protocol . '://'
+                . $c->site->domain . $referer . '#';
             $status = (preg_match($ref, $currentReferer));
         }
 
@@ -362,7 +340,6 @@ abstract class request {
                 view::$language->error, view::$language->referer_invalid_or_csrf
             );
         }
-
 
     }
 
@@ -445,17 +422,17 @@ abstract class request {
             if ($currentPage !== null) {
                 if (!validate::isNumber($currentPage)) {
                     throw new systemErrorException(
-                        "Request error", "Current page is not number"
+                        'Request error', 'Current page is not number'
                     );
                 }
-                if ($currentPage === "0") {
+                if ($currentPage === '0') {
                     throw new systemErrorException(
-                        "Request error", "Current page is can't be zero"
+                        'Request error', "Current page is can't be zero"
                     );
                 }
             }
 
-            self::$currentPage = $currentPage ? request::shiftParam("page") : 1;
+            self::$currentPage = $currentPage ? request::shiftParam('page') : 1;
 
         }
 
@@ -492,19 +469,11 @@ abstract class request {
 
     public static function redirect($destination) {
 
-
-        /**
-         * clean headers stack
-         * send oly redirection headers
-         * exit from application
-         */
-
         self::$headers = array();
-        self::addHeader("HTTP/1.1 301 Moved Permanently");
-        self::addHeader("Location: $destination");
+        self::addHeader('HTTP/1.1 301 Moved Permanently');
+        self::addHeader('Location: $destination');
         self::sendHeaders();
         exit();
-
 
     }
 
@@ -538,7 +507,7 @@ abstract class request {
         $check = app::config()->site->check_unused_params;
         if ($check and (router::getParamsCount() or self::$params)) {
             throw new systemErrorException(
-                "Request error", "Request string have unused parameters"
+                'Request error', 'Request string have unused parameters'
             );
         }
 

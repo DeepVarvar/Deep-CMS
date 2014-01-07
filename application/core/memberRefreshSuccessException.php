@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * member success exception with show message
  */
@@ -9,8 +8,8 @@
 class memberRefreshSuccessException extends systemException {
 
 
-    protected $type = "success";
-    protected $expects = array("title", "message", "refresh_location");
+    protected $type = 'success';
+    protected $expects = array('title', 'message', 'refresh_location');
 
 
     /**
@@ -26,6 +25,5 @@ class memberRefreshSuccessException extends systemException {
 
 
 }
-
 
 

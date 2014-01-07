@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * member environment class,
  * permission, profile, language
@@ -10,56 +9,53 @@
 abstract class member {
 
 
-    protected static
+    /**
+     * main working cache storage key
+     */
+
+    protected static $storageKey = '__member_cache';
 
 
-        /**
-         * main working cache storage key
-         */
+    /**
+     * default member profile
+     *
+     * status:
+     *
+     * 0 - free
+     * 1 - readonly
+     * 2 - banned
+     * 3 - not confirm from email (not exists, like deleted)
+     *
+     * language and member name set only after init,
+     * because the value of language is not yet known,
+     * may be member name will be the "Guest" with selected language
+     */
 
-        $storageKey = "__member_cache",
+    protected static $profile = array(
 
+        'auth'           => false,
+        'hash'           => null,
+        'id'             => null,
+        'is_protected'   => 0,
+        'group_id'       => null,
+        'group_priority' => 1001,
+        'status'         => 0,
+        'language'       => null,
+        'timezone'       => null,
+        'login'          => null,
+        'email'          => null,
+        'password'       => null,
+        'avatar'         => null
 
-        /**
-         * default member profile
-         *
-         * status:
-         *
-         * 0 - free
-         * 1 - readonly
-         * 2 - banned
-         * 3 - not confirm from email (not exists, like deleted)
-         *
-         * language and member name set only after init,
-         * because the value of language is not yet known,
-         * may be member name will be the "Guest" with selected language
-         */
-
-        $profile = array(
-
-            "auth"           => false,
-            "hash"           => null,
-            "id"             => null,
-            "is_protected"   => 0,
-            "group_id"       => null,
-            "group_priority" => 1001,
-            "status"         => 0,
-            "language"       => null,
-            "timezone"       => null,
-            "login"          => null,
-            "email"          => null,
-            "password"       => null,
-            "avatar"         => null
-
-        ),
+    );
 
 
-        /**
-         * default member permissions
-         * empty array denied from all delegated actions
-         */
+    /**
+     * default member permissions
+     * empty array denied from all delegated actions
+     */
 
-        $permissions = array();
+    protected static $permissions = array();
 
 
     /**
@@ -76,11 +72,11 @@ abstract class member {
         self::$profile['timezone'] = $config->site->default_timezone;
         self::$profile['language'] = $config->site->default_language;
         self::$profile['login']    = view::$language->guest;
-        self::$profile['avatar']   = "no-avatar.png";
+        self::$profile['avatar']   = 'no-avatar.png';
 
         switch (true) {
 
-            case isset($_COOKIE["{$config->system->session_name}member"]):
+            case isset($_COOKIE[$config->system->session_name . 'member']):
                 self::cookieAuth();
             break;
 
@@ -117,15 +113,15 @@ abstract class member {
 
         $password = helper::getHash((string) $_POST['password']);
         if (!$member = db::normalizeQuery(
-
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
-                u.login, u.avatar, u.email, u.password, u.working_cache,
-                    g.is_protected, g.priority group_priority FROM users u
-                        LEFT JOIN groups g ON g.id = u.group_id
-                            WHERE (u.login = '%1\$s' OR u.email = '%1\$s')
-                                AND u.status < 3 AND u.password = '%2\$s'
-                                    LIMIT 1", $login, $password
-
+                    u.login, u.avatar, u.email, u.password, u.working_cache,
+                    g.is_protected, g.priority group_priority
+                FROM users u
+                LEFT JOIN groups g
+                    ON g.id = u.group_id
+                WHERE (u.login = '%1\$s' OR u.email = '%1\$s')
+                    AND u.status < 3 AND u.password = '%2\$s'
+                LIMIT 1", $login, $password
         )) {
             return false;
         }
@@ -142,7 +138,6 @@ abstract class member {
 
     private static function setData($data) {
 
-
         foreach (array_keys(self::$profile) as $k) {
             if (array_key_exists($k, $data)) {
                 self::$profile[$k] = $data[$k];
@@ -154,14 +149,14 @@ abstract class member {
 
         self::setPermissions();
         storage::write(
-            "__member_cache", json_decode($data['working_cache'], true)
+            '__member_cache', json_decode($data['working_cache'], true)
         );
 
         $c = app::config();
         if ($c->system->cookie_expires_time >= 2147483646) {
             throw new systemErrorException(
                 view::$language->error,
-                    view::$language->cookie_expires_is_too_long
+                view::$language->cookie_expires_is_too_long
             );
         }
 
@@ -169,14 +164,13 @@ abstract class member {
         if ($featureTime >= 2147483646) {
             throw new systemErrorException(
                 view::$language->error,
-                    view::$language->cookie_expires_is_too_long
+                view::$language->cookie_expires_is_too_long
             );
         }
 
         setcookie(
-            "{$c->system->session_name}member",
-                self::$profile['hash'],
-                    $featureTime, "/"
+            $c->system->session_name . 'member',
+                self::$profile['hash'], $featureTime, '/'
         );
 
 
@@ -194,7 +188,6 @@ abstract class member {
 
         view::setLanguage(self::$profile['language']);
 
-
     }
 
 
@@ -206,8 +199,12 @@ abstract class member {
 
         $p = self::$profile;
         return helper::getHash(
-            $p['id'] . $p['login'] . $p['password'] . $p['group_id']
-                . $p['group_priority'] . $p['email']
+            $p['id']
+                . $p['login']
+                . $p['password']
+                . $p['group_id']
+                . $p['group_priority']
+                . $p['email']
         );
 
     }
@@ -221,9 +218,10 @@ abstract class member {
 
         if (self::$profile['group_id'] !== null) {
             self::$permissions = db::query(
-                "SELECT p.name FROM permissions p, group_permissions gp
-                    WHERE p.id = gp.permission_id AND gp.group_id = %u",
-                        self::$profile['group_id']
+                'SELECT p.name
+                    FROM permissions p, group_permissions gp
+                    WHERE p.id = gp.permission_id AND gp.group_id = %u',
+                    self::$profile['group_id']
             );
         }
 
@@ -236,19 +234,17 @@ abstract class member {
 
     private static function cookieAuth() {
 
+        $sessionName = app::config()->system->session_name . 'member';
         if (!$member = db::normalizeQuery(
-
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
-                u.login, u.avatar, u.email, u.password, u.working_cache,
-                    g.is_protected, g.priority group_priority FROM users u
-                        LEFT JOIN groups g ON g.id = u.group_id
-                            WHERE u.hash = '%s' AND u.status < 3 LIMIT 1",
-
-                            htmlspecialchars(
-                                (string) $_COOKIE[app::config()
-                                    ->system->session_name . "member"]
-                            )
-
+                    u.login, u.avatar, u.email, u.password, u.working_cache,
+                    g.is_protected, g.priority group_priority
+                FROM users u
+                LEFT JOIN groups g
+                    ON g.id = u.group_id
+                WHERE u.hash = '%s'
+                    AND u.status < 3
+                LIMIT 1", htmlspecialchars((string) $_COOKIE[$sessionName])
         )) {
             self::flushLogout();
         }
@@ -264,19 +260,16 @@ abstract class member {
 
     public static function storeData() {
 
-        $memberCache = @ json_encode(storage::read("__member_cache"));
-        if (!$memberCache) {
-            $memberCache = "[]";
+        if (!$memberCache = @ json_encode(storage::read('__member_cache'))) {
+            $memberCache = '[]';
         }
 
         if (self::$profile['auth']) {
-
             db::set(
                 "UPDATE users SET last_visit = NOW(), last_ip = '%s',
-                   working_cache = '%s' WHERE id = %u", request::getClientIP(),
-                        $memberCache, self::$profile['id']
+                    working_cache = '%s' WHERE id = %u",
+                    request::getClientIP(), $memberCache, self::$profile['id']
             );
-
         }
 
     }
@@ -302,11 +295,9 @@ abstract class member {
 
     public static function setStorageData($key, $data) {
 
-        $cache = storage::read(self::$storageKey);
-        if (!$cache) {
+        if (!$cache = storage::read(self::$storageKey)) {
             $cache = array();
         }
-
         $cache[$key] = $data;
         storage::write(self::$storageKey, $cache);
 
@@ -318,12 +309,7 @@ abstract class member {
      */
 
     public static function logout() {
-
-        setcookie(
-            app::config()->system->session_name
-                . "member", "", -1, "/"
-        );
-
+        setcookie(app::config()->system->session_name . 'member', '', -1, '/');
     }
 
 
@@ -333,7 +319,7 @@ abstract class member {
 
     public static function flushLogout() {
         self::logout();
-        request::redirect("/");
+        request::redirect('/');
     }
 
 
@@ -396,7 +382,7 @@ abstract class member {
     public static function getPriority() {
 
         return self::$profile['group_priority'] !== null
-                ? self::$profile['group_priority'] : 1001;
+            ? self::$profile['group_priority'] : 1001;
 
     }
 
@@ -438,6 +424,5 @@ abstract class member {
 
 
 }
-
 
 

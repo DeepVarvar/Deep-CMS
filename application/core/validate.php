@@ -16,12 +16,12 @@ abstract class validate {
     public static function isNumber($value) {
 
         $value = (string) $value;
-        if ($value === "0") {
+        if ($value === '0') {
             return true;
         }
 
-        return (substr(trim($value), 0, 1) === "0")
-                    ? false : preg_match("/^\d+$/", $value);
+        return (substr(trim($value), 0, 1) === '0')
+                    ? false : preg_match('/^\d+$/', $value);
 
     }
 

@@ -14,14 +14,13 @@ abstract class textPlainOutput {
 
     public static function buildString($vars, $lastPad = 0) {
 
-
-        if (!is_array($vars)) {
+        if (!$vars) {
             $vars = array($vars);
         }
 
-        $output = "";
+        $output = '';
         $currentPad = self::getPadSize(array_keys($vars));
-        $leftPad = str_repeat(" ", $lastPad);
+        $leftPad = str_repeat(' ', $lastPad);
 
         foreach ($vars as $k => $v) {
 
@@ -29,8 +28,8 @@ abstract class textPlainOutput {
                 $v = (array) $v;
             }
 
-            $k = (validate::isNumber($k)) ? "" : ($k . ": ");
-            $output .= PHP_EOL . $leftPad . str_pad($k, $currentPad, " ", STR_PAD_RIGHT);
+            $k = (validate::isNumber($k)) ? '' : ($k . ': ');
+            $output .= PHP_EOL . $leftPad . str_pad($k, $currentPad, ' ', STR_PAD_RIGHT);
 
             if (is_array($v)) {
                 $output .= self::buildString($v, $currentPad);

@@ -8,33 +8,24 @@
 class systemException extends Exception {
 
 
-    protected
+    /**
+     * expected order of expected parameters
+     * and empty report
+     */
+
+    protected $expects = array('code', 'title', 'message');
+    protected $report  = array();
 
 
-        /**
-         * expected order of expected parameters
-         */
+    /**
+     * exception type, use for identify on client side,
+     * "system" value by default
+     */
 
-        $expects = array("code", "title", "message"),
-
-
-        /**
-         * empty report
-         */
-
-        $report = array(),
-
-
-        /**
-         * exception type, use for identify on client side,
-         * "system" value by default
-         */
-
-        $type = "system";
+    protected $type = 'system';
 
 
     public function __construct() {
-
 
         $args = func_get_args();
         $size = sizeof($args);
@@ -45,7 +36,7 @@ class systemException extends Exception {
         }
 
         if (!isset($this->report['title'])) {
-            $this->report['title'] = "Untitled exception";
+            $this->report['title'] = 'Untitled exception';
         }
 
         if (!isset($this->report['code'])) {
@@ -53,7 +44,7 @@ class systemException extends Exception {
         }
 
         if (!isset($this->report['message'])) {
-            $this->report['message'] = "[empty exception message]";
+            $this->report['message'] = '[empty exception message]';
         }
 
         $profile = member::getProfile();
@@ -62,20 +53,20 @@ class systemException extends Exception {
         $this->report['initiator'] = $profile['login'];
         $this->report['initiator_group_priority'] = $profile['group_priority'];
 
-        $this->report['datetime'] = date("Y-m-d H:i:s");
+        $this->report['datetime'] = date('Y-m-d H:i:s');
         $this->report['type'] = $this->type;
 
         $this->report['file']  = $this->file;
         $this->report['line']  = $this->line;
         $this->report['trace'] = parent::getTrace();
 
-        if (app::config()->system->write_log == "On") {
+        if (app::config()->system->write_log) {
             utils::writeLog(array_merge(
-                $this->report, request::getClientInfo(),
-                    array("url" => request::getOriginURL())
+                $this->report,
+                request::getClientInfo(),
+                array('url' => request::getOriginURL())
             ));
         }
-
 
     }
 
