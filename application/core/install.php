@@ -1,19 +1,16 @@
 <?php
 
 
-
 /**
  * exit for incorrect request on this script
  */
 
-if (!defined("APPLICATION")) {
+if (!defined('APPLICATION')) {
     exit();
 }
 
-
-ini_set("display_errors", "On");
-ini_set("html_errors", "On");
-
+ini_set('display_errors', 'On');
+ini_set('html_errors', 'On');
 error_reporting(E_ALL | E_STRICT);
 
 
@@ -22,7 +19,7 @@ error_reporting(E_ALL | E_STRICT);
  */
 
 set_include_path(
-    get_include_path() . PATH_SEPARATOR . APPLICATION . "layouts/admin/protected/"
+    get_include_path() . PATH_SEPARATOR . APPLICATION . 'layouts/admin/protected/'
 );
 
 
@@ -30,10 +27,10 @@ set_include_path(
  * start session installation environment
  */
 
-session_name("deepcms");
+session_name('deepcms');
 session_start();
 
-if (!array_key_exists("ins", $_SESSION)) {
+if (!array_key_exists('ins', $_SESSION)) {
     $_SESSION['ins'] = array();
     $_SESSION['ins']['report'] = array();
     $_SESSION['ins']['step'] = 1;
@@ -47,10 +44,9 @@ if (!array_key_exists("ins", $_SESSION)) {
 
 function getConfig() {
 
-    if (!array_key_exists("config", $_SESSION['ins'])) {
+    if (!array_key_exists('config', $_SESSION['ins'])) {
         $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/"},"application":{"name":"Deep-CMS","version":"2.114.395","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"layouts":{"parts":"parts\/","header":"parts\/header.html","footer":"parts\/footer.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
     }
-
     return $_SESSION['ins']['config'];
 
 }
@@ -308,9 +304,8 @@ CONFIGSTRING;
      * write content of configuration file
      */
 
-    $configFile = APPLICATION . "config/main.json";
+    $configFile = APPLICATION . 'config/main.json';
     file_put_contents($configFile, $configString, LOCK_EX);
-
 
 }
 
@@ -320,7 +315,6 @@ CONFIGSTRING;
  */
 
 function getInstallationQueryString($prefix = "") {
-
 
     return <<<INSTALLATIONSTRING
 
@@ -578,7 +572,6 @@ function getInstallationQueryString($prefix = "") {
 
 INSTALLATIONSTRING;
 
-
 }
 
 
@@ -586,8 +579,7 @@ INSTALLATIONSTRING;
  * get extended data installation query string
  */
 
-function getExtendedQueryString($prefix = "") {
-
+function getExtendedQueryString($prefix = '') {
 
     return <<<EXTENDEDINSTALLATIONSTRING
 
@@ -613,7 +605,6 @@ function getExtendedQueryString($prefix = "") {
 
 EXTENDEDINSTALLATIONSTRING;
 
-
 }
 
 
@@ -623,15 +614,12 @@ EXTENDEDINSTALLATIONSTRING;
 
 function getLanguage($name) {
 
-    $lf = APPLICATION . "languages/{$name}/install.php";
+    $lf = APPLICATION . 'languages/' . $name . '/install.php';
     if (!file_exists($lf)) {
-
         throw new installException(
-            "Language error", "Language file $lf is not exists"
+            'Language error', 'Language file $lf is not exists'
         );
-
     }
-
     return (object) require $lf;
 
 }
@@ -651,10 +639,7 @@ function checkPhpVersion() {
  */
 
 function checkPath($path, $isDir = true) {
-
-    return (($isDir ? is_dir($path)
-        : file_exists($path)) and is_writable($path));
-
+    return (($isDir ? is_dir($path) : file_exists($path)) and is_writable($path));
 }
 
 
@@ -666,17 +651,13 @@ class installException extends Exception {
 
 
     private $report = array(
-
-        "title" => "Untitled exception",
-        "message" => ""
-
+        'title' => 'Untitled exception',
+        'message' => ''
     );
 
     public function __construct($title, $message) {
-
         $this->report['title'] = $title;
         $this->report['message'] = $message;
-
     }
 
     public function getReport() {
@@ -694,7 +675,7 @@ class installException extends Exception {
 class pseudoLanguage {
 
     public function __get($key) {
-        return "";
+        return '';
     }
 
 }
@@ -715,89 +696,75 @@ view::init();
 
 abstract class node {
 
+
     protected static $objects = array();
 
     public static function load($class) {
 
-
         if (!class_exists($class)) {
-
             throw new installException(
-                "Node initialization class error", "Class $class not found"
+                'Node initialization class error',
+                'Class ' . $class . ' not found'
             );
-
         }
 
         if (!isset(self::$objects[$class])) {
             self::$objects[$class] = new $class;
         }
 
-
     }
 
     public static function call($key) {
 
-
         if (!isset(self::$objects[$key])) {
-
             throw new installException(
-                "Node call to object error", "Object $key not found inside"
+                'Node call to object error',
+                'Object ' . $key . ' not found inside'
             );
-
         }
 
         return self::$objects[$key];
 
-
     }
 
     public static function loadClass($path, $className) {
-
 
         if (isset(self::$objects[$className])) {
             return;
         }
 
         if (!file_exists($path)) {
-
             throw new installException(
-                "Node load file error", "File $path not exists"
+                'Node load file error', 'File ' . $path . ' not exists'
             );
-
         }
 
         if (is_dir($path)) {
-
             throw new installException(
-                "Node load file error", "File $path is directory"
+                'Node load file error', 'File ' . $path . ' is directory'
             );
-
         }
 
         require_once $path;
         self::load($className);
 
-
     }
 
     public static function loadController($path, $controllerName) {
 
-
         self::loadClass($path, $controllerName);
         if (!(self::call($controllerName) instanceof baseController)) {
-
             throw new installException(
-                "Node load controller error",
-                    "Class $controllerName not instance of baseController"
+                'Node load controller error',
+                'Class ' . $controllerName . ' not instance of baseController'
             );
-
         }
 
         $controller = self::call($controllerName);
         $controller->setPermissions();
 
-
     }
+
 
 }
 
@@ -811,78 +778,61 @@ abstract class db {
 
     private static $mysqli = null;
 
-
     public static function connect($host, $user, $password, $name, $port) {
 
-
-        self::$mysqli = @ new mysqli(
+        self::$mysqli = new mysqli(
             $host, $user, $password, $name, (int) $port
         );
 
         if (self::$mysqli->connect_errno) {
-
-            $_SESSION['ins']['report'][] = self::$mysqli->connect_errno
-                . ": " . self::$mysqli->connect_error;
-
             $_SESSION['ins']['errors'] = true;
-
+            $_SESSION['ins']['report'][] = self::$mysqli->connect_errno
+                . ': ' . self::$mysqli->connect_error;
         }
-
 
     }
 
 
     public static function setCharset($charset) {
 
-
         if (self::$mysqli === null) {
             return;
         }
 
-        @ self::$mysqli->set_charset($charset);
-
+        self::$mysqli->set_charset($charset);
         if (self::$mysqli->errno) {
-
-            $_SESSION['ins']['report'][] = self::$mysqli->errno
-                . ": " . self::$mysqli->error;
-
             $_SESSION['ins']['errors'] = true;
-
+            $_SESSION['ins']['report'][] = self::$mysqli->errno
+                . ': ' . self::$mysqli->error;
         }
-
 
     }
 
 
     public static function query($queryString) {
 
-
         if (self::$mysqli === null) {
             return;
         }
 
-        @ self::$mysqli->multi_query($queryString);
+        self::$mysqli->multi_query($queryString);
         if (self::$mysqli->errno) {
 
-            $_SESSION['ins']['report'][] = self::$mysqli->errno
-                . ": " . self::$mysqli->error;
-
             $_SESSION['ins']['errors'] = true;
+            $_SESSION['ins']['report'][] = self::$mysqli->errno
+                . ': ' . self::$mysqli->error;
 
         } else {
 
             do {
-
                 if ($res = self::$mysqli->store_result()) {
                     while ($row = $res->fetch_assoc()) {
                         unset($row);
                     }
                     $res->free();
                 }
-
             } while (
-                self::$mysqli->more_results()
-                    && self::$mysqli->next_result()
+                self::$mysqli->more_results() && self::$mysqli->next_result()
             );
 
         }
@@ -903,7 +853,6 @@ function mainGlob($pattern, $flags = 0) {
     if (!$result = glob($pattern, $flags)) {
         $result = array();
     }
-
     return $result;
 
 }
@@ -913,18 +862,14 @@ function mainGlob($pattern, $flags = 0) {
  * recursive find targets with pattern mask
  */
 
-function globRecursive($path, $mask = "*") {
-
+function globRecursive($path, $mask = '*') {
 
     $items = mainGlob($path . $mask);
-    $dirs  = mainGlob($path . "*", GLOB_ONLYDIR | GLOB_NOSORT);
-
+    $dirs  = mainGlob($path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
     foreach ($dirs as $dir) {
-        $items = array_merge($items, globRecursive($dir . "/", $mask));
+        $items = array_merge($items, globRecursive($dir . '/', $mask));
     }
-
     return $items;
-
 
 }
 
@@ -935,33 +880,21 @@ function globRecursive($path, $mask = "*") {
 
 function getAllControllers() {
 
-
     $controllers = array();
     $existsTargets = array();
-
-
-    /**
-     * get from modules,
-     * get from admin module if need get all controllers
-     */
-
-    $existsTargets = globRecursive(APPLICATION . "modules/", "*.php");
-
+    $existsTargets = globRecursive(APPLICATION . 'modules/', '*.php');
     $existsTargets = array_merge(
-        $existsTargets, globRecursive(APPLICATION . "admin/", "*.php")
+        $existsTargets, globRecursive(APPLICATION . 'admin/', '*.php')
     );
 
-    require_once APPLICATION . "core/baseController.php";
+    require_once APPLICATION . 'core/baseController.php';
     foreach ($existsTargets as $item) {
-
-        $name = basename($item, ".php");
+        $name = basename($item, '.php');
         node::loadController($item, $name);
         array_push($controllers, node::call($name));
-
     }
 
     return $controllers;
-
 
 }
 
@@ -972,9 +905,8 @@ function getAllControllers() {
 
 function refresh() {
 
-    header("HTTP/1.1 301 Moved Permanently");
-    header("Location: /");
-
+    header('HTTP/1.1 301 Moved Permanently');
+    header('Location: /');
     exit();
 
 }
@@ -984,12 +916,11 @@ function refresh() {
  * back pre routing
  */
 
-if (array_key_exists("errors", $_SESSION['ins'])
+if (array_key_exists('errors', $_SESSION['ins'])
         and isset($_POST['prev']) and $_SESSION['ins']['step'] > 1) {
 
     $_SESSION['ins']['report'] = array();
     $_SESSION['ins']['step'] -= 1;
-
     refresh();
 
 }
@@ -1002,81 +933,47 @@ if (array_key_exists("errors", $_SESSION['ins'])
 try {
 
 
-    require_once APPLICATION . "core/filter.php";
-
+    require_once APPLICATION . 'core/filter.php';
 
     $_config  = getConfig();
     $language = getLanguage($_config->site->default_language);
-
-
-    $layout = "install.html";
-
+    $layout   = 'install.html';
 
     switch ($_SESSION['ins']['step']) {
 
-
         case 4:
 
-
-            /**
-             * save configuration into file,
-             * reset all session variables
-             */
-
             saveConfigIntoFile($_config);
-
             $_SESSION['ins']['report'] = array();
             $_SESSION['ins']['step'] = 4;
             $_SESSION['ins']['errors'] = false;
-
 
         break;
 
 
         case 3:
 
-
             if (isset($_POST['next'])) {
-
-
-                /**
-                 * save configuration
-                 */
 
                 $_config->site->protocol = $_SESSION['ins']['settings']['protocol'];
                 $_config->site->domain   = $_SESSION['ins']['settings']['domain'];
 
                 $_SESSION['ins']['settings']['debugmode']
-                    = array_key_exists("debugmode", $_POST);
+                    = array_key_exists('debugmode', $_POST);
 
                 $_config->system->debug_mode
                     = $_SESSION['ins']['settings']['debugmode'];
 
                 setConfig($_config);
 
-
-                /**
-                 * check post data fragmentation
-                 */
-
-                $required = array("rootlogin", "rootpassword");
-
+                $required = array('rootlogin', 'rootpassword');
                 foreach ($required as $key) {
-
                     if (!array_key_exists($key, $_POST)) {
-
                         throw new installException(
                             $language->error, $language->data_not_enough
                         );
-
                     }
-
                 }
-
-
-                /**
-                 * prepare login
-                 */
 
                 $rootlogin = filter::input($_POST['rootlogin'])
                         ->lettersOnly()->getData();
@@ -1087,86 +984,49 @@ try {
                     $_SESSION['ins']['errors'] = true;
                 }
 
-
-                /**
-                 * prepare password
-                 */
-
                 $rootpassword = trim((string) $_POST['rootpassword']);
                 $_SESSION['ins']['settings']['rootpassword'] = $rootpassword;
-
                 if (!$rootpassword) {
-
                     $_SESSION['ins']['errors'] = true;
                     $_SESSION['ins']['report'][]
                         = $language->install_root_password_is_empty;
-
                 }
 
                 $rootpassword = md5(md5(md5($rootpassword)));
                 $roothash = md5(md5(md5(
-                    "1{$rootlogin}{$rootpassword}10support@deep-cms.ru"
+                    '1' . $rootlogin . $rootpassword . '10support@deep-cms.ru'
                 )));
 
-
-                /**
-                 * connect to DB
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
-
                     db::connect(
-
                         $_config->db->host,
                         $_config->db->user,
                         $_config->db->password,
                         $_config->db->name,
                         $_config->db->port
-
                     );
-
                 }
 
                 if (!$_SESSION['ins']['errors']) {
                     db::setCharset($_config->db->connection_charset);
                 }
 
-
-                /**
-                 * update root password and hash
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
-
                     db::query(
-
-                        "UPDATE {$_config->db->prefix}users
-                            SET login = '{$rootlogin}',
-                                password = '{$rootpassword}',
-                                    hash = '{$roothash}'
-                                        WHERE id = 1"
-
+                        "UPDATE {$_config->db->prefix}users SET
+                            login = '{$rootlogin}',
+                            password = '{$rootpassword}',
+                            hash = '{$roothash}'
+                        WHERE id = 1"
                     );
-
                 }
 
-
-                /**
-                 * get permissions for root
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
-
-
-                    /**
-                     * get all permissions from controllers
-                     */
 
                     $controllersPermissions = array();
                     $controllers = getAllControllers();
 
                     foreach ($controllers as $controller) {
-
                         foreach ($controller->getPermissions() as $current) {
 
                             $check = in_array(
@@ -1175,52 +1035,27 @@ try {
                             );
 
                             if (!$check) {
-
                                 array_push(
-                                    $controllersPermissions,
-                                        $current['permission']
+                                    $controllersPermissions, $current['permission']
                                 );
-
                             }
 
                         }
-
                     }
 
                 }
 
-
-                /**
-                 * truncate group permissions
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
-
                     db::query(
-                        "TRUNCATE TABLE
-                            {$_config->db->prefix}group_permissions"
+                        'TRUNCATE TABLE ' . $_config->db->prefix . 'group_permissions'
                     );
-
                 }
 
-
-                /**
-                 * truncate permissions
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
-
                     db::query(
-                        "TRUNCATE TABLE
-                            {$_config->db->prefix}permissions"
+                        'TRUNCATE TABLE ' . $_config->db->prefix . 'permissions'
                     );
-
                 }
-
-
-                /**
-                 * insert new list of permissions
-                 */
 
                 if (!$_SESSION['ins']['errors']) {
 
@@ -1228,34 +1063,20 @@ try {
                         . join("'), ('", $controllersPermissions) . "')";
 
                     db::query(
-                        "INSERT INTO {$_config->db->prefix}permissions
-                            (name) VALUES {$permissionValues}"
+                        'INSERT INTO ' . $_config->db->prefix
+                            . 'permissions (name) VALUES ' . $permissionValues
                     );
 
                 }
-
-
-                /**
-                 * insert permissions for root
-                 */
 
                 if (!$_SESSION['ins']['errors']) {
-
                     db::query(
-
-                        "INSERT INTO {$_config->db->prefix}group_permissions
-                            (group_id,permission_id)
-                                SELECT (1) group_id, id
-                                    FROM {$_config->db->prefix}permissions"
-
+                        'INSERT INTO ' . $_config->db->prefix . 'group_permissions
+                            (group_id, permission_id)
+                            SELECT (1) group_id, id
+                                FROM ' . $_config->db->prefix . 'permissions'
                     );
-
                 }
-
-
-                /**
-                 * post routing
-                 */
 
                 if (!$_SESSION['ins']['errors']) {
                     $_SESSION['ins']['report'] = array();
@@ -1269,21 +1090,21 @@ try {
             $_SESSION['ins']['errors'] = false;
             $_SESSION['ins']['step'] = 3;
 
-            if (!array_key_exists("settings", $_SESSION['ins'])) {
+            if (!array_key_exists('settings', $_SESSION['ins'])) {
 
                 $port = $_SERVER['SERVER_PORT'];
-                $port = ($port != 80 and $port != 443) ? ":{$port}" : "";
+                $port = ($port != 80 and $port != 443) ? ':' . $port : '';
 
                 $_SESSION['ins']['settings'] = array(
 
-                    "protocol" => stristr(
-                        $_SERVER['SERVER_PROTOCOL'], "https"
-                    ) ? "https" : "http",
+                    'protocol' => stristr(
+                        $_SERVER['SERVER_PROTOCOL'], 'https'
+                    ) ? 'https' : 'http',
 
-                    "domain"        => $_SERVER['SERVER_NAME'] . $port,
-                    "rootlogin"     => "root",
-                    "rootpassword"  => "",
-                    "debugmode"     => false
+                    'domain'        => $_SERVER['SERVER_NAME'] . $port,
+                    'rootlogin'     => 'root',
+                    'rootpassword'  => '',
+                    'debugmode'     => false
 
                 );
 
@@ -1296,98 +1117,56 @@ try {
             if (isset($_POST['next'])) {
 
                 $_SESSION['ins']['report'] = array();
-
-
-                /**
-                 * check post data fragmentation
-                 */
-
                 $required = array(
-                    "host", "port", /*"prefix",*/ "name", "user", "password"
+                    'host', 'port', /*'prefix',*/ 'name', 'user', 'password'
                 );
 
                 foreach ($required as $key) {
-
                     if (!array_key_exists($key, $_POST)) {
-
                         throw new installException(
                             $language->error, $language->data_not_enough
                         );
-
                     }
-
                 }
-
-
-                /**
-                 * get required values
-                 */
 
                 $host   = trim(strip_tags((string) $_POST['host']));
                 $port   = trim(strip_tags((string) $_POST['port']));
-
-                $prefix = ""; //preg_replace("/[^_0-9a-z]+/i", "", (string) $_POST['prefix']);
-
+                $prefix = ''; //preg_replace('/[^_0-9a-z]+/i', '', (string) $_POST['prefix']);
                 $name   = trim(strip_tags((string) $_POST['name']));
                 $user   = trim(strip_tags((string) $_POST['user']));
                 $pass   = (string) $_POST['password'];
 
-
-                /**
-                 * check required values
-                 */
-
-
                 $_SESSION['ins']['db']['host'] = $host;
                 if (!$host) {
-
                     $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][]
-                        = $language->install_db_host_is_empty;
-
+                    $_SESSION['ins']['report'][] = $language->install_db_host_is_empty;
                 }
 
-
                 $_SESSION['ins']['db']['port'] = $port;
-                if (!$port or !preg_match("/^[0-9]+$/", $port)
+                if (!$port or !preg_match('/^[0-9]+$/', $port)
                         or $port > 65535) {
 
                     $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][]
-                        = $language->install_db_port_is_broken;
+                    $_SESSION['ins']['report'][] = $language->install_db_port_is_broken;
 
                 }
-
 
                 $_SESSION['ins']['db']['name'] = $name;
                 if (!$name) {
-
                     $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][]
-                        = $language->install_db_name_is_empty;
-
+                    $_SESSION['ins']['report'][] = $language->install_db_name_is_empty;
                 }
-
 
                 $_SESSION['ins']['db']['user'] = $user;
                 if (!$user) {
-
                     $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][]
-                        = $language->install_db_user_is_empty;
-
+                    $_SESSION['ins']['report'][] = $language->install_db_user_is_empty;
                 }
 
                 $_SESSION['ins']['db']['password'] = $pass;
                 $_SESSION['ins']['db']['prefix'] = $prefix;
-
                 $_SESSION['ins']['db']['addextended']
                     = array_key_exists("addextended", $_POST);
-
-
-                /**
-                 * connect to DB
-                 */
 
                 if (!$_SESSION['ins']['errors']) {
                     db::connect($host, $user, $pass, $name, $port);
@@ -1397,28 +1176,13 @@ try {
                     db::setCharset($_config->db->connection_charset);
                 }
 
-
-                /**
-                 * database installation
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
                     db::query(getInstallationQueryString($prefix));
                 }
 
-
-                /**
-                 * add extended demo data
-                 */
-
                 if (!$_SESSION['ins']['errors'] and $_SESSION['ins']['db']['addextended']) {
                     db::query(getExtendedQueryString($prefix));
                 }
-
-
-                /**
-                 * save database configuration
-                 */
 
                 $_config->db->host     = $_SESSION['ins']['db']['host'];
                 $_config->db->port     = $_SESSION['ins']['db']['port'];
@@ -1429,11 +1193,6 @@ try {
 
                 setConfig($_config);
 
-
-                /**
-                 * post routing
-                 */
-
                 if (!$_SESSION['ins']['errors']) {
                     $_SESSION['ins']['report'] = array();
                     $_SESSION['ins']['step'] += 1;
@@ -1443,35 +1202,26 @@ try {
 
             }
 
-
             $_SESSION['ins']['errors'] = false;
             $_SESSION['ins']['step'] = 2;
 
-
-            if (!array_key_exists("db", $_SESSION['ins'])) {
-
+            if (!array_key_exists('db', $_SESSION['ins'])) {
 
                 $_SESSION['ins']['db'] = array(
-
-                    "host" => "localhost",
-                    "port" => "3306",
-                    "prefix" => "",
-                    "name" => "",
-                    "user" => "",
-                    "password" => "",
-                    "addextended" => true
-
+                    'host' => 'localhost',
+                    'port' => '3306',
+                    'prefix' => '',
+                    'name' => '',
+                    'user' => '',
+                    'password' => '',
+                    'addextended' => true
                 );
-
 
             }
 
-
         break;
 
-
         default:
-
 
             if (isset($_POST['next'])) {
 
@@ -1484,44 +1234,31 @@ try {
 
             }
 
-
             $_SESSION['ins']['errors'] = false;
             $_SESSION['ins']['step'] = 1;
-
-
-            /**
-             * check php version and php.ini settings
-             */
 
             $currentPhpVersion = round((float) phpversion(), 2);
             if (!$checkPhpVersion = checkPhpVersion()) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-
             $myValue  = 8388608; // 8M
-            $phpValue = ini_get("memory_limit");
+            $phpValue = ini_get('memory_limit');
             $currentMemoryLimit = $phpValue;
-
             $measures = substr($phpValue, 0 -1);
             switch ($measures) {
-
-                case "G":
+                case 'G':
                     $up = pow(1024, 3);
                 break;
-
-                case "M":
+                case 'M':
                     $up = pow(1024, 2);
                 break;
-
-                case "K":
+                case 'K':
                     $up = 1024;
                 break;
-
                 default:
                     $up = 0;
                 break;
-
             }
 
             if ($phpValue > 0) {
@@ -1529,45 +1266,36 @@ try {
                 if ($up > 0) {
                     $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
                 }
-
                 if (!$checkMemoryLimit = $myValue <= ($phpValue * $up)) {
                     $_SESSION['ins']['errors'] = true;
                 }
 
             } else {
                 $checkMemoryLimit   = true;
-                $currentMemoryLimit = "unlimited";
+                $currentMemoryLimit = 'unlimited';
             }
 
-
-            if (!$fileUploads = !!ini_get("file_uploads")) {
+            if (!$fileUploads = !!ini_get('file_uploads')) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-
             $myValue  = 8388608; // 8M
-            $phpValue = ini_get("upload_max_filesize");
+            $phpValue = ini_get('upload_max_filesize');
             $currentUploadMaxFileSize = $phpValue;
-
             $measures = substr($phpValue, 0 -1);
             switch ($measures) {
-
-                case "G":
+                case 'G':
                     $up = pow(1024, 3);
                 break;
-
-                case "M":
+                case 'M':
                     $up = pow(1024, 2);
                 break;
-
-                case "K":
+                case 'K':
                     $up = 1024;
                 break;
-
                 default:
                     $up = 0;
                 break;
-
             }
 
             if ($phpValue > 0) {
@@ -1575,19 +1303,17 @@ try {
                 if ($up > 0) {
                     $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
                 }
-
                 if (!$uploadMaxFileSize = $myValue <= ($phpValue * $up)) {
                     $_SESSION['ins']['errors'] = true;
                 }
 
             } else {
                 $uploadMaxFileSize        = true;
-                $currentUploadMaxFileSize = "unlimited";
+                $currentUploadMaxFileSize = 'unlimited';
             }
 
-
-            $mqgpc = ini_get("magic_quotes_gpc");
-            $checkMQGPCEnabled = (stristr($mqgpc, "On")
+            $mqgpc = ini_get('magic_quotes_gpc');
+            $checkMQGPCEnabled = (stristr($mqgpc, 'On')
                 or $mqgpc == 1 or $mqgpc === true);
 
             if ($checkMQGPCEnabled) {
@@ -1599,23 +1325,23 @@ try {
              * check php extensions and available classes
              */
 
-            if (!$checkMysqli = class_exists("mysqli")) {
+            if (!$checkMysqli = class_exists('mysqli')) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            if (!$checkDOMImpl = class_exists("DOMImplementation")) {
+            if (!$checkDOMImpl = class_exists('DOMImplementation')) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            if (!$checkDOMDoc = class_exists("DOMDocument")) {
+            if (!$checkDOMDoc = class_exists('DOMDocument')) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            if (!$checkGD = function_exists("imagecreatefromjpeg")) {
+            if (!$checkGD = function_exists('imagecreatefromjpeg')) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            if (!$checkFilterVar = function_exists("filter_var")) {
+            if (!$checkFilterVar = function_exists('filter_var')) {
                 $_SESSION['ins']['errors'] = true;
             }
 
@@ -1624,67 +1350,67 @@ try {
              * check writable permissions
              */
 
-            $adminInMenuDir = APPLICATION . "admin/in-menu";
+            $adminInMenuDir = APPLICATION . 'admin/in-menu';
             if (!$checkAdminInMenuDir = checkPath($adminInMenuDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $autorunAfterDir = APPLICATION . "autorun/after";
+            $autorunAfterDir = APPLICATION . 'autorun/after';
             if (!$checkAutorunAfterDir = checkPath($autorunAfterDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $autorunBeforeDir = APPLICATION . "autorun/before";
+            $autorunBeforeDir = APPLICATION . 'autorun/before';
             if (!$checkAutorunBeforeDir = checkPath($autorunBeforeDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $cacheDir = APPLICATION . "cache";
+            $cacheDir = APPLICATION . 'cache';
             if (!$checkCacheDir = checkPath($cacheDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $configDir = APPLICATION . "config";
+            $configDir = APPLICATION . 'config';
             if (!$checkConfigDir = checkPath($configDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $languagesDir = APPLICATION . "languages";
+            $languagesDir = APPLICATION . 'languages';
             if (!$checkLanguagesDir = checkPath($languagesDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $libraryDir = APPLICATION . "library";
+            $libraryDir = APPLICATION . 'library';
             if (!$checkLibraryDir = checkPath($libraryDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $logsDir = APPLICATION . "logs";
+            $logsDir = APPLICATION . 'logs';
             if (!$checkLogsDir = checkPath($logsDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $metadataDir = APPLICATION . "metadata";
+            $metadataDir = APPLICATION . 'metadata';
             if (!$checkMetadataDir = checkPath($metadataDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $modulesDir = APPLICATION . "modules";
+            $modulesDir = APPLICATION . 'modules';
             if (!$checkModulesDir = checkPath($modulesDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $prototypesDir = APPLICATION . "prototypes";
+            $prototypesDir = APPLICATION . 'prototypes';
             if (!$checkPrototypesDir = checkPath($prototypesDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $resourcesDir = APPLICATION . "resources";
+            $resourcesDir = APPLICATION . 'resources';
             if (!$checkResourcesDir = checkPath($resourcesDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 
-            $uploadDir = PUBLIC_HTML . "upload";
+            $uploadDir = PUBLIC_HTML . 'upload';
             if (!$checkUploadDir = checkPath($uploadDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
@@ -1697,7 +1423,7 @@ try {
 } catch (installException $e) {
 
     $exception = $e->getReport();
-    $layout = "install-exception.html";
+    $layout = 'install-exception.html';
 
 }
 
@@ -1706,12 +1432,11 @@ try {
  * show installation progress
  */
 
-header("Content-Type: text/html; charset=utf-8");
+header('Content-Type: text/html; charset=utf-8');
 require $layout;
 
 if ($_SESSION['ins']['step'] == 4) {
     $_SESSION = array();
 }
-
 
 

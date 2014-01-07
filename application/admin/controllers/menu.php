@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * admin submodule, manage site menu
  */
@@ -17,24 +16,24 @@ class menu extends baseController {
 
         $this->permissions = array(
             array(
-                "action"      => null,
-                "permission"  => "menu_manage",
-                "description" => view::$language->permission_menu_manage
+                'action'      => null,
+                'permission'  => 'menu_manage',
+                'description' => view::$language->permission_menu_manage
             ),
             array(
-                "action"      => "create",
-                "permission"  => "menu_create",
-                "description" => view::$language->permission_menu_create
+                'action'      => 'create',
+                'permission'  => 'menu_create',
+                'description' => view::$language->permission_menu_create
             ),
             array(
-                "action"      => "delete",
-                "permission"  => "menu_delete",
-                "description" => view::$language->permission_menu_delete
+                'action'      => 'delete',
+                'permission'  => 'menu_delete',
+                'description' => view::$language->permission_menu_delete
             ),
             array(
-                "action"      => "edit",
-                "permission"  => "menu_edit",
-                "description" => view::$language->permission_menu_edit
+                'action'      => 'edit',
+                'permission'  => 'menu_edit',
+                'description' => view::$language->permission_menu_edit
             )
         );
 
@@ -48,15 +47,15 @@ class menu extends baseController {
     public function index() {
 
         $paginator = new paginator(
-            "SELECT id, mirror_id, name FROM menu ORDER BY mirror_id ASC"
+            'SELECT id, mirror_id, name FROM menu ORDER BY mirror_id ASC'
         );
         $paginator = $paginator->setCurrentPage(request::getCurrentPage())
             ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
-        view::assign("menulist", $paginator['items']);
-        view::assign("pages", $paginator['pages']);
-        view::assign("node_name", view::$language->menu_of_site);
-        $this->setProtectedLayout("menu.html");
+        view::assign('menulist', $paginator['items']);
+        view::assign('pages', $paginator['pages']);
+        view::assign('node_name', view::$language->menu_of_site);
+        $this->setProtectedLayout('menu.html');
 
     }
 
@@ -69,8 +68,8 @@ class menu extends baseController {
     public function create() {
 
         if (request::isPost()) $this->saveMenu();
-        view::assign("node_name", view::$language->menu_create_new);
-        $this->setProtectedLayout("menu-new.html");
+        view::assign('node_name', view::$language->menu_create_new);
+        $this->setProtectedLayout('menu-new.html');
 
     }
 
@@ -82,19 +81,21 @@ class menu extends baseController {
     public function delete() {
 
         $adminToolsLink = app::config()->site->admin_tools_link;
-        request::validateReferer($adminToolsLink . "/menu");
+        request::validateReferer($adminToolsLink . '/menu');
 
-        $menu_id = request::shiftParam("id");
+        $menu_id = request::shiftParam('id');
         if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid
             );
         }
 
-        db::set("DELETE FROM menu WHERE id = %u", $menu_id);
+        db::set('DELETE FROM menu WHERE id = %u', $menu_id);
         $this->redirectMessage(
-            SUCCESS_EXCEPTION, view::$language->success,
-                view::$language->menu_is_deleted, $adminToolsLink . "/menu"
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            view::$language->menu_is_deleted,
+            $adminToolsLink . '/menu'
         );
 
     }
@@ -107,7 +108,7 @@ class menu extends baseController {
 
     public function edit() {
 
-        $menu_id = request::shiftParam("id");
+        $menu_id = request::shiftParam('id');
         if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid
@@ -115,7 +116,7 @@ class menu extends baseController {
         }
 
         $menu = db::normalizeQuery(
-            "SELECT id, mirror_id, name FROM menu WHERE id = %u", $menu_id
+            'SELECT id, mirror_id, name FROM menu WHERE id = %u', $menu_id
         );
 
         if (!$menu) {
@@ -128,30 +129,29 @@ class menu extends baseController {
             $this->saveMenu($menu_id);
         }
 
-        view::assign("menu", $menu);
-        view::assign("node_name", view::$language->menu_edit_exists);
-        $this->setProtectedLayout("menu-edit.html");
+        view::assign('menu', $menu);
+        view::assign('node_name', view::$language->menu_edit_exists);
+        $this->setProtectedLayout('menu-edit.html');
 
     }
 
 
     /**
-     * save group data
+     * save menu data
      */
 
     private function saveMenu($target = null) {
 
-
         $adminToolsLink = app::config()->site->admin_tools_link;
         if ($target === null) {
-            request::validateReferer($adminToolsLink . "/menu/create");
+            request::validateReferer($adminToolsLink . '/menu/create');
         } else {
             request::validateReferer(
-                $adminToolsLink . "/menu/edit\?id=\d+", true
+                $adminToolsLink . '/menu/edit\?id=\d+', true
             );
         }
 
-        $name = request::getPostParam("name");
+        $name = request::getPostParam('name');
         if ($name === null) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_not_enough
@@ -164,7 +164,7 @@ class menu extends baseController {
             );
         }
 
-        $mirrorID = request::getPostParam("mirror_id");
+        $mirrorID = request::getPostParam('mirror_id');
         if ($mirrorID === null) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_not_enough
@@ -192,8 +192,8 @@ class menu extends baseController {
         } else {
 
             $menuID = $target;
-            $exCheck = "SELECT (1) ex FROM menu WHERE id != %u
-                            AND mirror_id = %u LIMIT 1";
+            $exCheck = 'SELECT (1) ex FROM menu
+                WHERE id != %u AND mirror_id = %u LIMIT 1';
 
             if (db::query($exCheck, $target, $mirrorID)) {
                 throw new memberErrorException(
@@ -203,34 +203,35 @@ class menu extends baseController {
             }
 
             db::set(
-                "UPDATE menu_items SET menu_id = %u WHERE menu_id IN(
+                'UPDATE menu_items SET menu_id = %u WHERE menu_id IN(
                     SELECT mirror_id FROM menu WHERE id = %u
-                )", $mirrorID, $target
+                )', $mirrorID, $target
             );
 
             db::set(
                 "UPDATE menu SET mirror_id = %u, name = '%s'
-                    WHERE id = %u", $mirrorID, $name, $target);
+                    WHERE id = %u", $mirrorID, $name, $target
+            );
 
         }
 
-        $location = request::getPostParam("silentsave")
-            ? "/edit?id=" . $menuID : "";
+        $location = request::getPostParam('silentsave')
+            ? '/edit?id=' . $menuID : '';
 
         $message = ($target === null)
             ? view::$language->menu_is_created
             : view::$language->menu_is_edited;
 
         $this->redirectMessage(
-            SUCCESS_EXCEPTION, view::$language->success,
-                $message, $adminToolsLink . "/menu" . $location
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            $message,
+            $adminToolsLink . '/menu' . $location
         );
-
 
     }
 
 
 }
-
 
 

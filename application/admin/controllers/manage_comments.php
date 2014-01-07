@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * admin submodule, manage comments
  */
@@ -17,19 +16,19 @@ class manage_comments extends baseController {
 
         $this->permissions = array(
             array(
-                "action"      => null,
-                "permission"  => "comments_manage",
-                "description" => view::$language->permission_comments_manage
+                'action'      => null,
+                'permission'  => 'comments_manage',
+                'description' => view::$language->permission_comments_manage
             ),
             array(
-                "action"      => "delete",
-                "permission"  => "comment_delete",
-                "description" => view::$language->permission_comment_delete
+                'action'      => 'delete',
+                'permission'  => 'comment_delete',
+                'description' => view::$language->permission_comment_delete
             ),
             array(
-                "action"      => "edit",
-                "permission"  => "comment_edit",
-                "description" => view::$language->permission_comment_edit
+                'action'      => 'edit',
+                'permission'  => 'comment_edit',
+                'description' => view::$language->permission_comment_edit
             )
         );
 
@@ -38,26 +37,24 @@ class manage_comments extends baseController {
 
     public function index() {
 
-        $paginator = new paginator("
-
-            SELECT c.id, c.author_ip, c.author_id, c.creation_date,
+        $paginator = new paginator(
+            'SELECT c.id, c.author_ip, c.author_id, c.creation_date,
                 IF(c.author_id IS NULL,c.author_name,u.login) author_name,
                 IF(c.author_email IS NULL,u.email,c.author_email) author_email,
-                    t.page_alias, t.node_name FROM comments c
-                        LEFT JOIN tree t ON t.id = c.node_id
-                            LEFT JOIN users u ON u.id = c.author_id
-                                ORDER BY c.creation_date DESC
-
-        ");
+                    t.page_alias, t.node_name
+                FROM comments c
+                LEFT JOIN tree t ON t.id = c.node_id
+                LEFT JOIN users u ON u.id = c.author_id
+                ORDER BY c.creation_date DESC'
+        );
 
         $paginator = $paginator->setCurrentPage(request::getCurrentPage())
             ->setItemsPerPage(10)->setSliceSizeByPages(10)->getResult();
 
-        view::assign("comments", $paginator['items']);
-        view::assign("pages", $paginator['pages']);
-        view::assign("node_name", view::$language->comments_manage);
-
-        $this->setProtectedLayout("comments.html");
+        view::assign('comments', $paginator['items']);
+        view::assign('pages', $paginator['pages']);
+        view::assign('node_name', view::$language->comments_manage);
+        $this->setProtectedLayout('comments.html');
 
     }
 
@@ -65,28 +62,25 @@ class manage_comments extends baseController {
     public function delete() {
 
         $adminToolsLink = app::config()->site->admin_tools_link;
-        request::validateReferer($adminToolsLink . "/manage-comments");
+        request::validateReferer($adminToolsLink . '/manage-comments');
 
-        $commentID = request::shiftParam("id");
+        $commentID = request::shiftParam('id');
         if (!validate::isNumber($commentID)) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid
             );
         }
 
-        db::set("DELETE FROM comments WHERE id = %u", $commentID);
+        db::set('DELETE FROM comments WHERE id = %u', $commentID);
         db::set(
-            "UPDATE comments SET reply_id = 0
-                WHERE reply_id = %u", $commentID
+            'UPDATE comments SET reply_id = 0 WHERE reply_id = %u', $commentID
         );
 
         $this->redirectMessage(
-
             SUCCESS_EXCEPTION,
-                view::$language->success,
-                    view::$language->comment_is_deleted,
-                        $adminToolsLink . "/manage-comments"
-
+            view::$language->success,
+            view::$language->comment_is_deleted,
+            $adminToolsLink . '/manage-comments'
         );
 
     }
@@ -94,7 +88,7 @@ class manage_comments extends baseController {
 
     public function edit() {
 
-        $commentID = request::shiftParam("id");
+        $commentID = request::shiftParam('id');
         if (!validate::isNumber($commentID)) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid
@@ -102,8 +96,8 @@ class manage_comments extends baseController {
         }
 
         if (!$comment = db::normalizeQuery(
-            "SELECT id, author_id, author_name,
-                comment_text FROM comments WHERE id = %u", $commentID
+            'SELECT id, author_id, author_name,
+                comment_text FROM comments WHERE id = %u', $commentID
         )) {
             throw new memberErrorException(
                 view::$language->error, view::$language->comment_not_found
@@ -114,24 +108,22 @@ class manage_comments extends baseController {
             $this->saveComment($commentID);
         }
 
-        $comment = preg_replace("/\s*<br\s?\/?>\s*/", "\n", $comment);
-        view::assign("comment", $comment);
-        view::assign("page_title", view::$language->comment_edit_exists);
-
-        $this->setProtectedLayout("comment-edit.html");
+        $comment = preg_replace('/\s*<br\s?\/?>\s*/', "\n", $comment);
+        view::assign('comment', $comment);
+        view::assign('page_title', view::$language->comment_edit_exists);
+        $this->setProtectedLayout('comment-edit.html');
 
     }
 
 
     private function saveComment($id) {
 
-
         $adminToolsLink = app::config()->site->admin_tools_link;
         request::validateReferer(
-            $adminToolsLink . "/manage-comments/edit\?id=\d+", true
+            $adminToolsLink . '/manage-comments/edit\?id=\d+', true
         );
 
-        $comment = request::getPostParam("comment_text");
+        $comment = request::getPostParam('comment_text');
         $comment = filter::input($comment)->stripTags()->getData();
         $comment = helper::wordWrap($comment, 20);
         $comment = nl2br($comment, true);
@@ -142,7 +134,7 @@ class manage_comments extends baseController {
             );
         }
 
-        $author = request::getPostParam("author_name");
+        $author = request::getPostParam('author_name');
         if ($author !== null) {
 
             $author = filter::input($author)->stripTags()->getData();
@@ -165,16 +157,15 @@ class manage_comments extends baseController {
         }
 
         $this->redirectMessage(
-            SUCCESS_EXCEPTION, view::$language->success,
-                view::$language->comment_is_edited,
-                    $adminToolsLink . "/manage-comments"
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            view::$language->comment_is_edited,
+            $adminToolsLink . '/manage-comments'
         );
-
 
     }
 
 
 }
-
 
 

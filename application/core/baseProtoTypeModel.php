@@ -1,8 +1,6 @@
 <?php
 
 
-
-
 /**
  * basic prototype model
  */
@@ -23,16 +21,12 @@ class baseProtoTypeModel {
 
         if ($nodeID !== null) {
 
-            $fields = join(",", array_keys($this->returnedFields));
+            $fields = join(',', array_keys($this->returnedFields));
             $values = db::normalizeQuery(
-                "SELECT {$fields} FROM tree WHERE id = %u", $nodeID
+                'SELECT ' . $fields . ' FROM tree WHERE id = %u', $nodeID
             );
 
-            if (!$values) {
-                return $this->returnedFields;
-            }
-
-            return $values;
+            return $values ? $values : $this->returnedFields;
 
         }
 
@@ -43,7 +37,6 @@ class baseProtoTypeModel {
 
     public function getProperties($nodeID) {
 
-
         $this->nodeID = $nodeID;
         $nodeProps = $this->getValues($nodeID);
         $mainProperties = array();
@@ -51,7 +44,7 @@ class baseProtoTypeModel {
 
         foreach ($nodeProps as $k => $v) {
 
-            $getter = $k . "GetData";
+            $getter = $k . 'GetData';
             $mainProperties[$k] = utils::getDefaultField($v);
             $mainProperties[$k]['sort'] = 10 + $iterator++;
 
@@ -65,7 +58,6 @@ class baseProtoTypeModel {
 
         return $mainProperties;
 
-
     }
 
 
@@ -75,7 +67,7 @@ class baseProtoTypeModel {
         $mainProperties = array_keys($this->returnedFields);
         foreach ($mainProperties as $key) {
 
-            $setter = $key . "Prepare";
+            $setter = $key . 'Prepare';
             $this->preparedProperties[$key] = request::getPostParam($key);
 
             if (method_exists($this, $setter)) {
@@ -97,11 +89,9 @@ class baseProtoTypeModel {
 
         return $this->preparedProperties;
 
-
     }
 
 
 }
-
 
 

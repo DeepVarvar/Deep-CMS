@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * based properties and methods of controller
  */
@@ -9,45 +8,36 @@
 class baseController {
 
 
-    protected
+    /**
+     * permissions array of controller,
+     * allowed all actions when array is empty
+     *
+     * permission format for extends of baseController:
+     *
+     *     public function setPermission() {
+     *         $this->permissions = array(
+     *             array(
+     *                 'action'      => 'publicActionName',
+     *                 'permission'  => 'nameOfPermission',
+     *                 'description' => 'Description of permission'
+     *             )
+     *         );
+     *     }
+     *
+     * if you need set permission for controller without actions,
+     * like global permission of controller, set 'action' => null
+     */
+
+    protected $permissions = array();
 
 
-        /**
-         * permissions array of controller,
-         * allowed all actions when array is empty
-         *
-         * permission format for extends of baseController:
-         *
-         *
-         *     public function setPermission() {
-         *
-         *         $this->permissions = array(
-         *
-         *             array(
-         *                 "action"      => "publicActionName",
-         *                 "permission"  => "nameOfPermission",
-         *                 "description" => "Description of permission"
-         *             )
-         *
-         *         );
-         *
-         *     }
-         *
-         *
-         * if you need set permission for controller without actions,
-         * like global permission of controller, set "action" => null
-         */
+    /**
+     * denied execute public actions of controller,
+     * add into array this names of actions,
+     * WARNING! set names only into extends of baseController!
+     */
 
-        $permissions = array(),
-
-
-        /**
-         * denied execute public actions of controller,
-         * add into array this names of actions,
-         * WARNING! set names only into extends of baseController!
-         */
-
-        $denyActions = array();
+    protected $denyActions = array();
 
 
     /**
@@ -106,7 +96,7 @@ class baseController {
      */
 
     public function setProtectedLayout($name) {
-        view::setLayout("protected/" . $name);
+        view::setLayout('protected/' . $name);
     }
 
 
@@ -115,7 +105,7 @@ class baseController {
      */
 
     public function setPublicLayout($name) {
-        view::setLayout("public/" . $name);
+        view::setLayout('public/' . $name);
     }
 
 
@@ -125,22 +115,20 @@ class baseController {
      * store member before redirection data
      */
 
-    protected function redirectMessage($type, $title, $message, $refresh_location = null) {
-
+    protected function redirectMessage(
+                $type, $title, $message, $refresh_location = null) {
 
         member::storeData();
-        if (view::getOutputContext() == "html") {
+        if (view::getOutputContext() == 'html') {
 
             storage::write(
-
-                "__message",
+                '__message',
                 array(
-                    "type"    => $type,
-                    "title"   => $title,
-                    "message" => $message,
-                    "refresh_location" => $refresh_location
+                    'type'    => $type,
+                    'title'   => $title,
+                    'message' => $message,
+                    'refresh_location' => $refresh_location
                 )
-
             );
 
             if ($refresh_location) {
@@ -171,11 +159,9 @@ class baseController {
 
         }
 
-
     }
 
 
 }
-
 
 

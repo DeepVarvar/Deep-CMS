@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * main helper class
  */
@@ -43,13 +42,13 @@ abstract class helper {
 
         if (!validate::isNumber($string) or !$string = @ strtotime($string)) {
             throw new systemErrorException(
-                "Helper error", "String is not date or time"
+                'Helper error', 'String is not date or time'
             );
         }
 
         if (!validate::isNumber($string)) {
             throw new systemErrorException(
-                "Helper error", "Timestamp is not number"
+                'Helper error', 'Timestamp is not number'
             );
         }
 
@@ -57,7 +56,7 @@ abstract class helper {
         self::$strfTimeStamp = $string;
 
         return preg_replace_callback(
-            "/%\w/", "strftimeReplaceCallback", $formattedString
+            '/%\w/', 'strftimeReplaceCallback', $formattedString
         );
 
     }
@@ -71,11 +70,10 @@ abstract class helper {
 
     public static function humanityByteSize($size) {
 
-        $types = array("B", "KiB", "MiB", "GiB", "TiB");
+        $types = array('B', 'KiB', 'MiB', 'GiB', 'TiB');
         $size = $size < 1 ? 1 : (int) $size;
-
-        return round($size/pow(1024, ($type = floor(log($size, 1024)))) , 1 )
-                        . " " . $types[$type];
+        return round($size/pow(1024,
+            ($type = floor(log($size, 1024)))) , 1 ) . ' ' . $types[$type];
 
     }
 
@@ -86,7 +84,7 @@ abstract class helper {
 
     public static function getMemoryUsage() {
         $size = memory_get_peak_usage() - view::getInitializedMemoryValue();
-        return "~" . self::humanityByteSize($size) . " ({$size} bytes)";
+        return '~' . self::humanityByteSize($size) . ' (' . $size . ' bytes)';
     }
 
 
@@ -129,7 +127,7 @@ abstract class helper {
 
         if (!validate::isNumber($n)) {
             throw new systemErrorException(
-                "Helper error", "Plural argument is not number"
+                'Helper error', 'Plural argument is not number'
             );
         }
 
@@ -145,19 +143,19 @@ abstract class helper {
 
     public static function wordWrap($inputString, $limit = 10) {
 
-        $outputString = "";
+        $outputString = '';
         $pattern = "/[^\r\S]?[^\n\S]+/u";
         $words = preg_split($pattern, $inputString, -1, PREG_SPLIT_NO_EMPTY);
 
         foreach ($words as $word) {
             $wordLen = mb_strlen($word);
             if ($wordLen <= $limit) {
-                $outputString .= $word . " ";
+                $outputString .= $word . ' ';
             } else {
                 $swLen = ceil($wordLen / $limit);
                 $pos = 0;
                 while ($swLen > 0 or $pos < $wordLen) {
-                    $outputString .= mb_substr($word, $pos, $limit) . " ";
+                    $outputString .= mb_substr($word, $pos, $limit) . ' ';
                     $pos += $limit;
                     $swLen --;
                 }
@@ -176,10 +174,9 @@ abstract class helper {
     public static function contentPreview($inputString, $limit = 200) {
 
         $inputString = strip_tags($inputString);
-        $inputString = preg_replace("/\s+|&nbsp;/", ' ', $inputString);
-
-        return preg_match("#^(.{{$limit},}?)\s+#su", $inputString, $match)
-                    ? "{$match[1]}..." : $inputString;
+        $inputString = preg_replace('/\s+|&nbsp;/', ' ', $inputString);
+        return preg_match('#^(.{' . $limit . ',}?)\s+#su', $inputString, $match)
+            ? $match[1] . '...' : $inputString;
 
     }
 
@@ -192,20 +189,20 @@ abstract class helper {
 
         if (!is_array($newParams)) {
             throw new systemErrorException(
-                "Helper error", "URL parameters is not array"
+                'Helper error', 'URL parameters is not array'
             );
         }
 
-        $parts = explode("?", request::getOriginURL());
+        $parts = explode('?', request::getOriginURL());
         array_shift($parts);
 
-        $query = join("", $parts);
+        $query = join('', $parts);
         parse_str($query, $parts);
 
         $parts = array_merge($parts, $newParams);
         $query = http_build_query($parts);
 
-        return request::getURI() . ($query ? "?{$query}" : "");
+        return request::getURI() . ($query ? '?' . $query : '');
 
     }
 
@@ -224,19 +221,19 @@ function strftimeReplaceCallback($pattern) {
 
     $pattern = $pattern[0];
     $timestamp = helper::getCurrentStrfTimeStamp();
-    $output = "[undefined pattern {$pattern}]";
+    $output = '[undefined pattern ' . $pattern . ']';
 
     switch ($pattern) {
 
         // plural month name
-        case "%B":
-            $monthNumber = date("n", $timestamp);
-            $output = view::$language->{"%B"}[$monthNumber];
+        case '%B':
+            $monthNumber = date('n', $timestamp);
+            $output = view::$language->{'%B'}[$monthNumber];
         break;
 
         // one number month format
-        case "%j":
-            $output = date("j", $timestamp);
+        case '%j':
+            $output = date('j', $timestamp);
         break;
 
     }
@@ -244,6 +241,5 @@ function strftimeReplaceCallback($pattern) {
     return $output;
 
 }
-
 
 

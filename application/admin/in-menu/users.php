@@ -7,11 +7,11 @@
 
 return array(
 
-    "lvl"        => 0,
-    "sort"       => 300,
-    "node_name"  => "users",
-    "page_alias" => "/users",
-    "permission" => "users_manage"
+    'lvl'        => 0,
+    'sort'       => 300,
+    'node_name'  => 'users',
+    'page_alias' => '/users',
+    'permission' => 'users_manage'
 
 );
 

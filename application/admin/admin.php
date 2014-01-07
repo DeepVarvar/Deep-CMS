@@ -16,9 +16,9 @@ class admin extends baseController {
 
         $this->permissions = array(
             array(
-                "action"      => null,
-                "permission"  => "admin_access",
-                "description" => view::$language->permission_admin_access
+                'action'      => null,
+                'permission'  => 'admin_access',
+                'description' => view::$language->permission_admin_access
             )
         );
 
@@ -39,7 +39,7 @@ class admin extends baseController {
             utils::initCheckPermissionAccess($this->getPermissions(), null);
 
             if ($uri == $cnf->site->admin_tools_link) {
-                request::redirect($cnf->site->admin_tools_link . "/tree");
+                request::redirect($cnf->site->admin_tools_link . '/tree');
             }
 
         } else if ($uri != $cnf->site->admin_tools_link) {
@@ -72,9 +72,9 @@ class admin extends baseController {
 
             request::validateReferer(app::config()->site->admin_tools_link);
             if (!member::logged()) {
-                storage::write("admin-login-env", array(
-                    "login_image"   => "err",
-                    "login_message" => view::$language->login_or_pass_bad
+                storage::write('admin-login-env', array(
+                    'login_image'   => 'err',
+                    'login_message' => view::$language->login_or_pass_bad
                 ));
             }
             request::sameOriginRedirect();
@@ -85,12 +85,12 @@ class admin extends baseController {
             view::assign(storage::shift('admin-login-env'));
         } else {
             view::assign(array(
-                "login_image"   => "ok",
-                "login_message" => view::$language->auth_please
+                'login_image'   => 'ok',
+                'login_message' => view::$language->auth_please
             ));
         }
 
-        $this->setProtectedLayout("login-form.html");
+        $this->setProtectedLayout('login-form.html');
 
     }
 

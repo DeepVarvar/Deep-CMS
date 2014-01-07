@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * helper data class
  */
@@ -13,7 +12,7 @@ abstract class dataHelper {
      * inner pages data data
      */
 
-    private static $pages           = array();
+    private static $pages = array();
     private static $number_of_items = 0;
     private static $number_of_pages = 1;
     private static $current_page    = 1;
@@ -24,13 +23,13 @@ abstract class dataHelper {
      */
 
     private static $expectedSortKeys = null;
-    private static $perPageLimit     = 10;
-    private static $innerOptions     = array(
+    private static $perPageLimit = 10;
+    private static $innerOptions = array(
 
-        "filter" => "",
-        "sort"   => "lk ASC",
-        "limit"  => "",
-        "pages"  => false
+        'filter' => '',
+        'sort'   => 'lk ASC',
+        'limit'  => '',
+        'pages'  => false
 
     );
 
@@ -43,15 +42,13 @@ abstract class dataHelper {
 
         self::validateOptions($id, $options);
         $node = db::cachedQuery(
-
-            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
-                t.page_alias, t.node_name FROM tree t
-                    WHERE t.is_publish = 1 AND t.id = %u", $id
-
+            'SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                    t.page_alias, t.node_name FROM tree t
+                WHERE t.is_publish = 1 AND t.id = %u', $id
         );
 
         if (!$node) {
-            throw new memberErrorException("Helper error", "Node not found");
+            throw new memberErrorException('Helper error', 'Node not found');
         }
 
         self::joinExtendedData($node, $options['more']);
@@ -72,12 +69,11 @@ abstract class dataHelper {
         $limit  = self::$innerOptions['limit'];
 
         $sourceQuery = db::buildQuery(array(
-
-            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
-                t.page_alias, t.node_name FROM tree t
-                    WHERE t.is_publish = 1 {$filter} AND t.parent_id = %u
-                        ORDER BY {$sort} {$limit}", $id
-
+            'SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                    t.page_alias, t.node_name FROM tree t
+                WHERE t.is_publish = 1 ' . $filter . '
+                    AND t.parent_id = %u
+                ORDER BY ' . $sort . ' ' . $limit, $id
         ));
 
         $items = self::$innerOptions['pages']
@@ -85,7 +81,6 @@ abstract class dataHelper {
 
         self::joinExtendedData($items, $options['more']);
         self::resetOptions();
-
         return $items;
 
     }
@@ -104,14 +99,13 @@ abstract class dataHelper {
         $limit  = self::$innerOptions['limit'];
 
         $sourceQuery = db::buildQuery(array(
-
-            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
-                t.page_alias, t.node_name FROM tree t,
-                (SELECT lk, rk FROM tree WHERE id = %u AND is_publish = 1) tk
-                    WHERE t.is_publish = 1 {$filter}
-                        AND t.lk > tk.lk AND t.rk < tk.rk
-                            ORDER BY {$sort} {$limit}", $id
-
+            'SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                    t.page_alias, t.node_name
+                FROM tree t,
+                    (SELECT lk, rk FROM tree WHERE id = %u AND is_publish = 1) tk
+                WHERE t.is_publish = 1 ' . $filter . '
+                    AND t.lk > tk.lk AND t.rk < tk.rk
+                ORDER BY ' . $sort . ' ' . $limit, $id
         ));
 
         $items = self::$innerOptions['pages']
@@ -119,7 +113,6 @@ abstract class dataHelper {
 
         self::joinExtendedData($items, $options['more']);
         self::resetOptions();
-
         return $items;
 
     }
@@ -137,13 +130,14 @@ abstract class dataHelper {
         $limit  = self::$innerOptions['limit'];
 
         $sourceQuery = db::buildQuery(array(
-
-            "SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
-                t.page_alias, t.node_name FROM menu_items mi
-                    JOIN tree t ON t.id = mi.node_id
-                        WHERE t.is_publish = 1 {$filter} AND mi.menu_id = %u
-                            ORDER BY {$sort} {$limit}", $id
-
+            'SELECT t.id, t.parent_id, t.prototype, t.lvl, t.lk, t.rk,
+                    t.page_alias, t.node_name
+                FROM menu_items mi
+                JOIN tree t
+                    ON t.id = mi.node_id
+                WHERE t.is_publish = 1 ' . $filter . '
+                    AND mi.menu_id = %u
+                ORDER BY ' . $sort . ' ' . $limit, $id
         ));
 
         $items = self::$innerOptions['pages']
@@ -151,7 +145,6 @@ abstract class dataHelper {
 
         self::joinExtendedData($items, $options['more']);
         self::resetOptions();
-
         return $items;
 
     }
@@ -165,7 +158,7 @@ abstract class dataHelper {
 
         if (!validate::isNumber($nodeID)) {
             throw new memberErrorException(
-                "Helper error", "Node ID is not number"
+                'Helper error', 'Node ID is not number'
             );
         }
 
@@ -187,7 +180,7 @@ abstract class dataHelper {
 
         if (!validate::isNumber($nodeID)) {
             throw new memberErrorException(
-                "Helper error", "Node ID is not number"
+                'Helper error', 'Node ID is not number'
             );
         }
 
@@ -195,8 +188,8 @@ abstract class dataHelper {
         foreach (self::getNodeFeaturesArray(array($nodeID)) as $feature) {
 
             array_push($features, array(
-                "name"  => $feature['name'],
-                "value" => $feature['value']
+                'name'  => $feature['name'],
+                'value' => $feature['value']
             ));
 
         }
@@ -214,12 +207,11 @@ abstract class dataHelper {
 
         if (!validate::isNumber($nodeID)) {
             throw new memberErrorException(
-                "Helper error", "Node ID is not number"
+                'Helper error', 'Node ID is not number'
             );
         }
 
         return db::query(
-
             "SELECT t.id, t.parent_id, t.lvl, t.node_name, t.page_alias
                 FROM (SELECT lk, rk FROM tree WHERE id = %1\$u) k
                 INNER JOIN tree t ON (
@@ -227,7 +219,6 @@ abstract class dataHelper {
                         OR t.id = %1\$u
                         OR t.page_alias = IF(%2\$u = 0, '', '/')
                 ) ORDER BY t.lvl ASC, t.lk ASC", $nodeID, ($showHome ? 1 : 0)
-
         );
 
     }
@@ -239,19 +230,9 @@ abstract class dataHelper {
 
     public static function joinExtendedData( & $items, $more) {
 
-
-        /**
-         * empty collection or empty more
-         */
-
         if (!$items or !$more) {
             return;
         }
-
-
-        /**
-         * prepare collection data
-         */
 
         $itemsIDs   = array();
         $prototypes = array();
@@ -260,11 +241,6 @@ abstract class dataHelper {
             array_push($itemsIDs, $item['id']);
             array_push($prototypes, $item['prototype']);
         }
-
-
-        /**
-         * get expected fields for this collection
-         */
 
         $protoFields = array();
         $expectedFields = array();
@@ -281,32 +257,26 @@ abstract class dataHelper {
 
         unset($prototype);
         unset($protoNames);
-
         $expectedFields = array_diff(
-            array_unique($expectedFields), array("page_alias")
+            array_unique($expectedFields), array('page_alias')
         );
 
         if (!$expectedFields) {
             return;
         }
 
+        $wantedFields = array('t.id');
+        $masterImageQueryJoin = '';
 
-        /**
-         * join master image
-         */
+        if (in_array('image', $more)) {
 
-        $wantedFields = array("t.id");
-        $masterImageQueryJoin = "";
-
-        if (in_array("image", $more)) {
-
-            $key = array_search("image", $more);
+            $key = array_search('image', $more);
             if ($key !== null and $key !== false) {
                 unset($more[$key]);
             }
 
             $masterImageQueryJoin
-                = "LEFT JOIN images i ON i.node_id = t.id AND i.is_master = 1";
+                = 'LEFT JOIN images i ON i.node_id = t.id AND i.is_master = 1';
 
             array_push(
                 $wantedFields,
@@ -315,33 +285,21 @@ abstract class dataHelper {
 
         }
 
-
-        /**
-         * prepare more fields,
-         * build query string,
-         * get extended data
-         */
-
         foreach ($more as $item) {
-            $pre = in_array($item, $expectedFields) ? "t." : "('') ";
+            $pre = in_array($item, $expectedFields) ? 't.' : "('') ";
             array_push($wantedFields, $pre . $item);
         }
 
-        $wantedFields   = join(",", $wantedFields);
-        $itemsIDsJoined = join(",", $itemsIDs);
+        $wantedFields   = join(',', $wantedFields);
+        $itemsIDsJoined = join(',', $itemsIDs);
 
         $itemsData = db::cachedQuery(
-            "SELECT {$wantedFields} FROM tree t
-                {$masterImageQueryJoin} WHERE t.id IN({$itemsIDsJoined})"
+            'SELECT ' . $wantedFields . ' FROM tree t ' . $masterImageQueryJoin
+                . ' WHERE t.id IN(' . $itemsIDsJoined . ')'
         );
 
-
-        /**
-         * get attached images and features
-         */
-
-        $withImages     = in_array("images", $more);
-        $withFeatures   = in_array("features", $more);
+        $withImages     = in_array('images', $more);
+        $withFeatures   = in_array('features', $more);
         $attachedImages = array();
         $nodeFeatures   = array();
 
@@ -353,13 +311,6 @@ abstract class dataHelper {
             $nodeFeatures = self::getNodeFeaturesArray($itemsIDs);
         }
 
-
-        /**
-         * merge extended data into items,
-         * append attached images,
-         * append node features
-         */
-
         foreach ($items as $i => $item) {
 
             $curProto = $protoFields[$item['prototype']];
@@ -368,14 +319,13 @@ abstract class dataHelper {
                 if ($data['id'] == $item['id']) {
 
                     foreach ($data as $edk => $none) {
-                        if ($edk != "image" and !in_array($edk, $curProto)) {
-                            $data[$edk] = "";
+                        if ($edk != 'image' and !in_array($edk, $curProto)) {
+                            $data[$edk] = '';
                         }
                     }
 
                     unset($data['id']);
                     unset($itemsData[$k]);
-
                     $items[$i] = array_merge($items[$i], $data);
                     break;
 
@@ -402,7 +352,7 @@ abstract class dataHelper {
                     if ($f['node_id'] == $item['id']) {
                         unset($nodeFeatures[$k]);
                         array_push($items[$i]['features'], array(
-                            "name" => $f['name'], "value" => $f['value']
+                            'name' => $f['name'], 'value' => $f['value']
                         ));
                     }
                 }
@@ -410,7 +360,6 @@ abstract class dataHelper {
             }
 
         }
-
 
     }
 
@@ -423,38 +372,38 @@ abstract class dataHelper {
 
         if (!validate::isNumber($id)) {
             throw new memberErrorException(
-                "Helper error", "Target ID is not number"
+                'Helper error', 'Target ID is not number'
             );
         }
 
         if (!is_array($options)) {
             throw new memberErrorException(
-                "Helper error", "Options is not array"
+                'Helper error', 'Options is not array'
             );
         }
 
         // more
-        if (array_key_exists("more", $options)) {
-            self::validateArrayedOption("more", $options['more']);
+        if (array_key_exists('more', $options)) {
+            self::validateArrayedOption('more', $options['more']);
         } else {
             $options['more'] = array();
         }
 
         // filter
-        if (array_key_exists("filter", $options)) {
-            self::validateArrayedOption("filter", $options['filter']);
+        if (array_key_exists('filter', $options)) {
+            self::validateArrayedOption('filter', $options['filter']);
         } else {
             $options['filter'] = array();
         }
 
         if ($options['filter']) {
             $filter = db::escapeArray($options['filter']);
-            self::$innerOptions['filter'] = " AND t.prototype IN({$filter}) ";
+            self::$innerOptions['filter'] = ' AND t.prototype IN(' . $filter . ') ';
         }
 
         // sort
-        if (array_key_exists("sort", $options)) {
-            self::validateArrayedOption("sort", $options['sort']);
+        if (array_key_exists('sort', $options)) {
+            self::validateArrayedOption('sort', $options['sort']);
         } else {
             $options['sort'] = array();
         }
@@ -466,12 +415,12 @@ abstract class dataHelper {
 
             if (sizeof($sortKeys) != sizeof($sortValues)) {
                 throw new memberErrorException(
-                    "Helper error", "Broken sort options format"
+                    'Helper error', 'Broken sort options format'
                 );
             }
 
             foreach ($sortValues as $k => $v) {
-                $sortValues[$k] = preg_match("/^desc$/i", $v) ? "DESC" : "ASC";
+                $sortValues[$k] = preg_match('/^desc$/i', $v) ? 'DESC' : 'ASC';
             }
 
             if (self::$expectedSortKeys === null) {
@@ -481,36 +430,36 @@ abstract class dataHelper {
             $preparedKeys = array();
             foreach ($sortKeys as $k => $key) {
                 if (in_array($key, self::$expectedSortKeys)) {
-                    $preKey = "t." . $key . (preg_match("/^desc$/i",
-                                    $sortValues[$k]) ? " DESC" : " ASC");
+                    $is = preg_match('/^desc$/i', $sortValues[$k]);
+                    $preKey = 't.' . $key . ($is ? ' DESC' : ' ASC');
                     array_push($preparedKeys, $preKey);
                 }
             }
 
             if ($preparedKeys) {
-                self::$innerOptions['sort'] = join(",", $preparedKeys);
+                self::$innerOptions['sort'] = join(',', $preparedKeys);
             }
 
         }
 
         // pages
-        if (array_key_exists("pages", $options)) {
+        if (array_key_exists('pages', $options)) {
             self::$innerOptions['pages'] = !!($options['pages']);
 
         }
 
         // limit
-        if (array_key_exists("limit", $options)) {
+        if (array_key_exists('limit', $options)) {
 
             if (!validate::isNumber($options['limit'])) {
                 throw new memberErrorException(
-                    "Helper error", "Limit option is not number"
+                    'Helper error', 'Limit option is not number'
                 );
             }
 
             if (!self::$innerOptions['pages']) {
                 self::$innerOptions['limit'] = $options['limit'] == 0
-                    ? "" : "LIMIT {$options['limit']}";
+                    ? '' : 'LIMIT ' . $options['limit'];
             } else if ($options['limit'] > 0) {
                 self::$perPageLimit = $options['limit'];
             }
@@ -528,10 +477,10 @@ abstract class dataHelper {
 
         self::$perPageLimit = 10;
         self::$innerOptions = array(
-            "filter" => "",
-            "sort"   => "lk ASC",
-            "limit"  => "",
-            "pages"  => false
+            'filter' => '',
+            'sort'   => 'lk ASC',
+            'limit'  => '',
+            'pages'  => false
         );
 
     }
@@ -545,14 +494,14 @@ abstract class dataHelper {
 
         if (!is_array($option)) {
             throw new memberErrorException(
-                "Helper error", "{$key} option is not array"
+                'Helper error', $key . ' option is not array'
             );
         }
 
         foreach ($option as $value) {
             if (!is_string($value)) {
                 throw new memberErrorException(
-                    "Helper error", "{$key} option value is not string"
+                    'Helper error', $key . ' option value is not string'
                 );
             }
         }
@@ -567,11 +516,8 @@ abstract class dataHelper {
     private static function getAttachedImagesArray($IDs, $multi = true) {
 
         $images = db::query(
-
-            "SELECT node_id, name
-                FROM images WHERE node_id IN(%s)
-                    ORDER BY is_master DESC, id ASC", join(",", $IDs)
-
+            'SELECT node_id, name FROM images WHERE node_id IN(%s)
+                ORDER BY is_master DESC, id ASC', join(',', $IDs)
         );
 
         if (!$images) {
@@ -584,8 +530,8 @@ abstract class dataHelper {
             foreach ($images as $image) {
                 if (!in_array($image['node_id'], $IDs)) {
                     $noImages[] = array(
-                        "node_id" => $id,
-                        "name"    => "no-image.png"
+                        'node_id' => $id,
+                        'name'    => 'no-image.png'
                     );
                 }
             }
@@ -595,8 +541,8 @@ abstract class dataHelper {
 
                 foreach ($IDs as $id) {
                     $images[] = array(
-                        "node_id" => $id,
-                        "name"    => "no-image.png"
+                        'node_id' => $id,
+                        'name'    => 'no-image.png'
                     );
                 }
 
@@ -616,13 +562,12 @@ abstract class dataHelper {
     private static function getNodeFeaturesArray($IDs) {
 
         return db::query(
-
-            "SELECT tf.node_id, tf.feature_value value, f.name
+            'SELECT tf.node_id, tf.feature_value value, f.name
                 FROM tree_features tf
-                    INNER JOIN features f ON f.id = tf.feature_id
-                        WHERE tf.node_id IN(%s)
-                            ORDER BY tf.feature_id ASC", join(",", $IDs)
-
+                INNER JOIN features f
+                    ON f.id = tf.feature_id
+                WHERE tf.node_id IN(%s)
+                ORDER BY tf.feature_id ASC', join(',', $IDs)
         );
 
     }
@@ -637,12 +582,10 @@ abstract class dataHelper {
 
         self::$innerOptions['pages'] = false;
         $paginator = new paginator($sourceQuery);
-        $paginator =
-
-            $paginator->setCurrentPage(request::getCurrentPage())
-                ->setItemsPerPage(self::$perPageLimit)
-                ->setSliceSizeByPages(10)
-                ->getResult();
+        $paginator = $paginator->setCurrentPage(request::getCurrentPage())
+            ->setItemsPerPage(self::$perPageLimit)
+            ->setSliceSizeByPages(10)
+            ->getResult();
 
         self::$pages           = $paginator['pages'];
         self::$number_of_items = $paginator['number_of_items'];
@@ -661,7 +604,7 @@ abstract class dataHelper {
     private static function getExpectedSortKeys() {
 
         self::$expectedSortKeys = array();
-        foreach (db::query("SHOW COLUMNS FROM tree") as $item) {
+        foreach (db::query('SHOW COLUMNS FROM tree') as $item) {
             array_push(self::$expectedSortKeys, $item['Field']);
         }
 
@@ -690,6 +633,5 @@ abstract class dataHelper {
 
 
 }
-
 
 

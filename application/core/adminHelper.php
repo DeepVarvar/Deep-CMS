@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * admin helper class
  */
@@ -13,11 +12,11 @@ abstract class adminHelper {
     private static $member = null;
 
     private static $expectedFieldTypes = array(
-        "hidden",
-        "longtext",
-        "select",
-        "checkbox",
-        "textarea"
+        'hidden',
+        'longtext',
+        'select',
+        'checkbox',
+        'textarea'
     );
 
 
@@ -27,11 +26,10 @@ abstract class adminHelper {
 
     public static function getAdminMenu() {
 
-
         $adminLink = app::config()->site->admin_tools_link;
         $menuItems = array();
 
-        foreach (utils::glob(APPLICATION . "admin/in-menu/*.php") as $item) {
+        foreach (utils::glob(APPLICATION . 'admin/in-menu/*.php') as $item) {
             $item = require_once $item;
             if (member::isPermission($item['permission'])) {
                 $item['page_alias'] = $adminLink . $item['page_alias'];
@@ -41,17 +39,15 @@ abstract class adminHelper {
         }
 
         utils::loadSortArrays();
-        uasort($menuItems, "sortArrays");
+        uasort($menuItems, 'sortArrays');
         $menuItems = array_values($menuItems);
 
         return htmlHelper::drawTreeLinksList($menuItems, request::getURI());
-
 
     }
 
 
     public static function getForm($dataArray) {
-
 
         self::$admUrl = app::config()->site->admin_tools_link;
         self::$member = member::getProfile();
@@ -65,18 +61,15 @@ abstract class adminHelper {
                 continue;
             }
 
-            $renderMethod = $props['type'] . "Draw";
+            $renderMethod = $props['type'] . 'Draw';
             if ($helper->hasMethod($renderMethod)) {
-
                 $outputString .= $helper->getMethod($renderMethod)
                     ->invoke(__CLASS__, $key, $props);
-
             }
 
         }
 
         return $outputString;
-
 
     }
 
@@ -198,6 +191,5 @@ abstract class adminHelper {
 
 
 }
-
 
 

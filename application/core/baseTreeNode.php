@@ -1,7 +1,6 @@
 <?php
 
 
-
 class baseTreeNode {
 
     protected $publicFields   = array();
@@ -16,10 +15,9 @@ class baseTreeNode {
     }
 
     public function getHumanityName() {
-        return "Unnamed node type";
+        return 'Unnamed node type';
     }
 
 }
-
 
 

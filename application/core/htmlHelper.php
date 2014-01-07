@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * helper html elements class
  */
@@ -16,7 +15,6 @@ abstract class htmlHelper {
 
     public static function drawTreeLinksList(
                     $arr, $currentURL = '', $noStrict = false) {
-
 
         $output = '';
         $lvl    = null;
@@ -60,7 +58,6 @@ abstract class htmlHelper {
 
         return $output;
 
-
     }
 
 
@@ -89,16 +86,15 @@ abstract class htmlHelper {
 
     public static function drawOptionList($options) {
 
-        $optionList = "";
+        $optionList = '';
         foreach ($options as $option) {
 
             $option = (array) $option;
-            if (!array_key_exists("selected", $option)) {
+            if (!array_key_exists('selected', $option)) {
                 $option['selected'] = false;
             }
 
             $optionList .=
-
                 ' <option value="' . $option['value'] .
                 '"' . ($option['selected']?' selected="selected"':'') .
                 '> ' . $option['description'] . ' </option> ';
@@ -111,6 +107,5 @@ abstract class htmlHelper {
 
 
 }
-
 
 

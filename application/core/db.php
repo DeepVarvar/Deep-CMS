@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * database class, mysqli wrapper
  */
@@ -14,44 +13,19 @@ abstract class db {
      * and count queries
      */
 
-    protected static
+    protected static $mysqli = null;
+    protected static $showQuery = false;
 
+    protected static $cache = array(
+        'source'     => array(),
+        'normalized' => array()
+    );
 
-        /**
-         * mysqli object
-         */
-
-        $mysqli = null,
-
-
-        /**
-         * cache of results
-         */
-
-        $cache = array(
-            "source"     => array(),
-            "normalized" => array()
-        ),
-
-
-        /**
-         * status of show single query for debug
-         */
-
-        $showQuery = false,
-
-
-        /**
-         * query counters
-         */
-
-        $c = array(
-
-            "read"      => 0,
-            "readcache" => 0,
-            "change"    => 0
-
-        );
+    protected static $c = array(
+        'read'      => 0,
+        'readcache' => 0,
+        'change'    => 0
+    );
 
 
     /**
@@ -77,10 +51,13 @@ abstract class db {
          * even though mysqli_connect_errno() reports no error (value 0)!
          */
 
-        self::$mysqli = @ new mysqli($host, $user, $pass, $dbname, (int) $port);
-
+        self::$mysqli = new mysqli($host, $user, $pass, $dbname, (int) $port);
         if (self::$mysqli->connect_errno) {
-           throw new systemErrorException(self::$mysqli->connect_errno, "Connect to MySQL server", self::$mysqli->connect_error);
+           throw new systemErrorException(
+                self::$mysqli->connect_errno,
+                'Connect to MySQL server',
+                self::$mysqli->connect_error
+            );
         }
 
     }
@@ -103,9 +80,10 @@ abstract class db {
          */
 
         self::$mysqli->set_charset($charset);
-
         if (self::$mysqli->errno) {
-            throw new systemErrorException(self::$mysqli->errno, "Database error", self::$mysqli->error);
+            throw new systemErrorException(
+                self::$mysqli->errno, 'Database error', self::$mysqli->error
+            );
         }
 
 
@@ -117,13 +95,7 @@ abstract class db {
      */
 
     public static function escapeString($str) {
-
-        if (self::$mysqli === null) {
-           throw new systemErrorException("Database error", "Server is disconnected");
-        }
-
-        return self::$mysqli->real_escape_string(str_replace("%", "%%", $str));
-
+        return self::$mysqli->real_escape_string(str_replace('%', '%%', $str));
     }
 
 
@@ -135,10 +107,9 @@ abstract class db {
     public static function escapeArray($arr) {
 
         foreach ($arr as $k => $item) {
-            $arr[$k] = "'" . self::$mysqli->real_escape_string(str_replace("%", "%%", $item)) . "'";
+            $arr[$k] = "'" . self::$mysqli->real_escape_string(str_replace('%', '%%', $item)) . "'";
         }
-
-        return join(", ", $arr);
+        return join(',', $arr);
 
     }
 
@@ -149,42 +120,30 @@ abstract class db {
 
     public static function buildQuery() {
 
-
-        /**
-         * get query string and params from arguments
-         * escaped params before query
-         */
-
-        $args = func_get_args();
-        $args = $args[0];
-
+        $args   = func_get_args();
+        $args   = $args[0];
         $params = array();
 
         foreach ($args as $key => $arg) {
-
             if ($key == 0) {
                 $query = $arg;
             } else {
-                $params[] = is_array($arg) ? self::escapeArray($arg) : self::$mysqli->real_escape_string($arg);
+                $params[] = is_array($arg)
+                    ? self::escapeArray($arg)
+                    : self::$mysqli->real_escape_string($arg);
             }
-
         }
 
         if (!isset($query)) {
-            throw new systemErrorException("Database error", "Query is empty");
+            throw new systemErrorException('Database error', 'Query is empty');
         }
-
 
         $queryString = vsprintf($query, $params);
         if (self::$showQuery) {
-
             self::$showQuery = false;
-            echo "\n\n {$queryString} \n\n";
-
+            echo "\n\n" . $queryString . "\n\n";
         }
-
         return $queryString;
-
 
     }
 
@@ -196,17 +155,14 @@ abstract class db {
 
     private static function sendSetQuery($queryString) {
 
-
-        /**
-         * init single query to database
-         */
-
-        @ self::$mysqli->query($queryString);
-
+        self::$mysqli->query($queryString);
         if (self::$mysqli->errno) {
-            throw new systemErrorException(self::$mysqli->errno, "Database error", self::$mysqli->error . " ::: {$queryString}");
+            throw new systemErrorException(
+                self::$mysqli->errno,
+                'Database error',
+                self::$mysqli->error . ' ::: ' . $queryString
+            );
         }
-
 
         self::$c['change']++;
         return self::affectedRows();
@@ -220,39 +176,28 @@ abstract class db {
 
     private static function sendQuery($queryString) {
 
-
-        /**
-         * init multi query to database
-         */
-
         self::$mysqli->multi_query($queryString);
-
-
         if (self::$mysqli->errno) {
-            throw new systemErrorException(self::$mysqli->errno, "Database error", self::$mysqli->error . " ::: {$queryString}");
+            throw new systemErrorException(
+                self::$mysqli->errno,
+                'Database error',
+                self::$mysqli->error . ' ::: ' . $queryString
+            );
         }
-
 
         $result = array();
         self::$c['read']++;
 
-
         do {
-
-
             if ($res = self::$mysqli->store_result()) {
                 while ($row = $res->fetch_assoc()) {
                     $result[] = $row;
                 }
                 $res->free();
             }
-
-
         } while (self::$mysqli->more_results() && self::$mysqli->next_result());
 
-
         return $result;
-
 
     }
 
@@ -263,19 +208,13 @@ abstract class db {
      * source as default
      */
 
-    private static function getResultFromCache($key, $type = "source") {
-
+    private static function getResultFromCache($key, $type = 'source') {
 
         if (array_key_exists($key, self::$cache[$type])) {
-
             self::$c['readcache']++;
             return self::$cache[$type][$key];
-
         }
-
-
         return array();
-
 
     }
 
@@ -286,32 +225,25 @@ abstract class db {
 
     private static function normalize($result) {
 
-
         if (sizeof($result) == 1) {
 
             $result = array_shift($result);
-
             if (sizeof($result) == 1) {
                 $result = array_shift($result);
             }
 
         } else if (isset($result[0]) and sizeof($result[0]) == 1) {
 
-
             $output = array();
             foreach ($result as $item) {
                 $output[] = array_shift($item);
             }
-
             $result = $output;
             unset($output);
 
-
         }
 
-
         return $result;
-
 
     }
 
@@ -322,22 +254,8 @@ abstract class db {
 
     public static function set() {
 
-
-        /**
-         * get escaped query string from args
-         * and receive query result
-         */
-
         $query = self::buildQuery(func_get_args());
-
-
-        /**
-         * return result as true or false
-         * for affected rows
-         */
-
         return self::sendSetQuery($query);
-
 
     }
 
@@ -348,15 +266,8 @@ abstract class db {
 
     public static function query() {
 
-
-        /**
-         * get escaped query string from args
-         * and receive query result
-         */
-
         $query = self::buildQuery(func_get_args());
         return self::sendQuery($query);
-
 
     }
 
@@ -376,41 +287,14 @@ abstract class db {
 
     public static function cachedQuery() {
 
-
-        /**
-         * get escaped query string from args
-         * and receive query result
-         */
-
         $query = self::buildQuery(func_get_args());
-
-
-        /**
-         * find result inside cache
-         */
-
-        $withCache = self::getResultFromCache($query);
-
-        if ($withCache) {
+        if ($withCache = self::getResultFromCache($query)) {
             return $withCache;
         }
 
-
-        /**
-         * result on cache not found
-         * receive result of query from DB
-         */
-
         $result = self::sendQuery($query);
-
-
-        /**
-         * save result into local cache without normalize
-         */
-
         self::$cache['source'][$query] = $result;
         return $result;
-
 
     }
 
@@ -421,42 +305,15 @@ abstract class db {
 
     public static function cachedNormalizeQuery() {
 
-
-        /**
-         * get escaped query string from args
-         * and receive query result
-         */
-
         $query = self::buildQuery(func_get_args());
-
-
-        /**
-         * find result inside cache
-         */
-
-        $withCache = self::getResultFromCache($query, "normalized");
-
-        if ($withCache) {
+        if ($withCache = self::getResultFromCache($query, 'normalized')) {
             return $withCache;
         }
 
-
-        /**
-         * result on cache not found
-         * receive query result from DB
-         */
-
         $result = self::sendQuery($query);
-
-
-        /**
-         * save result into local cache with normalize
-         */
-
         $result = self::normalize($result);
         self::$cache['source'][$query] = $result;
         return $result;
-
 
     }
 
@@ -467,16 +324,9 @@ abstract class db {
 
     public static function normalizeQuery() {
 
-
-        /**
-         * get escaped query string from args
-         * and receive query result
-         */
-
         $query = self::buildQuery(func_get_args());
         $result = self::sendQuery($query);
         return self::normalize($result);
-
 
     }
 
@@ -534,6 +384,5 @@ abstract class db {
 
 
 }
-
 
 

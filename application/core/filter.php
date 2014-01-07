@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * data filter class
  */
@@ -9,37 +8,11 @@
 class filter {
 
 
-    /**
-     * disabled autotrim input data,
-     * and autotrim value for new filter objects
-     */
-
     const NOTRIM = false;
     protected $autotrim = true;
-
-
-    protected
-
-
-        /**
-         * input source data
-         */
-
-        $input = array(),
-
-
-        /**
-         * output data
-         */
-
-        $output = array(),
-
-
-        /**
-         * input data type
-         */
-
-        $isArray = false;
+    protected $input = array();
+    protected $output = array();
+    protected $isArray = false;
 
 
     /**
@@ -48,49 +21,25 @@ class filter {
 
     public static function input($input = null, $autotrim = true) {
 
-
-        /**
-         * create new self example
-         */
-
         $example = new self();
         $example->autotrim = $autotrim;
-
 
         $example->input = $input;
         unset($input);
 
-
         if (is_array($example->input)) {
-
-
             $example->isArray = true;
             $example->output = $example->input;
-
-
-            /**
-             * normalize inner array data
-             */
-
             $example->normalizeInnerFormat();
-
-
         } else {
             $example->output = array((string) $example->input);
         }
-
-
-        /**
-         * autotrimmer
-         */
 
         if ($example->autotrim === true) {
             $example->trim();
         }
 
-
         return $example;
-
 
     }
 
@@ -102,13 +51,10 @@ class filter {
     public function trim($pattern = null) {
 
         foreach ($this->output as $k => $item) {
-
             $this->output[$k] = $pattern !== null
                 ? trim($item, $pattern)
                 : trim($item);
-
         }
-
         return $this;
 
     }
@@ -119,7 +65,7 @@ class filter {
      */
 
     public function erase($patterns) {
-        return $this->replace($patterns, "");
+        return $this->replace($patterns, '');
     }
 
 
@@ -134,7 +80,6 @@ class filter {
                 $patterns, $replacement, $item
             );
         }
-
         return $this;
 
     }
@@ -145,7 +90,7 @@ class filter {
      */
 
     public function expErase($patterns) {
-        return $this->expReplace($patterns, "");
+        return $this->expReplace($patterns, '');
     }
 
 
@@ -160,7 +105,6 @@ class filter {
                 $patterns, $replacement, $item
             );
         }
-
         return $this;
 
     }
@@ -175,7 +119,6 @@ class filter {
         foreach ($this->output as $k => $item) {
             $this->output[$k] = strip_tags($item);
         }
-
         return $this;
 
     }
@@ -190,7 +133,6 @@ class filter {
         foreach ($this->output as $k => $item) {
             $this->output[$k] = htmlspecialchars($item);
         }
-
         return $this;
 
     }
@@ -205,7 +147,6 @@ class filter {
         foreach ($this->output as $k => $item) {
             $this->output[$k] = md5($item);
         }
-
         return $this;
 
     }
@@ -219,10 +160,9 @@ class filter {
 
         foreach ($this->output as $k => $item) {
             $this->output[$k] = preg_replace(
-                "/[^\p{L}\p{M}\p{Nd}-_ ]/u", "", $item
+                '/[^\p{L}\p{M}\p{Nd}-_ ]/u', '', $item
             );
         }
-
         return $this;
 
     }
@@ -233,10 +173,8 @@ class filter {
      */
 
     public function textOnly() {
-
         $this->stripTags()->htmlSpecialChars();
         return $this;
-
     }
 
 
@@ -251,21 +189,22 @@ class filter {
             if ($lightMode) {
 
                 $this->output[$k] = preg_replace_callback(
-                    "/.+/su", "typoGraphCallback", $item);
+                    '/.+/su', 'typoGraphCallback', $item
+                );
 
             } else {
 
-                $ex = join("|", array(
-                    "[^<>]*<strong>[^<>]+<\/strong>[^<>]*",
-                    "[^<>]*<b>[^<>]+<\/b>[^<>]*",
-                    "[^<>]*<i>[^<>]+<\/i>[^<>]*",
-                    "[^<>]*<em>[^<>]+<\/em>[^<>]*",
-                    "[^<>]+" // greedy after all expected
+                $ex = join('|', array(
+                    '[^<>]*<strong>[^<>]+<\/strong>[^<>]*',
+                    '[^<>]*<b>[^<>]+<\/b>[^<>]*',
+                    '[^<>]*<i>[^<>]+<\/i>[^<>]*',
+                    '[^<>]*<em>[^<>]+<\/em>[^<>]*',
+                    '[^<>]+' // greedy after all expected
                 ));
 
                 $this->output[$k] = preg_replace_callback(
-                "/(?:(?!code[^>]+)>)({$ex})(?:<(?!\/code))/u",
-                        "hardTypoGraphCallback", $item
+                    '/(?:(?!code[^>]+)>)(' . $ex . ')(?:<(?!\/code))/u',
+                        'hardTypoGraphCallback', $item
                 );
 
             }
@@ -322,37 +261,23 @@ class filter {
 
     public function cleanRichText() {
 
-
         foreach ($this->output as $k => $item) {
 
-
-            /**
-             * other clean
-             */
-
             $this->output[$k] = preg_replace_callback(
-                "/<\w+([^>]*)\/{0,1}>/u", "cleanRichTextCallback", $item
+                '/<\w+([^>]*)\/{0,1}>/u', 'cleanRichTextCallback', $item
             );
 
             $this->output[$k] = preg_replace(
-                "/<scr.*ipt>/is", "", $this->output[$k]
+                '/<scr.*ipt>/is', '', $this->output[$k]
             );
-
-
-            /**
-             * mozilla firefox drag-n-drop base64
-             */
 
             $this->output[$k] = preg_replace(
                 '/src="data:.+"/is', 'src=""', $this->output[$k]
             );
 
-
         }
 
-
         return $this;
-
 
     }
 
@@ -370,11 +295,11 @@ function cleanRichTextCallback($args) {
 
     preg_match_all(
 
-        "/\s+(id|class|name|type|value|alt|title|src|href|"
-        . "allowfullscreen|allowscriptaccess|frameborder|"
-        . "scrolling|height|width|target|style|border|"
-        . "cellpadding|cellspacing|colspan|rowspan|align|valign"
-        . ")=\"[^\"]+\"/u", $args[1], $sub
+        '/\s+(id|class|name|type|value|alt|title|src|href|'
+        . 'allowfullscreen|allowscriptaccess|frameborder|'
+        . 'scrolling|height|width|target|style|border|'
+        . 'cellpadding|cellspacing|colspan|rowspan|align|valign'
+        . ')="[^"]+"/u', $args[1], $sub
 
     );
 
@@ -391,18 +316,16 @@ function cleanRichTextCallback($args) {
 
 function typoGraphCallback($args) {
 
-
     // replace double quotes type 1
-    $args[0] = preg_replace("/(?:\"([^\"]+)\")/u", "«$1»", $args[0]);
+    $args[0] = preg_replace('/(?:"([^"]+)")/u', '«$1»', $args[0]);
 
     // replace double quotes type 2
-    $args[0] = preg_replace("/(?:“([^“”]+)”)/u", "«$1»", $args[0]);
+    $args[0] = preg_replace('/(?:“([^“”]+)”)/u', '«$1»', $args[0]);
 
     // erase fragmentation quotes
-    $args[0] = preg_replace("/[\"“”]/u", "", $args[0]);
+    $args[0] = preg_replace('/["“”]/u', '', $args[0]);
 
     return $args[0];
-
 
 }
 
@@ -415,27 +338,24 @@ function typoGraphCallback($args) {
 
 function hardTypoGraphCallback($args) {
 
-
     // cal to light typograph
     $args[0] = typoGraphCallback($args);
 
     // replace mdash
-    $args[0] = preg_replace("/\s+-\s+/u", " — ", $args[0]);
+    $args[0] = preg_replace('/\s+-\s+/u', ' — ', $args[0]);
 
     // sticky first short word
     $args[0] = preg_replace(
-        "/(\s)([^\s—«»]{1,2})\s/u", "$1$2&nbsp;", $args[0]
+        '/(\s)([^\s—«»]{1,2})\s/u', '$1$2&nbsp;', $args[0]
     );
 
     // sticky pre first short word
     $args[0] = preg_replace(
-        "/(&nbsp;)([^\s—«»]{1,2})\s/u", "$1$2&nbsp;", $args[0]
+        '/(&nbsp;)([^\s—«»]{1,2})\s/u', '$1$2&nbsp;', $args[0]
     );
 
     return $args[0];
 
-
 }
-
 
 

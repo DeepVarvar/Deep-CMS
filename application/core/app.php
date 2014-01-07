@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * application class,
  * now exists only for config files
@@ -25,7 +24,7 @@ abstract class app {
     public static function loadConfig($name = null, $isArray = false) {
 
         if ($name === null) {
-            $name = "main.json";
+            $name = 'main.json';
         }
 
         return array_key_exists($name, self::$configs)
@@ -42,11 +41,11 @@ abstract class app {
     public static function reloadConfig($name = null, $isArray = false) {
 
         if ($name === null) {
-            $name = "main.json";
+            $name = 'main.json';
         }
 
-        $configDir = APPLICATION . "config/";
-        $generatedConfig = $configDir . $name . ".generated";
+        $configDir = APPLICATION . 'config/';
+        $generatedConfig = $configDir . $name . '.generated';
 
         $config = file_exists($generatedConfig)
             ? $generatedConfig : $configDir . $name;
@@ -55,13 +54,12 @@ abstract class app {
             exit("Configuration file $config don't have readable permission" . PHP_EOL);
         }
 
+        $patterns = array('~/\*.+?\*/~s', '~//.+\r?\n~');
         $configData = file_get_contents($config);
-
-        $patterns = array("~/\*.+?\*/~s", "~//.+\\r?\\n~");
-        $configData = preg_replace($patterns, "", $configData);
-
+        $configData = preg_replace($patterns, '', $configData);
         if (!$configData = @ json_decode($configData, $isArray)) {
-            exit("Configuration file $config is broken or have syntax error" . PHP_EOL);
+            exit('Configuration file ' . $config
+                    . 'is broken or have syntax error' . PHP_EOL);
         }
 
         self::$configs[$name] = $configData;
@@ -77,17 +75,13 @@ abstract class app {
     private static function mergeConfigData( & $conf, $data) {
 
         foreach ($data as $k => $item) {
-
             if (isset($conf->{$k})) {
-
                 if (is_array($item)) {
                     self::mergeConfigData($conf->{$k}, $item);
                 } else {
                     $conf->{$k} = $item;
                 }
-
             }
-
         }
 
     }
@@ -100,9 +94,8 @@ abstract class app {
     public static function changeConfig($name, $newData) {
 
         if (!array_key_exists($name, self::$configs)) {
-            exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
+            exit('Application [' . $name . '] cofiguration is not loaded' . PHP_EOL);
         }
-
         self::mergeConfigData(self::$configs[$name], $newData);
 
     }
@@ -115,12 +108,12 @@ abstract class app {
     public static function saveConfig($name) {
 
         if (!array_key_exists($name, self::$configs)) {
-            exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
+            exit('Application [' . $name . '] cofiguration is not loaded' . PHP_EOL);
         }
-
         $configString = json_encode(self::$configs[$name]);
         file_put_contents(
-            APPLICATION . "config/{$name}.generated", $configString, LOCK_EX
+            APPLICATION . 'config/' . $name . '.generated',
+            $configString, LOCK_EX
         );
 
     }
@@ -134,19 +127,16 @@ abstract class app {
     public static function config($name = null) {
 
         if ($name === null) {
-            $name = "main.json";
+            $name = 'main.json';
         }
-
         if (!array_key_exists($name, self::$configs)) {
-            exit("Application [{$name}] cofiguration is not loaded" . PHP_EOL);
+            exit('Application [' . $name . '] cofiguration is not loaded' . PHP_EOL);
         }
-
         return self::$configs[$name];
 
     }
 
 
 }
-
 
 

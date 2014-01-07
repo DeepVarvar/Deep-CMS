@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * commandLine class,
  * use for CLI mode
@@ -37,6 +36,5 @@ abstract class commandLine {
 
 
 }
-
 
 

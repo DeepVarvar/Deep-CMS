@@ -11,7 +11,7 @@ abstract class A_globalMemberLoginAttempt {
     public static function run() {
 
         $URI = request::getURI();
-        if ($URI == "/logout") {
+        if ($URI == '/logout') {
             member::flushLogout();
         } else if (
 

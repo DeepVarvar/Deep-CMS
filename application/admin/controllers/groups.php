@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * admin submodule, manage groups of site users
  */
@@ -24,24 +23,24 @@ class groups extends baseController {
 
         $this->permissions = array(
             array(
-                "action"      => null,
-                "permission"  => "groups_manage",
-                "description" => view::$language->permission_groups_manage
+                'action'      => null,
+                'permission'  => 'groups_manage',
+                'description' => view::$language->permission_groups_manage
             ),
             array(
-                "action"      => "create",
-                "permission"  => "group_create",
-                "description" => view::$language->permission_group_create
+                'action'      => 'create',
+                'permission'  => 'group_create',
+                'description' => view::$language->permission_group_create
             ),
             array(
-                "action"      => "delete",
-                "permission"  => "group_delete",
-                "description" => view::$language->permission_group_delete
+                'action'      => 'delete',
+                'permission'  => 'group_delete',
+                'description' => view::$language->permission_group_delete
             ),
             array(
-                "action"      => "edit",
-                "permission"  => "group_edit",
-                "description" => view::$language->permission_group_edit
+                'action'      => 'edit',
+                'permission'  => 'group_edit',
+                'description' => view::$language->permission_group_edit
             )
         );
 
@@ -55,21 +54,21 @@ class groups extends baseController {
     public function index() {
 
         $pri = member::getPriority();
-        $con = $pri > 0 ? "WHERE priority > " . $pri : "";
+        $con = $pri > 0 ? 'WHERE priority > ' . $pri : '';
 
         $sourceQuery = db::buildQueryString(
-            "SELECT id,priority,name FROM groups {$con} ORDER BY priority ASC"
+            'SELECT id, priority, name
+                FROM groups ' . $con . ' ORDER BY priority ASC'
         );
 
         $paginator = new paginator($sourceQuery);
         $paginator = $paginator->setCurrentPage(request::getCurrentPage())
             ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
-        view::assign("grouplist", $paginator['items']);
-        view::assign("pages", $paginator['pages']);
-        view::assign("node_name", view::$language->groups);
-
-        $this->setProtectedLayout("groups.html");
+        view::assign('grouplist', $paginator['items']);
+        view::assign('pages', $paginator['pages']);
+        view::assign('node_name', view::$language->groups);
+        $this->setProtectedLayout('groups.html');
 
     }
 
@@ -85,11 +84,10 @@ class groups extends baseController {
             $this->saveGroup();
         }
 
-        view::assign("permissions", $this->getPermissionsList());
-        view::assign("priority",    $this->getPriorityList());
-
-        view::assign("node_name", view::$language->group_create_new);
-        $this->setProtectedLayout("group-new.html");
+        view::assign('permissions', $this->getPermissionsList());
+        view::assign('priority',    $this->getPriorityList());
+        view::assign('node_name',   view::$language->group_create_new);
+        $this->setProtectedLayout('group-new.html');
 
     }
 
@@ -100,11 +98,10 @@ class groups extends baseController {
 
     public function delete() {
 
-
         $adminToolsLink = app::config()->site->admin_tools_link;
-        request::validateReferer($adminToolsLink . "/groups");
+        request::validateReferer($adminToolsLink . '/groups');
 
-        $groupID = request::shiftParam("id");
+        $groupID = request::shiftParam('id');
         if (!validate::isNumber($groupID)) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid
@@ -114,13 +111,13 @@ class groups extends baseController {
         if ($groupID == member::getGroupID()) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->group_cant_delete_so_group
+                view::$language->group_cant_delete_so_group
             );
         }
 
         if (!$group = db::normalizeQuery(
-            "SELECT is_protected, priority
-                FROM groups WHERE id = %u", $groupID
+            'SELECT is_protected, priority
+                FROM groups WHERE id = %u', $groupID
         )) {
             throw new memberErrorException(
                 view::$language->error, view::$language->group_not_found
@@ -142,14 +139,15 @@ class groups extends baseController {
             }
         }
 
-        db::set("DELETE FROM groups WHERE id = %u", $groupID);
-        db::set("DELETE FROM group_permissions WHERE group_id = %u",$groupID);
+        db::set('DELETE FROM groups WHERE id = %u', $groupID);
+        db::set('DELETE FROM group_permissions WHERE group_id = %u', $groupID);
 
         $this->redirectMessage(
-            SUCCESS_EXCEPTION, view::$language->success,
-                view::$language->group_is_deleted, $adminToolsLink . "/groups"
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            view::$language->group_is_deleted,
+            $adminToolsLink . '/groups'
         );
-
 
     }
 
@@ -161,25 +159,24 @@ class groups extends baseController {
 
     public function edit() {
 
-
-        $groupID = request::shiftParam("id");
+        $groupID = request::shiftParam('id');
         if (!validate::isNumber($groupID)) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->data_invalid
+                view::$language->data_invalid
             );
         }
 
         if (!member::isProtected() and member::getGroupID() == $groupID) {
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->group_cant_edit_so_group
+                view::$language->group_cant_edit_so_group
             );
         }
 
         if (!$group = db::normalizeQuery(
-            "SELECT id, name, is_protected, priority
-                FROM groups WHERE id = %u", $groupID
+            'SELECT id, name, is_protected, priority
+                FROM groups WHERE id = %u', $groupID
         )) {
             throw new memberErrorException(
                 view::$language->error, view::$language->group_not_found
@@ -190,13 +187,13 @@ class groups extends baseController {
             if ($group['is_protected']) {
                 throw new memberErrorException(
                     view::$language->error,
-                        view::$language->system_object_action_denied
+                    view::$language->system_object_action_denied
                 );
             }
             if (member::getPriority() >= $group['priority']) {
                 throw new memberErrorException(
                     view::$language->error,
-                        view::$language->group_cant_edit_hoep_group
+                    view::$language->group_cant_edit_hoep_group
                 );
             }
         }
@@ -205,13 +202,11 @@ class groups extends baseController {
             $this->saveGroup($groupID);
         }
 
-        view::assign("group", $group);
-        view::assign("permissions", $this->getPermissionsList($group['id']));
-        view::assign("priority", $this->getPriorityList($group['priority']));
-
-        view::assign("node_name", view::$language->group_edit_exists);
-        $this->setProtectedLayout("group-edit.html");
-
+        view::assign('group', $group);
+        view::assign('permissions', $this->getPermissionsList($group['id']));
+        view::assign('priority', $this->getPriorityList($group['priority']));
+        view::assign('node_name', view::$language->group_edit_exists);
+        $this->setProtectedLayout('group-edit.html');
 
     }
 
@@ -222,19 +217,18 @@ class groups extends baseController {
 
     private function saveGroup($target = null) {
 
-
         $cnf = app::config();
         $adminToolsLink = $cnf->site->admin_tools_link;
 
         if ($target === null) {
-            request::validateReferer($adminToolsLink . "/groups/create");
+            request::validateReferer($adminToolsLink . '/groups/create');
         } else {
             request::validateReferer(
-                $adminToolsLink . "/groups/edit\?id=\d+", true
+                $adminToolsLink . '/groups/edit\?id=\d+', true
             );
         }
 
-        $required = request::getRequiredPostParams(array("name", "priority"));
+        $required = request::getRequiredPostParams(array('name', 'priority'));
         if ($required === null) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_not_enough
@@ -258,7 +252,7 @@ class groups extends baseController {
 
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->group_cant_set_hoe_priority
+                view::$language->group_cant_set_hoe_priority
             );
 
         }
@@ -284,20 +278,22 @@ class groups extends baseController {
             );
         }
 
-        $permissions = request::getPostParam("permissions");
-        if (!$permissions) $permissions = array();
+        $permissions = request::getPostParam('permissions');
+        if (!$permissions) {
+            $permissions = array();
+        }
 
         $permissions = filter::input(array_keys($permissions))
             ->lettersOnly()->getData();
 
         if ($permissions) {
 
-            $inDbPermissions = db::normalizeQuery("
-                SELECT id FROM permissions
-                WHERE name IN(%s)", $permissions
+            $inDbPermissions = db::normalizeQuery(
+                'SELECT id FROM permissions
+                    WHERE name IN(%s)', $permissions
             );
 
-            if (!is_array($inDbPermissions)) {
+            if (!$inDbPermissions) {
                 $inDbPermissions = array($inDbPermissions);
             }
 
@@ -310,32 +306,34 @@ class groups extends baseController {
 
             if ($target !== null) {
                 db::set(
-                    "DELETE FROM group_permissions WHERE group_id = %u", $target
+                    'DELETE FROM group_permissions
+                        WHERE group_id = %u', $target
                 );
             }
 
-            $insertData = "(" . $groupID . ","
-                . join("), (" . $groupID . ",", $inDbPermissions) . ");";
+            $insertData = '(' . $groupID . ','
+                . join('), (' . $groupID . ',', $inDbPermissions) . ');';
 
             db::set(
-                "INSERT INTO group_permissions
-                    (group_id,permission_id) VALUES %s", $insertData
+                'INSERT INTO group_permissions
+                    (group_id, permission_id) VALUES %s', $insertData
             );
 
         }
 
-        $location = request::getPostParam("silentsave")
-            ? "/edit?id=" . $groupID : "";
+        $location = request::getPostParam('silentsave')
+            ? '/edit?id=' . $groupID : '';
 
         $message = $target === null
             ? view::$language->group_is_created
             : view::$language->group_is_edited;
 
         $this->redirectMessage(
-            SUCCESS_EXCEPTION, view::$language->success,
-                $message, $adminToolsLink . "/groups" . $location
+            SUCCESS_EXCEPTION,
+            view::$language->success,
+            $message,
+            $adminToolsLink . '/groups' . $location
         );
-
 
     }
 
@@ -355,9 +353,9 @@ class groups extends baseController {
             }
 
             $priority = array(
-                "value"       => $value,
-                "description" => $value,
-                "selected"    => ($current == $value)
+                'value'       => $value,
+                'description' => $value,
+                'selected'    => ($current == $value)
             );
 
             array_push($priorityList, $priority);
@@ -377,21 +375,20 @@ class groups extends baseController {
 
         $permissions = array();
         $inDbPermissions = db::query(
-
-            "SELECT p.name, gp.permission_id FROM permissions p
+            'SELECT p.name, gp.permission_id
+                FROM permissions p
                 LEFT JOIN group_permissions gp
                     ON(gp.permission_id = p.id AND gp.group_id = %u)
-                        ORDER BY p.id", $existsGroup
-
+                ORDER BY p.id', $existsGroup
         );
 
         foreach ($inDbPermissions as $item) {
 
             $current = $this->getControllerPermissions($item['name']);
             $checkbox = array(
-                "checked"     => ($item['permission_id'] !== null),
-                "description" => $current['description'],
-                "name"        => "permissions[{$item['name']}]"
+                'checked'     => ($item['permission_id'] !== null),
+                'description' => $current['description'],
+                'name'        => 'permissions[' . $item['name'] . ']'
             );
 
             array_push($permissions, $checkbox);
@@ -422,14 +419,13 @@ class groups extends baseController {
         }
 
         throw new memberErrorException(
-            "Permission error",
-                "Failure data. You need recalculate site permissions"
+            'Permission error',
+            'Failure data. You need recalculate site permissions'
         );
 
     }
 
 
 }
-
 
 

@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * admin submodule, site events history
  */
@@ -17,9 +16,9 @@ class events extends baseController {
 
         $this->permissions = array(
             array(
-                "action"      => null,
-                "permission"  => "events_view",
-                "description" => view::$language->permission_events_view
+                'action'      => null,
+                'permission'  => 'events_view',
+                'description' => view::$language->permission_events_view
             )
         );
 
@@ -28,24 +27,22 @@ class events extends baseController {
 
     public function index() {
 
-        $events = @ file_get_contents(APPLICATION . "logs/main.log");
+        $events = @ file_get_contents(APPLICATION . 'logs/main.log');
         if (!$events) {
             $events = array();
         } else {
             $events = array_reverse(
-                json_decode("[" . $events . "]", true)
+                json_decode('[' . $events . ']', true)
             );
         }
 
-        view::assign("node_name", view::$language->events);
-        view::assign("events", $events);
-
-        $this->setProtectedLayout("events.html");
+        view::assign('node_name', view::$language->events);
+        view::assign('events', $events);
+        $this->setProtectedLayout('events.html');
 
     }
 
 
 }
-
 
 
