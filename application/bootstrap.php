@@ -1,14 +1,13 @@
 <?php
 
 
-
 /**
  * defined main environment
  */
 
-define("FAST_RUNNING",   false);
-define("ERROR_EXCEPTION",    0);
-define("SUCCESS_EXCEPTION",  1);
+define('FAST_RUNNING',   false);
+define('ERROR_EXCEPTION',    0);
+define('SUCCESS_EXCEPTION',  1);
 
 
 /**
@@ -19,7 +18,7 @@ define("SUCCESS_EXCEPTION",  1);
 set_include_path(
     APPLICATION . PATH_SEPARATOR . APPLICATION .
     join(PATH_SEPARATOR . APPLICATION, array(
-        "core/", "library/", "prototypes/"
+        'core/', 'library/', 'prototypes/'
     ))
 );
 
@@ -31,9 +30,9 @@ set_include_path(
 function dump() {
 
     foreach (func_get_args() as $target) {
-        echo '<hr /> <pre>';
+        echo '<hr /><pre>';
         var_dump($target);
-        echo '</pre> <hr />';
+        echo '</pre><hr />';
     }
     exit();
 
@@ -44,8 +43,8 @@ function dump() {
  * install/reinstall mode
  */
 
-if (!file_exists(APPLICATION . "config/main.json")) {
-    require_once "install.php";
+if (!file_exists(APPLICATION . 'config/main.json')) {
+    require_once 'install.php';
     exit();
 }
 
@@ -57,8 +56,8 @@ if (!file_exists(APPLICATION . "config/main.json")) {
 
 $version = phpversion();
 if ((float) $version < 5.2) {
-    exit("Deep-CMS need php version 5.2 or later. "
-            . "Your php version " . $version . PHP_EOL);
+    exit('Deep-CMS need php version 5.2 or later. '
+            . 'Your php version ' . $version . PHP_EOL);
 }
 
 
@@ -67,11 +66,11 @@ if ((float) $version < 5.2) {
  */
 
 function deepCmsSimpleAutoload($fileName) {
-    $file = "{$fileName}.php";
+    $file = $fileName . '.php';
     require_once $file;
 }
 
-spl_autoload_register("deepCmsSimpleAutoload", false);
+spl_autoload_register('deepCmsSimpleAutoload', false);
 
 
 /**
@@ -82,29 +81,29 @@ spl_autoload_register("deepCmsSimpleAutoload", false);
 if (!FAST_RUNNING) {
 
     $dirs = array(
-        "admin/in-menu",
-        "autorun/after",
-        "autorun/before",
-        "cache",
-        "config",
-        "languages",
-        "library",
-        "logs",
-        "metadata",
-        "modules",
-        "prototypes",
-        "resources",
-        "upload"
+        'admin/in-menu',
+        'autorun/after',
+        'autorun/before',
+        'cache',
+        'config',
+        'languages',
+        'library',
+        'logs',
+        'metadata',
+        'modules',
+        'prototypes',
+        'resources',
+        'upload'
     );
 
     foreach ($dirs as $dir) {
-        $dir = ($dir == "upload" ? PUBLIC_HTML : APPLICATION) . $dir;
+        $dir = ($dir == 'upload' ? PUBLIC_HTML : APPLICATION) . $dir;
         if (!is_dir($dir)) {
-            exit("Core dependency target $dir is not directory" . PHP_EOL);
+            exit('Core dependency target ' . $dir . ' is not directory' . PHP_EOL);
         }
         if (!is_writable($dir)) {
-            exit("Core dependency directory $dir "
-                    . "don't have writable permission" . PHP_EOL);
+            exit('Core dependency directory ' . $dir
+                    . " don't have writable permission" . PHP_EOL);
         }
     }
 
@@ -124,12 +123,12 @@ $config = app::loadConfig();
  */
 
 if ($config->system->debug_mode) {
-    ini_set("display_errors", "On");
-    ini_set("html_errors", "On");
+    ini_set('display_errors', 'On');
+    ini_set('html_errors', 'On');
     error_reporting(E_ALL | E_STRICT);
 } else {
-    ini_set("display_errors", "Off");
-    ini_set("html_errors", "Off");
+    ini_set('display_errors', 'Off');
+    ini_set('html_errors', 'Off');
     error_reporting(0);
 }
 
@@ -140,7 +139,7 @@ if ($config->system->debug_mode) {
  */
 
 if (!$availableContexts = view::getAvailableOutputContexts()) {
-    exit("Output contexts is not available" . PHP_EOL);
+    exit('Output contexts is not available' . PHP_EOL);
 }
 
 
@@ -159,7 +158,7 @@ try {
      * exit application
      */
 
-    if (PHP_SAPI == "cli") {
+    if (PHP_SAPI == 'cli') {
         commandLine::init();
     }
 
@@ -181,7 +180,7 @@ try {
      * use mysqli wrapper
      */
 
-    define("DB_PREFIX", $config->db->prefix);
+    define('DB_PREFIX', $config->db->prefix);
     db::connect(
 
         $config->db->host,
@@ -213,9 +212,9 @@ try {
     if ($config->system->cache_enabled) {
 
         $cachedPage = md5(request::getOriginURL());
-        $availableContexts = join(",", $availableContexts);
+        $availableContexts = join(',', $availableContexts);
         $items = utils::glob(
-            APPLICATION . "cache/{{$availableContexts}}---$cachedPage",
+            APPLICATION . 'cache/{' . $availableContexts . '}---' . $cachedPage,
             GLOB_BRACE
         );
 

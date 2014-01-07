@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * simple link prototype model
  */
@@ -12,10 +11,10 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
     protected $nodeID = null;
     protected $returnedFields = array(
 
-        "in_sitemap"         => 0,
-        "in_sitemap_xml"     => 1,
-        "in_search"          => 0,
-        "page_alias"         => ""
+        'in_sitemap'     => 0,
+        'in_sitemap_xml' => 1,
+        'in_search'      => 0,
+        'page_alias'     => ''
 
     );
 
@@ -27,31 +26,31 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
     protected function in_sitemapGetData( & $f) {
 
         $f['description'] = view::$language->show_in_sitemap;
-        $f['type']        = "checkbox";
+        $f['type'] = 'checkbox';
 
     }
 
     protected function in_sitemap_xmlGetData( & $f) {
 
         $f['description'] = view::$language->show_in_sitemap_xml;
-        $f['type']        = "checkbox";
+        $f['type'] = 'checkbox';
 
     }
 
     protected function in_searchGetData( & $f) {
 
         $f['description'] = view::$language->show_in_search;
-        $f['type']        = "checkbox";
+        $f['type'] = 'checkbox';
 
     }
 
     protected function page_aliasGetData( & $f) {
 
-        $f['top']         = 20;
-        $f['selector']    = "pagealias";
-        $f['required']    = true;
-        $f['value']       = rawurldecode($f['value']);
-        $f['type']        = "longtext";
+        $f['top'] = 20;
+        $f['selector'] = 'pagealias';
+        $f['required'] = true;
+        $f['value'] = rawurldecode($f['value']);
+        $f['type']  = 'longtext';
         $f['description'] = view::$language->simple_link_page_alias;
 
     }
@@ -77,12 +76,10 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
 
         $data = (string) $data;
         if (!$data) {
-
             throw new memberErrorException(
                 view::$language->error,
-                    view::$language->simple_link_alias_invalid
+                view::$language->simple_link_alias_invalid
             );
-
         }
 
         $data = utils::normalizeInputUrl(
@@ -93,6 +90,5 @@ class simpleLinkProtoModel extends baseProtoTypeModel {
 
 
 }
-
 
 

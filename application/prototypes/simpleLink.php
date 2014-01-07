@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * simple link prototype
  */
@@ -12,21 +11,21 @@ class simpleLink extends baseTreeNode {
     protected $publicFields = array(
 
         // base
-        "id",
-        "parent_id",
-        "lvl",
-        "prototype",
-        "creation_date",
-        "last_modified",
-        "node_name",
+        'id',
+        'parent_id',
+        'lvl',
+        'prototype',
+        'creation_date',
+        'last_modified',
+        'node_name',
 
         // individual
-        "page_alias"
+        'page_alias'
 
     );
 
     protected $searchedFields = array(
-        "node_name"
+        'node_name'
     );
 
     public function getHumanityName() {
@@ -35,6 +34,5 @@ class simpleLink extends baseTreeNode {
 
 
 }
-
 
 

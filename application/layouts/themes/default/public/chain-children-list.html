@@ -8,10 +8,10 @@
     <?php
 
             $options = array(
-                "more" => array("id", "image", "page_text"),
-                "sort" => array("id" => "desc"),
-                "limit" => 4,
-                "pages" => true
+                'more'  => array('id', 'image', 'page_text'),
+                'sort'  => array('id' => 'desc'),
+                'limit' => 4,
+                'pages' => true
             );
 
             foreach (dataHelper::getChainChildren($id, $options) as $item) { ?>
@@ -32,7 +32,7 @@
     <div class="pages">
         <?php foreach (dataHelper::getPages() as $item) { ?>
             <a<?=$item['current']?' class="current"':''?>
-                href="<?=helper::changeOriginURL(array("page" => $item['number']))?>"><?=$item['number']?></a>
+                href="<?=helper::changeOriginURL(array('page' => $item['number']))?>"><?=$item['number']?></a>
         <?php } ?>
     </div>
 

@@ -33,7 +33,7 @@
     <div class="pages">
         <?php foreach ($pages as $item) { ?>
             <a<?=$item['current']?' class="current"':''?>
-                href="<?=helper::changeOriginURL(array("page" => $item['number']))?>"><?=$item['number']?></a>
+                href="<?=helper::changeOriginURL(array('page' => $item['number']))?>"><?=$item['number']?></a>
         <?php } ?>
     </div>
 

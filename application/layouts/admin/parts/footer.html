@@ -13,7 +13,7 @@
     <div id="bottom-status-block">
 
         <div class="left-place">
-            <?php if (member::isPermission("events_view")) { ?>
+            <?php if (member::isPermission('events_view')) { ?>
                 <a href="<?=$_config->site->admin_tools_link?>/events" title=" <?=view::$language->events?> "><?=view::$language->events?></a>
             <?php } ?>
         </div>
@@ -41,7 +41,7 @@
                 EITHER VERSION 2.0 OF THE LICENSE, OR ANY LATER VERSION.
             </p>
             <p>
-                Copyleft &copy; 2011-<?=date("Y")?>.
+                Copyleft &copy; 2011-<?=date('Y')?>.
                 Nikitin Iliya aka <a target="_blank" href="http://www.deepserver.ru/">Deep</a> and
                 Kashuba Dmitry aka <a target="_blank" href="http://www.kashoobazz.com/">KASHOOBAZz</a>.
             </p>
