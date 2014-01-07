@@ -727,7 +727,7 @@ form.feature div.name input[type="text"], form.feature div.value input[type="tex
     height: 32px;
 }
 
-#menu ul li a:hover {
+#menu ul li:hover > a {
     background: url(../images/menu-item-gray-background.png) repeat-x center center;
 }
 
@@ -739,10 +739,6 @@ form.feature div.name input[type="text"], form.feature div.value input[type="tex
     display: none;
     position: absolute;
     z-index: 1100;
-}
-
-#menu ul li ul {
-    left: 10px;
 }
 
 #menu ul li ul li ul {

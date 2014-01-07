@@ -18,7 +18,9 @@ abstract class controllerUtils {
         $existsTargets = array();
         $existsTargets = fsUtils::globRecursive(APPLICATION . 'modules/', '*.php');
         $existsTargets = array_merge(
-            $existsTargets, fsUtils::globRecursive(APPLICATION . 'admin/', '*.php')
+            $existsTargets,
+            array(APPLICATION . 'admin/admin.php'),
+            fsUtils::glob(APPLICATION . 'admin/controllers/*.php')
         );
 
         foreach ($existsTargets as $item) {

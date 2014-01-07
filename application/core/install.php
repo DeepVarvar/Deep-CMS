@@ -484,7 +484,7 @@ function getInstallationQueryString($prefix = "") {
         CREATE TABLE {$prefix}menu (
 
             id          BIGINT(20) NOT NULL AUTO_INCREMENT,
-            mirrir_id   BIGINT(20) NOT NULL,
+            mirror_id   BIGINT(20) NOT NULL,
             parent_id   BIGINT(20) NOT NULL DEFAULT '0',
             name        CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
 
@@ -884,7 +884,9 @@ function getAllControllers() {
     $existsTargets = array();
     $existsTargets = globRecursive(APPLICATION . 'modules/', '*.php');
     $existsTargets = array_merge(
-        $existsTargets, globRecursive(APPLICATION . 'admin/', '*.php')
+        $existsTargets,
+        array(APPLICATION . 'admin/admin.php'),
+        glob(APPLICATION . 'admin/controllers/*.php')
     );
 
     require_once APPLICATION . 'core/baseController.php';
@@ -955,6 +957,8 @@ try {
 
             if (isset($_POST['next'])) {
 
+                $_SESSION['ins']['report'] = array();
+
                 $_config->site->protocol = $_SESSION['ins']['settings']['protocol'];
                 $_config->site->domain   = $_SESSION['ins']['settings']['domain'];
 
@@ -966,7 +970,7 @@ try {
 
                 setConfig($_config);
 
-                $required = array('rootlogin', 'rootpassword');
+                $required = array('rootlogin', 'rootemail', 'rootpassword');
                 foreach ($required as $key) {
                     if (!array_key_exists($key, $_POST)) {
                         throw new installException(
@@ -976,25 +980,35 @@ try {
                 }
 
                 $rootlogin = filter::input($_POST['rootlogin'])
-                        ->lettersOnly()->getData();
+                        ->htmlSpecialChars()->getData();
 
-                $_SESSION['ins']['settings']['rootlogin'] = $rootlogin;
                 if (!$rootlogin) {
-                    $_SESSION['ins']['report'][] = $language->user_login_invalid;
+                    $_SESSION['ins']['report'][] = $language->install_root_login_invalid;
                     $_SESSION['ins']['errors'] = true;
+                } else {
+                    $_SESSION['ins']['settings']['rootlogin'] = $rootlogin;
+                }
+
+                $rootemail = filter::input($_POST['rootemail'])->getData();
+                if (!filter_var($rootemail, FILTER_VALIDATE_EMAIL)) {
+                    $_SESSION['ins']['report'][] = $language->install_email_invalid;
+                    $_SESSION['ins']['errors'] = true;
+                } else {
+                    $_SESSION['ins']['settings']['rootemail'] = $rootemail;
                 }
 
                 $rootpassword = trim((string) $_POST['rootpassword']);
-                $_SESSION['ins']['settings']['rootpassword'] = $rootpassword;
                 if (!$rootpassword) {
                     $_SESSION['ins']['errors'] = true;
                     $_SESSION['ins']['report'][]
                         = $language->install_root_password_is_empty;
+                } else {
+                    $_SESSION['ins']['settings']['rootpassword'] = $rootpassword;
                 }
 
                 $rootpassword = md5(md5(md5($rootpassword)));
                 $roothash = md5(md5(md5(
-                    '1' . $rootlogin . $rootpassword . '10support@deep-cms.ru'
+                    '1' . $rootlogin . $rootpassword . '10' . $rootemail
                 )));
 
                 if (!$_SESSION['ins']['errors']) {
@@ -1015,6 +1029,7 @@ try {
                     db::query(
                         "UPDATE {$_config->db->prefix}users SET
                             login = '{$rootlogin}',
+                            email = '{$rootemail}',
                             password = '{$rootpassword}',
                             hash = '{$roothash}'
                         WHERE id = 1"
@@ -1102,6 +1117,7 @@ try {
 
                     'domain'        => $_SERVER['SERVER_NAME'] . $port,
                     'rootlogin'     => 'root',
+                    'rootemail'     => '',
                     'rootpassword'  => '',
                     'debugmode'     => false
 

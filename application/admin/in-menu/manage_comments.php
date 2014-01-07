@@ -7,8 +7,8 @@
 
 return array(
 
-    'lvl'        => 0,
-    'sort'       => 500,
+    'lvl'        => 1,
+    'sort'       => 510,
     'node_name'  => 'comments',
     'page_alias' => '/manage-comments',
     'permission' => 'comments_manage'

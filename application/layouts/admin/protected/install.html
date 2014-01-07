@@ -251,7 +251,12 @@
 
                                     <div class="label mt-20"><?=$language->install_root_login?>:</div>
                                     <div class="elem mt-20">
-                                        <input id="rootlogin" class="required" type="text" name="rootlogin" value="<?=$_SESSION['ins']['settings']['rootlogin']?>" />
+                                        <input id="rootlogin" class="short required" type="text" name="rootlogin" value="<?=$_SESSION['ins']['settings']['rootlogin']?>" />
+                                    </div>
+
+                                    <div class="label">E-mail:</div>
+                                    <div class="elem">
+                                        <input class="required" type="text" name="rootemail" value="<?=$_SESSION['ins']['settings']['rootemail']?>" />
                                     </div>
 
                                     <div class="label"><?=$language->install_root_password?>:</div>

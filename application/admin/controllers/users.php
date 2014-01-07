@@ -343,7 +343,7 @@ class users extends baseController {
         }
 
         $userData['login'] = filter::input($userData['login'])
-                ->stripTags()->getData();
+                ->htmlSpecialChars()->getData();
 
         if (!$userData['login']) {
             throw new memberErrorException(

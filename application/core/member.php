@@ -108,10 +108,9 @@ abstract class member {
 
     public static function logged() {
 
-        $login = filter::input((string) $_POST['login'])
-            ->htmlSpecialChars()->getData();
-
+        $login = filter::input($_POST['login'])->htmlSpecialChars()->getData();
         $password = helper::getHash((string) $_POST['password']);
+
         if (!$member = db::normalizeQuery(
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
                     u.login, u.avatar, u.email, u.password, u.working_cache,
