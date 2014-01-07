@@ -14,7 +14,7 @@ abstract class textPlainOutput {
 
     public static function buildString($vars, $lastPad = 0) {
 
-        if (!$vars) {
+        if (!is_array($vars)) {
             $vars = array($vars);
         }
 

@@ -1030,8 +1030,7 @@ try {
                         foreach ($controller->getPermissions() as $current) {
 
                             $check = in_array(
-                                $current['permission'],
-                                    $controllersPermissions
+                                $current['permission'], $controllersPermissions
                             );
 
                             if (!$check) {

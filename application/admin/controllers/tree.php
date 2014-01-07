@@ -250,7 +250,7 @@ class tree extends baseController {
             )', $deletedNode['lk'], $deletedNode['rk']
         );
 
-        if (!$existsFeatureIDs) {
+        if (!is_array($existsFeatureIDs)) {
             $existsFeatureIDs = array($existsFeatureIDs);
         }
 

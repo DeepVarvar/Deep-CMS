@@ -235,7 +235,7 @@ class node_images extends baseController {
             $images = db::normalizeQuery(
                 'SELECT name FROM images WHERE node_id = %u', $targetNode
             );
-            if (!$images) {
+            if (!is_array($images)) {
                 $images = array($images);
             }
             db::set('DELETE FROM images WHERE node_id = %u', $targetNode);

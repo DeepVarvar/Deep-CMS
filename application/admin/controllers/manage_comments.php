@@ -125,14 +125,15 @@ class manage_comments extends baseController {
 
         $comment = request::getPostParam('comment_text');
         $comment = filter::input($comment)->stripTags()->getData();
-        $comment = helper::wordWrap($comment, 20);
-        $comment = nl2br($comment, true);
 
         if (!$comment) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_not_enough
             );
         }
+
+        $comment = helper::wordWrap($comment, 20);
+        $comment = nl2br($comment, true);
 
         $author = request::getPostParam('author_name');
         if ($author !== null) {
