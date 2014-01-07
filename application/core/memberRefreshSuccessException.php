@@ -18,7 +18,7 @@ class memberRefreshSuccessException extends systemException {
 
     public function getReport() {
 
-        utils::clearMainCache();
+        fsUtils::clearMainCache();
         return $this->report;
 
     }

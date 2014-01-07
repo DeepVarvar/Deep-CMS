@@ -643,7 +643,7 @@ class node_images extends baseController {
             );
         }
 
-        if (!in_array($requiredData['action'], array('replace', 'add'), true) {
+        if (!in_array($requiredData['action'], array('replace', 'add'), true)) {
             $this->exceptionExit(
                 'error',
                 view::$language->error,

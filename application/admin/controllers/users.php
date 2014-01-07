@@ -443,7 +443,6 @@ class users extends baseController {
             );
 
             $newUserID = db::lastID();
-            $target    = $newUserID;
             $userHash  = helper::getHash(
                 $newUserID
                     . $userData['login']
@@ -521,13 +520,13 @@ class users extends baseController {
 
         }
 
-        $location = request::getPostParam('silentsave')
-            ? '/edit?id=' . $target : '';
-
         // TODO view::setLanguage($userData['language']);
         $message = ($target === null)
             ? view::$language->user_is_created
             : view::$language->user_is_edited;
+
+        $location = request::getPostParam('silentsave')
+            ? '/edit?id=' . ($target === null ? $newUserID : $target) : '';
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,

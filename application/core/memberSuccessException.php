@@ -17,7 +17,7 @@ class memberSuccessException extends memberException {
 
     public function getReport() {
 
-        utils::clearMainCache();
+        fsUtils::clearMainCache();
         return $this->report;
 
     }
