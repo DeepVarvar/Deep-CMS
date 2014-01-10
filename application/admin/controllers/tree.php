@@ -271,7 +271,7 @@ class tree extends baseController {
                         AND tf.feature_id IS NULL'
             );
 
-            if (!$lostIDs) {
+            if (!is_array($lostIDs)) {
                 $lostIDs = array($lostIDs);
             }
 
@@ -1076,7 +1076,7 @@ class tree extends baseController {
             }
 
             $existsMenu = db::normalizeQuery('SELECT mirror_id FROM menu');
-            if (!$existsMenu) {
+            if (!is_array($existsMenu)) {
                 $existsMenu = array($existsMenu);
             }
 

@@ -293,7 +293,7 @@ class groups extends baseController {
                     WHERE name IN(%s)', $permissions
             );
 
-            if (!$inDbPermissions) {
+            if (!is_array($inDbPermissions)) {
                 $inDbPermissions = array($inDbPermissions);
             }
 

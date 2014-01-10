@@ -295,11 +295,7 @@ class preferences extends baseController {
             );
         }
 
-        $validate = validate::likeString(
-            $preferences['site']['default_language']
-        );
-
-        if (!$validate) {
+        if (!validate::likeString($preferences['site']['default_language'])) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_invalid
             );

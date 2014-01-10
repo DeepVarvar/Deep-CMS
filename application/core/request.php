@@ -202,7 +202,9 @@ abstract class request {
     public static function storeGETParams($str) {
 
         $params = explode('&', $str);
-        if (!$params) $params = array();
+        if (!is_array($params)) {
+            $params = array();
+        }
 
         foreach ($params as $param) {
 

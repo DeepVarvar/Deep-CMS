@@ -63,8 +63,7 @@ class comments extends baseController {
             );
         }
 
-        $data = request::getRequiredPostParams($required);
-        if (!$data) {
+        if (!$data = request::getRequiredPostParams($required)) {
             throw new memberErrorException(
                 view::$language->error, view::$language->data_not_enough
             );
