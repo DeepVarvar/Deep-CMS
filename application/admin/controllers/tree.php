@@ -1450,7 +1450,7 @@ class tree extends baseController {
             SUCCESS_EXCEPTION,
             view::$language->success,
             view::$language->node_is_edited,
-            $adminToolsLink . '/tree/branch?id={$parentID}'
+            $adminToolsLink . '/tree/branch?id=' . $parentID
         );
 
     }
