@@ -62,18 +62,6 @@ if ((float) $version < 5.2) {
 
 
 /**
- * autoload function
- */
-
-function deepCmsSimpleAutoload($fileName) {
-    $file = $fileName . '.php';
-    require_once $file;
-}
-
-spl_autoload_register('deepCmsSimpleAutoload', false);
-
-
-/**
  * slow running mode,
  * check writable permissions
  */
@@ -93,6 +81,7 @@ if (!FAST_RUNNING) {
         'modules',
         'prototypes',
         'resources',
+        'tmp',
         'upload'
     );
 
@@ -108,6 +97,27 @@ if (!FAST_RUNNING) {
     }
 
 }
+
+
+/**
+ * autoload function
+ */
+
+function DeepCmsAutoload($className) {
+
+    view::addLoadedComponent($className);
+    require_once $className . '.php';
+
+}
+
+
+/**
+ * preloading view before all etc items
+ * because view need for doloading language files
+ */
+
+spl_autoload_register('DeepCmsAutoload', false);
+require_once 'view.php';
 
 
 /**

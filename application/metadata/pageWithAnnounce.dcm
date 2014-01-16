@@ -24,6 +24,7 @@
     "author"        : "Deep",
     "support_email" : "support@deep-cms.ru",
     "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
 
 
     /**
@@ -41,7 +42,7 @@
     "main_dir"   : "prototypes/",
     "main_files" : [
         "prototypes/pageWithAnnounce.php",
-        "prototypes/pageWithAnnounceProtoModel.php",
+        "prototypes/pageWithAnnounceProtoModel.php"
     ],
 
 

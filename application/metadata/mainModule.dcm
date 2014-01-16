@@ -41,7 +41,7 @@
     "main_dir"   : "prototypes/",
     "main_files" : [
         "prototypes/mainModule.php",
-        "prototypes/mainModuleProtoModel.php",
+        "prototypes/mainModuleProtoModel.php"
     ],
 
 

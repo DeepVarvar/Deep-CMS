@@ -13,6 +13,7 @@
     "protected"   : false,
     "type"        : "module",
     "system_name" : "download",
+    "description"   : "",
 
 
     /**

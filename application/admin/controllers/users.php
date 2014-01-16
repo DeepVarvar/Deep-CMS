@@ -131,7 +131,7 @@ class users extends baseController {
             if (member::getID() == $existsUser['id']) {
                 throw new memberErrorException(
                     view::$language->error,
-                    view::$language->user_cant_edit_so_profile
+                    view::$language->user_cant_edit_same_profile
                 );
             }
             if (member::getPriority() >= $existsUser['priority']) {

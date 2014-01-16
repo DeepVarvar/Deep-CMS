@@ -24,13 +24,14 @@
     "author"        : "Deep",
     "support_email" : "support@deep-cms.ru",
     "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
 
 
     /**
      * dependency of component
      */
 
-    "dependency_components": ["captcha"],
+    "dependency_components": ["captcha_jpg"],
 
 
     /**

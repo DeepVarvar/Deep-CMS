@@ -49,6 +49,7 @@ abstract class node {
         if (isset(self::$objects[$className])) {
             return;
         }
+        view::addLoadedComponent($className);
         require_once $path;
         self::load($className);
 

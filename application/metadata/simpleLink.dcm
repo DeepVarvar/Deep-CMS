@@ -41,7 +41,7 @@
     "main_dir"   : "prototypes/",
     "main_files" : [
         "prototypes/simpleLink.php",
-        "prototypes/simpleLinkProtoModel.php",
+        "prototypes/simpleLinkProtoModel.php"
     ],
 
 

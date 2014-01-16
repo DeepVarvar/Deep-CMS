@@ -53,12 +53,9 @@ abstract class app {
             exit("Configuration file $config don't have readable permission" . PHP_EOL);
         }
 
-        $patterns = array('~/\*.+?\*/~s', '~//.+\r?\n~');
-        $configData = file_get_contents($config);
-        $configData = preg_replace($patterns, '', $configData);
-        if (!$configData = @ json_decode($configData, $isArray)) {
+        if (!$configData = self::loadJsonFile($config, $isArray)) {
             exit('Configuration file ' . $config
-                    . 'is broken or have syntax error' . PHP_EOL);
+                    . ' is broken or have syntax error' . PHP_EOL);
         }
 
         self::$configs[$name] = $configData;
@@ -170,6 +167,21 @@ abstract class app {
         file_put_contents(
             $logFile, ($existsLog?",\n":'') . $item, FILE_APPEND | LOCK_EX
         );
+
+    }
+
+
+    /**
+     * load and parse json file
+     */
+
+    public static function loadJsonFile($filePath, $isArray = false) {
+
+        $patterns = array('~/\*.+?\*/~s', '~\s+?//.+\r?\n~');
+        $fileData = file_get_contents($filePath);
+        $fileData = preg_replace($patterns, '', $fileData);
+
+        return json_decode($fileData, $isArray);
 
     }
 

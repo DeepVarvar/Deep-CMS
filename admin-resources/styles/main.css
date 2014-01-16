@@ -1199,5 +1199,61 @@ ul#root a.delete {
     margin: 14px 0;
 }
 
+.component {
+    position: relative;
+    margin: 10px 10px 20px 10px;
+    padding: 10px;
+    border: dotted 1px #d2d2d2;
+}
+
+.component .version {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.component .propertynames {
+    float: left;
+    margin: 10px 0 0 0;
+    padding: 5px 0;
+    width: 140px;
+    text-align: right;
+}
+
+.component .propertyvalues {
+    float: left;
+    margin: 10px 0 0 0;
+    padding: 5px 0 5px 10px;
+    width: 210px;
+    font-weight: bold;
+    border-right: dotted 1px #d2d2d2;
+}
+
+.component .description {
+    margin: 0 0 0 370px;
+    padding: 16px 0 16px 6px;
+    font-style: italic;
+}
+
+.component .actionbuttons {
+    padding: 30px 0 20px 30px;
+}
+
+.component .actionbuttons a {
+    margin: 0 40px 0 10px;
+    padding: 4px 16px;
+    font-weight: bold;
+    color: #000020;
+    background: #efefff;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -khtml-border-radius: 4px;
+    border-radius: 4px;
+    border: solid 1px #909090;
+}
+
+.component .actionbuttons a:hover {
+    background: #dfdfff;
+}
 
 

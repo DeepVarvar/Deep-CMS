@@ -24,6 +24,7 @@
     "author"        : "Deep",
     "support_email" : "support@deep-cms.ru",
     "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
 
 
     /**
@@ -40,7 +41,7 @@
 
     "main_dir"   : false,
     "main_files" : [
-        "library/onlineCounter.php"
+        "library/onlineCounter.php",
         "autorun/before/B_guestsOnlineCounter.php"
     ],
 

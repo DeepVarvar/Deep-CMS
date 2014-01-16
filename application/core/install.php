@@ -165,7 +165,10 @@ function saveConfigIntoFile($config) {
         "version": "2.114.395",
 
         // email address of technical support
-        "support_email": "support@deep-cms.ru"
+        "support_email": "support@deep-cms.ru",
+
+        // sources repository domain
+        "sources_domain": "sources.deep-cms.ru"
 
     },
 
@@ -1360,6 +1363,10 @@ try {
                 $_SESSION['ins']['errors'] = true;
             }
 
+            if (!$checkLibCurl = extension_loaded('curl')) {
+                $_SESSION['ins']['errors'] = true;
+            }
+
 
             /**
              * check writable permissions
@@ -1422,6 +1429,11 @@ try {
 
             $resourcesDir = APPLICATION . 'resources';
             if (!$checkResourcesDir = checkPath($resourcesDir)) {
+                $_SESSION['ins']['errors'] = true;
+            }
+
+            $tmpDir = APPLICATION . 'tmp';
+            if (!$checkTmpDir = checkPath($tmpDir)) {
                 $_SESSION['ins']['errors'] = true;
             }
 

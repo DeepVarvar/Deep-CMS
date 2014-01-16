@@ -1,0 +1,43 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+
+    <?php foreach($sourcelist as $item) { ?>
+
+        <div class="component">
+            <h3><?=$item['name']?></h3>
+            <div class="version">Версия: <b><?=$item['version']?></b></div>
+            <div class="propertynames">
+                <div>Тип компонента:</div>
+                <div>Системное имя:</div>
+                <div>Автор:</div>
+                <div>Сайт разработчика:</div>
+                <div>E-mail разработчика:</div>
+            </div>
+            <div class="propertyvalues">
+                <div><?=$item['type']?></div>
+                <div><?=$item['system_name']?></div>
+                <div><?=$item['author']?></div>
+                <div><a target="_blank" href="<?=$item['main_url']?>"><?=$item['main_url']?></a></div>
+                <div><?=$item['support_email']?></div>
+            </div>
+            <div class="description"><?=$item['description']?></div>
+            <div class="clear"></div>
+            <div class="actionbuttons">
+                <?php if ($item['installed']) { ?>
+                    <a href="<?=$_config->site->admin_tools_link?>/manage-components/delete?target=<?=$item['system_name']?>">Удалить</a>
+                    <?php if ($item['deprecated']) { ?>
+                        Доступна новая версия <b><?=$item['new_version']?></b>
+                        <a href="<?=$_config->site->admin_tools_link?>/manage-components/update?target=<?=$item['system_name']?>">Обновить</a>
+                    <?php } ?>
+                <?php } else { ?>
+                    <a href="<?=$_config->site->admin_tools_link?>/manage-components/install?target=<?=$item['system_name']?>">Установить</a>
+                <?php } ?>
+            </div>
+        </div>
+
+    <?php } ?>
+
+
+<?php require $_config->layouts->footer; ?>

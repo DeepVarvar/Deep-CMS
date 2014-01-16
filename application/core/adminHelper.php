@@ -30,13 +30,17 @@ abstract class adminHelper {
         $menuItems = array();
 
         foreach (fsUtils::glob(APPLICATION . 'admin/in-menu/*.php') as $item) {
+
+            view::addLoadedComponent(basename($item, '.php'));
             $item = require_once $item;
+
             if (!$item['permission'] or member::isPermission($item['permission'])) {
                 $item['page_alias'] = !$item['page_alias']
                     ? '#' : $adminLink . $item['page_alias'];
                 $item['node_name']  = view::$language->{$item['node_name']};
                 array_push($menuItems, $item);
             }
+
         }
 
         arrayUtils::loadSortArrays();

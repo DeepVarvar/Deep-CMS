@@ -12,84 +12,84 @@ abstract class view {
      * memory usage of application
      */
 
-    protected static $memory;
+    private static $memory;
 
 
     /**
      * timestamp of start application
      */
 
-    protected static $timer;
+    private static $timer;
 
 
     /**
      * all available output contexts
      */
 
-    protected static $availableOutputContexts = array();
+    private static $availableOutputContexts = array();
 
 
     /**
      * current output context type
      */
 
-    protected static $outputContext = null;
+    private static $outputContext = null;
 
 
     /**
      * default structure of XSD-schema for XML generation
      */
 
-    protected static $defaultXSDSchema = array('name' => 'response');
+    private static $defaultXSDSchema = array('name' => 'response');
 
 
     /**
      * current XSD-schema for XML generation
      */
 
-    protected static $XSDSchema = array('name' => 'response');
+    private static $XSDSchema = array('name' => 'response');
 
 
     /**
      * XML doctype, now supported only SYSTEM
      */
 
-    protected static $docType = null;
+    private static $docType = null;
 
 
     /**
      * lockable output context status
      */
 
-    protected static $lockedOutputContext = false;
+    private static $lockedOutputContext = false;
 
 
     /**
      * output layout
      */
 
-    protected static $layout = null;
+    private static $layout = null;
 
 
     /**
      * assigned protected vars for output layout
      */
 
-    protected static $protectedVars = array();
+    private static $protectedVars = array();
 
 
     /**
      * assigned public vars for output
      */
 
-    protected static $vars = array();
+    private static $vars = array();
 
 
     /**
      * current value of language name
      */
 
-    protected static $currentLanguageName = null;
+    private static $currentLanguageName = null;
 
 
     /**
@@ -97,6 +97,41 @@ abstract class view {
      */
 
     public static $language = array();
+
+
+    /**
+     * loaded components list for language
+     */
+
+    private static $loadedComponents = array();
+
+
+    /**
+     * maybe add language file before loading component
+     */
+
+    public static function addLoadedComponent($className) {
+
+        $newComponent = !in_array($className, self::$loadedComponents);
+        $isLoadedLang = (self::$currentLanguageName !== null);
+        if ($isLoadedLang and $newComponent) {
+
+            $lang = APPLICATION . 'languages/'
+                . self::$currentLanguageName . '/' . $className . '.php';
+
+            if (is_file($lang)) {
+                self::$loadedComponents[] = $className;
+                self::$language = array_merge(
+                    (array) self::$language, (require_once $lang)
+                );
+                self::$language = (object) self::$language;
+            }
+
+        } else if ($newComponent) {
+            self::$loadedComponents[] = $className;
+        }
+
+    }
 
 
     /**
@@ -205,32 +240,25 @@ abstract class view {
 
     public static function setLanguage($name) {
 
-        $config = app::config();
-        $languageDir = APPLICATION . 'languages/' . $name;
-        $cachedLang  = APPLICATION . 'cache/' . $name . '_lang';
+        if ($name != self::$currentLanguageName) {
 
-        if ($config->system->cache_enabled and file_exists($cachedLang)) {
-
-            self::$language = unserialize(
-                file_get_contents($cachedLang)
-            );
-
-        } else if ($name != self::$currentLanguageName and is_dir($languageDir)) {
-
+            $languageDir = APPLICATION . 'languages/' . $name . '/';
             self::$language = array();
-            foreach (fsUtils::glob($languageDir . '/*.php') as $lang) {
-                self::$language = array_merge(
-                    self::$language, (require_once $lang)
-                );
+
+            $componentsList = array();
+            foreach (self::$loadedComponents as $langFile) {
+                $langPath = $languageDir . $langFile . '.php';
+                if (is_file($langPath)) {
+                    $componentsList[] = $langFile;
+                    self::$language = array_merge(
+                        self::$language, (require_once $langPath)
+                    );
+                }
             }
 
+            self::$loadedComponents    = $componentsList;
             self::$currentLanguageName = $name;
-            self::$language = (object) self::$language;
-            if ($config->system->cache_enabled) {
-                file_put_contents(
-                    $cachedLang, serialize(self::$language), LOCK_EX
-                );
-            }
+            self::$language            = (object) self::$language;
 
         }
 
