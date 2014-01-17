@@ -633,6 +633,24 @@ abstract class view {
 
 
     /**
+     * return javascript environment variables
+     */
+
+    public static function getJsEnvironmentVariables() {
+
+        $c = app::config();
+        return 'var variables = ' . json_encode(array(
+            'language'         => member::getLanguage(),
+            'admin_tools_link' => $c->site->admin_tools_link,
+            'admin_resources'  => $c->site->admin_resources
+            //'session_name'     => session_name(),
+            //'session_id'       => session_id()
+        )) . ', language = ' . json_encode(self::$language) . ';';
+
+    }
+
+
+    /**
      * return initialized timer value
      */
 
