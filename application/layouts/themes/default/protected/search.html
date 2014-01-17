@@ -1,0 +1,41 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+
+    <form action="<?$page_alias?>" method="get">
+        <input type="text" name="searchwords" value="<?=$searchwords?>"
+                autocomplete="off"
+                placeholder="<?=view::$language->search_placeholder?>" />
+        <input type="submit" value="<?=view::$language->search_go?>" />
+    </form>
+
+    <?php if (!$search_result) { ?>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <?php if ($searchwords) { ?>
+            <h2><?=view::$language->search_epmty_result?></h2>
+        <?php } ?>
+    <?php } ?>
+
+    <?php foreach ($search_result as $item) { ?>
+
+        <div class="searchitem">
+            <h3><?=$item['node_name']?></h3>
+            <div>
+                <?=helper::contentPreview($item['page_text'], 200)?>
+                <a href="<?=$item['page_alias']?>"><?=view::$language->search_more?></a>
+            </div>
+        </div>
+
+    <?php } ?>
+
+    <div class="pages">
+        <?php foreach ($pages as $item) { ?>
+            <a<?=$item['current']?' class="current"':''?>
+                href="<?=helper::changeOriginURL(array('page' => $item['number']))?>"><?=$item['number']?></a>
+        <?php } ?>
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

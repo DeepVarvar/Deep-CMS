@@ -26,21 +26,21 @@ class mainModuleProtoModel extends basePrototypeModel {
 
     protected function in_sitemapGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_sitemap;
+        $f['description'] = view::$language->main_module_prototype_show_in_sitemap;
         $f['type'] = 'checkbox';
 
     }
 
     protected function in_sitemap_xmlGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_sitemap_xml;
+        $f['description'] = view::$language->main_module_prototype_show_in_sitemap_xml;
         $f['type'] = 'checkbox';
 
     }
 
     protected function in_searchGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_search;
+        $f['description'] = view::$language->main_module_prototype_show_in_search;
         $f['type'] = 'hidden';
 
     }
@@ -52,7 +52,7 @@ class mainModuleProtoModel extends basePrototypeModel {
         $f['required'] = true;
         $f['value']    = rawurldecode($f['value']);
         $f['type']     = 'longtext';
-        $f['description'] = view::$language->main_module_module_alias;
+        $f['description'] = view::$language->main_module_prototype_module_alias;
 
     }
 
@@ -61,10 +61,9 @@ class mainModuleProtoModel extends basePrototypeModel {
         $options = array();
         foreach (protoUtils::getAvailablePublicModules() as $item) {
 
-            $description = $item;
-            if (isset(view::$language->{$item})) {
-                $description = view::$language->{$item};
-            }
+            $description = isset(view::$language->{$item})
+                ? view::$language->{$item} : $item;
+
             $option = array('value' => $item, 'description' => $description);
             if ($f['value'] == $item) {
                 $option['selected'] = true;
@@ -75,7 +74,7 @@ class mainModuleProtoModel extends basePrototypeModel {
 
         $f['value'] = $options;
         $f['type']  = 'select';
-        $f['description'] = view::$language->main_module_connected_module;
+        $f['description'] = view::$language->main_module_prototype_connected_module;
 
     }
 
@@ -101,13 +100,13 @@ class mainModuleProtoModel extends basePrototypeModel {
         $data = (string) $data;
         if (!$data) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->page_alias_invalid
+                view::$language->main_module_prototype_error,
+                view::$language->main_module_prototype_module_alias_invalid
             );
         }
 
         $data = protoUtils::normalizeInputUrl(
-            $data, view::$language->page_alias_invalid
+            $data, view::$language->main_module_prototype_module_alias_invalid
         );
 
     }
@@ -119,8 +118,8 @@ class mainModuleProtoModel extends basePrototypeModel {
             $data = 'NULL';
         } else if (!in_array($data, protoUtils::getAvailablePublicModules(), true)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->main_module_module_not_found
+                view::$language->main_module_prototype_error,
+                view::$language->main_module_prototype_module_not_found
             );
         }
 

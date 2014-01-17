@@ -1,16 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
 
     <?=view::getRefreshMetaData()?>
 
     <meta http-equiv="Content-language" content="en" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title><?=$exception['title']?> :: <?=$exception['message']?></title>
-
-</head>
-
-<body>
 
     <style type="text/css">
 
@@ -44,6 +39,11 @@
 
     </style>
 
+    <title><?=$exception['title']?> :: <?=$exception['message']?></title>
+
+</head>
+<body>
+
     <div id="container">
 
         <h1><?=$exception['title']?></h1>
@@ -56,7 +56,6 @@
         <?php } ?>
 
         <p>Throw in <i><?=$exception['file']?></i> on line <b><?=$exception['line']?></b></p>
-
 
         <?php if (sizeof($exception['trace']) > 0) { ?>
 

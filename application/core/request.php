@@ -340,7 +340,8 @@ abstract class request {
 
         if (!$status) {
             throw new memberErrorException(
-                view::$language->error, view::$language->referer_invalid_or_csrf
+                view::$language->app_error,
+                view::$language->app_referer_invalid_or_csrf
             );
         }
 

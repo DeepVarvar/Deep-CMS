@@ -392,8 +392,8 @@ abstract class view {
                     self::setLayout('protected/exception.html');
                     if ($e instanceof systemErrorException) {
                         $report['code']    = 404;
-                        $report['title']   = view::$language->error . ' 404';
-                        $report['message'] = view::$language->page_not_found;
+                        $report['title']   = view::$language->app_error . ' 404';
+                        $report['message'] = view::$language->app_page_not_found;
                     }
 
                     $basedReport = array(
@@ -457,20 +457,20 @@ abstract class view {
 
                     case 'txt':
                         request::addHeader('Content-Type: text/plain');
-                        $txt = textPlainOutput::buildString(self::$vars);
-                        $layout = 'layouts/system/txt.html';
+                        $raw = textPlainOutput::buildString(self::$vars);
+                        $layout = 'layouts/system/raw.html';
                     break;
 
                     case 'json':
                         request::addHeader('Content-Type: application/json');
-                        $json = json_encode(self::$vars);
-                        $layout = 'layouts/system/json.html';
+                        $raw = json_encode(self::$vars);
+                        $layout = 'layouts/system/raw.html';
                     break;
 
                     case 'xml':
                         request::addHeader('Content-Type: application/xml');
-                        $xml = xmlOutput::buildXMLString(self::$vars, self::$XSDSchema, self::$docType);
-                        $layout = 'layouts/system/xml.html';
+                        $raw = xmlOutput::buildXMLString(self::$vars, self::$XSDSchema, self::$docType);
+                        $layout = 'layouts/system/raw.html';
                     break;
 
                     default:

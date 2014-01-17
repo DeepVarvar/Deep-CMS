@@ -47,10 +47,10 @@ $requiredDirectories = array(
     'autorun/before',
     'cache',
     'config',
-    'languages', // отдельно
+    'languages',
     'layouts/admin/parts',
     'layouts/admin/protected',
-    'layouts/themes', // отдельно
+    'layouts/themes',
     'library',
     'logs',
     'metadata',
@@ -64,6 +64,27 @@ $requiredDirectories = array(
 foreach ($requiredDirectories as $item) {
     $dirPath = ($item == 'upload' ? PUBLIC_HTML : APPLICATION) . $item;
     checkPath($dirPath, IS_DIR, IS_WRITABLE);
+}
+
+$requiredUnwritabeDirectories = array(
+    'layouts/themes/default',
+    'modules/search',
+    'modules/sitemap',
+    'modules/sitemap_xml'
+);
+
+foreach ($requiredUnwritabeDirectories as $item) {
+    checkPath(APPLICATION . $item, IS_DIR);
+}
+
+$requiredInnerWritabeDirectories = array(
+    'layouts/themes/default/parts',
+    'layouts/themes/default/protected',
+    'layouts/themes/default/public'
+);
+
+foreach ($requiredInnerWritabeDirectories as $item) {
+    checkPath(APPLICATION . $item, IS_DIR, IS_WRITABLE);
 }
 
 
@@ -155,9 +176,17 @@ $requiredFiles = array(
     'layouts/admin/protected/users.html',
     'layouts/admin/protected/variables.html',
     'layouts/system/debug.html',
-    'layouts/system/json.html',
-    'layouts/system/txt.html',
-    'layouts/system/xml.html',
+    'layouts/system/raw.html',
+    'layouts/themes/default/parts/footer.html',
+    'layouts/themes/default/parts/header.html',
+    'layouts/themes/default/protected/exception.html',
+    'layouts/themes/default/protected/search.html',
+    'layouts/themes/default/protected/sitemap.html',
+    'layouts/themes/default/public/page.html',
+    'modules/search/search.php',
+    'modules/sitemap/sitemap.php',
+    'modules/sitemap_xml/autoloaded',
+    'modules/sitemap_xml/sitemap_xml.php',
     'prototypes/mainModule.php',
     'prototypes/mainModuleProtoModel.php',
     'prototypes/simpleLink.php',
@@ -213,12 +242,21 @@ $requiredLanguageFiles = array(
     'app.php',
     'events.php',
     'groups.php',
+    'helper.php',
     'install.php',
+    'mainModule.php',
+    'mainModuleProtoModel.php',
     'manage_components.php',
     'menu.php',
     'node_features.php',
     'node_images.php',
     'preferences.php',
+    'search.php',
+    'simpleLink.php',
+    'simpleLinkProtoModel.php',
+    'simplePage.php',
+    'simplePageProtoModel.php',
+    'themeUtils.php',
     'tree.php',
     'users.php'
 );

@@ -51,15 +51,15 @@ abstract class themeUtils {
             $path = $theme . $dir;
             if (!file_exists($path)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->required_directory_not_found . ': ' . $path
+                    view::$language->theme_utils_error,
+                    view::$language->theme_utils_req_dir_not_found . ': ' . $path
                 );
             }
 
             if (!is_dir($path)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->path_is_not_a_directory . ': ' . $path
+                    view::$language->theme_utils_error,
+                    view::$language->theme_utils_path_is_not_a_dir . ': ' . $path
                 );
             }
 
@@ -67,8 +67,8 @@ abstract class themeUtils {
                 $file = $path . '/' . $name;
                 if (!is_file($file)) {
                     throw new memberErrorException(
-                        view::$language->error,
-                        view::$language->required_file_not_found . ': ' . $file
+                        view::$language->theme_utils_error,
+                        view::$language->theme_utils_req_file_not_found . ': ' . $file
                     );
                 }
             }

@@ -2,11 +2,13 @@
 
 
     <h1><?=$page_h1?></h1>
+
     <?=$page_text?>
+
     <div class="clear"></div>
 
-    <?php $options = array('more' => array('image', 'page_text'));
-            foreach (dataHelper::getNodeChildren($id, $options) as $item) { ?>
+    <?php $options = array('more' => array('image', 'page_text')); ?>
+    <?php foreach (dataHelper::getNodeChildren($id, $options) as $item) { ?>
 
         <div class="listitem">
             <img alt="<?=$item['node_name']?>" src="/upload/thumb_<?=$item['image']?>" />

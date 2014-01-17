@@ -76,7 +76,8 @@ class basePrototypeModel {
 
                 if ($this->preparedProperties[$key] === null) {
                     throw new memberErrorException(
-                        view::$language->error, view::$language->data_not_enough
+                        view::$language->app_error,
+                        view::$language->app_data_not_enough
                     );
                 }
 

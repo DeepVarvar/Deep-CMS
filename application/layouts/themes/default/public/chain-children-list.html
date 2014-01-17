@@ -2,19 +2,23 @@
 
 
     <h1><?=$page_h1?></h1>
+
     <?=$page_text?>
+
     <div class="clear"></div>
 
     <?php
 
-            $options = array(
-                'more'  => array('id', 'image', 'page_text'),
-                'sort'  => array('id' => 'desc'),
-                'limit' => 4,
-                'pages' => true
-            );
+        $options = array(
+            'more'  => array('id', 'image', 'page_text'),
+            'sort'  => array('id' => 'desc'),
+            'limit' => 4,
+            'pages' => true
+        );
 
-            foreach (dataHelper::getChainChildren($id, $options) as $item) { ?>
+    ?>
+
+    <?php foreach (dataHelper::getChainChildren($id, $options) as $item) { ?>
 
         <div class="listitem">
             <img alt="<?=$item['node_name']?>" src="/upload/thumb_<?=$item['image']?>" />
@@ -31,8 +35,9 @@
 
     <div class="pages">
         <?php foreach (dataHelper::getPages() as $item) { ?>
-            <a<?=$item['current']?' class="current"':''?>
-                href="<?=helper::changeOriginURL(array('page' => $item['number']))?>"><?=$item['number']?></a>
+            <?php $current = $item['current'] ? ' class="current"' : ''; ?>
+            <?php $href = helper::changeOriginURL(array('page' => $item['number'])); ?>
+            <a<?=$current?> href="<?=$href?>"><?=$item['number']?></a>
         <?php } ?>
     </div>
 

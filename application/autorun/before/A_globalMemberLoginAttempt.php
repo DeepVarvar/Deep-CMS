@@ -19,7 +19,8 @@ abstract class A_globalMemberLoginAttempt {
             and request::isPost() and member::isAttemptLogin()) {
             if (!member::logged()) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->login_or_pass_bad
+                    view::$language->app_error,
+                    view::$language->app_login_or_pass_bad
                 );
             }
 

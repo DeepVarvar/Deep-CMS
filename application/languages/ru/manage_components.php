@@ -31,7 +31,8 @@ return array(
     'manage_components_type'                => 'Тип компонента',
     'manage_components_undefined_type'      => 'Неизвестный тип компонента',
     'manage_components_update'              => 'Обновить',
-    'manage_components_version'             => 'Версия'
+    'manage_components_version'             => 'Версия',
+    'permission_components_manage'          => 'Управление компонентами сайта'
 
 );
 

@@ -65,7 +65,15 @@ class manage_components extends baseController {
      */
 
     public function setPermissions() {
-        $this->permissions = array();
+
+        $this->permissions = array(
+            array(
+                'action'      => null,
+                'permission'  => 'components_manage',
+                'description' => view::$language->permission_components_manage
+            )
+        );
+
     }
 
 

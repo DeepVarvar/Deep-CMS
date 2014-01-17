@@ -34,7 +34,7 @@ class simplePageProtoModel extends basePrototypeModel {
 
     protected function in_sitemapGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_sitemap;
+        $f['description'] = view::$language->simple_page_prototype_show_in_sitemap;
         $f['type'] = 'checkbox';
 
     }
@@ -45,7 +45,7 @@ class simplePageProtoModel extends basePrototypeModel {
 
     protected function in_searchGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_search;
+        $f['description'] = view::$language->simple_page_prototype_show_in_search;
         $f['type'] = 'checkbox';
 
     }
@@ -55,7 +55,7 @@ class simplePageProtoModel extends basePrototypeModel {
         $f['top']  = 20;
         $f['type'] = 'select';
         $f['required'] = true;
-        $f['description'] = view::$language->layout;
+        $f['description'] = view::$language->simple_page_prototype_layout;
         $f['value'] = protoUtils::makeOptionsArray(
             layoutUtils::getAvailablePublicLayouts(), $f['value']
         );
@@ -69,7 +69,7 @@ class simplePageProtoModel extends basePrototypeModel {
         $f['required'] = true;
         $f['value'] = rawurldecode($f['value']);
         $f['type']  = 'longtext';
-        $f['description'] = view::$language->page_alias;
+        $f['description'] = view::$language->simple_page_prototype_page_alias;
 
     }
 
@@ -77,7 +77,7 @@ class simplePageProtoModel extends basePrototypeModel {
 
         $f['value'] = rawurldecode($f['value']);
         $f['type']  = 'longtext';
-        $f['description'] = view::$language->permanent_redirect;
+        $f['description'] = view::$language->simple_page_prototype_permanent_redirect;
 
     }
 
@@ -85,7 +85,7 @@ class simplePageProtoModel extends basePrototypeModel {
 
         $f['top']  = 20;
         $f['type'] = 'select';
-        $f['description'] = view::$language->change_freq;
+        $f['description'] = view::$language->simple_page_prototype_change_freq;
         $f['value'] = protoUtils::makeOptionsArray(
             protoUtils::getAvailableChangeFreq(), $f['value']
         );
@@ -95,7 +95,7 @@ class simplePageProtoModel extends basePrototypeModel {
     protected function searchers_priorityGetData( & $f) {
 
         $f['type'] = 'select';
-        $f['description'] = view::$language->searchers_priority;
+        $f['description'] = view::$language->simple_page_prototype_searchers_priority;
         $f['value'] = protoUtils::makeOptionsArray(
             protoUtils::getAvailableSearchersPriority(), $f['value']
         );
@@ -105,7 +105,7 @@ class simplePageProtoModel extends basePrototypeModel {
     protected function page_titleGetData( & $f) {
 
         $f['type'] = 'longtext';
-        $f['description'] = view::$language->page_title;
+        $f['description'] = view::$language->simple_page_prototype_page_title;
 
     }
 
@@ -113,21 +113,21 @@ class simplePageProtoModel extends basePrototypeModel {
 
         $f['top']  = 20;
         $f['type'] = 'longtext';
-        $f['description'] = view::$language->h1;
+        $f['description'] = view::$language->simple_page_prototype_h1;
 
     }
 
     protected function meta_keywordsGetData( & $f) {
 
         $f['type'] = 'longtext';
-        $f['description'] = view::$language->meta_keywords;
+        $f['description'] = view::$language->simple_page_prototype_meta_keywords;
 
     }
 
     protected function meta_descriptionGetData( & $f) {
 
         $f['type'] = 'longtext';
-        $f['description'] = view::$language->meta_description;
+        $f['description'] = view::$language->simple_page_prototype_meta_description;
 
     }
 
@@ -137,7 +137,7 @@ class simplePageProtoModel extends basePrototypeModel {
         $f['node_id'] = ($this->nodeID?$this->nodeID:'new');
         $f['type']    = 'textarea';
         $f['editor']  = true;
-        $f['description'] = view::$language->simple_page_page_text;
+        $f['description'] = view::$language->simple_page_prototype_page_text;
 
     }
 
@@ -163,13 +163,13 @@ class simplePageProtoModel extends basePrototypeModel {
         $data = (string) $data;
         if (!$data) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->page_alias_invalid
+                view::$language->simple_page_prototype_error,
+                view::$language->simple_page_prototype_page_alias_invalid
             );
         }
 
         $data = protoUtils::normalizeInputUrl(
-            $data, view::$language->page_alias_invalid
+            $data, view::$language->simple_page_prototype_page_alias_invalid
         );
 
     }
@@ -179,7 +179,7 @@ class simplePageProtoModel extends basePrototypeModel {
         $data = (string) $data;
         if ($data) {
             $data = protoUtils::normalizeInputUrl(
-                $data, view::$language->permanent_redirect_invalid
+                $data, view::$language->simple_page_prototype_permanent_redirect_invalid
             );
         }
 
@@ -190,8 +190,8 @@ class simplePageProtoModel extends basePrototypeModel {
         $data = (string) $data;
         if (!in_array($data, layoutUtils::getAvailablePublicLayouts())) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->layout_not_found
+                view::$language->simple_page_prototype_error,
+                view::$language->simple_page_prototype_layout_not_found
             );
         }
 
@@ -220,8 +220,8 @@ class simplePageProtoModel extends basePrototypeModel {
             $data = 'NULL';
         } else if (!in_array($data, protoUtils::getAvailableChangeFreq(), true)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->change_freq_invalid
+                view::$language->simple_page_prototype_error,
+                view::$language->simple_page_prototype_change_freq_invalid
             );
         }
 
@@ -234,8 +234,8 @@ class simplePageProtoModel extends basePrototypeModel {
             $data = 'NULL';
         } else if (!in_array($data, protoUtils::getAvailableSearchersPriority(), true)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->searchers_priority_invalid
+                view::$language->simple_page_prototype_error,
+                view::$language->simple_page_prototype_searchers_priority_invalid
             );
         }
 

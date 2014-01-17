@@ -114,7 +114,7 @@ abstract class protoUtils {
 
             if (!$m) {
                 throw new memberErrorException(
-                    view::$language->error, $errorMessage
+                    view::$language->app_error, $errorMessage
                 );
             }
 

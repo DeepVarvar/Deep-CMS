@@ -71,7 +71,7 @@ abstract class member {
 
         self::$profile['timezone'] = $config->site->default_timezone;
         self::$profile['language'] = $config->site->default_language;
-        self::$profile['login']    = view::$language->guest;
+        self::$profile['login']    = view::$language->app_guest;
         self::$profile['avatar']   = 'no-avatar.png';
 
         switch (true) {
@@ -154,16 +154,16 @@ abstract class member {
         $c = app::config();
         if ($c->system->cookie_expires_time >= 2147483646) {
             throw new systemErrorException(
-                view::$language->error,
-                view::$language->cookie_expires_is_too_long
+                view::$language->app_error,
+                view::$language->app_cookie_exp_is_long
             );
         }
 
         $featureTime = time() + $c->system->cookie_expires_time;
         if ($featureTime >= 2147483646) {
             throw new systemErrorException(
-                view::$language->error,
-                view::$language->cookie_expires_is_too_long
+                view::$language->app_error,
+                view::$language->app_cookie_exp_is_long
             );
         }
 

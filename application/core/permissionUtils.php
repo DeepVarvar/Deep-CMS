@@ -68,8 +68,8 @@ abstract class permissionUtils {
 
                 throw new memberErrorException(
                     403,
-                    view::$language->error,
-                    view::$language->action_denied
+                    view::$language->app_error,
+                    view::$language->app_action_denied
                 );
 
             }

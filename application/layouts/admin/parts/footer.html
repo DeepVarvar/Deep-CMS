@@ -14,16 +14,16 @@
 
         <div class="left-place">
             <?php if (member::isPermission('events_view')) { ?>
-                <a href="<?=$_config->site->admin_tools_link?>/events" title=" <?=view::$language->admin_events?> "><?=view::$language->admin_events?></a>
+                <a href="<?=$_config->site->admin_tools_link?>/events"><?=view::$language->admin_events?></a>
             <?php } ?>
         </div>
 
         <div class="right-place r">
 
-            <p><?=view::$language->sql_count_read?>: <b><?=db::readQCount()?></b></p>
-            <p><?=view::$language->sql_count_cache?>: <b><?=db::readCacheQCount()?></b></p>
-            <p><?=view::$language->sql_count_change?>: <b><?=db::changeQCount()?></b></p>
-            <p><?=view::$language->sql_count_sum?>: <b><?=db::sumQCount()?></b></p>
+            <p><?=view::$language->admin_sql_count_read?>: <b><?=db::readQCount()?></b></p>
+            <p><?=view::$language->admin_sql_count_cache?>: <b><?=db::readCacheQCount()?></b></p>
+            <p><?=view::$language->admin_sql_count_change?>: <b><?=db::changeQCount()?></b></p>
+            <p><?=view::$language->admin_sql_count_sum?>: <b><?=db::sumQCount()?></b></p>
 
         </div>
 
@@ -57,8 +57,8 @@
     </div>
 
     <div class="time-counter c">
-        <?=view::$language->generation_time?> <?=helper::getGenerationTime()?> <?=view::$language->sec?>.
-        <?=view::$language->memory_usage?>: <?=helper::getMemoryUsage()?>
+        <?=view::$language->admin_generation_time?> <?=helper::getGenerationTime()?> <?=view::$language->admin_sec?>.
+        <?=view::$language->admin_memory_usage?>: <?=helper::getMemoryUsage()?>
     </div>
 
 </div>

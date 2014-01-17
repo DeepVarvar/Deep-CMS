@@ -25,21 +25,21 @@ class simpleLinkProtoModel extends basePrototypeModel {
 
     protected function in_sitemapGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_sitemap;
+        $f['description'] = view::$language->simple_link_prototype_show_in_sitemap;
         $f['type'] = 'checkbox';
 
     }
 
     protected function in_sitemap_xmlGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_sitemap_xml;
+        $f['description'] = view::$language->simple_link_prototype_show_in_sitemap_xml;
         $f['type'] = 'checkbox';
 
     }
 
     protected function in_searchGetData( & $f) {
 
-        $f['description'] = view::$language->show_in_search;
+        $f['description'] = view::$language->simple_link_prototype_show_in_search;
         $f['type'] = 'checkbox';
 
     }
@@ -51,7 +51,7 @@ class simpleLinkProtoModel extends basePrototypeModel {
         $f['required'] = true;
         $f['value'] = rawurldecode($f['value']);
         $f['type']  = 'longtext';
-        $f['description'] = view::$language->simple_link_page_alias;
+        $f['description'] = view::$language->simple_link_prototype_link_alias;
 
     }
 
@@ -77,13 +77,13 @@ class simpleLinkProtoModel extends basePrototypeModel {
         $data = (string) $data;
         if (!$data) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->simple_link_alias_invalid
+                view::$language->simple_link_prototype_error,
+                view::$language->simple_link_prototype_link_alias_invalid
             );
         }
 
         $data = protoUtils::normalizeInputUrl(
-            $data, view::$language->simple_link_alias_invalid
+            $data, view::$language->simple_link_prototype_link_alias_invalid
         );
 
     }

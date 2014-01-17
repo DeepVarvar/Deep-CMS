@@ -119,8 +119,8 @@ abstract class router {
             )) {
 
                 throw new systemErrorException(
-                    view::$language->error,
-                    view::$language->page_not_found
+                    view::$language->app_error,
+                    view::$language->app_page_not_found
                 );
 
             }
@@ -145,8 +145,8 @@ abstract class router {
 
             if (!$loadedPage['module_name']) {
                 throw new systemErrorException(
-                    view::$language->error,
-                    view::$language->module_not_enabled
+                    view::$language->app_error,
+                    view::$language->app_module_not_enabled
                 );
             }
 
