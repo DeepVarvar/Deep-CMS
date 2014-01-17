@@ -62,44 +62,6 @@ if ((float) $version < 5.2) {
 
 
 /**
- * slow running mode,
- * check writable permissions
- */
-
-if (!FAST_RUNNING) {
-
-    $dirs = array(
-        'admin/in-menu',
-        'autorun/after',
-        'autorun/before',
-        'cache',
-        'config',
-        'languages',
-        'library',
-        'logs',
-        'metadata',
-        'modules',
-        'prototypes',
-        'resources',
-        'tmp',
-        'upload'
-    );
-
-    foreach ($dirs as $dir) {
-        $dir = ($dir == 'upload' ? PUBLIC_HTML : APPLICATION) . $dir;
-        if (!is_dir($dir)) {
-            exit('Core dependency target ' . $dir . ' is not directory' . PHP_EOL);
-        }
-        if (!is_writable($dir)) {
-            exit('Core dependency directory ' . $dir
-                    . " don't have writable permission" . PHP_EOL);
-        }
-    }
-
-}
-
-
-/**
  * autoload function
  */
 
@@ -118,6 +80,24 @@ function DeepCmsAutoload($className) {
 
 spl_autoload_register('DeepCmsAutoload', false);
 require_once 'view.php';
+
+
+/**
+ * slow running mode,
+ * check writable permissions
+ */
+
+if (!FAST_RUNNING) {
+
+    $slowRunning = APPLICATION . 'core/slowRunning.php';
+    if (!is_file($slowRunning)) {
+        exit('File ' . $slowRunning
+            . ' not found or don\'t have read permission' . PHP_EOL);
+    }
+
+    require_once $slowRunning;
+
+}
 
 
 /**

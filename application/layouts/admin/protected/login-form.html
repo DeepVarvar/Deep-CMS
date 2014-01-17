@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -18,7 +18,7 @@
         <div class="left-item-last">&nbsp;</div>
 
         <div class="right-item-last">&nbsp;</div>
-        <div class="right-item"><a href="/" title=" <?=view::$language->logout?> "><?=view::$language->logout?></a></div>
+        <div class="right-item"><a href="/"><?=view::$language->admin_logout?></a></div>
         <div class="right-item-first">&nbsp;</div>
 
     </div>
@@ -31,9 +31,9 @@
         <form action="<?=$_config->site->admin_tools_link?>" method="post">
 
             <div class="half-height"><input type="hidden" name="sign_in" value="" /></div>
-            <div><?=view::$language->nickname_or_email?>: <input id="login" type="text" name="login" value="" autocomplete="off" /></div>
-            <div><?=view::$language->password?>: <input type="password" name="password" value="" autocomplete="off" /></div>
-            <div><input type="submit" name="submit" value=" <?=view::$language->sign_in?> " /></div>
+            <div><?=view::$language->admin_nickname_or_email?>: <input id="login" type="text" name="login" value="" autocomplete="off" /></div>
+            <div><?=view::$language->admin_password?>: <input type="password" name="password" value="" autocomplete="off" /></div>
+            <div><input type="submit" name="submit" value=" <?=view::$language->admin_sign_in?> " /></div>
 
             <script type="text/javascript">
                 document.getElementById("login").focus();

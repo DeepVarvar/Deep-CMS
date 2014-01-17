@@ -4,17 +4,17 @@
     <h1><?=$page_h1?></h1>
 
 
-    <h3><a href="<?=$_config->site->admin_tools_link?>/users/create"><?=view::$language->user_create_new?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/users/create"><?=view::$language->users_create?></a></h3>
 
 
     <table class="list" cellspacing="2" cellpadding="0">
 
         <tr class="caption">
-            <td><?=view::$language->nickname?></td>
-            <td><?=view::$language->email?></td>
-            <td><?=view::$language->group?></td>
+            <td><?=view::$language->users_nickname?></td>
+            <td><?=view::$language->users_email?></td>
+            <td><?=view::$language->users_group?></td>
             <td>IP</td>
-            <td colspan="2"><?=view::$language->actions?></td>
+            <td colspan="2"><?=view::$language->users_actions?></td>
         </tr>
 
         <?php foreach ($users as $user) { ?>
@@ -24,14 +24,14 @@
             <td><?=$user['email']?></td>
             <td><b><?=$user['groupname']?></b></td>
             <td><?=$user['last_ip']?></td>
-            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/users/edit?id=<?=$user['id']?>"><?=view::$language->edit_now?></a></td>
-            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/users/delete?id=<?=$user['id']?>" onclick="return confirmation('<?=view::$language->user_delete_confirm?>');"><?=view::$language->delete_now?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/users/edit?id=<?=$user['id']?>"><?=view::$language->users_edit?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/users/delete?id=<?=$user['id']?>" onclick="return confirmation('<?=view::$language->users_delete_confirm?>');"><?=view::$language->users_delete?></a></td>
         </tr>
 
         <?php } ?>
 
         <?php if (!$users) { ?>
-            <tr><td colspan="6" class="action"><h3>[<?=view::$language->empty_data?>]</h3></td></tr>
+            <tr><td colspan="6" class="action"><h3>[<?=view::$language->users_empty_data?>]</h3></td></tr>
         <?php } ?>
 
     </table>

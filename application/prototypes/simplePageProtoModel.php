@@ -5,7 +5,7 @@
  * simple page prototype model
  */
 
-class simplePageProtoModel extends baseProtoTypeModel {
+class simplePageProtoModel extends basePrototypeModel {
 
 
     protected $nodeID = null;

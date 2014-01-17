@@ -4,7 +4,7 @@
     <h1><?=$page_h1?></h1>
 
 
-    <h3><a href="<?=$_config->site->admin_tools_link?>/menu/create"><?=view::$language->menu_create_new?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/menu/create"><?=view::$language->menu_create?></a></h3>
 
 
     <table class="list" cellspacing="2" cellpadding="0">
@@ -12,7 +12,7 @@
         <tr class="caption">
             <td width="60">#ID</td>
             <td width="500"><?=view::$language->menu_name?></td>
-            <td colspan="2"><?=view::$language->actions?></td>
+            <td colspan="2"><?=view::$language->menu_actions?></td>
         </tr>
 
         <?php foreach ($menulist as $menu) { ?>
@@ -20,14 +20,14 @@
         <tr>
             <td><b><?=$menu['mirror_id']?></b></td>
             <td><b><?=$menu['name']?></b></td>
-            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/menu/edit?id=<?=$menu['id']?>"><?=view::$language->edit_now?></a></td>
-            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/menu/delete?id=<?=$menu['id']?>" onclick="return confirmation('<?=view::$language->menu_delete_confirm?>');"><?=view::$language->delete_now?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/menu/edit?id=<?=$menu['id']?>"><?=view::$language->menu_edit?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/menu/delete?id=<?=$menu['id']?>" onclick="return confirmation('<?=view::$language->menu_delete_confirm?>');"><?=view::$language->menu_delete?></a></td>
         </tr>
 
         <?php } ?>
 
         <?php if (!$menulist) { ?>
-            <tr><td colspan="4" class="action"><h3>[<?=view::$language->empty_data?>]</h3></td></tr>
+            <tr><td colspan="4" class="action"><h3>[<?=view::$language->menu_empty_data?>]</h3></td></tr>
         <?php } ?>
 
     </table>

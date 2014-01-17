@@ -64,7 +64,7 @@ class users extends baseController {
         $paginator = $paginator->setCurrentPage(request::getCurrentPage())
             ->setItemsPerPage(20)->setSliceSizeByPages(20)->getResult();
 
-        view::assign('node_name', view::$language->users);
+        view::assign('node_name', view::$language->users_users);
         view::assign('users', $paginator['items']);
         view::assign('pages', $paginator['pages']);
         $this->setProtectedLayout('users.html');
@@ -86,7 +86,7 @@ class users extends baseController {
         view::assign('grouplist', $this->getAvailableGroupList());
         view::assign('statuslist', $this->getUserStatusList());
         view::assign('languages', languageUtils::getAvailableLanguages());
-        view::assign('node_name', view::$language->user_create_new);
+        view::assign('node_name', view::$language->users_create_title);
         $this->setProtectedLayout('user-new.html');
 
     }
@@ -102,7 +102,8 @@ class users extends baseController {
         $userID = request::shiftParam('id');
         if (!validate::isNumber($userID)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->users_error,
+                view::$language->users_data_invalid
             );
         }
 
@@ -117,27 +118,28 @@ class users extends baseController {
                 WHERE u.id = %u', $userID
         )) {
             throw new memberErrorException(
-                view::$language->error, view::$language->user_not_found
+                view::$language->users_error,
+                view::$language->users_user_not_found
             );
         }
 
         if (!member::isProtected()) {
             if ($existsUser['is_proteced']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->system_object_action_denied
+                    view::$language->users_error,
+                    view::$language->users_system_object
                 );
             }
             if (member::getID() == $existsUser['id']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->user_cant_edit_same_profile
+                    view::$language->users_error,
+                    view::$language->users_cant_edit_same_profile
                 );
             }
             if (member::getPriority() >= $existsUser['priority']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->user_cant_edit_hoep_user
+                    view::$language->users_error,
+                    view::$language->users_cant_edit_hoep_user
                 );
             }
         }
@@ -159,7 +161,7 @@ class users extends baseController {
         );
 
         view::assign('user', $existsUser);
-        view::assign('node_name', view::$language->user_edit_exists);
+        view::assign('node_name', view::$language->users_edit_title);
         $this->setProtectedLayout('user-edit.html');
 
     }
@@ -177,7 +179,8 @@ class users extends baseController {
         $userID = request::shiftParam('id');
         if (!validate::isNumber($userID)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->users_error,
+                view::$language->users_data_invalid
             );
         }
 
@@ -189,13 +192,15 @@ class users extends baseController {
                 WHERE u.id = %u', $userID
         )) {
             throw new memberErrorException(
-                view::$language->error, view::$language->user_not_found
+                view::$language->users_error,
+                view::$language->users_user_not_found
             );
         }
 
         if (member::getID() == $existsUser['id']) {
             throw new memberErrorException(
-                view::$language->ouch, view::$language->user_suicide_not_allowed
+                view::$language->users_ouch,
+                view::$language->users_suicide_not_allowed
             );
         }
 
@@ -203,8 +208,8 @@ class users extends baseController {
                 and member::getPriority() >= $existsUser['priority']) {
 
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->user_cant_delete_hoep_user
+                view::$language->users_error,
+                view::$language->users_cant_delete_hoep_user
             );
 
         }
@@ -212,8 +217,8 @@ class users extends baseController {
         db::set('DELETE FROM users WHERE id = %u', $existsUser['id']);
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->user_is_deleted,
+            view::$language->users_success,
+            view::$language->users_user_is_deleted,
             $adminToolsLink . '/users'
         );
 
@@ -260,10 +265,10 @@ class users extends baseController {
     private function getUserStatusList($type = 0) {
 
         $statustypes = array(
-            '3' => view::$language->user_status_email_not_confirm,
-            '2' => view::$language->user_status_banned,
-            '1' => view::$language->user_status_readonly,
-            '0' => view::$language->user_status_free,
+            '3' => view::$language->users_status_email_not_confirm,
+            '2' => view::$language->users_status_banned,
+            '1' => view::$language->users_status_readonly,
+            '0' => view::$language->users_status_free,
         );
 
         $statuslist = array();
@@ -310,35 +315,39 @@ class users extends baseController {
         $userData = request::getRequiredPostParams($requiredParams);
         if ($userData === null) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_not_enough
+                view::$language->users_error,
+                view::$language->users_data_not_enough
             );
         }
 
         foreach ($requiredParams as $strKey) {
             if (!validate::likeString($userData[$strKey])) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->data_invalid
+                    view::$language->users_error,
+                    view::$language->users_data_invalid
                 );
             }
         }
 
         if (!validate::isNumber($userData['status']) or $userData['status'] > 3) {
             throw new memberErrorException(
-                view::$language->error, view::$language->user_status_invalid
+                view::$language->users_error,
+                view::$language->users_status_invalid
             );
         }
 
         if (!preg_match('/^[a-z-]+$/', $userData['language'])) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->language_name_need_iso639_std
+                view::$language->users_error,
+                view::$language->users_language_need_iso639_std
             );
         }
 
         $languageDir = APPLICATION . 'languages/' . $userData['language'];
         if (!is_dir($languageDir)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->language_not_found
+                view::$language->users_error,
+                view::$language->users_language_not_found
             );
         }
 
@@ -347,13 +356,15 @@ class users extends baseController {
 
         if (!$userData['login']) {
             throw new memberErrorException(
-                view::$language->error, view::$language->user_login_invalid
+                view::$language->users_error,
+                view::$language->users_login_invalid
             );
         }
 
         if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->email_invalid
+                view::$language->users_error,
+                view::$language->users_email_invalid
             );
         }
 
@@ -371,14 +382,14 @@ class users extends baseController {
         if ($requiredPassword) {
             if (!$userData['password'] or !$userData['confirmpassword']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->password_confirm_req_depend
+                    view::$language->users_error,
+                    view::$language->users_password_confirm_req_depend
                 );
             }
             if ($userData['password'] !== $userData['confirmpassword']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->password_confirm_dont_match
+                    view::$language->users_error,
+                    view::$language->users_password_confirm_dont_match
                 );
             }
         }
@@ -390,7 +401,8 @@ class users extends baseController {
 
             if (!validate::isNumber($userData['group_id'])) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->group_id_invalid
+                    view::$language->users_error,
+                    view::$language->users_group_id_invalid
                 );
             }
 
@@ -399,7 +411,8 @@ class users extends baseController {
                     WHERE id = %u', $userData['group_id']
             )) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->group_not_found
+                    view::$language->users_error,
+                    view::$language->users_group_not_found
                 );
             }
 
@@ -407,8 +420,8 @@ class users extends baseController {
                     and member::getPriority() >= $existsGroup['priority']) {
 
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->user_cant_set_hoep_group
+                    view::$language->users_error,
+                    view::$language->users_cant_set_hoep_group
                 );
 
             }
@@ -522,15 +535,15 @@ class users extends baseController {
 
         // TODO view::setLanguage($userData['language']);
         $message = ($target === null)
-            ? view::$language->user_is_created
-            : view::$language->user_is_edited;
+            ? view::$language->users_user_is_created
+            : view::$language->users_user_is_edited;
 
         $location = request::getPostParam('silentsave')
             ? '/edit?id=' . ($target === null ? $newUserID : $target) : '';
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
+            view::$language->users_success,
             $message,
             $adminToolsLink . '/users' . $location
         );

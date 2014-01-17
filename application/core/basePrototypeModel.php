@@ -5,7 +5,7 @@
  * basic prototype model
  */
 
-class baseProtoTypeModel {
+class basePrototypeModel {
 
 
     protected $nodeID = null;

@@ -4,24 +4,24 @@
     <h1><?=$page_h1?></h1>
 
 
-    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/reset" onclick="return confirmation('<?=view::$language->preferences_global_reset_confirm?>');"><?=view::$language->preferences_global_reset?></a></h3>
-    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/clear-cache"><?=view::$language->cache_clear_now?></a></h3>
-    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/recalculate"><?=view::$language->permissions_recalculate?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/reset" onclick="return confirmation('<?=view::$language->preferences_reset_confirm?>');"><?=view::$language->preferences_reset?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/clear-cache"><?=view::$language->preferences_cache_clear?></a></h3>
+    <h3><a href="<?=$_config->site->admin_tools_link?>/preferences/recalculate"><?=view::$language->preferences_perms_recalculate?></a></h3>
 
 
     <form action="<?=$_config->site->admin_tools_link?>/preferences" method="post">
         <div class="form">
 
-            <div class="label mt-20">Description:</div>
+            <div class="label mt-20"><?=view::$language->preferences_site_description?>:</div>
             <div class="elem mt-20">
                 <input type="text" name="site[default_description]" value="<?=$_config->site->default_description?>" />
             </div>
-            <div class="label">Keywords:</div>
+            <div class="label"><?=view::$language->preferences_site_keywords?>:</div>
             <div class="elem">
                 <input type="text" name="site[default_keywords]" value="<?=$_config->site->default_keywords?>" />
             </div>
 
-            <div class="label mt-20"><?=view::$language->theme_of_site?>:</div>
+            <div class="label mt-20"><?=view::$language->preferences_theme_of_site?>:</div>
             <div class="elem mt-20">
 
                 <select class="required" name="site[theme]">
@@ -29,20 +29,20 @@
                 </select>
 
             </div>
-            <div class="label"><?=view::$language->default_language?>:</div>
+            <div class="label"><?=view::$language->preferences_default_language?>:</div>
             <div class="elem">
 
                 <select class="required" name="site[default_language]">
                     <?=htmlHelper::drawOptionList($languages)?>
                 </select>
-                <span class="info">(<?=view::$language->default?>)</span>
+                <span class="info">(<?=view::$language->preferences_default?>)</span>
 
             </div>
 
-            <div class="label mt-20"><?=view::$language->admin_tools_link?>:</div>
+            <div class="label mt-20"><?=view::$language->preferences_admin_link?>:</div>
             <div class="elem mt-20"><input class="required" type="text" name="site[admin_tools_link]" value="<?=$admin_tools_link?>" /></div>
 
-            <div class="label"><?=view::$language->cookie_expires_time?> (<?=view::$language->sec?>):</div>
+            <div class="label"><?=view::$language->preferences_cookie_expires_time?> (<?=view::$language->preferences_sec?>):</div>
             <div class="elem">
                 <input class="short required" type="text" name="system[cookie_expires_time]" value="<?=$_config->system->cookie_expires_time?>" />
                 <span class="info">(min 300 max ~<?=(2147483646 - time())?>)</span>
@@ -51,23 +51,23 @@
             <div class="label mt-20">&nbsp;</div>
             <div class="elem mt-20">
 
-                <div class="inputbox" title=" <?=view::$language->cache_enabled?> ">
+                <div class="inputbox" title=" <?=view::$language->preferences_cache_enabled?> ">
                     <div class="blend"></div>
-                    <input type="checkbox" name="system[cache_enabled]"<?=$cache_enabled?' checked="checked"':''?> /> - <?=view::$language->cache_enabled?>
+                    <input type="checkbox" name="system[cache_enabled]"<?=$cache_enabled?' checked="checked"':''?> /> - <?=view::$language->preferences_cache_enabled?>
                 </div>
 
-                <div class="inputbox" title=" <?=view::$language->debug_mode_on?> ">
+                <div class="inputbox" title=" <?=view::$language->preferences_debug_mode_on?> ">
                     <div class="blend"></div>
-                    <input type="checkbox" name="system[debug_mode]"<?=$debug_mode_on?' checked="checked"':''?> /> - <?=view::$language->debug_mode_on?>
+                    <input type="checkbox" name="system[debug_mode]"<?=$debug_mode_on?' checked="checked"':''?> /> - <?=view::$language->preferences_debug_mode_on?>
                 </div>
 
             </div>
 
             <div class="label mt-20">&nbsp;</div>
-            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->preferences_red_is_required?></span></div>
             <div class="label">&nbsp;</div>
             <div class="elem">
-                <input type="submit" name="save" value=" <?=view::$language->save?> " />
+                <input type="submit" name="save" value=" <?=view::$language->preferences_save?> " />
             </div>
 
             <div class="clear"></div>

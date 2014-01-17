@@ -67,7 +67,7 @@ class groups extends baseController {
 
         view::assign('grouplist', $paginator['items']);
         view::assign('pages', $paginator['pages']);
-        view::assign('node_name', view::$language->groups);
+        view::assign('node_name', view::$language->groups_title);
         $this->setProtectedLayout('groups.html');
 
     }
@@ -86,7 +86,7 @@ class groups extends baseController {
 
         view::assign('permissions', $this->getPermissionsList());
         view::assign('priority',    $this->getPriorityList());
-        view::assign('node_name',   view::$language->group_create_new);
+        view::assign('node_name',   view::$language->groups_create_title);
         $this->setProtectedLayout('group-new.html');
 
     }
@@ -104,14 +104,15 @@ class groups extends baseController {
         $groupID = request::shiftParam('id');
         if (!validate::isNumber($groupID)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->groups_error,
+                view::$language->groups_data_invalid
             );
         }
 
         if ($groupID == member::getGroupID()) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->group_cant_delete_so_group
+                view::$language->groups_error,
+                view::$language->groups_cant_delete_so_group
             );
         }
 
@@ -120,21 +121,22 @@ class groups extends baseController {
                 FROM groups WHERE id = %u', $groupID
         )) {
             throw new memberErrorException(
-                view::$language->error, view::$language->group_not_found
+                view::$language->groups_error,
+                view::$language->groups_group_not_found
             );
         }
 
         if (!member::isProtected()) {
             if ($group['is_protected']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->system_object_action_denied
+                    view::$language->groups_error,
+                    view::$language->groups_system_object
                 );
             }
             if (member::getPriority() >= $group['priority']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                        view::$language->group_cant_delete_hoep_group
+                    view::$language->groups_error,
+                    view::$language->groups_cant_delete_hoep_group
                 );
             }
         }
@@ -144,8 +146,8 @@ class groups extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->group_is_deleted,
+            view::$language->groups_success,
+            view::$language->groups_group_is_deleted,
             $adminToolsLink . '/groups'
         );
 
@@ -162,15 +164,15 @@ class groups extends baseController {
         $groupID = request::shiftParam('id');
         if (!validate::isNumber($groupID)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->groups_error,
+                view::$language->groups_data_invalid
             );
         }
 
         if (!member::isProtected() and member::getGroupID() == $groupID) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->group_cant_edit_so_group
+                view::$language->groups_error,
+                view::$language->groups_cant_edit_so_group
             );
         }
 
@@ -179,21 +181,22 @@ class groups extends baseController {
                 FROM groups WHERE id = %u', $groupID
         )) {
             throw new memberErrorException(
-                view::$language->error, view::$language->group_not_found
+                view::$language->groups_error,
+                view::$language->groups_group_not_found
             );
         }
 
         if (!member::isProtected()) {
             if ($group['is_protected']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->system_object_action_denied
+                    view::$language->groups_error,
+                    view::$language->groups_system_object
                 );
             }
             if (member::getPriority() >= $group['priority']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->group_cant_edit_hoep_group
+                    view::$language->groups_error,
+                    view::$language->groups_cant_edit_hoep_group
                 );
             }
         }
@@ -205,7 +208,7 @@ class groups extends baseController {
         view::assign('group', $group);
         view::assign('permissions', $this->getPermissionsList($group['id']));
         view::assign('priority', $this->getPriorityList($group['priority']));
-        view::assign('node_name', view::$language->group_edit_exists);
+        view::assign('node_name', view::$language->groups_edit_title);
         $this->setProtectedLayout('group-edit.html');
 
     }
@@ -231,19 +234,22 @@ class groups extends baseController {
         $required = request::getRequiredPostParams(array('name', 'priority'));
         if ($required === null) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_not_enough
+                view::$language->groups_error,
+                view::$language->groups_data_not_enough
             );
         }
 
         if (!validate::isNumber($required['priority'])) {
             throw new memberErrorException(
-                view::$language->error, view::$language->group_priority_invalid
+                view::$language->groups_error,
+                view::$language->groups_priority_invalid
             );
         }
 
         if ($required['priority'] > $cnf->system->max_group_priority_number) {
             throw new memberErrorException(
-                view::$language->error, view::$language->group_priority_invalid
+                view::$language->groups_error,
+                view::$language->groups_priority_invalid
             );
         }
 
@@ -251,8 +257,8 @@ class groups extends baseController {
                 and member::getPriority() >= $required['priority']) {
 
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->group_cant_set_hoe_priority
+                view::$language->groups_error,
+                view::$language->groups_cant_set_hoe_priority
             );
 
         }
@@ -262,7 +268,8 @@ class groups extends baseController {
 
         if (!$required['name']) {
             throw new memberErrorException(
-                view::$language->error, view::$language->group_name_invalid
+                view::$language->groups_error,
+                view::$language->groups_name_invalid
             );
         }
 
@@ -325,12 +332,12 @@ class groups extends baseController {
             ? '/edit?id=' . $groupID : '';
 
         $message = $target === null
-            ? view::$language->group_is_created
-            : view::$language->group_is_edited;
+            ? view::$language->groups_group_is_created
+            : view::$language->groups_group_is_edited;
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
+            view::$language->groups_success,
             $message,
             $adminToolsLink . '/groups' . $location
         );

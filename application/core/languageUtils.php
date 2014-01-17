@@ -15,10 +15,7 @@ abstract class languageUtils {
     public static function getAvailableLanguages($current = null) {
 
         $languages = array();
-        $langPath = APPLICATION . 'languages/*';
-
-        $langGlobDir = fsUtils::glob($langPath, GLOB_ONLYDIR | GLOB_NOSORT);
-        foreach ($langGlobDir as $language) {
+        foreach (self::getLanguagePaths() as $language) {
 
             $language = basename($language);
             if (!preg_match('/^[a-z-]+$/', $language)) {
@@ -40,6 +37,16 @@ abstract class languageUtils {
 
         return $languages;
 
+    }
+
+
+    /**
+     * return available languages path's
+     */
+
+    public static function getLanguagePaths() {
+        $langPath = APPLICATION . 'languages/*';
+        return fsUtils::glob($langPath, GLOB_ONLYDIR | GLOB_NOSORT);
     }
 
 

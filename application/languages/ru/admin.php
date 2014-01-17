@@ -7,23 +7,24 @@
 
 return array(
 
-    'admin_tools'             => 'Административный раздел',
-    'documents_tree'          => 'Дерево документов',
-    'delete_now'              => 'Удалить',
-    'edit_now'                => 'Редактировать',
-    'events'                  => 'События',
-    'go_back'                 => 'Вернуться назад',
-    'go_to_site'              => 'Перейти на сайт',
-    'groups'                  => 'Группы',
-    'help'                    => 'Справка',
-    'logout'                  => 'Выход',
-    'menu_of_site'            => 'Меню сайта',
-    'modules'                 => 'Модули',
-    'node'                    => 'Узел',
-    'permission_admin_access' => 'Доступ в административный раздел',
-    'preferences_global'      => 'Глобальные настройки',
-    'red_is_required'         => 'Поля выделенные красным, являются обязательными',
-    'users'                   => 'Пользователи'
+    'admin_auth_please'        => 'Пожалуйста, авторизуйтесь',
+    'admin_documents_tree'     => 'Дерево документов',
+    'admin_events'             => 'События',
+    'admin_groups'             => 'Группы',
+    'admin_help'               => 'Справка',
+    'admin_hello'              => 'Здравствуйте',
+    'admin_login_or_pass_bad'  => 'Неверный логин или пароль',
+    'admin_logout'             => 'Выход',
+    'admin_menu_of_site'       => 'Меню сайта',
+    'admin_modules'            => 'Модули',
+    'admin_nickname_or_email'  => 'Логин или E-mail',
+    'admin_password'           => 'Пароль',
+    'admin_preferences_global' => 'Глобальные настройки',
+    'admin_sign_in'            => 'Войти',
+    'admin_to_site'            => 'Перейти на сайт',
+    'admin_tools'              => 'Административный раздел',
+    'admin_users'              => 'Пользователи',
+    'permission_admin_access'  => 'Доступ в административный раздел'
 
 );
 

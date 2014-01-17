@@ -102,7 +102,8 @@ class tree extends baseController {
 
             if (!validate::isNumber($newTarget)) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->data_invalid
+                    view::$language->tree_error,
+                    view::$language->tree_data_invalid
                 );
             }
 
@@ -118,7 +119,7 @@ class tree extends baseController {
             view::assignProtected('node', $this->branchNode($target));
         }
 
-        view::assign('node_name', view::$language->documents_tree);
+        view::assign('node_name', view::$language->tree_documents_tree);
         $this->setProtectedLayout('documents-tree.html');
 
     }
@@ -134,7 +135,8 @@ class tree extends baseController {
         $parentID  = request::shiftParam('parent');
         if (!validate::isNumber($parentID)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -144,7 +146,7 @@ class tree extends baseController {
 
         $this->assignNewNodeIntoView($parentID, $protoName);
         $this->setProtectedLayout('node-new.html');
-        view::assign('node_name', view::$language->node_create_new);
+        view::assign('node_name', view::$language->tree_node_create_title);
 
     }
 
@@ -159,7 +161,8 @@ class tree extends baseController {
         $nodeID    = request::shiftParam('id');
         if (!validate::isNumber($nodeID)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -169,7 +172,7 @@ class tree extends baseController {
 
         $this->assignEditedNodeIntoView($nodeID, $protoName);
         $this->setProtectedLayout('node-edit.html');
-        view::assign('node_name', view::$language->node_edit_exists);
+        view::assign('node_name', view::$language->tree_node_edit_title);
 
     }
 
@@ -188,7 +191,8 @@ class tree extends baseController {
         $nodeID = request::shiftParam('id');
         if (!validate::isNumber($nodeID)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -199,7 +203,8 @@ class tree extends baseController {
 
         if (!$deletedNode) {
             throw new memberErrorException(
-                view::$language->error, view::$language->node_not_found
+                view::$language->tree_error,
+                view::$language->tree_node_not_found
             );
         }
 
@@ -210,8 +215,8 @@ class tree extends baseController {
 
         if ($deletedCount > 100) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->node_delete_count_is_over
+                view::$language->tree_error,
+                view::$language->tree_node_delete_count_is_over
             );
         }
 
@@ -301,8 +306,8 @@ class tree extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->node_is_deleted,
+            view::$language->tree_success,
+            view::$language->tree_node_is_deleted,
             $adminToolsLink . '/tree/branch?id=' . $deletedNode['parent_id']
         );
 
@@ -326,7 +331,8 @@ class tree extends baseController {
 
         if (!request::isPost()) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -337,7 +343,8 @@ class tree extends baseController {
                 or !validate::isNumber($parentID)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
 
         }
@@ -349,7 +356,8 @@ class tree extends baseController {
                 or ($prevID and !validate::isNumber($prevID))) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
 
         }
@@ -365,13 +373,15 @@ class tree extends baseController {
 
         if (!$movedNode) {
             throw new memberErrorException(
-                view::$language->error, view::$language->node_not_found
+                view::$language->tree_error,
+                view::$language->tree_node_not_found
             );
         }
 
         if ($movedNode['parent_id'] > 0 and !$movedNode['parent_rk']) {
             throw new memberErrorException(
-                view::$language->error, view::$language->parent_node_not_found
+                view::$language->tree_error,
+                view::$language->tree_parent_node_not_found
             );
         }
 
@@ -379,7 +389,8 @@ class tree extends baseController {
                 'SELECT lvl, lk, rk FROM tree WHERE id = %u', $nextID)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->next_node_not_found
+                view::$language->tree_error,
+                view::$language->tree_next_node_not_found
             );
 
         }
@@ -388,7 +399,8 @@ class tree extends baseController {
                 'SELECT lvl, lk, rk FROM tree WHERE id = %u', $prevID)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->prev_node_not_found
+                view::$language->tree_error,
+                view::$language->tree_prev_node_not_found
             );
 
         }
@@ -400,7 +412,8 @@ class tree extends baseController {
                 and $nextNode['lk'] != ($prevNode['rk'] + 1)) {
 
             throw new memberErrorException(
-                view::$language->error, view::$language->node_incorrect_siblings
+                view::$language->tree_error,
+                view::$language->tree_node_incorrect_siblings
             );
 
         }
@@ -409,8 +422,8 @@ class tree extends baseController {
             or ($isPrevNode and $movedNode['lk'] == ($prevNode['rk'] + 1))) {
 
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->node_update_is_not_required
+                view::$language->tree_error,
+                view::$language->tree_node_update_is_not_required
             );
 
         }
@@ -421,8 +434,8 @@ class tree extends baseController {
                     'SELECT lvl, lk, rk FROM tree WHERE id = %u', $parentID)) {
 
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->parent_node_not_found
+                    view::$language->tree_error,
+                    view::$language->tree_parent_node_not_found
                 );
 
             }
@@ -431,8 +444,8 @@ class tree extends baseController {
                 or $prevNode['rk'] >= $newParent['rk'])) {
 
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->node_incorrect_siblings
+                    view::$language->tree_error,
+                    view::$language->tree_node_incorrect_siblings
                 );
 
             }
@@ -441,8 +454,8 @@ class tree extends baseController {
                 or $nextNode['rk'] >= $newParent['rk'])) {
 
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->node_incorrect_siblings
+                    view::$language->tree_error,
+                    view::$language->tree_node_incorrect_siblings
                 );
 
             }
@@ -511,7 +524,8 @@ class tree extends baseController {
         }
 
         throw new memberSuccessException(
-            view::$language->success, view::$language->node_is_moved
+            view::$language->tree_success,
+            view::$language->tree_node_is_moved
         );
 
     }
@@ -528,7 +542,7 @@ class tree extends baseController {
 
         if ($target == 0) {
             $node = $this->root;
-            $node['node_name'] = view::$language->root_of_site;
+            $node['node_name'] = view::$language->tree_root_site;
         } else {
 
             $node = db::normalizeQuery(
@@ -547,8 +561,8 @@ class tree extends baseController {
         if (!$node) {
             storage::remove('__branchParent');
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->branch_children_not_found
+                view::$language->tree_error,
+                view::$language->tree_branch_children_not_found
             );
         }
 
@@ -588,8 +602,8 @@ class tree extends baseController {
 
         if (!preg_match('/^[a-z]+$/i', $protoName)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -599,8 +613,8 @@ class tree extends baseController {
 
         if (!array_key_exists($protoName, $this->availableProtoTypes)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->prototype_not_found
+                view::$language->tree_error,
+                view::$language->tree_prototype_not_found
             );
         }
 
@@ -635,8 +649,8 @@ class tree extends baseController {
 
         if (!$this->availableProtoTypes) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->prototypes_not_available
+                view::$language->tree_error,
+                view::$language->tree_prototypes_not_available
             );
         }
 
@@ -725,7 +739,7 @@ class tree extends baseController {
 
         if ($parentID == 0) {
 
-            $newNode['parent_name'] = view::$language->root_of_site;
+            $newNode['parent_name'] = view::$language->tree_root_site;
             if ($protoName) {
                 $newNode['prototype'] = $protoName;
             }
@@ -741,8 +755,8 @@ class tree extends baseController {
 
             if (!$parentNode) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->parent_node_not_found
+                    view::$language->tree_error,
+                    view::$language->tree_parent_node_not_found
                 );
             }
 
@@ -787,8 +801,8 @@ class tree extends baseController {
 
         if (!$editedNode) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->node_not_found
+                view::$language->tree_error,
+                view::$language->tree_node_not_found
             );
         }
 
@@ -799,14 +813,14 @@ class tree extends baseController {
         if ($editedNode['parent_id'] == 0) {
 
             $editedNode['parent_alias'] = '/';
-            $editedNode['parent_name']  = view::$language->root_of_site;
+            $editedNode['parent_name']  = view::$language->tree_root_site;
 
         } else {
 
             if (!$editedNode['parent_prototype']) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->parent_node_not_found
+                    view::$language->tree_error,
+                    view::$language->tree_parent_node_not_found
                 );
             }
 
@@ -883,13 +897,13 @@ class tree extends baseController {
         $mainProperties['node_name']['type'] = 'longtext';
         $mainProperties['node_name']['selector'] = 'pagename';
         $mainProperties['node_name']['description']
-            = view::$language->node_name;
+            = view::$language->tree_node_name;
 
         $mainProperties['prototype']['top']  = 20;
         $mainProperties['prototype']['type'] = 'select';
         $mainProperties['prototype']['selector'] = 'prototype';
         $mainProperties['prototype']['description']
-            = view::$language->node_prototype;
+            = view::$language->tree_node_prototype;
 
         $mainProperties['prototype']['value'] = $this->getProtoTypesList(
             $mainProperties['prototype']['value']
@@ -898,7 +912,7 @@ class tree extends baseController {
         $chpt = 'children_prototype';
         $mainProperties[$chpt]['type'] = 'select';
         $mainProperties[$chpt]['description']
-            = view::$language->node_prototype_of_children;
+            = view::$language->tree_node_children_prototype;
 
         $mainProperties[$chpt]['value'] = $this->getProtoTypesList(
             $mainProperties[$chpt]['value']
@@ -908,7 +922,7 @@ class tree extends baseController {
         $mainProperties['is_publish']['required'] = false;
         $mainProperties['is_publish']['type'] = 'checkbox';
         $mainProperties['is_publish']['description']
-            = view::$language->publish;
+            = view::$language->tree_publish;
 
         return $mainProperties;
 
@@ -947,23 +961,23 @@ class tree extends baseController {
         $requiredData = request::getRequiredPostParams($requiredParams);
         if ($requiredData === null) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_not_enough
+                view::$language->tree_error,
+                view::$language->tree_data_not_enough
             );
         }
 
         if (!validate::isNumber($requiredData['parent_id'])) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
         $requiredData['prototype'] = (string) $requiredData['prototype'];
         if (!$requiredData['prototype']) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -974,8 +988,8 @@ class tree extends baseController {
 
         if (!$requiredData['children_prototype']) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->tree_error,
+                view::$language->tree_data_invalid
             );
         }
 
@@ -986,8 +1000,8 @@ class tree extends baseController {
 
         if (!$requiredData['node_name']) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->node_name_invalid
+                view::$language->tree_error,
+                view::$language->tree_node_name_invalid
             );
         }
 
@@ -1000,8 +1014,8 @@ class tree extends baseController {
 
             if (!$existsParent) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->parent_node_not_found
+                    view::$language->tree_error,
+                    view::$language->tree_parent_node_not_found
                 );
             }
 
@@ -1009,8 +1023,8 @@ class tree extends baseController {
 
         if ($nodeID !== null and $nodeID == $requiredData['parent_id']) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->node_cant_itself_parent
+                view::$language->tree_error,
+                view::$language->tree_node_cant_itself_parent
             );
         }
 
@@ -1022,8 +1036,8 @@ class tree extends baseController {
 
             if (!$currentKeys) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->node_not_found
+                    view::$language->tree_error,
+                    view::$language->tree_node_not_found
                 );
             }
 
@@ -1032,8 +1046,8 @@ class tree extends baseController {
                         and $currentKeys['rk'] > $existsParent['rk']) {
 
                     throw new memberErrorException(
-                        view::$language->error,
-                        view::$language->node_cant_itchild_parent
+                        view::$language->tree_error,
+                        view::$language->tree_node_cant_itchild_parent
                     );
 
                 }
@@ -1070,8 +1084,8 @@ class tree extends baseController {
 
             if (!is_array($menuList)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->tree_error,
+                    view::$language->tree_data_invalid
                 );
             }
 
@@ -1084,8 +1098,8 @@ class tree extends baseController {
 
                 if (!validate::isNumber($k)) {
                     throw new memberErrorException(
-                        view::$language->error,
-                        view::$language->data_invalid
+                        view::$language->tree_error,
+                        view::$language->tree_data_invalid
                     );
                 }
 
@@ -1406,8 +1420,8 @@ class tree extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->node_is_created,
+            view::$language->tree_success,
+            view::$language->tree_node_is_created,
             $adminToolsLink . '/tree' . $location
         );
 
@@ -1448,8 +1462,8 @@ class tree extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->node_is_edited,
+            view::$language->tree_success,
+            view::$language->tree_node_is_edited,
             $adminToolsLink . '/tree/branch?id=' . $parentID
         );
 

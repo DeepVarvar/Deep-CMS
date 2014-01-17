@@ -77,8 +77,8 @@ class manage_components extends baseController {
 
         if (!extension_loaded('curl')) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->components_curl_is_not_available
+                view::$language->manage_components_error,
+                view::$language->manage_components_curl_not_av
             );
         }
 
@@ -131,7 +131,7 @@ class manage_components extends baseController {
         array_multisort($sortBy, $sourcelist);
         view::assign('sourcelist', $sourcelist);
 
-        view::assign('node_name', view::$language->components_manage);
+        view::assign('node_name', view::$language->manage_components_title);
         $this->setProtectedLayout('manage-components.html');
 
     }
@@ -149,8 +149,8 @@ class manage_components extends baseController {
         $target = request::getParam('target');
         if (!$target) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->components_empty_target
+                view::$language->manage_components_error,
+                view::$language->manage_components_data_not_enough
             );
         }
 
@@ -168,7 +168,8 @@ class manage_components extends baseController {
         $this->dcmData = app::loadJsonFile($this->dcmFilePath, true);
         if (!$this->checkDcmDataFormat()) {
             $this->componentErrorException(
-                view::$language->error, view::$language->components_invalid_dcm_format
+                view::$language->manage_components_error,
+                view::$language->manage_components_invalid_dcm_format
             );
         }
 
@@ -180,8 +181,8 @@ class manage_components extends baseController {
         if ($this->dcmData['dependency_components']) {
             $depends = join(', ', $this->dcmData['dependency_components']);
             $this->componentErrorException(
-                view::$language->error,
-                view::$language->components_dependency_exists . ': ' . $depends
+                view::$language->manage_components_error,
+                view::$language->manage_components_dependency_exists . ': ' . $depends
             );
         }
 
@@ -191,16 +192,19 @@ class manage_components extends baseController {
          */
 
         foreach ($this->dcmData['main_directories'] as $directory) {
+
             $directory = APPLICATION . $directory;
-            if (!is_file($directory)) {
+            if (is_file($directory)) {
+
                 $this->componentErrorException(
-                    view::$language->error,
-                    view::$language->components_undefined_type
+                    view::$language->manage_components_error,
+                    view::$language->manage_components_undefined_type
                 );
-            }
-            if (!is_dir($directory)) {
+
+            } else if (!is_dir($directory)) {
                 mkdir($directory);
             }
+
         }
 
 
@@ -247,8 +251,8 @@ class manage_components extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->components_install_success,
+            view::$language->manage_components_success,
+            view::$language->manage_components_install_success,
             $adminToolsLink . '/manage-components'
         );
 
@@ -267,24 +271,24 @@ class manage_components extends baseController {
         $target = request::getParam('target');
         if (!$target) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->components_empty_target
+                view::$language->manage_components_error,
+                view::$language->manage_components_data_not_enough
             );
         }
 
         $this->dcmFilePath = APPLICATION . 'metadata/' . $target . '.dcm';
-        if (!file_exists($this->dcmFilePath)) {
+        if (!is_file($this->dcmFilePath)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->components_component_not_found
+                view::$language->manage_components_error,
+                view::$language->manage_components_component_not_found
             );
         }
 
         $this->dcmData = app::loadJsonFile($this->dcmFilePath, true);
         if (!$this->checkDcmDataFormat()) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->components_invalid_dcm_format
+                view::$language->manage_components_error,
+                view::$language->manage_components_invalid_dcm_format
             );
         }
 
@@ -296,8 +300,8 @@ class manage_components extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->components_delete_success,
+            view::$language->manage_components_success,
+            view::$language->manage_components_delete_success,
             $adminToolsLink . '/manage-components'
         );
 
@@ -427,15 +431,15 @@ class manage_components extends baseController {
 
         if (!$this->remoteAction) {
             $this->componentErrorException(
-                view::$language->error,
-                view::$language->components_curl_empty_action
+                view::$language->manage_components_error,
+                view::$language->manage_components_empty_action
             );
         }
 
         if ($save and !$this->remoteTarget) {
             $this->componentErrorException(
-                view::$language->error,
-                view::$language->components_curl_empty_target
+                view::$language->manage_components_error,
+                view::$language->manage_components_empty_remote_target
             );
         }
 
@@ -456,7 +460,8 @@ class manage_components extends baseController {
         if ($content === false) {
 		    curl_close($ch);
             $this->componentErrorException(
-                view::$language->error, view::$language->components_curl_error
+                view::$language->manage_components_error,
+                view::$language->manage_components_curl_error
             );
         }
 
@@ -468,8 +473,8 @@ class manage_components extends baseController {
             $content = @ json_decode($content, true);
             if (!$content or !$this->checkResponseFormat($content)) {
                 $this->componentErrorException(
-                    view::$language->error,
-                    view::$language->components_curl_error
+                    view::$language->manage_components_error,
+                    view::$language->manage_components_invalid_response
                 );
             }
             return $content[$this->remoteAction];

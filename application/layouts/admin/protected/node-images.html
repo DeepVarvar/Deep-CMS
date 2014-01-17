@@ -23,17 +23,17 @@
 
     <div class="top-line">
 
-        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/wiki/<?=$_config->application->version?>" title=" <?=view::$language->help?> ">?</a></div>
+        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/administration-tools.html" title=" <?=view::$language->admin_help?> ">?</a></div>
         <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
         <div class="left-item-last">&nbsp;</div>
         <div class="right-item">
-            <a id="deleteallimages" href="#alldelete" title=" <?=view::$language->images_delete_all?> "><?=view::$language->images_delete_all?></a>
-            <a class="showpopupform" id="showuploadform" href="#uploadnew" title=" <?=view::$language->images_upload_now?> "><?=view::$language->images_upload_now?></a>
+            <a id="deleteallimages" href="#alldelete" title=" <?=view::$language->node_images_delete_all?> "><?=view::$language->node_images_delete_all?></a>
+            <a class="showpopupform" id="showuploadform" href="#uploadnew" title=" <?=view::$language->node_images_upload?> "><?=view::$language->node_images_upload?></a>
         </div>
 
     </div>
 
-    <div id="innerdata" data-deleteimageconfirm="<?=view::$language->image_delete_confirm?>" data-target="<?=$target_node?>"></div>
+    <div id="innerdata" data-deleteimageconfirm="<?=view::$language->node_images_single_delete_confirm?>" data-target="<?=$target_node?>"></div>
 
     <div id="attachedimageswrapper">
 
@@ -48,15 +48,15 @@
                 <div class="actions c">
 
                     <div>
-                        <a class="replaceaction" href="#replace" data-id="<?=$item['id']?>"><?=view::$language->replace_now?></a>
+                        <a class="replaceaction" href="#replace" data-id="<?=$item['id']?>"><?=view::$language->node_images_replace?></a>
                     </div>
 
                     <div class="masterlink">
-                        <a class="masteraction" href="<?=$_config->site->admin_tools_link?>/node-images/master?id=<?=$item['id']?>&target=<?=$target_node?>"><?=view::$language->make_is_master?></a>
+                        <a class="masteraction" href="<?=$_config->site->admin_tools_link?>/node-images/master?id=<?=$item['id']?>&target=<?=$target_node?>"><?=view::$language->node_images_is_master?></a>
                     </div>
 
                     <div>
-                        <a class="deleteaction" href="<?=$_config->site->admin_tools_link?>/node-images/delete?id=<?=$item['id']?>&target=<?=$target_node?>"><?=view::$language->delete_now?></a>
+                        <a class="deleteaction" href="<?=$_config->site->admin_tools_link?>/node-images/delete?id=<?=$item['id']?>&target=<?=$target_node?>"><?=view::$language->node_images_delete?></a>
                     </div>
 
                 </div>
@@ -76,8 +76,8 @@
 
     <div id="uploadprogress">
 
-        <h3><?=view::$language->images_upload?></h3>
-        <p><?=view::$language->images_upload_dont_close?></p>
+        <h3><?=view::$language->node_images_upload_title?></h3>
+        <p><?=view::$language->node_images_upload_dont_close?></p>
         <div id="progressstatus">0%</div>
         <img alt="Loading..." src="<?=$_config->site->admin_resources?>images/progress.gif" />
 
@@ -98,39 +98,39 @@
         <div class="separator"></div>
 
         <div class="size">
-            <?=view::$language->image_original?>: <select name="original_size"><?=htmlHelper::drawOptionList($original_sizes)?></select>
+            <?=view::$language->node_images_original?>: <select name="original_size"><?=htmlHelper::drawOptionList($original_sizes)?></select>
         </div>
 
         <div class="square">
-            <input type="checkbox" name="square_original" /> <?=view::$language->image_to_square?>
+            <input type="checkbox" name="square_original" /> <?=view::$language->node_images_to_square?>
         </div>
 
         <div class="size">
-            <?=view::$language->image_middle?>: <select name="middle_size"><?=htmlHelper::drawOptionList($middle_sizes)?></select>
+            <?=view::$language->node_images_middle?>: <select name="middle_size"><?=htmlHelper::drawOptionList($middle_sizes)?></select>
         </div>
 
         <div class="square">
-            <input type="checkbox" name="square_middle" /> <?=view::$language->image_to_square?>
+            <input type="checkbox" name="square_middle" /> <?=view::$language->node_images_to_square?>
         </div>
 
         <div class="size">
-            <?=view::$language->image_thumbnail?>: <select name="thumbnail_size"><?=htmlHelper::drawOptionList($thumb_sizes)?></select>
+            <?=view::$language->node_images_thumbnail?>: <select name="thumbnail_size"><?=htmlHelper::drawOptionList($thumb_sizes)?></select>
         </div>
 
         <div class="square">
-            <input type="checkbox" name="square_thumbnail" checked="checked" /> <?=view::$language->image_to_square?>
+            <input type="checkbox" name="square_thumbnail" checked="checked" /> <?=view::$language->node_images_to_square?>
         </div>
 
         <div class="clear"></div>
 
         <div class="options">
-            <div><input type="checkbox" name="stretch_image" checked="checked" /> <?=view::$language->image_stretch_if_small?></div>
-            <div><input type="checkbox" name="add_watermark" /> <?=view::$language->image_add_watermark?></div>
+            <div><input type="checkbox" name="stretch_image" checked="checked" /> <?=view::$language->node_images_stretch_if_small?></div>
+            <div><input type="checkbox" name="add_watermark" /> <?=view::$language->node_images_add_watermark?></div>
         </div>
 
         <div id="filewrapper">
             <input type="file" id="uploadfile" name="uploadfile" multiple />
-            <input type="button" value=" <?=view::$language->browse?> " />
+            <input type="button" value=" <?=view::$language->node_images_browse?> " />
         </div>
         <div class="clear"></div>
 
@@ -144,12 +144,12 @@
         <a class="closepopupform" href="#close">✖</a>
     </div>
 
-    <h3><?=view::$language->select_it?></h3>
+    <h3><?=view::$language->node_images_select?></h3>
 
     <div id="chooseimagesize">
-        <a href="#" data-type="original"><?=view::$language->image_original?></a>
-        <a href="#" data-type="middle"><?=view::$language->image_middle?></a>
-        <a href="#" data-type="thumbnail"><?=view::$language->image_thumbnail?></a>
+        <a href="#" data-type="original"><?=view::$language->node_images_original?></a>
+        <a href="#" data-type="middle"><?=view::$language->node_images_middle?></a>
+        <a href="#" data-type="thumbnail"><?=view::$language->node_images_thumbnail?></a>
     </div>
 
 </div>

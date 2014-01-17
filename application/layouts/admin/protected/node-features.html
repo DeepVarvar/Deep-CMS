@@ -20,19 +20,19 @@
 
     <div class="top-line">
 
-        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/wiki/<?=$_config->application->version?>" title=" <?=view::$language->help?> ">?</a></div>
+        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/administration-tools.html" title=" <?=view::$language->admin_help?> ">?</a></div>
         <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
         <div class="left-item-last">&nbsp;</div>
-        <div class="right-item"><a id="showfeatureform" href="#feature" title=" <?=view::$language->feature_add?> "><?=view::$language->feature_add?></a></div>
+        <div class="right-item"><a id="showfeatureform" href="#feature" title=" <?=view::$language->node_features_add?> "><?=view::$language->node_features_add?></a></div>
 
     </div>
 
-    <div id="innerdata" data-deletefeatureconfirm="<?=view::$language->feature_delete_confirm?>" data-target="<?=$target_node?>"></div>
+    <div id="innerdata" data-deletefeatureconfirm="<?=view::$language->node_features_delete_confirm?>" data-target="<?=$target_node?>"></div>
 
     <div class="topfcap featurecaption">
 
-        <h3><?=view::$language->name?></h3>
-        <h3><?=view::$language->value?></h3>
+        <h3><?=view::$language->node_features_name?></h3>
+        <h3><?=view::$language->node_features_value?></h3>
 
         <div class="clear"></div>
 
@@ -56,11 +56,11 @@
 
                 <div class="save">
                     <input type="hidden" name="node_id" value="<?=$item['node_id']?>" />
-                    <input type="submit" name="save" value=" &raquo; " title=" <?=view::$language->save?> " />
+                    <input type="submit" name="save" value=" &raquo; " title=" <?=view::$language->node_features_save?> " />
                 </div>
 
                 <div class="delete">
-                    <a href="<?=$config->site->admin_tools_link?>/node-features/delete?id=<?=$item['feature_id']?>&target=<?=$item['node_id']?>" title=" <?=view::$language->delete_now?> ">✖</a>
+                    <a href="<?=$config->site->admin_tools_link?>/node-features/delete?id=<?=$item['feature_id']?>&target=<?=$item['node_id']?>" title=" <?=view::$language->node_features_delete?> ">✖</a>
                 </div>
 
                 <div class="clear"></div>
@@ -75,8 +75,8 @@
 
         <div class="featurecaption">
 
-            <h3><?=view::$language->name?></h3>
-            <h3><?=view::$language->value?></h3>
+            <h3><?=view::$language->node_features_name?></h3>
+            <h3><?=view::$language->node_features_value?></h3>
 
             <div class="clear"></div>
 
@@ -96,7 +96,7 @@
 
             <div class="save">
                 <input type="hidden" name="node_id" value="<?=$target_node?>" />
-                <input type="submit" name="save" value=" &raquo; " title=" <?=view::$language->save?> " />
+                <input type="submit" name="save" value=" &raquo; " title=" <?=view::$language->node_features_save?> " />
             </div>
 
             <div class="clear"></div>

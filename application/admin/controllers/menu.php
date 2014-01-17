@@ -54,7 +54,7 @@ class menu extends baseController {
 
         view::assign('menulist', $paginator['items']);
         view::assign('pages', $paginator['pages']);
-        view::assign('node_name', view::$language->menu_of_site);
+        view::assign('node_name', view::$language->menu_title);
         $this->setProtectedLayout('menu.html');
 
     }
@@ -67,8 +67,11 @@ class menu extends baseController {
 
     public function create() {
 
-        if (request::isPost()) $this->saveMenu();
-        view::assign('node_name', view::$language->menu_create_new);
+        if (request::isPost()) {
+            $this->saveMenu();
+        }
+
+        view::assign('node_name', view::$language->menu_create_title);
         $this->setProtectedLayout('menu-new.html');
 
     }
@@ -86,14 +89,15 @@ class menu extends baseController {
         $menu_id = request::shiftParam('id');
         if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->menu_error,
+                view::$language->menu_data_invalid
             );
         }
 
         db::set('DELETE FROM menu WHERE id = %u', $menu_id);
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
+            view::$language->menu_success,
             view::$language->menu_is_deleted,
             $adminToolsLink . '/menu'
         );
@@ -111,7 +115,8 @@ class menu extends baseController {
         $menu_id = request::shiftParam('id');
         if (!validate::isNumber($menu_id)) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->menu_error,
+                view::$language->menu_data_invalid
             );
         }
 
@@ -121,7 +126,8 @@ class menu extends baseController {
 
         if (!$menu) {
             throw new memberErrorException(
-                view::$language->error, view::$language->menu_not_found
+                view::$language->menu_error,
+                view::$language->menu_not_found
             );
         }
 
@@ -130,7 +136,7 @@ class menu extends baseController {
         }
 
         view::assign('menu', $menu);
-        view::assign('node_name', view::$language->menu_edit_exists);
+        view::assign('node_name', view::$language->menu_edit_title);
         $this->setProtectedLayout('menu-edit.html');
 
     }
@@ -154,41 +160,57 @@ class menu extends baseController {
         $name = request::getPostParam('name');
         if ($name === null) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_not_enough
+                view::$language->menu_error,
+                view::$language->menu_data_not_enough
             );
         }
 
         if (!$name = filter::input($name)->lettersOnly()->getData()) {
             throw new memberErrorException(
-                view::$language->error, view::$language->menu_name_invalid
+                view::$language->menu_error,
+                view::$language->menu_name_invalid
             );
         }
 
         $mirrorID = request::getPostParam('mirror_id');
         if ($mirrorID === null) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_not_enough
+                view::$language->menu_error,
+                view::$language->menu_data_not_enough
             );
         }
 
         if (!validate::isNumber($mirrorID) or $mirrorID < 1) {
             throw new memberErrorException(
-                view::$language->error, view::$language->menu_mirror_id_invalid
+                view::$language->menu_error,
+                view::$language->menu_mirror_id_invalid
             );
         }
 
         if ($mirrorID > 10000) {
             throw new memberErrorException(
-                view::$language->error, view::$language->menu_mirror_id_less
+                view::$language->menu_error,
+                view::$language->menu_mirror_id_less
             );
         }
 
         if ($target === null) {
+
+            $exCheck = 'SELECT (1) ex FROM menu WHERE mirror_id = %u LIMIT 1';
+            if (db::query($exCheck, $mirrorID)) {
+                throw new memberErrorException(
+                    view::$language->menu_error,
+                    view::$language->menu_mirror_id_is_not_uniq
+                );
+            }
+
             db::set(
                 "INSERT INTO menu (id, mirror_id, name)
                     VALUES (NULL, %u, '%s')", $mirrorID, $name
             );
+
             $menuID = db::lastID();
+
         } else {
 
             $menuID = $target;
@@ -197,7 +219,7 @@ class menu extends baseController {
 
             if (db::query($exCheck, $target, $mirrorID)) {
                 throw new memberErrorException(
-                    view::$language->error,
+                    view::$language->menu_error,
                     view::$language->menu_mirror_id_is_not_uniq
                 );
             }
@@ -224,7 +246,7 @@ class menu extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
+            view::$language->menu_success,
             $message,
             $adminToolsLink . '/menu' . $location
         );

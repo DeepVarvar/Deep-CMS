@@ -6,10 +6,7 @@
     <form class="silentform" action="<?=$_config->site->admin_tools_link?>/users/create" method="post">
         <div class="form">
 
-            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
-            <div class="elem">&nbsp;</div>
-
-            <div class="label mt-20"><?=view::$language->group?>:</div>
+            <div class="label mt-20"><?=view::$language->users_group?>:</div>
             <div class="elem mt-20">
 
                 <select class="required" name="group_id">
@@ -18,7 +15,7 @@
 
             </div>
 
-            <div class="label"><?=view::$language->user_status?>:</div>
+            <div class="label"><?=view::$language->users_status?>:</div>
             <div class="elem">
 
                 <select class="required" name="status">
@@ -27,7 +24,7 @@
 
             </div>
 
-            <div class="label"><?=view::$language->language?>:</div>
+            <div class="label"><?=view::$language->users_language?>:</div>
             <div class="elem">
 
                 <select name="language">
@@ -36,32 +33,32 @@
 
             </div>
 
-            <div class="label mt-20"><?=view::$language->nickname?>:</div>
+            <div class="label mt-20"><?=view::$language->users_nickname?>:</div>
             <div class="elem mt-20"><input class="required" type="text" name="login" value="" /></div>
 
-            <div class="label"><?=view::$language->email?>:</div>
+            <div class="label"><?=view::$language->users_email?>:</div>
             <div class="elem"><input class="required" type="text" name="email" value="" /></div>
 
-            <div class="label mt-20"><?=view::$language->password?>:</div>
+            <div class="label mt-20"><?=view::$language->users_password?>:</div>
             <div class="elem mt-20">
-                <input class="required" id="password" after="clean" type="text" name="password" value="" />
-                <a href="#generate" class="info" onclick="return generatePassword();"><?=view::$language->generate?></a>
+                <input class="required short" id="password" after="clean" type="text" name="password" value="" />
+                <a href="#generate" class="info" onclick="return generatePassword();"><?=view::$language->users_generate?></a>
             </div>
 
-            <div class="label"><?=view::$language->password_confirm?>:</div>
+            <div class="label"><?=view::$language->users_password_confirm?>:</div>
             <div class="elem">
-                <input class="required" id="confirmpassword" after="clean" type="text" name="confirmpassword" value="" />
+                <input class="required short" id="confirmpassword" after="clean" type="text" name="confirmpassword" value="" />
             </div>
 
-            <div class="label mt-20"><?=view::$language->user_about?>:</div>
+            <div class="label mt-20"><?=view::$language->users_user_about?>:</div>
             <div class="elem mt-20"><textarea rows="4" name="about"></textarea></div>
 
             <div class="label mt-20">&nbsp;</div>
-            <div class="elem mt-20"><span class="info"><?=view::$language->red_is_required?></span></div>
-            <div class="label">&laquo;&laquo; <a href="javascript:history.back();"><?=view::$language->go_back?></a></div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->users_red_is_required?></span></div>
+            <div class="label">&nbsp;</div>
             <div class="elem">
-                <input type="submit" name="silentsave" value=" <?=view::$language->save?> " />
-                <input type="submit" name="save" value=" <?=view::$language->save_and_out?> " />
+                <input type="submit" name="silentsave" value=" <?=view::$language->users_save?> " />
+                <input type="submit" name="save" value=" <?=view::$language->users_save_and_out?> " />
             </div>
 
             <div class="clear"></div>

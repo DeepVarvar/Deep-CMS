@@ -36,7 +36,7 @@ class events extends baseController {
             );
         }
 
-        view::assign('node_name', view::$language->events);
+        view::assign('node_name', view::$language->events_title);
         view::assign('events', $events);
         $this->setProtectedLayout('events.html');
 

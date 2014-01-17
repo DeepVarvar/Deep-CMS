@@ -65,15 +65,15 @@ class node_features extends baseController {
             $targetNode = request::shiftParam('target');
             if (!validate::isNumber($targetNode)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_features_error,
+                    view::$language->node_features_data_invalid
                 );
             }
             $this->getFeaturesFromDB($targetNode);
 
         }
 
-        view::assign('node_name', view::$language->features);
+        view::assign('node_name', view::$language->node_features_title);
         $this->setProtectedLayout('node-features.html');
 
     }
@@ -92,8 +92,8 @@ class node_features extends baseController {
         $name = request::getPostParam('value');
         if ($name === null) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_not_enough
+                view::$language->node_features_error,
+                view::$language->node_features_data_not_enough
             );
         }
 
@@ -126,8 +126,8 @@ class node_features extends baseController {
         $value = request::getPostParam('value');
         if ($value === null) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_not_enough
+                view::$language->node_features_error,
+                view::$language->node_features_data_not_enough
             );
         }
 
@@ -164,8 +164,8 @@ class node_features extends baseController {
 
         if ($data === null) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_not_enough
+                view::$language->node_features_error,
+                view::$language->node_features_data_not_enough
             );
         }
 
@@ -177,8 +177,8 @@ class node_features extends baseController {
                 and !validate::isNumber($data['node_id'])) {
 
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->node_features_error,
+                view::$language->node_features_data_invalid
             );
 
         }
@@ -188,8 +188,8 @@ class node_features extends baseController {
 
         if (!$data['name']) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->feature_name_invalid
+                view::$language->node_features_error,
+                view::$language->node_features_name_invalid
             );
         }
 
@@ -198,8 +198,8 @@ class node_features extends baseController {
 
         if (!$data['value']) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->feature_value_invalid
+                view::$language->node_features_error,
+                view::$language->node_features_value_invalid
             );
         }
 
@@ -231,15 +231,15 @@ class node_features extends baseController {
 
             if (!validate::isNumber($nodeID)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_features_error,
+                    view::$language->node_features_data_invalid
                 );
             }
 
             if (!$this->storageMode and !validate::isNumber($featureID)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_features_error,
+                    view::$language->node_features_data_invalid
                 );
             }
 
@@ -283,8 +283,8 @@ class node_features extends baseController {
 
         if (!$exists) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->node_not_found
+                view::$language->node_features_error,
+                view::$language->node_features_node_not_found
             );
         }
 

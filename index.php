@@ -24,7 +24,7 @@ mb_internal_encoding('UTF-8');
  */
 
 $bootstrap = APPLICATION . 'bootstrap.php';
-if (!file_exists($bootstrap)) {
+if (!is_file($bootstrap)) {
     exit('Bootstrap file ' . $bootstrap
             . " not found or don't have read permission" . PHP_EOL);
 }

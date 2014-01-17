@@ -60,7 +60,7 @@ class preferences extends baseController {
             'debug_mode_on'    => $c->system->debug_mode
         ));
 
-        view::assign('node_name', view::$language->preferences_global);
+        view::assign('node_name', view::$language->preferences_title);
         $this->setProtectedLayout('preferences.html');
 
     }
@@ -77,8 +77,8 @@ class preferences extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->cache_is_cleared,
+            view::$language->preferences_success,
+            view::$language->preferences_cache_is_cleared,
             $adminToolsLink . '/preferences'
         );
 
@@ -102,8 +102,8 @@ class preferences extends baseController {
         $newConfig = app::reloadConfig();
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->preferences_global_is_reseted,
+            view::$language->preferences_success,
+            view::$language->preferences_is_reseted,
             $newConfig->site->admin_tools_link . '/preferences'
         );
 
@@ -185,8 +185,8 @@ class preferences extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->permissions_is_recalculated,
+            view::$language->preferences_success,
+            view::$language->preferences_perms_recalculated,
             $adminToolsLink . '/preferences'
         );
 
@@ -206,7 +206,8 @@ class preferences extends baseController {
         $preferences = request::getRequiredPostParams(array('site', 'system'));
         if ($preferences === null) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_not_enough
+                view::$language->preferences_error,
+                view::$language->preferences_data_not_enough
             );
         }
 
@@ -214,7 +215,8 @@ class preferences extends baseController {
         foreach ($requiredSystemData as $item) {
             if (!array_key_exists($item, $preferences['system'])) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->data_not_enough
+                    view::$language->preferences_error,
+                    view::$language->preferences_data_not_enough
                 );
             }
         }
@@ -230,7 +232,8 @@ class preferences extends baseController {
         foreach ($requiredSiteData as $item) {
             if (!array_key_exists($item, $preferences['site'])) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->data_not_enough
+                    view::$language->preferences_error,
+                    view::$language->preferences_data_not_enough
                 );
             }
         }
@@ -247,36 +250,37 @@ class preferences extends baseController {
 
         if (!$validate) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->cookie_expires_need_is_number
+                view::$language->preferences_error,
+                view::$language->preferences_cookie_exp_need_is_number
             );
         }
 
         if ($preferences['system']['cookie_expires_time'] >= 2147483646) {
             throw new systemErrorException(
-                view::$language->error,
-                view::$language->cookie_expires_is_too_long
+                view::$language->preferences_error,
+                view::$language->preferences_cookie_exp_is_long
             );
         }
 
         if ($preferences['system']['cookie_expires_time'] < 600) {
             throw new systemErrorException(
-                view::$language->error,
-                view::$language->cookie_expires_is_too_small
+                view::$language->preferences_error,
+                view::$language->preferences_cookie_exp_is_small
             );
         }
 
         $futureTime = time() + $preferences['system']['cookie_expires_time'];
         if ($futureTime >= 2147483646) {
             throw new systemErrorException(
-                view::$language->error,
-                view::$language->cookie_expires_is_too_long
+                view::$language->preferences_error,
+                view::$language->preferences_cookie_exp_is_long
             );
         }
 
         if (!validate::likeString($preferences['site']['theme'])) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->preferences_error,
+                view::$language->preferences_data_invalid
             );
         }
 
@@ -290,14 +294,15 @@ class preferences extends baseController {
 
         if (!$existsTheme) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->theme_of_site_not_found
+                view::$language->preferences_error,
+                view::$language->preferences_theme_not_found
             );
         }
 
         if (!validate::likeString($preferences['site']['default_language'])) {
             throw new memberErrorException(
-                view::$language->error, view::$language->data_invalid
+                view::$language->preferences_error,
+                view::$language->preferences_data_invalid
             );
         }
 
@@ -307,8 +312,8 @@ class preferences extends baseController {
 
         if (!$validate) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->language_name_need_iso639_std
+                view::$language->preferences_error,
+                view::$language->preferences_language_need_iso639_std
             );
         }
 
@@ -322,19 +327,20 @@ class preferences extends baseController {
 
         if (!$existsLanguage) {
             throw new memberErrorException(
-                view::$language->error, view::$language->language_not_found
+                view::$language->preferences_error,
+                view::$language->preferences_language_not_found
             );
         }
 
         $adminLink = protoUtils::normalizeInputUrl(
             trim((string) $preferences['site']['admin_tools_link']),
-            view::$language->admin_tools_link_invalid
+            view::$language->preferences_admin_link_invalid
         );
 
         if (!preg_match('/^\/[^\/]/s', $adminLink)) {
             throw new memberErrorException(
-                view::$language->error,
-                view::$language->admin_tools_link_invalid
+                view::$language->preferences_error,
+                view::$language->preferences_admin_link_invalid
             );
         }
 
@@ -355,8 +361,8 @@ class preferences extends baseController {
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
-            view::$language->success,
-            view::$language->preferences_global_is_changed,
+            view::$language->preferences_success,
+            view::$language->preferences_is_changed,
             $newConfig->site->admin_tools_link . '/preferences'
         );
 

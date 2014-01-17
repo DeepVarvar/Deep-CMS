@@ -28,22 +28,22 @@
 
     <div class="top-line">
 
-        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/administration-tools.html" title=" <?=view::$language->help?> ">?</a></div>
+        <div class="left-item help"><a target="_blank" href="http://www.deep-cms.ru/administration-tools.html" title=" <?=view::$language->admin_help?> ">?</a></div>
         <div class="left-item name"><img src="<?=$_config->site->admin_resources?>images/small-logo.png" /><?=$_config->application->name?> <sup><?=$_config->application->version?></sup></div>
         <div class="left-item-last">&nbsp;</div>
 
         <div class="right-item-last">&nbsp;</div>
-        <div class="right-item"><a href="<?=$_config->site->admin_tools_link?>/logout" title=" <?=view::$language->logout?> "><?=view::$language->logout?></a></div>
+        <div class="right-item"><a href="<?=$_config->site->admin_tools_link?>/logout" title=" <?=view::$language->admin_logout?> "><?=view::$language->admin_logout?></a></div>
         <div class="right-item-separator">&nbsp;</div>
-        <div class="right-item"><a target="_blank" href="/" title=" <?=view::$language->go_to_site?> "><?=view::$language->go_to_site?></a></div>
+        <div class="right-item"><a target="_blank" href="/" title=" <?=view::$language->admin_to_site?> "><?=view::$language->admin_to_site?></a></div>
         <div class="right-item-first">&nbsp;</div>
 
     </div>
 
     <div class="top-status-line">
-        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><?=view::$language->hello?>, <b><?=$_member['login']?></b></div>
+        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><?=view::$language->admin_hello?>, <b><?=$_member['login']?></b></div>
         <?php if (member::isPermission('preferences_manage')) { ?>
-            <div class="right-item up"><a class="screw" href="<?=$_config->site->admin_tools_link?>/preferences" title=" <?=view::$language->preferences_global?> "><?=view::$language->preferences_global?></a></div>
+            <div class="right-item up"><a class="screw" href="<?=$_config->site->admin_tools_link?>/preferences" title=" <?=view::$language->admin_preferences_global?> "><?=view::$language->admin_preferences_global?></a></div>
         <?php } ?>
     </div>
 

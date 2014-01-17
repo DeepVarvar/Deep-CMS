@@ -7,9 +7,9 @@
     <table class="list events" cellspacing="2" cellpadding="0">
 
         <tr class="caption">
-            <td width="140"><?=view::$language->datetime?></td>
-            <td><?=view::$language->event?></td>
-            <td width="100"><?=view::$language->initiator?></td>
+            <td width="140"><?=view::$language->events_datetime?></td>
+            <td><?=view::$language->events_event?></td>
+            <td width="100"><?=view::$language->events_initiator?></td>
             <td width="80">IP</td>
             <td>URI</td>
         </tr>
@@ -31,7 +31,7 @@
         <?php } ?>
 
         <?php if (!$events) { ?>
-            <tr><td colspan="6" class="action"><h3>[<?=view::$language->empty_data?>]</h3></td></tr>
+            <tr><td colspan="6" class="action"><h3>[<?=view::$language->events_empty_data?>]</h3></td></tr>
         <?php } ?>
 
     </table>

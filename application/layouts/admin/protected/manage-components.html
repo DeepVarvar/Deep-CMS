@@ -7,13 +7,13 @@
 
         <div class="component">
             <h3><?=$item['name']?></h3>
-            <div class="version">Версия: <b><?=$item['version']?></b></div>
+            <div class="version"><?=view::$language->manage_components_version?>: <b><?=$item['version']?></b></div>
             <div class="propertynames">
-                <div>Тип компонента:</div>
-                <div>Системное имя:</div>
-                <div>Автор:</div>
-                <div>Сайт разработчика:</div>
-                <div>E-mail разработчика:</div>
+                <div><?=view::$language->manage_components_type?>:</div>
+                <div><?=view::$language->manage_components_sysname?>:</div>
+                <div><?=view::$language->manage_components_author?>:</div>
+                <div><?=view::$language->manage_components_author_site?>:</div>
+                <div><?=view::$language->manage_components_author_email?>:</div>
             </div>
             <div class="propertyvalues">
                 <div><?=$item['type']?></div>
@@ -26,13 +26,13 @@
             <div class="clear"></div>
             <div class="actionbuttons">
                 <?php if ($item['installed']) { ?>
-                    <a href="<?=$_config->site->admin_tools_link?>/manage-components/delete?target=<?=$item['system_name']?>">Удалить</a>
+                    <a href="<?=$_config->site->admin_tools_link?>/manage-components/delete?target=<?=$item['system_name']?>"><?=view::$language->manage_components_delete?></a>
                     <?php if ($item['deprecated']) { ?>
-                        Доступна новая версия <b><?=$item['new_version']?></b>
-                        <a href="<?=$_config->site->admin_tools_link?>/manage-components/update?target=<?=$item['system_name']?>">Обновить</a>
+                        <?=view::$language->manage_components_av_new_version?> <b><?=$item['new_version']?></b>
+                        <a href="<?=$_config->site->admin_tools_link?>/manage-components/update?target=<?=$item['system_name']?>"><?=view::$language->manage_components_update?></a>
                     <?php } ?>
                 <?php } else { ?>
-                    <a href="<?=$_config->site->admin_tools_link?>/manage-components/install?target=<?=$item['system_name']?>">Установить</a>
+                    <a href="<?=$_config->site->admin_tools_link?>/manage-components/install?target=<?=$item['system_name']?>"><?=view::$language->manage_components_install?></a>
                 <?php } ?>
             </div>
         </div>

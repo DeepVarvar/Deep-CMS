@@ -5,7 +5,7 @@
  * main module prototype model
  */
 
-class mainModuleProtoModel extends baseProtoTypeModel {
+class mainModuleProtoModel extends basePrototypeModel {
 
 
     protected $nodeID = null;

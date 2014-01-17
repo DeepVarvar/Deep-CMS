@@ -76,7 +76,7 @@ class admin extends baseController {
             if (!member::logged()) {
                 storage::write('admin-login-env', array(
                     'login_image'   => 'err',
-                    'login_message' => view::$language->login_or_pass_bad
+                    'login_message' => view::$language->admin_login_or_pass_bad
                 ));
             }
             request::sameOriginRedirect();
@@ -88,7 +88,7 @@ class admin extends baseController {
         } else {
             view::assign(array(
                 'login_image'   => 'ok',
-                'login_message' => view::$language->auth_please
+                'login_message' => view::$language->admin_auth_please
             ));
         }
 

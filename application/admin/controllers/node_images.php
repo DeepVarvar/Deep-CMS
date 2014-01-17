@@ -167,7 +167,7 @@ class node_images extends baseController {
     public function index() {
 
         $this->view(true);
-        view::assign('node_name', view::$language->images_attached);
+        view::assign('node_name', view::$language->node_images_title);
         view::assign($this->availableSizes);
         $this->setProtectedLayout('node-images.html');
 
@@ -296,8 +296,8 @@ class node_images extends baseController {
             $images = member::getStorageData($this->storageDataKey);
             if (!array_key_exists($targetImage, $images)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             }
 
@@ -315,8 +315,8 @@ class node_images extends baseController {
 
             if (!validate::isNumber($targetImage)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             }
             db::set(
@@ -331,8 +331,8 @@ class node_images extends baseController {
         }
 
         throw new memberSuccessException(
-            view::$language->success,
-            view::$language->changes_has_been_saved
+            view::$language->node_images_success,
+            view::$language->node_images_changes_has_been_saved
         );
 
     }
@@ -362,8 +362,8 @@ class node_images extends baseController {
             $images = member::getStorageData($this->storageDataKey);
             if (!array_key_exists($targetImage, $images)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             }
 
@@ -387,8 +387,8 @@ class node_images extends baseController {
 
             if (!validate::isNumber($targetImage)) {
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             }
 
@@ -581,16 +581,16 @@ class node_images extends baseController {
         if (is_array($_FILES['uploadfile']['tmp_name'])) {
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->image_upload_single_only
+                view::$language->node_images_error,
+                view::$language->node_images_upload_single_only
             );
         }
 
         if ($_FILES['uploadfile']['error']) {
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->image_upload_file_error
+                view::$language->node_images_error,
+                view::$language->node_images_upload_file_error
             );
         }
 
@@ -598,8 +598,8 @@ class node_images extends baseController {
             @ unlink($_FILES['uploadfile']['tmp_name']);
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->image_upload_broken_mime
+                view::$language->node_images_error,
+                view::$language->node_images_upload_broken_mime
             );
         }
 
@@ -607,8 +607,8 @@ class node_images extends baseController {
             @ unlink($_FILES['uploadfile']['tmp_name']);
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->image_upload_unsupported_type
+                view::$language->node_images_error,
+                view::$language->node_images_unsupported_type
             );
         }
 
@@ -638,16 +638,16 @@ class node_images extends baseController {
         if (!$requiredData = request::getRequiredPostParams($required)) {
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->data_not_enough
+                view::$language->node_images_error,
+                view::$language->node_images_data_not_enough
             );
         }
 
         if (!in_array($requiredData['action'], array('replace', 'add'), true)) {
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->node_images_error,
+                view::$language->node_images_data_invalid
             );
         }
 
@@ -658,8 +658,8 @@ class node_images extends baseController {
             if (!validate::isNumber($target)) {
                 $this->exceptionExit(
                     'error',
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             }
 
@@ -670,8 +670,8 @@ class node_images extends baseController {
             if (!$exists) {
                 $this->exceptionExit(
                     'error',
-                    view::$language->error,
-                    view::$language->node_not_found
+                    view::$language->node_images_error,
+                    view::$language->node_images_node_not_found
                 );
             }
 
@@ -691,7 +691,8 @@ class node_images extends baseController {
 
             if (!$validate) {
                 throw new memberErrorException(
-                    view::$language->error, view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             }
 
@@ -702,8 +703,8 @@ class node_images extends baseController {
                 if (!validate::isNumber($target)) {
                     $this->exceptionExit(
                         'error',
-                        view::$language->error,
-                        view::$language->data_invalid
+                        view::$language->node_images_error,
+                        view::$language->node_images_data_invalid
                     );
                 }
 
@@ -714,8 +715,8 @@ class node_images extends baseController {
                 if (!$exists) {
                     $this->exceptionExit(
                         'error',
-                        view::$language->error,
-                        view::$language->image_not_found
+                        view::$language->node_images_error,
+                        view::$language->node_images_image_not_found
                     );
                 }
 
@@ -755,16 +756,16 @@ class node_images extends baseController {
         if (!validate::likeString($input)) {
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->node_images_error,
+                view::$language->node_images_data_invalid
             );
         }
 
         if (!preg_match('/^([1-9]\d{0,3})x([1-9]\d{0,3})$/', $input, $m)) {
             $this->exceptionExit(
                 'error',
-                view::$language->error,
-                view::$language->data_invalid
+                view::$language->node_images_error,
+                view::$language->node_images_data_invalid
             );
         }
 
@@ -826,8 +827,8 @@ class node_images extends baseController {
 
             default:
                 throw new memberErrorException(
-                    view::$language->error,
-                    view::$language->data_invalid
+                    view::$language->node_images_error,
+                    view::$language->node_images_data_invalid
                 );
             break;
 
