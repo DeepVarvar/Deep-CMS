@@ -5,9 +5,8 @@
  * defined main environment
  */
 
-define('FAST_RUNNING',   false);
-define('ERROR_EXCEPTION',    0);
-define('SUCCESS_EXCEPTION',  1);
+define('ERROR_EXCEPTION',   0);
+define('SUCCESS_EXCEPTION', 1);
 
 
 /**
@@ -54,10 +53,9 @@ if (!file_exists(APPLICATION . 'config/main.json')) {
  * check PHP version like version_compare()
  */
 
-$version = phpversion();
-if ((float) $version < 5.2) {
-    exit('Deep-CMS need php version 5.2 or later. '
-            . 'Your php version ' . $version . PHP_EOL);
+$v = phpversion();
+if ((float) $v < 5.2) {
+    exit('Deep-CMS need php version 5.2 or later. ' . 'Your php version ' . $v);
 }
 
 
@@ -83,24 +81,6 @@ require_once 'view.php';
 
 
 /**
- * slow running mode,
- * check writable permissions
- */
-
-if (!FAST_RUNNING) {
-
-    $slowRunning = APPLICATION . 'core/slowRunning.php';
-    if (!is_file($slowRunning)) {
-        exit('File ' . $slowRunning
-            . ' not found or don\'t have read permission' . PHP_EOL);
-    }
-
-    require_once $slowRunning;
-
-}
-
-
-/**
  * load main config
  */
 
@@ -108,18 +88,30 @@ $config = app::loadConfig();
 
 
 /**
- * exception details mode,
- * enable/disable errors and notices
+ * slow running mode,
+ * check writable permissions,
+ * exception details,
+ * enabled errors, warnings and notices
  */
 
 if ($config->system->debug_mode) {
+
     ini_set('display_errors', 'On');
     ini_set('html_errors', 'On');
     error_reporting(E_ALL | E_STRICT);
+
+    $slow = APPLICATION . 'core/slowRunning.php';
+    if (!is_file($slow)) {
+        exit('File ' . $slow . ' not found or don\'t have read permission');
+    }
+    require_once $slow;
+
 } else {
+
     ini_set('display_errors', 'Off');
     ini_set('html_errors', 'Off');
     error_reporting(0);
+
 }
 
 

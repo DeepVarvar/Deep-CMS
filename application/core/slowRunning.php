@@ -14,22 +14,20 @@ define('IS_WRITABLE', true);
 
 function checkPath($path, $type, $isWritable = false) {
 
+    $target = $type == IS_DIR ? 'Directory: ' : 'File: ';
     if (!file_exists($path)) {
-        exit('Core dependency target ' . $path . ' is not exists' . PHP_EOL);
+        exit($target . $path . ' is not exists');
     }
 
     if ($type == IS_DIR and !is_dir($path)) {
-        exit('Core dependency target ' . $path . ' is not directory' . PHP_EOL);
+        exit($target . $path . ' is not directory');
     } else if ($type == IS_FILE and !is_file($path)) {
-        exit('Core dependency target ' . $path . ' is not file' . PHP_EOL);
+        exit($target . $path . ' is not file');
     }
 
     if ($isWritable) {
         if (!is_writable($path)) {
-            exit(
-                'Core dependency target ' . $path .
-                ' don\'t have writable permission' . PHP_EOL
-            );
+            exit($target . $path . ' don\'t have writable permission');
         }
     }
 
@@ -57,7 +55,6 @@ $requiredDirectories = array(
     'modules',
     'prototypes',
     'resources',
-    'resources/watermarks',
     'upload'
 );
 
@@ -67,24 +64,14 @@ foreach ($requiredDirectories as $item) {
 }
 
 $requiredUnwritabeDirectories = array(
-    'layouts/themes/default',
     'modules/search',
     'modules/sitemap',
-    'modules/sitemap_xml'
+    'modules/sitemap_xml',
+    'resources/watermarks'
 );
 
 foreach ($requiredUnwritabeDirectories as $item) {
     checkPath(APPLICATION . $item, IS_DIR);
-}
-
-$requiredInnerWritabeDirectories = array(
-    'layouts/themes/default/parts',
-    'layouts/themes/default/protected',
-    'layouts/themes/default/public'
-);
-
-foreach ($requiredInnerWritabeDirectories as $item) {
-    checkPath(APPLICATION . $item, IS_DIR, IS_WRITABLE);
 }
 
 
@@ -177,12 +164,8 @@ $requiredFiles = array(
     'layouts/admin/protected/variables.html',
     'layouts/system/debug.html',
     'layouts/system/raw.html',
-    'layouts/themes/default/parts/footer.html',
-    'layouts/themes/default/parts/header.html',
-    'layouts/themes/default/protected/exception.html',
     'layouts/themes/default/protected/search.html',
     'layouts/themes/default/protected/sitemap.html',
-    'layouts/themes/default/public/page.html',
     'modules/search/search.php',
     'modules/sitemap/sitemap.php',
     'modules/sitemap_xml/autoloaded',
@@ -199,37 +182,6 @@ $requiredFiles = array(
 
 foreach ($requiredFiles as $item) {
     checkPath(APPLICATION . $item, IS_FILE);
-}
-
-
-/**
- * check main configuration files
- */
-
-$mainConfigFile = APPLICATION . 'config/main.json';
-checkPath($mainConfigFile, IS_FILE, IS_WRITABLE);
-if (!app::loadJsonFile($mainConfigFile)) {
-    exit('Configuration file ' . $mainConfigFile 
-            . ' is broken or have syntax error' . PHP_EOL);
-}
-
-$generatedConfigFile = APPLICATION . 'config/main.json.generated';
-if (file_exists($generatedConfigFile)) {
-    checkPath($generatedConfigFile, IS_FILE, IS_WRITABLE);
-    if (!app::loadJsonFile($generatedConfigFile)) {
-        exit('Configuration file ' . $generatedConfigFile 
-                . ' is broken or have syntax error' . PHP_EOL);
-    }
-}
-
-
-/**
- * check current main.log file
- */
-
-$mainLogFile = APPLICATION . 'logs/main.log';
-if (file_exists($mainLogFile)) {
-    checkPath($mainLogFile, IS_FILE, IS_WRITABLE);
 }
 
 
@@ -261,7 +213,8 @@ $requiredLanguageFiles = array(
     'users.php'
 );
 
-foreach (languageUtils::getLanguagePaths() as $item) {
+$languageDirectories = languageUtils::getLanguagePaths();
+foreach ($languageDirectories as $item) {
     checkPath($item, IS_DIR, IS_WRITABLE);
     foreach ($requiredLanguageFiles as $file) {
         checkPath($item . '/' . $file, IS_FILE);
@@ -269,7 +222,132 @@ foreach (languageUtils::getLanguagePaths() as $item) {
 }
 
 
+/**
+ * check themes
+ */
+
+$requiredThemeDirs = array(
+    'parts'     => array('footer.html', 'header.html'),
+    'protected' => array('exception.html'),
+    'public'    => array('page.html')
+);
+
+$existsThemes = fsUtils::glob(APPLICATION . 'layouts/themes/*');
+foreach ($existsThemes as $theme) {
+    checkPath($theme, IS_DIR);
+    foreach ($requiredThemeDirs as $dir => $files) {
+        checkPath($theme . '/' . $dir, IS_DIR, IS_WRITABLE);
+        foreach ($files as $file) {
+            checkPath($theme . '/' . $dir . '/' . $file, IS_FILE);
+        }
+    }
+}
 
 
+/**
+ * check main configuration files
+ */
+
+$mainConfigFile = APPLICATION . 'config/main.json';
+checkPath($mainConfigFile, IS_FILE, IS_WRITABLE);
+$generatedConfigFile = APPLICATION . 'config/main.json.generated';
+if (file_exists($generatedConfigFile)) {
+    checkPath($generatedConfigFile, IS_FILE, IS_WRITABLE);
+}
+
+
+/**
+ * check current main.log file
+ */
+
+$mainLogFile = APPLICATION . 'logs/main.log';
+if (file_exists($mainLogFile)) {
+    checkPath($mainLogFile, IS_FILE, IS_WRITABLE);
+}
+
+
+/**
+ * check installed components
+ */
+
+$expectedKeys = array(
+
+    'type'                  => false,
+    'system_name'           => false,
+    'version'               => false,
+    'author'                => false,
+    'support_email'         => false,
+    'main_url'              => false,
+    'description'           => false,
+    'dependency_components' => true,
+    'main_directories'      => true,
+    'main_files'            => true,
+    'language_files'        => true
+
+);
+
+$dcmFiles = fsUtils::glob(APPLICATION . 'metadata/*.dcm');
+foreach ($dcmFiles as $dcmFile) {
+
+    checkPath($dcmFile, IS_FILE, IS_WRITABLE);
+    if (!$dcmData = app::loadJsonFile($dcmFile, true) or !is_array($dcmData)) {
+        exit('Metadata file ' . $dcmFile . ' is broken or have syntax error');
+    }
+
+    if (array_keys($dcmData) !== array_keys($expectedKeys)) {
+        exit('Metadata file ' . $dcmFile . ' is broken syntax');
+    }
+
+    $dcmBrokenInfo = array();
+    foreach ($expectedKeys as $key => $val) {
+
+        // check array
+        if ($val) {
+            if (!is_array($dcmData[$key])) {
+                $dcmBrokenInfo['key'] = $key;
+            }
+            foreach ($dcmData[$key] as $k => $string) {
+                if (!is_string($string)) {
+                    $dcmBrokenInfo['subkey'] = $k;
+                }
+            }
+        // check string
+        } else if (!is_string($dcmData[$key])) {
+            $dcmBrokenInfo['key'] = $key;
+        }
+
+        // exit if broken
+        if ($dcmBrokenInfo) {
+            $subkey = array_key_exists('subkey', $dcmBrokenInfo)
+                ? '[' . $dcmBrokenInfo['subkey'] . ']' : '';
+            exit('Metadata value of ' . $dcmBrokenInfo['key'] . $subkey . ' is broken on ' . $dcmFile);
+        }
+
+        // check directories
+        if ($key == 'main_directories') {
+            foreach ($dcmData[$key] as $dir) {
+                checkPath(APPLICATION . $dir, IS_DIR, IS_WRITABLE);
+            }
+        }
+
+        // check files
+        if ($key == 'main_files') {
+            foreach ($dcmData[$key] as $file) {
+                checkPath(APPLICATION . $file, IS_FILE, IS_WRITABLE);
+            }
+        }
+
+        // check language files
+        if ($key == 'language_files') {
+            foreach ($languageDirectories as $lang) {
+                foreach ($dcmData[$key] as $file) {
+                    checkPath($lang . '/' . $file, IS_FILE, IS_WRITABLE);
+                }
+            }
+        }
+
+    }
+
+}
 
 

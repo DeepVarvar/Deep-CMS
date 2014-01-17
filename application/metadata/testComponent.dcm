@@ -1,0 +1,63 @@
+
+
+
+{
+
+
+    /**
+     * general information,
+     * type and system name of component
+     */
+
+    "type"        : "helper",
+    "system_name" : "testComponent",
+
+
+    /**
+     * version, author, email, url
+     * and support information of component
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
+
+
+    /**
+     * dependency of component
+     */
+
+    "dependency_components": [],
+
+
+    /**
+     * directories of component
+     */
+
+    "main_directories": [],
+
+
+    /**
+     * files of component
+     */
+
+    "main_files" : [
+        "library/testComponent.php"
+    ],
+
+
+    /**
+     * language files of component
+     */
+
+    "language_files" : [
+        "testComponent.php"
+    ]
+
+
+}
+
+
+
