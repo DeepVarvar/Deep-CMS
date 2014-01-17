@@ -39,15 +39,15 @@ $(function(){
                 output += ' <div class="actions c"> ';
 
                     output += ' <div> ';
-                        output += ' <a class="replaceaction" href="#replace" data-id="' + images[i].id + '">' + language.replace_now + '</a> ';
+                        output += ' <a class="replaceaction" href="#replace" data-id="' + images[i].id + '">' + language.node_images_replace + '</a> ';
                     output += ' </div> ';
 
                     output += ' <div class="masterlink"> ';
-                        output += ' <a class="masteraction" href="' + linkPrefix + 'master?id=' + images[i].id + '&target=' + target_node + '">' + language.make_is_master + '</a> ';
+                        output += ' <a class="masteraction" href="' + linkPrefix + 'master?id=' + images[i].id + '&target=' + target_node + '">' + language.node_images_is_master + '</a> ';
                     output += ' </div> ';
 
                     output += ' <div> ';
-                        output += ' <a class="deleteaction" href="' + linkPrefix + 'delete?id=' + images[i].id + '&target=' + target_node + '">' + language.delete_now + '</a> ';
+                        output += ' <a class="deleteaction" href="' + linkPrefix + 'delete?id=' + images[i].id + '&target=' + target_node + '">' + language.node_images_delete + '</a> ';
                     output += ' </div> ';
 
                 output += ' </div> ';
@@ -165,9 +165,9 @@ $(function(){
 
         var uploadcaption = $("#uploadcaption");
         if (action == "replace") {
-            uploadcaption.html(language.image_replace);
+            uploadcaption.html(language.node_images_replace_title);
         } else {
-            uploadcaption.html(language.images_upload);
+            uploadcaption.html(language.node_images_upload_title);
         }
 
     }
@@ -234,7 +234,7 @@ $(function(){
 
     $("#deleteallimages").click(function(){
 
-        if (confirmation(language.images_delete_confirm)) {
+        if (confirmation(language.node_images_all_delete_confirm)) {
             var link = variables.admin_tools_link + "/node-images/delete-all?target=" + target.val() + "&_" + Math.random();
             $.get(link, function(response) {
                 if (typeof response.exception != "undefined") {

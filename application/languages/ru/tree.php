@@ -28,6 +28,7 @@ return array(
     'tree_node_cant_itself_parent'         => 'Узел не может быть вложен в самого себя',
     'tree_node_children_prototype'         => 'Тип потомков',
     'tree_node_create_title'               => 'Создание нового узла',
+    'tree_node_delete_confirm'             => 'Вы действительно хотите удалить этот узел?' . "\n" . 'Его потомки так же будут удалены!',
     'tree_node_delete_count_is_over'       => 'Удаляемый узел содержит более 100 потомков! Действие отменено!',
     'tree_node_edit_title'                 => 'Редактирование узла',
     'tree_node_incorrect_siblings'         => 'Некорректно указаны соседние узлы',

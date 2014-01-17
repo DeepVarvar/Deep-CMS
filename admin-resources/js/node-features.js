@@ -48,14 +48,14 @@ $(function(){
 
                 output += ' <div class="save"> ';
                     output += ' <input type="hidden" name="node_id" value="' + features[i].node_id + '" /> ';
-                    output += ' <input type="submit" name="silentsave" value=" &raquo; " title=" ' + language.save + ' " /> ';
+                    output += ' <input type="submit" name="silentsave" value=" &raquo; " title=" ' + language.node_features_save + ' " /> ';
                 output += ' </div> ';
 
                 output += ' <div class="delete"> ';
 
                     output += ' <a href="' + variables.admin_tools_link + '/node-features/delete?id='
                                 + features[i].feature_id + '&target=' + features[i].node_id
-                                + '" title=" ' + language.delete_now + ' ">✖</a> ';
+                                + '" title=" ' + language.node_features_delete + ' ">✖</a> ';
 
                 output += ' </div> ';
 

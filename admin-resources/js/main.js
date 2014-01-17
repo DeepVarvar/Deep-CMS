@@ -26,7 +26,7 @@ function getBranchTreeItem(item) {
     var eName  = item.children > 0 ? "" : ' name="' + branchLink + '"';
     var eLink  = item.children > 0 ? ' href="' + branchLink + '"' : "";
     var eTitle = item.children > 0
-            ? ' title=" ' + language.branch_children_expand_collapse + ' "'
+            ? ' title=" ' + language.tree_branch_children_expand_collapse + ' "'
             : "";
 
     var expander = ' <a' + eTitle + ' class="'
@@ -40,7 +40,7 @@ function getBranchTreeItem(item) {
     var blend = ' <div class="blend"></div> ';
     var isOff = item.is_publish == 0 ? " off" : "";
     var iname = ' <a class="name' + isOff + '" href="'
-            + editLink + '" title=" ' + language.edit_now
+            + editLink + '" title=" ' + language.tree_edit_node
             + ' "> ' + blend + ' <span> '
             + item.node_name + ' </span> ' + ' </a> ';
 
@@ -56,13 +56,13 @@ function getBranchTreeItem(item) {
     var showbranch = ' <a class="showbranch'
         + (item.children > 0 ? '' : ' hide') + '" href="'
         + branchLink + '" title=" '
-        + language.documents_tree_only_one_branch + ' "></a> ';
+        + language.tree_only_one_branch + ' "></a> ';
 
     var create  = ' <a class="create" href="' + createLink
-        + '" title=" ' + language.node_create_new + ' "></a> ';
+        + '" title=" ' + language.tree_create_node + ' "></a> ';
 
     var idelete = ' <a class="delete" href="'
-        + deleteLink + '" title=" ' + language.delete_now + ' "></a> ';
+        + deleteLink + '" title=" ' + language.tree_delete_node + ' "></a> ';
 
     return ' <li data-tree-id="' + item.id + '"'
         + ' data-children="' + item.children + '"> ' + expander + iname
@@ -269,7 +269,7 @@ $(function(){
                         .addClass("expander")
 
                         .attr("title", " " +
-                            language.branch_children_expand_collapse + " ")
+                            language.tree_branch_children_expand_collapse + " ")
 
                         .removeAttr("name")
                         .attr("href", expHref);
@@ -359,7 +359,7 @@ $(function(){
 
         var delink = $(this);
 
-        if (confirmation(language.node_delete_confirm)) {
+        if (confirmation(language.tree_node_delete_confirm)) {
 
             $.ajax({
 
