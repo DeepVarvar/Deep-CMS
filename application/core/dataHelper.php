@@ -604,7 +604,7 @@ abstract class dataHelper {
     private static function getExpectedSortKeys() {
 
         self::$expectedSortKeys = array();
-        foreach (db::query('SHOW COLUMNS FROM tree') as $item) {
+        foreach (db::query("SHOW COLUMNS FROM tree") as $item) {
             array_push(self::$expectedSortKeys, $item['Field']);
         }
 

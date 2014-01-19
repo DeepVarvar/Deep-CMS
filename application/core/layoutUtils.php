@@ -32,10 +32,8 @@ abstract class layoutUtils {
 
     public static function isExistsProtectedLayout($name) {
 
-        return file_exists(
-            APPLICATION . 'layouts/themes/'
-                . app::config()->site->theme . '/protected/' . $name
-        );
+        $theme = app::config()->site->theme;
+        return is_file(APPLICATION . 'layouts/themes/' . $theme . '/protected/' . $name);
 
     }
 

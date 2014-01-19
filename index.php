@@ -23,12 +23,11 @@ mb_internal_encoding('UTF-8');
  * loading bootstrap
  */
 
-$bootstrap = APPLICATION . 'bootstrap.php';
-if (!is_file($bootstrap)) {
-    exit('Bootstrap file ' . $bootstrap
-            . " not found or don't have read permission" . PHP_EOL);
+$boot = APPLICATION . 'bootstrap.php';
+if (!is_file($boot)) {
+    exit('Bootstrap file ' . $boot . ' not found or don\'t have read permission');
 }
 
-require_once $bootstrap;
+require_once $boot;
 
 

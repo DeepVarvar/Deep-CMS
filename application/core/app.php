@@ -45,17 +45,9 @@ abstract class app {
 
         $configDir = APPLICATION . 'config/';
         $generatedConfig = $configDir . $name . '.generated';
-
-        $config = file_exists($generatedConfig)
-            ? $generatedConfig : $configDir . $name;
-
-        if (!is_readable($config)) {
-            exit("Configuration file $config don't have readable permission" . PHP_EOL);
-        }
-
+        $config = file_exists($generatedConfig) ? $generatedConfig : $configDir . $name;
         if (!$configData = self::loadJsonFile($config, $isArray)) {
-            exit('Configuration file ' . $config
-                    . ' is broken or have syntax error' . PHP_EOL);
+            exit('Configuration file ' . $config . ' is broken or have syntax error');
         }
 
         self::$configs[$name] = $configData;
@@ -147,12 +139,6 @@ abstract class app {
         if (file_exists($logFile)) {
 
             $existsLog = true;
-            if (!is_writable($logFile)) {
-                exit(
-                    "Log file $logFile don't have writable permission" . PHP_EOL
-                );
-            }
-
             if (filesize($logFile) > self::config()->system->log_file_max_size) {
                 $fixedName = str_replace(
                     array(':', ' '), array('.', '_'), $item['datetime']

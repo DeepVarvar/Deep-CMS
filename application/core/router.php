@@ -91,8 +91,7 @@ abstract class router {
                 'module_name'    => 'admin'
             );
 
-        } else if (file_exists(APPLICATION
-            . 'modules/' . $moduleName . '/autoloaded')) {
+        } else if (is_file(APPLICATION . 'modules/' . $moduleName . '/autoloaded')) {
 
             $loadedPage = array(
                 'id'             => 0,
@@ -221,7 +220,7 @@ abstract class router {
             $subModule = self::getParam();
             $controller = $path . 'controllers/' . $subModule . '.php';
 
-            if (file_exists($controller) and !is_dir($controller)) {
+            if (is_file($controller)) {
                 node::loadController($controller, $subModule);
                 permissionUtils::checkPermissionAccess($subModule, null);
                 $subModuleMode = self::shiftParam();

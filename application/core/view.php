@@ -122,7 +122,7 @@ abstract class view {
             if (is_file($lang)) {
                 self::$loadedComponents[] = $className;
                 self::$language = array_merge(
-                    (array) self::$language, (require_once $lang)
+                    (array) self::$language, (require $lang)
                 );
                 self::$language = (object) self::$language;
             }
@@ -251,7 +251,7 @@ abstract class view {
                 if (is_file($langPath)) {
                     $componentsList[] = $langFile;
                     self::$language = array_merge(
-                        self::$language, (require_once $langPath)
+                        self::$language, (require $langPath)
                     );
                 }
             }
@@ -511,7 +511,7 @@ abstract class view {
         }
 
         if (!isset($layoutContent)) {
-            exit('Recursive exception..' . PHP_EOL);
+            exit('Recursive exception..');
         }
 
         if ($config->system->cache_enabled === true) {
@@ -527,11 +527,8 @@ abstract class view {
             }
 
             if ($match) {
-                file_put_contents(
-                    APPLICATION . 'cache/' . $outputContext . '---' . md5($URL),
-                    $layoutContent,
-                    LOCK_EX
-                );
+                $f = APPLICATION . 'cache/' . $outputContext . '---' . md5($URL);
+                file_put_contents($f, $layoutContent, LOCK_EX);
             }
 
         }

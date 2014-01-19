@@ -501,6 +501,32 @@ abstract class request {
 
 
     /**
+     * change original ULR string with input parameters
+     */
+
+    public static function changeOriginURL($newParams) {
+
+        if (!is_array($newParams)) {
+            throw new systemErrorException(
+                'Helper error', 'URL parameters is not array'
+            );
+        }
+
+        $parts = explode('?', request::getOriginURL());
+        array_shift($parts);
+
+        $query = join('', $parts);
+        parse_str($query, $parts);
+
+        $parts = array_merge($parts, $newParams);
+        $query = http_build_query($parts);
+
+        return request::getURI() . ($query ? '?' . $query : '');
+
+    }
+
+
+    /**
      * check for unused parameters
      * throw when exists unused parameters
      * WARNING! EXPERIMENTAL!

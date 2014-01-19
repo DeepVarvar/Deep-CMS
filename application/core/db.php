@@ -171,6 +171,20 @@ abstract class db {
 
 
     /**
+     * private silent simple update or insert query,
+     * return number of affected rows
+     */
+
+    private static function sendSilentSetQuery($queryString) {
+
+        @ self::$mysqli->query($queryString);
+        self::$c['change']++;
+        return self::affectedRows();
+
+    }
+
+
+    /**
      * private simple query
      */
 
@@ -256,6 +270,18 @@ abstract class db {
 
         $query = self::buildQuery(func_get_args());
         return self::sendSetQuery($query);
+
+    }
+
+
+    /**
+     * public silent single simple update or insert query to DB
+     */
+
+    public static function silentSet() {
+
+        $query = self::buildQuery(func_get_args());
+        return self::sendSilentSetQuery($query);
 
     }
 

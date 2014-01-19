@@ -36,7 +36,7 @@
     <div class="pages">
         <?php foreach (dataHelper::getPages() as $item) { ?>
             <?php $current = $item['current'] ? ' class="current"' : ''; ?>
-            <?php $href = helper::changeOriginURL(array('page' => $item['number'])); ?>
+            <?php $href = request::changeOriginURL(array('page' => $item['number'])); ?>
             <a<?=$current?> href="<?=$href?>"><?=$item['number']?></a>
         <?php } ?>
     </div>

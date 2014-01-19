@@ -62,25 +62,6 @@ abstract class htmlHelper {
 
 
     /**
-     * draw multidimentional ul-li-a links list
-     * this need multidimensional array from helper::makeTreeArray()
-     */
-
-    public static function drawRecursiveTreeLinksList($arr) {
-
-        $branch = '';
-        foreach ($arr as $k => $item) {
-            $link = '<a title="' . $item['node_name'] . '" href="'
-                . $item['page_alias'] . '">' . $item['node_name'] . '</a>';
-            $branch .= '<li>' . $link
-                . self::drawTreeLinksList($item['children']) . '</li>';
-        }
-        return ($branch) ? '<ul>' . $branch . '</ul>' : $branch;
-
-    }
-
-
-    /**
      * return options string from options array
      */
 

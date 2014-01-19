@@ -436,7 +436,6 @@ function getInstallationQueryString($prefix = "") {
             page_h1             MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
             meta_keywords       MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
             meta_description    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
-            page_announce       LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
             page_text           LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
 
             PRIMARY KEY (id),
@@ -513,7 +512,7 @@ function getInstallationQueryString($prefix = "") {
 
 
 
-        DROP TABLE IF EXISTS {$prefix}comments;
+        /*DROP TABLE IF EXISTS {$prefix}comments;
         CREATE TABLE {$prefix}comments (
 
             id             BIGINT(20)  NOT NULL AUTO_INCREMENT,
@@ -533,11 +532,11 @@ function getInstallationQueryString($prefix = "") {
             KEY author_id    (author_id),
             KEY author_email (author_email)
 
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;*/
 
 
 
-        DROP TABLE IF EXISTS {$prefix}downloads;
+        /*DROP TABLE IF EXISTS {$prefix}downloads;
         CREATE TABLE {$prefix}downloads (
 
             id    BIGINT(20)  NOT NULL AUTO_INCREMENT,
@@ -547,11 +546,11 @@ function getInstallationQueryString($prefix = "") {
             PRIMARY KEY (id),
             KEY name (name)
 
-        ) ENGINE = InnoDB  DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB  DEFAULT CHARSET = utf8;*/
 
 
 
-        DROP TABLE IF EXISTS {$prefix}online_guests;
+        /*DROP TABLE IF EXISTS {$prefix}online_guests;
         CREATE TABLE {$prefix}online_guests (
 
             session_id  CHAR(32)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
@@ -559,18 +558,18 @@ function getInstallationQueryString($prefix = "") {
 
             UNIQUE KEY session_id (session_id)
 
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;*/
 
 
 
-        DROP TABLE IF EXISTS {$prefix}view_count;
+        /*DROP TABLE IF EXISTS {$prefix}view_count;
         CREATE TABLE {$prefix}view_count (
 
             session_id  CHAR(32)    CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
             node_id     BIGINT(20)  NOT NULL,
             CONSTRAINT  uc_nodesess UNIQUE (session_id, node_id)
 
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;*/
 
 
 INSTALLATIONSTRING;

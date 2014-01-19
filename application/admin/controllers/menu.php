@@ -165,7 +165,7 @@ class menu extends baseController {
             );
         }
 
-        if (!$name = filter::input($name)->lettersOnly()->getData()) {
+        if (!$name = filter::input($name)->stripTags()->getData()) {
             throw new memberErrorException(
                 view::$language->menu_error,
                 view::$language->menu_name_invalid

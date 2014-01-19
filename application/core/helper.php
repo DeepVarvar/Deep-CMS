@@ -98,28 +98,6 @@ abstract class helper {
 
 
     /**
-     * return multidimensional array
-     */
-
-    public static function makeTreeArray(& $lineArray, $parent = 0) {
-
-        $branch = array();
-        if ($lineArray) {
-            foreach ($lineArray as $k => $item) {
-                if ($item['parent_id'] == $parent) {
-                    $item['children'] = self::makeTreeArray(
-                        $lineArray, $item['id']
-                    );
-                    array_push($branch, $item);
-                }
-            }
-        }
-        return $branch;
-
-    }
-
-
-    /**
      * return plural name of number
      */
 
@@ -177,32 +155,6 @@ abstract class helper {
         $inputString = preg_replace('/\s+|&nbsp;/', ' ', $inputString);
         return preg_match('#^(.{' . $limit . ',}?)\s+#su', $inputString, $match)
             ? $match[1] . '...' : $inputString;
-
-    }
-
-
-    /**
-     * change original ULR string with input parameters
-     */
-
-    public static function changeOriginURL($newParams) {
-
-        if (!is_array($newParams)) {
-            throw new systemErrorException(
-                'Helper error', 'URL parameters is not array'
-            );
-        }
-
-        $parts = explode('?', request::getOriginURL());
-        array_shift($parts);
-
-        $query = join('', $parts);
-        parse_str($query, $parts);
-
-        $parts = array_merge($parts, $newParams);
-        $query = http_build_query($parts);
-
-        return request::getURI() . ($query ? '?' . $query : '');
 
     }
 

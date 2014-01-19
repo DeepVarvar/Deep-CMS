@@ -120,8 +120,8 @@ if ($config->system->debug_mode) {
  * check for enabled output contexts
  */
 
-if (!$availableContexts = view::getAvailableOutputContexts()) {
-    exit('Output contexts is not available' . PHP_EOL);
+if (!$outputContexts = view::getAvailableOutputContexts()) {
+    exit('Output contexts is not available');
 }
 
 
@@ -194,12 +194,9 @@ try {
     if ($config->system->cache_enabled) {
 
         $cachedPage = md5(request::getOriginURL());
-        $availableContexts = join(',', $availableContexts);
-        $items = fsUtils::glob(
-            APPLICATION . 'cache/{' . $availableContexts . '}---' . $cachedPage,
-            GLOB_BRACE
-        );
-
+        $outputContexts = join(',', $outputContexts);
+        $cf = APPLICATION . 'cache/{' . $outputContexts . '}---' . $cachedPage;
+        $items = fsUtils::glob($cf, GLOB_BRACE);
         if ($items) {
             $cachedPage  = basename($items[0]);
             $pageOnCache = true;

@@ -52,8 +52,7 @@ class filter {
 
         foreach ($this->output as $k => $item) {
             $this->output[$k] = $pattern !== null
-                ? trim($item, $pattern)
-                : trim($item);
+                ? trim($item, $pattern) : trim($item);
         }
         return $this;
 
@@ -76,9 +75,7 @@ class filter {
     public function replace($patterns, $replacement) {
 
         foreach ($this->output as $k => $item) {
-            $this->output[$k] = str_replace(
-                $patterns, $replacement, $item
-            );
+            $this->output[$k] = str_replace($patterns, $replacement, $item);
         }
         return $this;
 
@@ -101,9 +98,7 @@ class filter {
     public function expReplace($patterns, $replacement) {
 
         foreach ($this->output as $k => $item) {
-            $this->output[$k] = preg_replace(
-                $patterns, $replacement, $item
-            );
+            $this->output[$k] = preg_replace($patterns, $replacement, $item);
         }
         return $this;
 
@@ -132,20 +127,6 @@ class filter {
 
         foreach ($this->output as $k => $item) {
             $this->output[$k] = htmlspecialchars($item);
-        }
-        return $this;
-
-    }
-
-
-    /**
-     * md5 hash of data
-     */
-
-    public function md5() {
-
-        foreach ($this->output as $k => $item) {
-            $this->output[$k] = md5($item);
         }
         return $this;
 

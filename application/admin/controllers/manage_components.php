@@ -42,14 +42,42 @@ class manage_components extends baseController {
      * dcm data of current component,
      * dcm files map,
      * dcm language files map,
-     * dcm directories map
+     * dcm directories map,
+     * dcm create tables map,
+     * dcm drop tables map,
+     * dcm alter tables map,
+     * dcm dealter tables map
      */
 
-    private $dcmFilePath    = null;
-    private $dcmData        = array();
-    private $dcmFiles       = array();
-    private $dcmLanguages   = array();
-    private $dcmDirectories = array();
+    private $dcmFilePath      = null;
+    private $dcmData          = array();
+    private $dcmFiles         = array();
+    private $dcmLanguages     = array();
+    private $dcmDirectories   = array();
+    private $dcmCreateTables  = array();
+    private $dcmDropTables    = array();
+    private $dcmAlterTables   = array();
+    private $dcmDealterTables = array();
+
+
+    /**
+     * main protected tables
+     */
+
+    private $protectedTables = array(
+
+        'features',
+        'groups',
+        'group_permissions',
+        'images',
+        'menu',
+        'menu_items',
+        'permissions',
+        'tree',
+        'tree_features',
+        'users'
+
+    );
 
 
     /**
@@ -254,8 +282,19 @@ class manage_components extends baseController {
         }
 
 
-        // TODO DB install
+        /**
+         * create tables of component,
+         * alter tables for component,
+         * show success redirect message
+         */
 
+        foreach ($this->dcmCreateTables as $sql) {
+            db::silentSet($sql);
+        }
+
+        foreach ($this->dcmAlterTables as $sql) {
+            db::silentSet($sql);
+        }
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
@@ -301,10 +340,13 @@ class manage_components extends baseController {
         }
 
         $this->deleteAllDcmItems();
+        foreach ($this->dcmDealterTables as $sql) {
+            db::silentSet($sql);
+        }
 
-
-        // TODO DB deinstall
-
+        foreach ($this->dcmDropTables as $sql) {
+            db::silentSet($sql);
+        }
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
@@ -356,7 +398,11 @@ class manage_components extends baseController {
             'dependency_components' => true,
             'main_directories'      => true,
             'main_files'            => true,
-            'language_files'        => true
+            'language_files'        => true,
+            'create_db_tables'      => true,
+            'drop_db_tables'        => true,
+            'alter_db_tables'       => true,
+            'dealter_db_tables'     => true
 
         );
 
@@ -399,6 +445,46 @@ class manage_components extends baseController {
             if ($key == 'language_files') {
                 foreach ($this->dcmData[$key] as $file) {
                     $this->dcmLanguages[] = $file;
+                }
+            }
+
+            // create tables mapping
+            if ($key == 'create_db_tables') {
+                foreach ($this->dcmData[$key] as $sql) {
+                    if (preg_match('/drop/i', $sql)) {
+                        return false;
+                    }
+                    $this->dcmCreateTables[] = $sql;
+                }
+            }
+
+            // drop tables mapping
+            if ($key == 'drop_db_tables') {
+                foreach ($this->dcmData[$key] as $sql) {
+                    if (preg_match('/(' . join('|', $this->protectedTables) . ')/', $sql)) {
+                        return false;
+                    }
+                    $this->dcmDropTables[] = $sql;
+                }
+            }
+
+            // alter tables mapping
+            if ($key == 'alter_db_tables') {
+                foreach ($this->dcmData[$key] as $sql) {
+                    if (preg_match('/drop/i', $sql)) {
+                        return false;
+                    }
+                    $this->dcmAlterTables[] = $sql;
+                }
+            }
+
+            // dealter tables mapping
+            if ($key == 'dealter_db_tables') {
+                foreach ($this->dcmData[$key] as $sql) {
+                    if (preg_match('/drop\s+table/i', $sql)) {
+                        return false;
+                    }
+                    $this->dcmDealterTables[] = $sql;
                 }
             }
 
@@ -544,17 +630,17 @@ class manage_components extends baseController {
 
         // delete files
         foreach ($this->dcmFiles as $file) {
-            unlink(APPLICATION . $file);
+            @ unlink(APPLICATION . $file);
         }
         // delete language files
         foreach ($this->getAvailableLanguages() as $language) {
             foreach ($this->dcmLanguages as $file) {
-                unlink(APPLICATION . $language . '/' . $file);
+                @ unlink(APPLICATION . $language . '/' . $file);
             }
         }
         // delete directories
         foreach (array_reverse($this->dcmDirectories) as $directory) {
-            rmdir(APPLICATION . $directory);
+            @ rmdir(APPLICATION . $directory);
         }
 
     }

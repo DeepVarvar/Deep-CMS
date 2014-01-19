@@ -19,7 +19,9 @@ function checkPath($path, $type, $isWritable = false) {
         exit($target . $path . ' is not exists');
     }
 
-    if ($type == IS_DIR and !is_dir($path)) {
+    if (!is_readable($path)) {
+        exit($target . $path . ' is not readable');
+    } else if ($type == IS_DIR and !is_dir($path)) {
         exit($target . $path . ' is not directory');
     } else if ($type == IS_FILE and !is_file($path)) {
         exit($target . $path . ' is not file');
@@ -206,7 +208,6 @@ $requiredLanguageFiles = array(
     'simpleLinkProtoModel.php',
     'simplePage.php',
     'simplePageProtoModel.php',
-    'themeUtils.php',
     'tree.php',
     'users.php'
 );
@@ -280,7 +281,11 @@ $expectedKeys = array(
     'dependency_components' => true,
     'main_directories'      => true,
     'main_files'            => true,
-    'language_files'        => true
+    'language_files'        => true,
+    'create_db_tables'      => true,
+    'drop_db_tables'        => true,
+    'alter_db_tables'       => true,
+    'dealter_db_tables'     => true
 
 );
 
