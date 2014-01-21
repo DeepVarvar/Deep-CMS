@@ -732,7 +732,6 @@ class tree extends baseController {
             'parent_id'          => $parentID,
             'prototype'          => $this->defaultProtoType,
             'children_prototype' => $this->defaultProtoType,
-            'is_publish'         => 1,
             'node_name'          => '',
             'parent_alias'       => '/'
         );
@@ -791,7 +790,7 @@ class tree extends baseController {
 
         $editedNode = db::normalizeQuery(
             'SELECT t.id, t.parent_id, t.prototype, t.children_prototype,
-                    t.is_publish, t.node_name, p.prototype parent_prototype,
+                    t.node_name, p.prototype parent_prototype,
                     p.page_alias parent_alias, p.node_name parent_name
                 FROM tree t
                 LEFT JOIN tree p
@@ -869,8 +868,7 @@ class tree extends baseController {
             'parent_alias',
             'node_name',
             'prototype',
-            'children_prototype',
-            'is_publish'
+            'children_prototype'
         );
 
         foreach ($fieldedProperties as $iterator => $k) {
@@ -917,12 +915,6 @@ class tree extends baseController {
         $mainProperties[$chpt]['value'] = $this->getProtoTypesList(
             $mainProperties[$chpt]['value']
         );
-
-        $mainProperties['is_publish']['top']  = 20;
-        $mainProperties['is_publish']['required'] = false;
-        $mainProperties['is_publish']['type'] = 'checkbox';
-        $mainProperties['is_publish']['description']
-            = view::$language->tree_publish;
 
         return $mainProperties;
 
@@ -1055,12 +1047,8 @@ class tree extends baseController {
 
         }
 
-        $requiredData['is_publish']
-            = request::getPostParam('is_publish') ? 1 : 0;
-
         $mainProtoModelName = $requiredData['prototype'] . 'ProtoModel';
         $mainProtoModel = new $mainProtoModelName;
-
         $requiredData = array_merge(
             $requiredData, $mainProtoModel->getPreparedProperties()
         );

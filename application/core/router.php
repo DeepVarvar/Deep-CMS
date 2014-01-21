@@ -28,7 +28,7 @@ abstract class router {
      * excepted prototypes
      */
 
-    protected static $exceptedPrototypes = array('none', 'simpleLink');
+    protected static $exceptedPrototypes = array('nodeGroup', 'simpleLink');
 
 
     /**

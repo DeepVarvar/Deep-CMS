@@ -11,12 +11,15 @@ class simplePageProtoModel extends basePrototypeModel {
     protected $nodeID = null;
     protected $returnedFields = array(
 
+        'is_publish'         => 1,
         'in_sitemap'         => 0,
         'in_sitemap_xml'     => 1,
         'in_search'          => 1,
         'page_alias'         => '',
         'permanent_redirect' => '',
         'layout'             => '',
+        'with_images'        => 1,
+        'with_features'      => 1,
         'page_h1'            => '',
         'page_title'         => '',
         'meta_keywords'      => '',
@@ -31,6 +34,14 @@ class simplePageProtoModel extends basePrototypeModel {
     /**
      * data getters
      */
+
+    protected function is_publishGetData( & $f) {
+
+        $f['top'] = 20;
+        $f['description'] = view::$language->simple_page_prototype_publish;
+        $f['type'] = 'checkbox';
+
+    }
 
     protected function in_sitemapGetData( & $f) {
 
@@ -59,6 +70,22 @@ class simplePageProtoModel extends basePrototypeModel {
         $f['value'] = protoUtils::makeOptionsArray(
             layoutUtils::getAvailablePublicLayouts(), $f['value']
         );
+
+    }
+
+    protected function with_imagesGetData( & $f) {
+
+        $f['type'] = 'hidden';
+        $f['required'] = true;
+        $f['value'] = 1;
+
+    }
+
+    protected function with_featuresGetData( & $f) {
+
+        $f['type'] = 'hidden';
+        $f['required'] = true;
+        $f['value'] = 1;
 
     }
 
@@ -146,6 +173,10 @@ class simplePageProtoModel extends basePrototypeModel {
      * data preparation
      */
 
+    protected function is_publishPrepare( & $data) {
+        $data = !$data ? 0 : 1;
+    }
+
     protected function in_sitemapPrepare( & $data) {
         $data = !$data ? 0 : 1;
     }
@@ -195,6 +226,14 @@ class simplePageProtoModel extends basePrototypeModel {
             );
         }
 
+    }
+
+    protected function with_imagesPrepare( & $data) {
+        $data = 1;
+    }
+
+    protected function with_featuresPrepare( & $data) {
+        $data = 1;
     }
 
     protected function page_h1Prepare( & $data) {

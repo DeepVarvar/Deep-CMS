@@ -40,7 +40,7 @@ abstract class protoUtils {
             if (preg_match('/ProtoModel$/', $protoName)) {
                 continue;
             }
-            array_push($prototypes, $protoName);
+            $prototypes[] = $protoName;
         }
         return $prototypes;
 

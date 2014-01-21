@@ -170,6 +170,8 @@ $requiredFiles = array(
     'modules/sitemap_xml/sitemap_xml.php',
     'prototypes/mainModule.php',
     'prototypes/mainModuleProtoModel.php',
+    'prototypes/nodeGroup.php',
+    'prototypes/nodeGroupProtoModel.php',
     'prototypes/simpleLink.php',
     'prototypes/simpleLinkProtoModel.php',
     'prototypes/simplePage.php',
@@ -200,12 +202,14 @@ $requiredLanguageFiles = array(
     'menu.php',
     'node_features.php',
     'node_images.php',
+    'nodeGroup.php',
     'preferences.php',
     'search.php',
     'simpleLink.php',
     'simpleLinkProtoModel.php',
     'simplePage.php',
     'simplePageProtoModel.php',
+    'sitemap.php',
     'tree.php',
     'users.php'
 );

@@ -38,25 +38,25 @@
             </div>
 
             <?php if (sizeof($in_menu) > 1) { ?>
-
                 <div class="label mt-20">&nbsp;</div>
                 <div class="elem mt-20">
                     <div class="inputbox"><input class="primarychecker" type="checkbox" name="checkallmenu" /> - [<?=view::$language->tree_select_all?>]</div>
                 </div>
-
             <?php } ?>
 
+            <?php if ($node['with_images']['value']) { ?>
+                <div class="label mt-20"><?=view::$language->tree_images_attached?>:</div>
+                <div class="elem mt-20">
+                    <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/node-images?target=<?=$node['id']['value']?>"><?=view::$language->tree_show?></a>
+                </div>
+            <?php } ?>
 
-            <div class="label mt-20"><?=view::$language->tree_images_attached?>:</div>
-            <div class="elem mt-20">
-                <a id="attachedimages" href="<?=$_config->site->admin_tools_link?>/node-images?target=<?=$node['id']['value']?>"><?=view::$language->tree_show?></a>
-            </div>
-
-            <div class="label"><?=view::$language->tree_features?>:</div>
-            <div class="elem">
-                <a id="nodefeatures" href="<?=$_config->site->admin_tools_link?>/node-features?target=<?=$node['id']['value']?>"><?=view::$language->tree_show?></a>
-            </div>
-
+            <?php if ($node['with_features']['value']) { ?>
+                <div class="label"><?=view::$language->tree_features?>:</div>
+                <div class="elem">
+                    <a id="nodefeatures" href="<?=$_config->site->admin_tools_link?>/node-features?target=<?=$node['id']['value']?>"><?=view::$language->tree_show?></a>
+                </div>
+            <?php } ?>
 
             <div class="label mt-20">&nbsp;</div>
             <div class="elem mt-20"><span class="info"><?=view::$language->tree_red_is_required?></span></div>
