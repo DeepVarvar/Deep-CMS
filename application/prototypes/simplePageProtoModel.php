@@ -18,6 +18,7 @@ class simplePageProtoModel extends basePrototypeModel {
         'page_alias'         => '',
         'permanent_redirect' => '',
         'layout'             => '',
+        'with_menu'          => 1,
         'with_images'        => 1,
         'with_features'      => 1,
         'page_h1'            => '',
@@ -70,6 +71,14 @@ class simplePageProtoModel extends basePrototypeModel {
         $f['value'] = protoUtils::makeOptionsArray(
             layoutUtils::getAvailablePublicLayouts(), $f['value']
         );
+
+    }
+
+    protected function with_menuGetData( & $f) {
+
+        $f['type'] = 'hidden';
+        $f['required'] = true;
+        $f['value'] = 1;
 
     }
 
@@ -226,6 +235,10 @@ class simplePageProtoModel extends basePrototypeModel {
             );
         }
 
+    }
+
+    protected function with_menuPrepare( & $data) {
+        $data = 1;
     }
 
     protected function with_imagesPrepare( & $data) {

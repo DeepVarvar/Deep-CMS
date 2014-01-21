@@ -1113,22 +1113,23 @@ class tree extends baseController {
      * save menu items
      */
 
-    private function saveMenuItems($nodeID) {
+    private function saveMenuItems($nodeID, $withMenu = false) {
 
         db::set('DELETE FROM menu_items WHERE node_id = %u', $nodeID);
-        if ($inMenu = $this->getInMenuList()) {
+        if ($withMenu) {
 
-            $insertedRows = array();
-            foreach ($inMenu as $menuID) {
-                array_push($insertedRows, '(' . $menuID . ',' . $nodeID . ')');
-            }
-
-            if ($insertedRows) {
-                $insertedRows = join(',', $insertedRows);
-                db::set(
-                    'INSERT INTO menu_items
-                        (menu_id,node_id) VALUES ' . $insertedRows
-                );
+            if ($inMenu = $this->getInMenuList()) {
+                $insertedRows = array();
+                foreach ($inMenu as $menuID) {
+                    array_push($insertedRows, '(' . $menuID . ',' . $nodeID . ')');
+                }
+                if ($insertedRows) {
+                    $insertedRows = join(',', $insertedRows);
+                    db::set(
+                        'INSERT INTO menu_items
+                            (menu_id,node_id) VALUES ' . $insertedRows
+                    );
+                }
             }
 
         }
@@ -1301,7 +1302,7 @@ class tree extends baseController {
          */
 
         $newNode['id'] = db::lastID();
-        $this->saveMenuItems($newNode['id']);
+        $this->saveMenuItems($newNode['id'], $newNode['with_menu']);
 
         $attachedImages = array();
         foreach (member::getStorageData($this->storageImagesKey) as $k => $v) {
@@ -1451,7 +1452,7 @@ class tree extends baseController {
 
         $updateQuery .= join(',', $updatedValues) . ' WHERE id = ' . $nodeID;
         db::set($updateQuery);
-        $this->saveMenuItems($nodeID);
+        $this->saveMenuItems($nodeID, $editedNode['with_menu']);
 
         $this->redirectMessage(
             SUCCESS_EXCEPTION,

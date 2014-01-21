@@ -16,6 +16,7 @@ class simpleLinkProtoModel extends basePrototypeModel {
         'in_sitemap_xml' => 1,
         'in_search'      => 0,
         'page_alias'     => '',
+        'with_menu'      => 1,
         'with_images'    => 1,
         'with_features'  => 0
 
@@ -63,6 +64,14 @@ class simpleLinkProtoModel extends basePrototypeModel {
         $f['value'] = rawurldecode($f['value']);
         $f['type']  = 'longtext';
         $f['description'] = view::$language->simple_link_prototype_link_alias;
+
+    }
+
+    protected function with_menuGetData( & $f) {
+
+        $f['type'] = 'hidden';
+        $f['required'] = true;
+        $f['value'] = 1;
 
     }
 
@@ -117,6 +126,10 @@ class simpleLinkProtoModel extends basePrototypeModel {
             $data, view::$language->simple_link_prototype_link_alias_invalid
         );
 
+    }
+
+    protected function with_menuPrepare( & $data) {
+        $data = 1;
     }
 
     protected function with_imagesPrepare( & $data) {

@@ -17,6 +17,7 @@ class mainModuleProtoModel extends basePrototypeModel {
         'in_search'      => 0,
         'page_alias'     => '',
         'module_name'    => '',
+        'with_menu'      => 1,
         'with_images'    => 1,
         'with_features'  => 0
 
@@ -91,6 +92,14 @@ class mainModuleProtoModel extends basePrototypeModel {
 
     }
 
+    protected function with_menuGetData( & $f) {
+
+        $f['type'] = 'hidden';
+        $f['required'] = true;
+        $f['value'] = 1;
+
+    }
+
     protected function with_imagesGetData( & $f) {
 
         $f['type'] = 'hidden';
@@ -156,6 +165,10 @@ class mainModuleProtoModel extends basePrototypeModel {
             );
         }
 
+    }
+
+    protected function with_menuPrepare( & $data) {
+        $data = 1;
     }
 
     protected function with_imagesPrepare( & $data) {

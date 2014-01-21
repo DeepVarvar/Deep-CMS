@@ -19,29 +19,25 @@
             <?=adminHelper::getForm($node)?>
 
 
-            <div class="label mt-30"><?=view::$language->tree_show_in_menu?>:</div>
-            <div class="elem mt-30">
-
-                <?php foreach ($in_menu as $checkbox) { ?>
-
-                    <div class="inputbox" title=" <?=$checkbox['description']?> ">
-                        <div class="blend"></div>
-                        <input type="checkbox" name="<?=$checkbox['name']?>"<?=(isset($checkbox['checked']) && $checkbox['checked'])?' checked="checked"':''?> /> - <?=$checkbox['description']?>
-                    </div>
-
-                <?php } ?>
-
-                <?php if (!$in_menu) { ?>
-                    <span class="info">(<?=view::$language->tree_not_available_menu_list?>)</span>
-                <?php } ?>
-
-            </div>
-
-            <?php if (sizeof($in_menu) > 1) { ?>
-                <div class="label mt-20">&nbsp;</div>
-                <div class="elem mt-20">
-                    <div class="inputbox"><input class="primarychecker" type="checkbox" name="checkallmenu" /> - [<?=view::$language->tree_select_all?>]</div>
+            <?php if ($node['with_menu']['value']) { ?>
+                <div class="label mt-30"><?=view::$language->tree_show_in_menu?>:</div>
+                <div class="elem mt-30">
+                    <?php foreach ($in_menu as $checkbox) { ?>
+                        <div class="inputbox" title=" <?=$checkbox['description']?> ">
+                            <div class="blend"></div>
+                            <input type="checkbox" name="<?=$checkbox['name']?>"<?=(isset($checkbox['checked']) && $checkbox['checked'])?' checked="checked"':''?> /> - <?=$checkbox['description']?>
+                        </div>
+                    <?php } ?>
+                    <?php if (!$in_menu) { ?>
+                        <span class="info">(<?=view::$language->tree_not_available_menu_list?>)</span>
+                    <?php } ?>
                 </div>
+                <?php if (sizeof($in_menu) > 1) { ?>
+                    <div class="label mt-20">&nbsp;</div>
+                    <div class="elem mt-20">
+                        <div class="inputbox"><input class="primarychecker" type="checkbox" name="checkallmenu" /> - [<?=view::$language->tree_select_all?>]</div>
+                    </div>
+                <?php } ?>
             <?php } ?>
 
             <?php if ($node['with_images']['value']) { ?>
