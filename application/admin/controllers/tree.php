@@ -22,6 +22,7 @@ class tree extends baseController {
 
     private $root = array(
         'type'        => 'root',
+        'prototype'   => 'root',
         'is_publish'  => 1,
         'id'          => 0,
         'parent_id'   => null,
@@ -546,8 +547,10 @@ class tree extends baseController {
         } else {
 
             $node = db::normalizeQuery(
-                "SELECT ('node') type, t.is_publish, t.id, t.parent_id,
-                        t.node_name, COUNT(c.id) children, p.node_name parent_name
+                "SELECT
+                        ('node') type, LOWER(t.prototype) prototype,
+                        t.is_publish, t.id, t.parent_id, t.node_name,
+                        COUNT(c.id) children, p.node_name parent_name
                     FROM tree t LEFT JOIN tree c
                         ON c.parent_id = t.id
                     LEFT JOIN tree p
@@ -578,8 +581,10 @@ class tree extends baseController {
     private function branchChildren($parent) {
 
         return db::query(
-            "SELECT ('node') type, c.is_publish, c.id, c.parent_id,
-                    c.node_name, COUNT(cc.id) children FROM tree c
+            "SELECT
+                    ('node') type, LOWER(c.prototype) prototype, c.is_publish,
+                    c.id, c.parent_id, c.node_name, COUNT(cc.id) children
+                FROM tree c
                 LEFT JOIN tree cc
                     ON cc.parent_id = c.id
                 WHERE c.parent_id = %u

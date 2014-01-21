@@ -1098,10 +1098,10 @@ ul#root a.off {
 ul#root a.name {
     position: relative;
     overflow: hidden;
-    padding: 0 40px 0 10px;
-    max-width: 320px;
+    padding: 0 40px 0 30px;
+    max-width: 300px;
     white-space: nowrap;
-    background: #ffffff;
+    background: url(../images/undefined-prototype.png) no-repeat 4px center #ffffff;
     border: solid 2px #a0a0a0;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -1109,8 +1109,28 @@ ul#root a.name {
     border-radius: 4px;
 }
 
+ul#root a.root {
+    background: url(../images/root-node.png) no-repeat 4px center #ffffff;
+}
+
+ul#root a.nodegroup {
+    background: url(../images/node-group.png) no-repeat 4px center #ffffff;
+}
+
+ul#root a.mainmodule {
+    background: url(../images/main-module.png) no-repeat 4px center #ffffff;
+}
+
+ul#root a.simplelink {
+    background: url(../images/simple-link.png) no-repeat 4px center #ffffff;
+}
+
+ul#root a.simplepage {
+    background: url(../images/simple-page.png) no-repeat 4px center #ffffff;
+}
+
 ul#root a.name:hover {
-    background: #eaeaff;
+    background-color: #eaeaff;
 }
 
 ul#root a.name div.blend {
