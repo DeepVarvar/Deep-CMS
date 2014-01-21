@@ -95,7 +95,7 @@ $requiredFiles = array(
     'admin/in-menu/modules.php',
     'admin/in-menu/tree.php',
     'admin/in-menu/users.php',
-    'autorun/before/A_globalMemberLoginAttempt.php',
+    'autorun/before/Aaa_globalMemberLoginAttempt.php',
     'core/adminHelper.php',
     'core/app.php',
     'core/arrayUtils.php',

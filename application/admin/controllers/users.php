@@ -433,7 +433,7 @@ class users extends baseController {
 
         if ($target === null) {
 
-            $password = helper::getHash($userData['password']);
+            $password = md5($userData['password']);
             db::set(
 
                 "INSERT INTO users (
@@ -456,13 +456,13 @@ class users extends baseController {
             );
 
             $newUserID = db::lastID();
-            $userHash  = helper::getHash(
+            $userHash  = md5(
                 $newUserID
-                    . $userData['login']
-                    . $password
-                    . $existsGroup['id']
-                    . $existsGroup['priority']
-                    . $userData['email']
+                . $userData['login']
+                . $password
+                . $existsGroup['id']
+                . $existsGroup['priority']
+                . $userData['email']
             );
 
             db::set(
@@ -476,16 +476,14 @@ class users extends baseController {
                 'SELECT password FROM users WHERE id = %u', $target
             );
 
-            $password = $requiredPassword
-                ? helper::getHash($userData['password']) : $uPass;
-
-            $userHash = helper::getHash(
+            $password = $requiredPassword ? md5($userData['password']) : $uPass;
+            $userHash = md5(
                 $target
-                    . $userData['login']
-                    . $password
-                    . $existsGroup['id']
-                    . $existsGroup['priority']
-                    . $userData['email']
+                . $userData['login']
+                . $password
+                . $existsGroup['id']
+                . $existsGroup['priority']
+                . $userData['email']
             );
 
             if ($requiredPassword) {

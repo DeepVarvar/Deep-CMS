@@ -16,16 +16,6 @@ abstract class helper {
 
 
     /**
-     * crible crable booms!
-     * return triple md5 hash of string
-     */
-
-    public static function getHash($str) {
-        return md5(md5(md5($str)));
-    }
-
-
-    /**
      * return current value of $strfTimeStamp
      */
 
