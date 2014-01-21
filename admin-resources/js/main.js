@@ -39,7 +39,7 @@ function getBranchTreeItem(item) {
 
     var blend = ' <div class="blend"></div> ';
     var isOff = item.is_publish == 0 ? " off" : "";
-    var iname = ' <a class="name' + isOff + '" href="'
+    var iname = ' <a class="name ' + item.nodetype + isOff + '" href="'
             + editLink + '" title=" ' + language.tree_edit_node
             + ' "> ' + blend + ' <span> '
             + item.node_name + ' </span> ' + ' </a> ';

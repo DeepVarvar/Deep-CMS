@@ -19,7 +19,7 @@
                 <?php if ($node['type'] == 'node') { ?>
 
                     <a class="levelup" title=" <?=view::$language->tree_level_up?> " href="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$node['parent_id']?>"></a>
-                    <a class="name <?=$node['prototype']?><?=$node['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$node['id']?>" title=" <?=view::$language->tree_edit_node?> ">
+                    <a class="name <?=$node['nodetype']?><?=$node['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$node['id']?>" title=" <?=view::$language->tree_edit_node?> ">
                         <div class="blend"></div>
                         <span><?=$node['node_name']?></span>
                     </a>
@@ -27,7 +27,7 @@
                 <?php } else { ?>
 
                     <a class="noexpandnode" name="noexpandnode"></a>
-                    <a class="name <?=$node['prototype']?>" name="root">
+                    <a class="name <?=$node['nodetype']?>" name="root">
                         <div class="blend"></div>
                         <span><?=$node['node_name']?></span>
                     </a>
@@ -54,7 +54,7 @@
                                 <a class="noexpand" name="<?=$_config->site->admin_tools_link?>/tree/branch?id=<?=$c['id']?>"></a>
                             <?php } ?>
 
-                            <a class="name <?=$c['prototype']?><?=$c['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$c['id']?>" title=" <?=view::$language->tree_edit_node?> ">
+                            <a class="name <?=$c['nodetype']?><?=$c['is_publish']==1?'':' off'?>" href="<?=$_config->site->admin_tools_link?>/tree/edit?id=<?=$c['id']?>" title=" <?=view::$language->tree_edit_node?> ">
                                 <div class="blend"></div>
                                 <span><?=$c['node_name']?></span>
                             </a>
