@@ -27,10 +27,8 @@ function checkPath($path, $type, $isWritable = false) {
         exit($target . $path . ' is not file');
     }
 
-    if ($isWritable) {
-        if (!is_writable($path)) {
-            exit($target . $path . ' don\'t have writable permission');
-        }
+    if ($isWritable and !is_writable($path)) {
+        exit($target . $path . ' don\'t have writable permission');
     }
 
 }

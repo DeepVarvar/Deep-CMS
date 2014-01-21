@@ -5,7 +5,7 @@
  * global member login attempt runner
  */
 
-abstract class A_globalMemberLoginAttempt {
+abstract class Aaa_globalMemberLoginAttempt {
 
 
     public static function run() {

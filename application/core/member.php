@@ -109,7 +109,7 @@ abstract class member {
     public static function logged() {
 
         $login = filter::input($_POST['login'])->htmlSpecialChars()->getData();
-        $password = helper::getHash((string) $_POST['password']);
+        $password = md5((string) $_POST['password']);
 
         if (!$member = db::normalizeQuery(
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
@@ -197,13 +197,13 @@ abstract class member {
     private static function getMainHash() {
 
         $p = self::$profile;
-        return helper::getHash(
+        return md5(
             $p['id']
-                . $p['login']
-                . $p['password']
-                . $p['group_id']
-                . $p['group_priority']
-                . $p['email']
+            . $p['login']
+            . $p['password']
+            . $p['group_id']
+            . $p['group_priority']
+            . $p['email']
         );
 
     }

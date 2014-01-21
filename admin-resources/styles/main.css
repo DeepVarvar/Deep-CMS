@@ -911,11 +911,17 @@ form.feature div.name input[type="text"], form.feature div.value input[type="tex
     border: none;
 }
 
+#place table.list tr.info td {
+    padding: 0 10px 20px 10px;
+    font-style: italic;
+    border: none;
+}
+
 #place table.list tr:hover {
     background: #f7f7f7;
 }
 
-#place table.list tr.caption:hover {
+#place table.list tr.caption:hover, #place table.list tr.info:hover {
     background: none;
 }
 

@@ -121,7 +121,7 @@
         "default_output_context": "html",
 
         // cookie expires time (sec)
-        "cookie_expires_time": "259200",
+        "cookie_expires_time": 259200,
 
 
         /**
@@ -146,7 +146,7 @@
 
     "cached_pages": [
 
-        /*"/\\/sitemap\\.xml/"*/
+        "/\\/dir\\/page\\.html\\?param1=value1&param2=value2/"
 
     ],
 

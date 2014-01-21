@@ -24,12 +24,12 @@ abstract class storage {
         $sessionName = app::config()->system->session_name;
         session_name($sessionName);
 
-        if (array_key_exists($sessionName, $_POST)
+        /*if (array_key_exists($sessionName, $_POST)
                 and $sessionID == ((string) $_POST[$sessionName])) {
 
             session_id($sessionID);
 
-        }
+        }*/
 
 
         /**

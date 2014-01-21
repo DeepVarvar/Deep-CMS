@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="<?=$_config->site->admin_resources?>styles/main.css" type="text/css" />
 
-    <title><?=$language->installation?> (<?=$language->install_step?> <?=$_SESSION['ins']['step']?> <?=$language->install_of?> 4)</title>
+    <title><?=$language->installation?> (<?=$language->install_step?> <?=$step?> <?=$language->install_of?> 7)</title>
 
 </head>
 <body>
@@ -21,12 +21,8 @@
     </div>
 
     <div class="top-status-line">
-        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><b><?=$language->installation?> (<?=$language->install_step?> <?=$_SESSION['ins']['step']?> <?=$language->install_of?> 4)</b></div>
+        <div class="left-item message"><img src="<?=$_config->site->admin_resources?>images/ok.png" /><b><?=$language->installation?> (<?=$language->install_step?> <?=$step?> <?=$language->install_of?> 7)</b></div>
     </div>
-
-
-    <ul id="menu"></ul>
-
 
     <div id="outer-place">
 
@@ -37,7 +33,7 @@
                     <div id="place">
 
 
-                        <h1><?=$language->installation?> (<?=$language->install_step?> <?=$_SESSION['ins']['step']?> <?=$language->install_of?> 4)</h1>
+                        <h1><?=$language->installation?> (<?=$language->install_step?> <?=$step?> <?=$language->install_of?> 7)</h1>
 
 
                         <form action="/" method="post">
@@ -45,7 +41,33 @@
 
                                 <div class="h-20"></div>
 
-                                <?php if ($_SESSION['ins']['step'] == 1) { ?>
+                                <?php if ($step == 1) { ?>
+
+                                    <h3 class="c"><?=$language->install_step1_title?></h3>
+
+                                    <div class="label mt-20"><?=$language->install_language?>:</div>
+                                    <div class="elem mt-20">
+                                        <select name="language">
+                                            <option value="none"> --<?=$language->install_select_language?>-- </option>
+                                            <?php foreach ($avLangs as $item) { ?>
+                                                <?php $selected = $item == $_config->site->default_language ? ' selected="selected"' : ''; ?>
+                                                <option value="<?=$item?>"<?=$selected?>><?=strtoupper($item)?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="label"><?=$language->install_timezone?>:</div>
+                                    <div class="elem">
+                                        <select name="timezone" style="width: 440px;">
+                                            <option value="none"> --<?=$language->install_select_timezone?>-- </option>
+                                            <?php foreach ($language->install_utc as $value => $name) { ?>
+                                                <?php $selected = $value == $_config->site->default_timezone ? ' selected="selected"' : ''; ?>
+                                                <option value="<?=$value?>"<?=$selected?>><?=$name?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                <?php } else if ($step == 2) { ?>
 
                                     <h3 class="c"><?=$language->install_system_check?></h3>
 
@@ -67,7 +89,7 @@
 
                                         <tr>
                                             <td><?=$language->install_memory_limit?></td>
-                                            <td>8M</td>
+                                            <td><?=$myMemoryLimit?></td>
                                             <td><?=$currentMemoryLimit?></td>
                                             <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkMemoryLimit?'ok':'err'?>.png" /></td>
                                         </tr>
@@ -81,9 +103,9 @@
 
                                         <tr>
                                             <td><?=$language->install_upload_max_file_size?></td>
-                                            <td>8M</td>
+                                            <td><?=$myUploadMaxFileSize?></td>
                                             <td><?=$currentUploadMaxFileSize?></td>
-                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$uploadMaxFileSize?'ok':'err'?>.png" /></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkUploadMaxFileSize?'ok':'err'?>.png" /></td>
                                         </tr>
 
                                         <tr>
@@ -94,6 +116,10 @@
                                         </tr>
 
                                     </table>
+
+                                <?php } else if ($step == 3) { ?>
+
+                                    <h3 class="c"><?=$language->install_system_check?></h3>
 
                                     <table class="list" cellspacing="2" cellpadding="0">
 
@@ -134,11 +160,26 @@
 
                                     </table>
 
+                                <?php } else if ($step == 4) { ?>
+
+                                    <h3 class="c"><?=$language->install_system_check?></h3>
+
                                     <table class="list" cellspacing="2" cellpadding="0">
 
                                         <tr class="caption">
                                             <td><?=$language->install_writable_permission?></td>
                                             <td width="60">&nbsp;</td>
+                                        </tr>
+
+                                        <tr class="info">
+                                            <td colspan="2">
+                                                <?=$language->install_permission_info?>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$adminControllersDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkAdminControllersDir?'ok':'err'?>.png" /></td>
                                         </tr>
 
                                         <tr>
@@ -171,6 +212,33 @@
                                             <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLanguagesDir?'ok':'err'?>.png" /></td>
                                         </tr>
 
+                                        <?php foreach ($existsLangs as $item) { ?>
+                                            <tr>
+                                                <td><?=$item?></td>
+                                                <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=checkPath($item, true, true)?'ok':'err'?>.png" /></td>
+                                            </tr>
+                                        <?php } ?>
+
+                                        <tr>
+                                            <td><?=$layoutsAdminPartsDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLayoutsAdminPartsDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><?=$layoutsAdminProtectedDir?></td>
+                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLayoutsAdminProtectedDir?'ok':'err'?>.png" /></td>
+                                        </tr>
+
+                                        <?php foreach ($existsThemes as $item) { ?>
+                                            <?php foreach ($themeDirs as $dir) { ?>
+                                                <?php $dir = $item . '/' . $dir; ?>
+                                                <tr>
+                                                    <td><?=$dir?></td>
+                                                    <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=checkPath($dir, true, true)?'ok':'err'?>.png" /></td>
+                                                </tr>
+                                            <?php } ?>
+                                        <?php } ?>
+
                                         <tr>
                                             <td><?=$libraryDir?></td>
                                             <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkLibraryDir?'ok':'err'?>.png" /></td>
@@ -202,48 +270,40 @@
                                         </tr>
 
                                         <tr>
-                                            <td><?=$tmpDir?></td>
-                                            <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkTmpDir?'ok':'err'?>.png" /></td>
-                                        </tr>
-
-                                        <tr>
                                             <td><?=$uploadDir?></td>
                                             <td class="c"><img alt="" src="<?=$_config->site->admin_resources?>images/<?=$checkUploadDir?'ok':'err'?>.png" /></td>
                                         </tr>
 
                                     </table>
 
-                                <?php } ?>
-
-
-                                <?php if ($_SESSION['ins']['step'] == 2) { ?>
+                                <?php } else if ($step == 5) { ?>
 
                                     <h3 class="c"><?=$language->install_db_create?></h3>
 
                                     <div class="label mt-20"><?=$language->install_db_host?>:</div>
-                                    <div class="elem mt-20"><input id="host" class="required" type="text" name="host" value="<?=$_SESSION['ins']['db']['host']?>" /></div>
+                                    <div class="elem mt-20"><input id="host" class="required" type="text" name="host" value="<?=$db['host']?>" /></div>
 
                                     <div class="label"><?=$language->install_db_port?>:</div>
-                                    <div class="elem"><input class="required mini" type="text" name="port" value="<?=$_SESSION['ins']['db']['port']?>" /></div>
+                                    <div class="elem"><input class="required mini" type="text" name="port" value="<?=$db['port']?>" /></div>
 
                                     <!--div class="label"><?=$language->install_db_prefix?>:</div>
-                                    <div class="elem"><input class="mini" type="text" name="prefix" value="<?=$_SESSION['ins']['db']['prefix']?>" /></div-->
+                                    <div class="elem"><input class="mini" type="text" name="prefix" value="<?=$db['prefix']?>" /></div-->
 
                                     <div class="label"><?=$language->install_db_name?>:</div>
-                                    <div class="elem"><input class="required" type="text" name="name" value="<?=$_SESSION['ins']['db']['name']?>" /></div>
+                                    <div class="elem"><input class="required" type="text" name="name" value="<?=$db['name']?>" /></div>
 
                                     <div class="label"><?=$language->install_db_user?>:</div>
-                                    <div class="elem"><input class="required" type="text" name="user" value="<?=$_SESSION['ins']['db']['user']?>" /></div>
+                                    <div class="elem"><input class="required" type="text" name="user" value="<?=$db['user']?>" /></div>
 
                                     <div class="label"><?=$language->install_db_password?>:</div>
-                                    <div class="elem"><input class="required mini" type="text" name="password" value="<?=$_SESSION['ins']['db']['password']?>" /></div>
+                                    <div class="elem"><input class="required mini" type="text" name="password" value="<?=$db['password']?>" /></div>
 
                                     <div class="label mt-20">&nbsp;</div>
                                     <div class="elem mt-20">
 
                                         <div class="inputbox" title=" <?=$language->install_add_extended_demo?> ">
                                             <div class="blend"></div>
-                                            <input type="checkbox" name="addextended"<?=$_SESSION['ins']['db']['addextended']?' checked="checked"':''?> /> - <?=$language->install_add_extended_demo?>
+                                            <input type="checkbox" name="addextended"<?=$db['addextended']?' checked="checked"':''?> /> - <?=$language->install_add_extended_demo?>
                                         </div>
 
                                     </div>
@@ -252,21 +312,18 @@
                                         document.getElementById("host").focus();
                                     </script>
 
-                                <?php } ?>
-
-
-                                <?php if ($_SESSION['ins']['step'] == 3) { ?>
+                                <?php } else if ($step == 6) { ?>
 
                                     <h3 class="c"><?=$language->install_root_create?></h3>
 
                                     <div class="label mt-20"><?=$language->install_root_login?>:</div>
                                     <div class="elem mt-20">
-                                        <input id="rootlogin" class="short required" type="text" name="rootlogin" value="<?=$_SESSION['ins']['settings']['rootlogin']?>" />
+                                        <input id="rootlogin" class="short required" type="text" name="rootlogin" value="<?=$settings['rootlogin']?>" />
                                     </div>
 
                                     <div class="label">E-mail:</div>
                                     <div class="elem">
-                                        <input class="required" type="text" name="rootemail" value="<?=$_SESSION['ins']['settings']['rootemail']?>" />
+                                        <input class="required" type="text" name="rootemail" value="<?=$settings['rootemail']?>" />
                                     </div>
 
                                     <div class="label"><?=$language->install_root_password?>:</div>
@@ -278,8 +335,8 @@
 
                                             function generateRootPass() {
 
-                                                var inp = document.getElementById("rootpass"), result = "";
-                                                var words = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+                                                var inp = document.getElementById('rootpass'), result = '';
+                                                var words = '0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
                                                 var max_position = words.length - 1;
                                                 var len = Math.floor( Math.random() * 10 ) + 14;
 
@@ -295,7 +352,7 @@
 
                                         </script>
 
-                                        <input id="rootpass" class="required short" type="text" name="rootpassword" value="<?=$_SESSION['ins']['settings']['rootpassword']?>" />
+                                        <input id="rootpass" class="required short" type="text" name="rootpassword" value="<?=$settings['rootpassword']?>" />
                                         <a href="#generate" class="info" onclick="return generateRootPass();"><?=$language->install_generate?></a>
                                     </div>
                                     <div class="longblock">
@@ -307,15 +364,12 @@
 
                                         <div class="inputbox" title=" <?=$language->install_debug_mode_on?> ">
                                             <div class="blend"></div>
-                                            <input type="checkbox" name="debugmode"<?=$_SESSION['ins']['settings']['debugmode']?' checked="checked"':''?> /> - <?=$language->install_debug_mode_on?>
+                                            <input type="checkbox" name="debugmode"<?=$settings['debugmode']?' checked="checked"':''?> /> - <?=$language->install_debug_mode_on?>
                                         </div>
 
                                     </div>
 
-                                <?php } ?>
-
-
-                                <?php if ($_SESSION['ins']['step'] == 4) { ?>
+                                <?php } else if ($step == 7) { ?>
 
                                     <div class="longblock">
 
@@ -327,10 +381,8 @@
 
 
                                 <div class="longblock mt-20">
-                                    <?php foreach ($_SESSION['ins']['report'] as $message) { ?>
-
+                                    <?php foreach (reporter::getReport() as $message) { ?>
                                         <div class="installerror"><?=$message?></div>
-
                                     <?php } ?>
                                 </div>
 
@@ -338,11 +390,11 @@
                                 <div class="clear h-20">&nbsp;</div>
                                 <div class="c" style="margin: 0 auto; width: 280px;">
 
-                                    <?php if ($_SESSION['ins']['step'] < 4 and !$_SESSION['ins']['errors']) { ?>
+                                    <?php if ($step < 7 and !reporter::isError()) { ?>
                                         <input style="float: right;" type="submit" name="next" value=" <?=$language->install_next?> &raquo;&raquo; " />
                                     <?php } ?>
 
-                                    <?php if ($_SESSION['ins']['step'] > 1 and $_SESSION['ins']['step'] < 4) { ?>
+                                    <?php if ($step > 1 and $step < 7) { ?>
                                         <input style="float: left;" type="submit" name="prev" value=" &laquo;&laquo; <?=$language->install_prev?> " />
                                     <?php } ?>
 

@@ -2,83 +2,583 @@
 
 
 /**
- * exit for incorrect request on this script
+ * set main installation environment
  */
-
-if (!defined('APPLICATION')) {
-    exit();
-}
 
 ini_set('display_errors', 'On');
 ini_set('html_errors', 'On');
 error_reporting(E_ALL | E_STRICT);
+set_include_path('');
 
 
 /**
- * set path for admin installation layouts
+ * installation classes and functions
  */
 
-set_include_path(
-    get_include_path() . PATH_SEPARATOR . APPLICATION . 'layouts/admin/protected/'
-);
+abstract class storage {
 
+    protected static $storageKey = '__installation_storage';
+    public static function init() {
+        session_name('deepcmsinstall');
+        @ session_start();
+        if (!isset($_SESSION[self::$storageKey])) {
+            self::clear();
+        }
+    }
+    public static function write($key, $data) {
+        $_SESSION[self::$storageKey][$key] = $data;
+    }
+    public static function remove($key) {
+        if (isset($_SESSION[self::$storageKey][$key])) {
+            unset($_SESSION[self::$storageKey][$key]);
+        }
+    }
+    public static function read($key) {
+        return self::exists($key) ? $_SESSION[self::$storageKey][$key] : null;
+    }
+    public static function shift($key) {
+        $data = self::read($key);
+        self::remove($key);
+        return $data;
+    }
+    public static function exists($key) {
+        return array_key_exists($key, $_SESSION[self::$storageKey]);
+    }
+    public static function clear() {
+        $_SESSION = array();
+        $_SESSION[self::$storageKey] = array();
+    }
 
-/**
- * start session installation environment
- */
-
-session_name('deepcms');
-session_start();
-
-if (!array_key_exists('ins', $_SESSION)) {
-    $_SESSION['ins'] = array();
-    $_SESSION['ins']['report'] = array();
-    $_SESSION['ins']['step'] = 1;
-    $_SESSION['ins']['errors'] = false;
 }
 
+abstract class request {
 
-/**
- * get configuration object
- */
+    public static function isPost() {
+        return (sizeof($_POST) > 0);
+    }
+    public static function getPostParam($key) {
+        return (array_key_exists($key, $_POST)) ? $_POST[$key] : null;
+    }
+    public static function refresh() {
+        header('HTTP/1.1 301 Moved Permanently');
+        header('Location: /');
+        exit();
+    }
+
+}
+
+class installException extends Exception {
+
+    private $report = array('title' => 'Untitled exception', 'message' => '');
+    public function __construct($title, $message) {
+        $this->report['title'] = $title;
+        $this->report['message'] = $message;
+    }
+    public function getReport() {
+        return $this->report;
+    }
+
+}
+
+class pseudoLanguage {
+
+    public function __get($key) {
+        return '';
+    }
+
+}
+
+abstract class view {
+
+    public static $language = null;
+    public static function init() {
+        self::$language = new pseudoLanguage();
+    }
+
+}
+
+abstract class reporter {
+
+    private static $errorStatus = false;
+    private static $newReport = array();
+    private static $oldReport = array();
+
+    public static function init() {
+        if (!self::$oldReport = storage::read('report')) {
+            self::$oldReport = array();
+        }
+    }
+    public static function isError() {
+        return self::$errorStatus;
+    }
+    public static function getReport() {
+        storage::write('report', array());
+        return self::$oldReport;
+    }
+    public static function setErrorStatus() {
+        self::$errorStatus = true;
+    }
+    public static function addReportMessage($message) {
+        self::$newReport[] = $message;
+        storage::write('report', self::$newReport);
+    }
+
+}
+
+abstract class db {
+
+    private static $mysqli = null;
+    public static function connect($host, $user, $password, $name, $port) {
+        self::$mysqli = new mysqli($host, $user, $password, $name, (int) $port);
+        if (self::$mysqli->connect_errno) {
+            reporter::setErrorStatus();
+            reporter::addReportMessage(
+                self::$mysqli->connect_errno . ': ' . self::$mysqli->connect_error
+            );
+        }
+    }
+    public static function setCharset($charset) {
+        if (self::$mysqli === null) {
+            return;
+        }
+        self::$mysqli->set_charset($charset);
+        if (self::$mysqli->errno) {
+            reporter::setErrorStatus();
+            reporter::addReportMessage(
+                self::$mysqli->connect_errno . ': ' . self::$mysqli->connect_error
+            );
+        }
+    }
+    public static function query($queryString) {
+        if (self::$mysqli === null) {
+            return;
+        }
+        self::$mysqli->multi_query($queryString);
+        if (self::$mysqli->errno) {
+            reporter::setErrorStatus();
+            reporter::addReportMessage(
+                self::$mysqli->connect_errno . ': ' . self::$mysqli->connect_error
+            );
+        } else {
+            do {
+                if ($res = self::$mysqli->store_result()) {
+                    while ($row = $res->fetch_assoc()) {
+                        unset($row);
+                    }
+                    $res->free();
+                }
+            } while (
+                self::$mysqli->more_results() && self::$mysqli->next_result()
+            );
+        }
+    }
+    public static function escapeString($str) {
+        return self::$mysqli->real_escape_string($str);
+    }
+
+}
+
+abstract class node {
+
+    protected static $objects = array();
+    public static function load($class) {
+        if (!class_exists($class)) {
+            throw new installException(
+                'Node initialization class error', 'Class ' . $class . ' not found'
+            );
+        }
+        if (!isset(self::$objects[$class])) {
+            self::$objects[$class] = new $class;
+        }
+    }
+    public static function call($key) {
+        if (!isset(self::$objects[$key])) {
+            throw new installException(
+                'Node call to object error', 'Object ' . $key . ' not found inside'
+            );
+        }
+        return self::$objects[$key];
+    }
+    public static function loadClass($path, $className) {
+        if (isset(self::$objects[$className])) {
+            return;
+        }
+        if (!file_exists($path)) {
+            throw new installException(
+                'Node load file error', 'File ' . $path . ' not exists'
+            );
+        }
+        if (is_dir($path)) {
+            throw new installException(
+                'Node load file error', 'File ' . $path . ' is directory'
+            );
+        }
+        require_once $path;
+        self::load($className);
+    }
+    public static function loadController($path, $controllerName) {
+        self::loadClass($path, $controllerName);
+        if (!(self::call($controllerName) instanceof baseController)) {
+            throw new installException(
+                'Node load controller error',
+                'Class ' . $controllerName . ' not instance of baseController'
+            );
+        }
+        $controller = self::call($controllerName);
+        $controller->setPermissions();
+    }
+}
+
+function getClientLanguages() {
+
+    $acceptLangs = strtolower((string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    $langPattern = '/([a-z]{2,}(?:-[a-z]{2,})?)((?:;q=(1|0\.[0-9]))?)/s';
+    $clientLangs = array();
+    preg_match_all($langPattern, $acceptLangs, $clientLangs);
+
+    $clientLangs = array_combine($clientLangs[1], $clientLangs[3]);
+    foreach ($clientLangs as $k => $v) {
+        $clientLangs[$k] = $v ? $v : 1;
+    }
+    arsort($clientLangs, SORT_NUMERIC);
+    return $clientLangs;
+
+}
+
+function installGlob($pattern, $flags = 0) {
+
+    if (!$result = glob($pattern, $flags)) {
+        $result = array();
+    }
+    return $result;
+
+}
+
+function installGlobRecursive($path, $mask = '*') {
+
+    $items = installGlob($path . $mask);
+    $dirs  = installGlob($path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+    foreach ($dirs as $dir) {
+        $items = array_merge($items, installGlobRecursive($dir . '/', $mask));
+    }
+    return $items;
+
+}
 
 function getConfig() {
 
-    if (!array_key_exists('config', $_SESSION['ins'])) {
-        $_SESSION['ins']['config'] = json_decode('{"site":{"default_keywords":"","default_description":"","check_unused_params":false,"default_language":"ru","default_timezone":"+04:00","theme":"default","domain":"build.deep","protocol":"http","admin_tools_link":"\/admin","admin_resources":"\/admin-resources\/"},"application":{"name":"Deep-CMS","version":"2.114.395","support_email":"support@deep-cms.ru"},"system":{"debug_mode":false,"cache_enabled":false,"write_log":true,"log_file_max_size":16384,"block_prefetch_requests":true,"default_output_context":"html","cookie_expires_time":"259200","session_name":"deepcms","max_group_priority_number":"10"},"cached_pages":[],"layouts":{"parts":"parts\/","header":"parts\/header.html","footer":"parts\/footer.html"},"output_contexts":[{"name":"html","enabled":true},{"name":"json","enabled":true},{"name":"xml","enabled":true},{"name":"txt","enabled":true}],"db":{"host":"localhost","port":3306,"prefix":"","name":"","user":"","password":"","connection_charset":"utf8"}}');
+    $storedConfig = storage::read('config');
+    if (!$storedConfig) {
+
+        $storedConfig = json_decode('{
+            "site":{
+                "default_keywords":"",
+                "default_description":"",
+                "check_unused_params":false,
+                "default_language":"",
+                "default_timezone":"",
+                "theme":"default",
+                "domain":"",
+                "protocol":"",
+                "admin_tools_link":"\/admin",
+                "admin_resources":"\/admin-resources\/"
+            },
+            "application":{
+                "name":"Deep-CMS",
+                "version":"2.114.395",
+                "support_email":"support@deep-cms.ru",
+                "sources_domain":"sources.deep-cms.ru"
+            },
+            "system":{
+                "debug_mode":true,
+                "cache_enabled":false,
+                "write_log":true,
+                "log_file_max_size":16384,
+                "block_prefetch_requests":true,
+                "default_output_context":"html",
+                "cookie_expires_time":"259200",
+                "session_name":"deepcms",
+                "max_group_priority_number":"10"
+            },
+            "db":{
+                "host":"localhost",
+                "port":3306,
+                "prefix":"",
+                "name":"",
+                "user":"",
+                "password":"",
+                "connection_charset":"utf8"
+            }
+        }');
+
+        storage::write('config', $storedConfig);
+
     }
-    return $_SESSION['ins']['config'];
+
+    return $storedConfig;
 
 }
 
+function normalizeIniValue($value) {
 
-/**
- * save configuration object into session
- */
+    if (preg_match('/^\d+/', $value)) {
 
-function setConfig($config) {
-    $_SESSION['ins']['config'] = $config;
+        $measures = strtoupper(substr($value, 0 -1));
+        switch ($measures) {
+            case 'G':
+                $up = pow(1024, 3);
+            break;
+            case 'M':
+                $up = pow(1024, 2);
+            break;
+            case 'K':
+                $up = 1024;
+            break;
+            default:
+                $up = 1;
+            break;
+        }
+
+        return substr($value, 0, strlen($value) - 1) * $up;
+
+    } else {
+        return 'unlimited';
+    }
+
 }
 
+function checkPath($path, $type, $isWritable = false) {
 
-/**
- * save config string into file
- */
+    if (!file_exists($path) or !is_readable($path)) {
+        return false;
+    } else if ($type and !is_dir($path)) {
+        return false;
+    } else if (!$type and !is_file($path)) {
+        return false;
+    }
+    if ($isWritable and !is_writable($path)) {
+        return false;
+    }
+    return true;
+
+}
+
+function getInstallationQueryString($prefix = '') {
+
+    return <<<INSTALLATIONSTRING
+
+        DROP TABLE IF EXISTS {$prefix}users;
+        CREATE TABLE {$prefix}users (
+            id                  BIGINT(20) NOT NULL AUTO_INCREMENT,
+            group_id            BIGINT(20) DEFAULT NULL,
+            status              TINYINT(1) NOT NULL DEFAULT '0',
+            language            CHAR(16)   CHARACTER SET utf8 COLLATE utf8_bin,
+            timezone            CHAR(8)    CHARACTER SET utf8 COLLATE utf8_bin,
+            avatar              CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin,
+            login               CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            password            CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            email               CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            hash                CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            last_ip             CHAR(15)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0.0.0.0',
+            registration_date   DATETIME   NOT NULL,
+            last_visit          DATETIME   NOT NULL,
+            about               TEXT       CHARACTER SET utf8 COLLATE utf8_general_ci,
+            working_cache       LONGTEXT   CHARACTER SET utf8 COLLATE utf8_bin,
+            PRIMARY KEY (id),
+            KEY group_id     (group_id),
+            KEY status       (status),
+            KEY hash         (hash)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        INSERT INTO {$prefix}users
+        (id, group_id, status, login, password, email, hash, last_ip, registration_date, last_visit, about)
+            VALUES (1, 1, 0, '', '', '', '', '', NOW(), NOW(), '');
+
+        DROP TABLE IF EXISTS {$prefix}permissions;
+        CREATE TABLE {$prefix}permissions (
+            id     BIGINT(20) NOT NULL AUTO_INCREMENT,
+            name   CHAR(255)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            PRIMARY KEY (id)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}group_permissions;
+        CREATE TABLE {$prefix}group_permissions (
+            group_id        BIGINT(20) NOT NULL,
+            permission_id   BIGINT(20) NOT NULL
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}groups;
+        CREATE TABLE {$prefix}groups (
+            id            BIGINT(20) NOT NULL AUTO_INCREMENT,
+            is_protected  TINYINT(1) NOT NULL DEFAULT '0',
+            priority      BIGINT(20) NOT NULL,
+            name          CHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            PRIMARY KEY (id)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        INSERT INTO {$prefix}groups (id, is_protected, priority, name)
+            VALUES (1, 1, 0, 'root');
+
+        DROP TABLE IF EXISTS {$prefix}images;
+        CREATE TABLE {$prefix}images (
+            id         BIGINT(20)  NOT NULL AUTO_INCREMENT,
+            node_id    BIGINT(20)  NOT NULL,
+            is_master  TINYINT(1)  NOT NULL DEFAULT '0',
+            name       CHAR(255)     CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            PRIMARY KEY (id),
+            KEY node_id   (node_id),
+            KEY is_master (is_master)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}tree;
+        CREATE TABLE {$prefix}tree (
+            id                  BIGINT(20)  NOT NULL AUTO_INCREMENT,
+            parent_id           BIGINT(20)  NOT NULL,
+            lvl                 TINYINT(3)  NOT NULL,
+            lk                  BIGINT(20)  NOT NULL,
+            rk                  BIGINT(20)  NOT NULL,
+            prototype           CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            children_prototype  CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+            author              BIGINT(20)  NOT NULL,
+            modified_author     BIGINT(20)  NOT NULL,
+            last_modified       DATETIME    NOT NULL,
+            creation_date       DATETIME    NOT NULL,
+            is_publish          TINYINT(1)  NOT NULL,
+            node_name           MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            in_sitemap          TINYINT(1)  NOT NULL,
+            in_sitemap_xml      TINYINT(1)  NOT NULL,
+            in_search           TINYINT(1)  NOT NULL,
+            layout              CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            page_alias          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            permanent_redirect  MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            change_freq         CHAR(7)     CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            searchers_priority  DOUBLE      DEFAULT NULL,
+            module_name         CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+            page_title          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            page_h1             MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            meta_keywords       MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            meta_description    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
+            page_text           LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
+            PRIMARY KEY (id),
+            KEY parent_id       (parent_id),
+            KEY lvl             (lvl),
+            KEY lk              (lk),
+            KEY rk              (rk),
+            KEY author          (author),
+            KEY modified_author (modified_author),
+            KEY prototype       (prototype),
+            KEY is_publish      (is_publish),
+            KEY in_sitemap      (in_sitemap),
+            KEY in_sitemap_xml  (in_sitemap_xml),
+            KEY in_search       (in_search)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}tree_features;
+        CREATE TABLE {$prefix}tree_features (
+            node_id        BIGINT(20) NOT NULL,
+            feature_id     BIGINT(20) NOT NULL,
+            feature_value  MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            KEY node_id    (node_id),
+            KEY feature_id (feature_id)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}features;
+        CREATE TABLE {$prefix}features (
+            id    BIGINT(20) NOT NULL AUTO_INCREMENT,
+            name  CHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            PRIMARY KEY (id)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}menu;
+        CREATE TABLE {$prefix}menu (
+            id          BIGINT(20) NOT NULL AUTO_INCREMENT,
+            mirror_id   BIGINT(20) NOT NULL,
+            parent_id   BIGINT(20) NOT NULL DEFAULT '0',
+            name        CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            PRIMARY KEY (id),
+            KEY mirror_id (mirror_id),
+            KEY parent_id (parent_id)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+        DROP TABLE IF EXISTS {$prefix}menu_items;
+        CREATE TABLE {$prefix}menu_items (
+            menu_id        BIGINT(20) NOT NULL,
+            node_id        BIGINT(20) NOT NULL,
+            KEY menu_id (menu_id),
+            KEY node_id (node_id)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+INSTALLATIONSTRING;
+
+}
+
+function getExtendedQueryString($prefix = '') {
+
+    return <<<EXTENDEDINSTALLATIONSTRING
+
+        INSERT INTO {$prefix}menu (id, mirror_id, parent_id, name)
+            VALUES (1, 1, 0, 'Левое меню'), (2, 2, 0, 'Нижнее меню');
+
+        INSERT INTO {$prefix}menu_items (menu_id, node_id)
+            VALUES (1, 1), (2, 1), (1, 2), (1, 5), (2, 5), (1, 9),
+                   (1, 10), (1, 11), (2, 11), (1, 12), (1, 13), (2, 13);
+
+        INSERT INTO {$prefix}tree (id, parent_id, lvl, lk, rk, prototype, children_prototype, author, modified_author, last_modified, creation_date, is_publish, node_name, in_sitemap, in_sitemap_xml, in_search, layout, page_alias, permanent_redirect, change_freq, searchers_priority, module_name, page_title, page_h1, meta_keywords, meta_description, page_text) VALUES
+        (1, 0, 1, 1, 2, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:25:46', '2013-12-04 01:56:04', 1, 'Главная', 1, 1, 1, 'page.html', '/', '', 'always', 1, NULL, 'Добро пожаловать на демонстрационный сайт Deep-CMS!', 'Добро пожаловать, друзья!', '', '', '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec dui in&nbsp;lorem fermentum varius sit amet ac&nbsp;quam. Fusce eu&nbsp;porta nibh. Phasellus elementum vehicula est eget sollicitudin. Integer eros arcu, lacinia non vulputate sed, bibendum et&nbsp;orci. Maecenas ante felis, feugiat vitae lacus ut, faucibus pretium nisl. Aliquam non cursus mauris. Class aptent taciti sociosqu ad&nbsp;litora torquent per conubia nostra, per inceptos himenaeos. Proin bibendum convallis nisi ut&nbsp;vestibulum. Quisque dignissim libero viverra metus auctor aliquam. Sed imperdiet justo ac&nbsp;sem dapibus tincidunt ut&nbsp;at&nbsp;ligula. Mauris sagittis nec nibh non tristique. Morbi ut&nbsp;leo mollis, cursus dolor eu, rutrum lorem. Etiam cursus pellentesque velit non ultricies.</p>\r\n\r\n<p>Integer porttitor vulputate mi, non euismod nunc posuere pretium. Duis congue id&nbsp;massa eget pellentesque. In&nbsp;in&nbsp;orci elit. Nulla a&nbsp;lacinia tortor. In&nbsp;vel mollis nunc, nec tempus enim. Morbi semper sem ac&nbsp;ligula laoreet, sit amet sodales nulla ullamcorper. Mauris et&nbsp;dolor et&nbsp;odio ullamcorper condimentum. Donec purus purus, vehicula id&nbsp;interdum ut, mollis sit amet augue. Nam ultrices lobortis dapibus. In&nbsp;risus diam, interdum id&nbsp;metus ut, sollicitudin lobortis ante.</p>'),
+        (2, 0, 1, 3, 8, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:26:00', '2013-12-04 01:57:10', 1, 'Новости', 1, 1, 1, 'children-list.html', '/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8', '', 'daily', 0.7, NULL, '', '', '', '', ''),
+        (3, 2, 2, 4, 5, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:23:59', '2013-12-04 02:00:48', 1, 'Владимир Путин ушел с поста президента', 1, 1, 1, 'page.html', '/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80-%D0%9F%D1%83%D1%82%D0%B8%D0%BD-%D1%83%D1%88%D0%B5%D0%BB-%D1%81-%D0%BF%D0%BE%D1%81%D1%82%D0%B0-%D0%BF%D1%80%D0%B5%D0%B7%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B0', '', NULL, NULL, NULL, 'Сенсация! Владимир Путин ушел с поста президента!', 'Сенсация! Владимир Путин ушел с поста президента!', '', '', '<p>Integer ipsum elit, rutrum sed ullamcorper non, dapibus ut&nbsp;leo. Vestibulum in&nbsp;lorem fringilla, fermentum elit eu, vehicula mi. Ut&nbsp;lobortis tincidunt mattis. Nullam placerat magna vitae odio imperdiet, ac&nbsp;mattis elit tincidunt. Fusce porttitor non leo a&nbsp;aliquet. Sed vel quam ut&nbsp;mi&nbsp;mattis tincidunt. Maecenas vehicula nibh non elit condimentum, sed malesuada lectus dapibus. Suspendisse sed est eget massa auctor laoreet. Nulla eu&nbsp;eleifend velit. Integer eget magna enim. Class aptent taciti sociosqu ad&nbsp;litora torquent per conubia nostra, per inceptos himenaeos. Nunc vitae tortor at&nbsp;augue volutpat auctor et&nbsp;eget arcu. Ut&nbsp;rutrum orci ac&nbsp;est bibendum aliquam. Aliquam risus purus, rutrum at&nbsp;commodo in, posuere quis neque. Proin mattis libero id&nbsp;justo sodales fringilla. Nam elementum augue ut&nbsp;mauris feugiat, ut&nbsp;elementum augue mollis.</p>\r\n\r\n<p>Integer sollicitudin, tortor a&nbsp;posuere aliquet, dolor diam dignissim magna, ac&nbsp;molestie neque eros a&nbsp;eros. Curabitur pulvinar, leo non venenatis consequat, ipsum leo suscipit sem, ut&nbsp;posuere augue nunc sed lacus. Suspendisse dictum orci vel consectetur gravida. Nullam vitae sodales libero. Duis non mauris a&nbsp;leo rutrum sagittis. Donec purus orci, suscipit a&nbsp;ante in, bibendum dapibus diam. Nam dictum ipsum quis felis tempus, ut&nbsp;lacinia orci fringilla. Morbi eget ligula justo. Phasellus semper est est, vel semper justo semper ut. Nullam varius cursus velit ut&nbsp;egestas. Nunc leo nulla, vehicula at&nbsp;commodo at, molestie nec magna. Cras non aliquet velit, id&nbsp;vehicula diam.</p>'),
+        (4, 2, 2, 6, 7, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:24:22', '2013-12-04 02:02:36', 1, 'Российская сборная по футболу выиграла мировой чемпионат', 1, 1, 1, 'page.html', '/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8/%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D0%B9%D1%81%D0%BA%D0%B0%D1%8F-%D1%81%D0%B1%D0%BE%D1%80%D0%BD%D0%B0%D1%8F-%D0%BF%D0%BE-%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D1%83-%D0%B2%D1%8B%D0%B8%D0%B3%D1%80%D0%B0%D0%BB%D0%B0-%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%BE%D0%B9-%D1%87%D0%B5%D0%BC%D0%BF%D0%B8%D0%BE%D0%BD%D0%B0%D1%82', '', NULL, NULL, NULL, '', '', '', '', '<p>Integer porttitor vulputate mi, non euismod nunc posuere pretium. Duis congue id&nbsp;massa eget pellentesque. In&nbsp;in&nbsp;orci elit. Nulla a&nbsp;lacinia tortor. In&nbsp;vel mollis nunc, nec tempus enim. Morbi semper sem ac&nbsp;ligula laoreet, sit amet sodales nulla ullamcorper. Mauris et&nbsp;dolor et&nbsp;odio ullamcorper condimentum. Donec purus purus, vehicula id&nbsp;interdum ut, mollis sit amet augue. Nam ultrices lobortis dapibus. In&nbsp;risus diam, interdum id&nbsp;metus ut, sollicitudin lobortis ante.</p>\r\n\r\n<p>Duis bibendum lectus a&nbsp;volutpat posuere. Praesent rhoncus ultrices nunc, ut&nbsp;bibendum odio aliquet interdum. Nulla condimentum augue eu&nbsp;convallis suscipit. Duis tincidunt nibh at&nbsp;eros dictum, eu&nbsp;volutpat urna pellentesque. Integer et&nbsp;quam a&nbsp;tortor mattis lobortis ut&nbsp;in&nbsp;tellus. Duis facilisis, velit vitae iaculis tempor, ligula est posuere odio, non tristique neque mi&nbsp;sed erat. Fusce in&nbsp;sodales turpis. Duis porttitor nulla vel facilisis egestas.</p>\r\n\r\n<p>Integer ipsum elit, rutrum sed ullamcorper non, dapibus ut&nbsp;leo. Vestibulum in&nbsp;lorem fringilla, fermentum elit eu, vehicula mi. Ut&nbsp;lobortis tincidunt mattis. Nullam placerat magna vitae odio imperdiet, ac&nbsp;mattis elit tincidunt. Fusce porttitor non leo a&nbsp;aliquet. Sed vel quam ut&nbsp;mi&nbsp;mattis tincidunt. Maecenas vehicula nibh non elit condimentum, sed malesuada lectus dapibus. Suspendisse sed est eget massa auctor laoreet. Nulla eu&nbsp;eleifend velit. Integer eget magna enim. Class aptent taciti sociosqu ad&nbsp;litora torquent per conubia nostra, per inceptos himenaeos. Nunc vitae tortor at&nbsp;augue volutpat auctor et&nbsp;eget arcu. Ut&nbsp;rutrum orci ac&nbsp;est bibendum aliquam. Aliquam risus purus, rutrum at&nbsp;commodo in, posuere quis neque. Proin mattis libero id&nbsp;justo sodales fringilla. Nam elementum augue ut&nbsp;mauris feugiat, ut&nbsp;elementum augue mollis.</p>'),
+        (5, 0, 1, 9, 16, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:26:12', '2013-12-04 02:03:52', 1, 'Статьи', 1, 1, 1, 'chain-children-list.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8', '', NULL, NULL, NULL, '', '', '', '', ''),
+        (6, 5, 2, 10, 11, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:05:01', '2013-12-04 02:05:01', 1, 'Как трудно быть бурлаком', 1, 1, 1, 'page.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8/%D0%9A%D0%B0%D0%BA-%D1%82%D1%80%D1%83%D0%B4%D0%BD%D0%BE-%D0%B1%D1%8B%D1%82%D1%8C-%D0%B1%D1%83%D1%80%D0%BB%D0%B0%D0%BA%D0%BE%D0%BC', '', NULL, NULL, NULL, '', '', '', '', '<p>Cum sociis natoque penatibus et&nbsp;magnis dis parturient montes, nascetur ridiculus mus. Aliquam nec tempor ipsum, ut&nbsp;posuere lectus. Aliquam pretium gravida dolor eu&nbsp;aliquet. Pellentesque nec justo nunc. Sed tempus metus quis dolor blandit, eget tempor nisl ultricies. Integer varius porta laoreet. Etiam a&nbsp;placerat eros. Pellentesque pharetra, sem placerat pharetra laoreet, odio nibh facilisis eros, ut&nbsp;venenatis mauris enim ut&nbsp;tortor. Proin dictum ipsum mi, a&nbsp;luctus justo hendrerit a.</p>\r\n\r\n<p>Donec lacinia, eros et&nbsp;auctor placerat, tortor velit mollis metus, eu&nbsp;suscipit nibh felis nec massa. Integer lorem diam, auctor sit amet lorem at, varius scelerisque lectus. Proin porta enim at&nbsp;sem vehicula dignissim. Aliquam lobortis tincidunt venenatis. Duis eu&nbsp;tortor ac&nbsp;est sodales laoreet. Suspendisse sodales nulla facilisis, volutpat sapien ut, dictum enim. Sed tincidunt suscipit libero nec ultrices. Phasellus aliquam, lorem in&nbsp;convallis scelerisque, quam ante consectetur magna, at&nbsp;cursus orci nunc ac&nbsp;est. Fusce euismod erat a&nbsp;imperdiet viverra. Fusce lacinia porttitor laoreet. Aliquam placerat, dui ut&nbsp;bibendum adipiscing, mi&nbsp;turpis aliquet lorem, in&nbsp;tincidunt tortor mi&nbsp;et&nbsp;lorem. Vivamus sed condimentum justo. Nullam consequat tortor vel est tincidunt tincidunt. Nulla facilisi. Mauris ac&nbsp;ornare magna, vel elementum mauris.</p>\r\n\r\n<p>Fusce at&nbsp;egestas felis. Duis a&nbsp;urna vehicula sem imperdiet pellentesque. Mauris nibh metus, dictum a&nbsp;tellus eu, pretium ornare est. Fusce a&nbsp;erat vitae dui ultrices elementum eget non mi. Quisque vitae nulla dignissim, lobortis purus at, fermentum turpis. Praesent eget erat at&nbsp;mauris pharetra sodales. Cras a&nbsp;orci elementum, blandit velit eu, aliquet tellus. Phasellus tincidunt id&nbsp;risus ut&nbsp;malesuada. Nulla eget placerat augue. Donec velit purus, porta ac&nbsp;nulla sed, blandit accumsan metus. Cras tincidunt sollicitudin consequat. Donec sagittis faucibus dui, ac&nbsp;mollis dolor malesuada id. Aliquam imperdiet tellus et&nbsp;dictum ullamcorper. Curabitur ac&nbsp;convallis mauris. Vivamus sit amet ante sit amet tellus auctor molestie sed id&nbsp;nisl.</p>'),
+        (7, 5, 2, 12, 13, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:06:05', '2013-12-04 02:06:05', 1, 'Методология раскрашивания листа бумаги', 1, 1, 1, 'page.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D0%BA%D1%80%D0%B0%D1%88%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BB%D0%B8%D1%81%D1%82%D0%B0-%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B8', '', NULL, NULL, NULL, '', '', '', '', '<p>Fusce at&nbsp;egestas felis. Duis a&nbsp;urna vehicula sem imperdiet pellentesque. Mauris nibh metus, dictum a&nbsp;tellus eu, pretium ornare est. Fusce a&nbsp;erat vitae dui ultrices elementum eget non mi. Quisque vitae nulla dignissim, lobortis purus at, fermentum turpis. Praesent eget erat at&nbsp;mauris pharetra sodales. Cras a&nbsp;orci elementum, blandit velit eu, aliquet tellus. Phasellus tincidunt id&nbsp;risus ut&nbsp;malesuada. Nulla eget placerat augue. Donec velit purus, porta ac&nbsp;nulla sed, blandit accumsan metus. Cras tincidunt sollicitudin consequat. Donec sagittis faucibus dui, ac&nbsp;mollis dolor malesuada id. Aliquam imperdiet tellus et&nbsp;dictum ullamcorper. Curabitur ac&nbsp;convallis mauris. Vivamus sit amet ante sit amet tellus auctor molestie sed id&nbsp;nisl.</p>\r\n\r\n<p>Duis at&nbsp;dictum quam. Cras tempus tincidunt neque eget feugiat. Donec molestie tortor dui, ut&nbsp;porta orci rutrum a.&nbsp;Praesent convallis ante et&nbsp;magna molestie accumsan. Integer nec dui at&nbsp;mauris ultrices aliquet. Etiam rhoncus laoreet augue eu&nbsp;commodo. Aliquam id&nbsp;sodales mi, vitae cursus elit. Curabitur porttitor commodo semper. Duis porttitor venenatis libero, eu&nbsp;volutpat purus vulputate sed. Quisque ut&nbsp;neque purus. Quisque ut&nbsp;libero a&nbsp;leo egestas porttitor nec sed purus. Nulla ac&nbsp;ligula volutpat, imperdiet libero non, gravida libero.</p>'),
+        (8, 5, 2, 14, 15, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:06:54', '2013-12-04 02:06:54', 1, 'Куда катится мир?', 1, 1, 1, 'page.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8/%D0%9A%D1%83%D0%B4%D0%B0-%D0%BA%D0%B0%D1%82%D0%B8%D1%82%D1%81%D1%8F-%D0%BC%D0%B8%D1%80', '', NULL, NULL, NULL, '', '', '', '', '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean adipiscing turpis ac&nbsp;eros dictum, sit amet mollis orci porttitor. Mauris a&nbsp;neque eget erat ultrices feugiat non sed ante. Nunc metus magna, luctus eget leo sed, sodales convallis dui. Etiam molestie, nisi in&nbsp;vulputate cursus, quam tellus tempus ipsum, ac&nbsp;elementum orci magna sit amet massa. Aenean a&nbsp;leo ligula. Integer augue sem, lacinia eget urna sed, fermentum condimentum turpis. Nunc ultricies, dolor quis pellentesque tempus, justo leo facilisis turpis, congue commodo erat velit vestibulum dui. Maecenas eleifend, nulla sed eleifend laoreet, tortor velit rhoncus velit, sit amet imperdiet elit orci non sem. Morbi non nisl neque. Phasellus a&nbsp;risus eu&nbsp;justo lacinia adipiscing. Phasellus nec scelerisque mauris, in&nbsp;tristique risus. Donec nec leo imperdiet, rhoncus mauris non, pellentesque velit. Phasellus auctor egestas mi&nbsp;a&nbsp;ullamcorper. Ut&nbsp;eleifend, nisl vitae ultrices congue, metus mi&nbsp;commodo libero, et&nbsp;lobortis libero enim a&nbsp;odio.</p>\r\n\r\n<p>Cum sociis natoque penatibus et&nbsp;magnis dis parturient montes, nascetur ridiculus mus. Aliquam nec tempor ipsum, ut&nbsp;posuere lectus. Aliquam pretium gravida dolor eu&nbsp;aliquet. Pellentesque nec justo nunc. Sed tempus metus quis dolor blandit, eget tempor nisl ultricies. Integer varius porta laoreet. Etiam a&nbsp;placerat eros. Pellentesque pharetra, sem placerat pharetra laoreet, odio nibh facilisis eros, ut&nbsp;venenatis mauris enim ut&nbsp;tortor. Proin dictum ipsum mi, a&nbsp;luctus justo hendrerit a.</p>'),
+        (10, 0, 1, 17, 18, 'mainModule', 'simplePage', 1, 1, '2013-12-04 02:26:32', '2013-12-04 02:09:24', 1, 'Поиск по сайту', 0, 1, 0, NULL, '/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE-%D1%81%D0%B0%D0%B9%D1%82%D1%83', NULL, NULL, NULL, 'search', NULL, NULL, NULL, NULL, NULL),
+        (11, 0, 1, 19, 20, 'mainModule', 'simplePage', 1, 1, '2013-12-04 02:26:52', '2013-12-04 02:10:07', 1, 'Карта сайта', 0, 1, 0, NULL, '/%D0%9A%D0%B0%D1%80%D1%82%D0%B0-%D1%81%D0%B0%D0%B9%D1%82%D0%B0', NULL, NULL, NULL, 'sitemap', NULL, NULL, NULL, NULL, NULL),
+        (12, 0, 1, 21, 22, 'simpleLink', 'simplePage', 1, 1, '2013-12-04 02:27:04', '2013-12-04 02:11:02', 1, 'Карта сайта XML', 0, 1, 0, NULL, '/sitemap.xml', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+        (13, 0, 1, 23, 24, 'simpleLink', 'simplePage', 1, 1, '2013-12-04 02:27:14', '2013-12-04 02:14:59', 1, 'RSS', 1, 1, 1, NULL, '/rss.xml', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+EXTENDEDINSTALLATIONSTRING;
+
+}
+
+function getAllControllers() {
+
+    $controllers    = array();
+    $modules        = installGlobRecursive(APPLICATION . 'modules/', '*.php');
+    $adminModules   = installGlob(APPLICATION . 'admin/controllers/*.php');
+    $adminBootstrap = array(APPLICATION . 'admin/admin.php');
+    $existsTargets  = array_merge($adminBootstrap, $adminModules, $modules);
+
+    require_once APPLICATION . 'core/baseController.php';
+    foreach ($existsTargets as $item) {
+        $name = basename($item, '.php');
+        node::loadController($item, $name);
+        array_push($controllers, node::call($name));
+    }
+
+    return $controllers;
+
+}
 
 function saveConfigIntoFile($config) {
 
+    // fix bool values
+    $config->site->check_unused_params
+        = $config->site->check_unused_params ? 'true' : 'false';
 
-    /**
-     * fix bool values
-     */
+    $config->system->debug_mode
+        = $config->system->debug_mode ? 'true' : 'false';
 
-    $config->system->debug_mode = $config->system->debug_mode ? 'true' : 'false';
+    $config->system->cache_enabled
+        = $config->system->cache_enabled ? 'true' : 'false';
 
+    $config->system->write_log
+        = $config->system->write_log ? 'true' : 'false';
 
-    /**
-     * place config values into config string example
-     */
+    $config->system->block_prefetch_requests
+        = $config->system->block_prefetch_requests ? 'true' : 'false';
 
+    // place config values into config string example
     $configString = <<<CONFIGSTRING
 
 
@@ -109,13 +609,13 @@ function saveConfigIntoFile($config) {
          * WARNING! experimental function
          */
 
-        "check_unused_params": false,
+        "check_unused_params": {$config->site->check_unused_params},
 
         // default language environment
-        "default_language": "ru",
+        "default_language": "{$config->site->default_language}",
 
         // default timezone
-        "default_timezone": "+04:00",
+        "default_timezone": "{$config->site->default_timezone}",
 
 
         /**
@@ -124,7 +624,7 @@ function saveConfigIntoFile($config) {
          * because you can set it on administrative tools
          */
 
-        "theme": "default",
+        "theme": "{$config->site->theme}",
 
 
         /**
@@ -146,10 +646,10 @@ function saveConfigIntoFile($config) {
         "protocol": "{$config->site->protocol}",
 
         // URL path of administrative tools
-        "admin_tools_link": "/admin",
+        "admin_tools_link": "{$config->site->admin_tools_link}",
 
         // relative URL path of administrative tools resources
-        "admin_resources": "/admin-resources/"
+        "admin_resources": "{$config->site->admin_resources}"
 
     },
 
@@ -161,14 +661,14 @@ function saveConfigIntoFile($config) {
     "application": {
 
         // name signature and version of application
-        "name": "Deep-CMS",
-        "version": "2.114.395",
+        "name": "{$config->application->name}",
+        "version": "{$config->application->version}",
 
         // email address of technical support
-        "support_email": "support@deep-cms.ru",
+        "support_email": "{$config->application->support_email}",
 
         // sources repository domain
-        "sources_domain": "sources.deep-cms.ru"
+        "sources_domain": "{$config->application->sources_domain}"
 
     },
 
@@ -188,22 +688,22 @@ function saveConfigIntoFile($config) {
         "debug_mode": {$config->system->debug_mode},
 
         // enable or disable filesystem cache support
-        "cache_enabled": false,
+        "cache_enabled": {$config->system->cache_enabled},
 
         // write logs of application (members) events
-        "write_log": true,
+        "write_log": {$config->system->write_log},
 
         // max size of separated log file
-        "log_file_max_size": 16384,
+        "log_file_max_size": {$config->system->log_file_max_size},
 
         // block prefetch requests
-        "block_prefetch_requests": true,
+        "block_prefetch_requests": {$config->system->block_prefetch_requests},
 
         // default output context
-        "default_output_context": "html",
+        "default_output_context": "{$config->system->default_output_context}",
 
         // cookie expires time (sec)
-        "cookie_expires_time": "259200",
+        "cookie_expires_time": {$config->system->cookie_expires_time},
 
 
         /**
@@ -211,10 +711,10 @@ function saveConfigIntoFile($config) {
          * note: for compatibility set only alphabetic symbols
          */
 
-        "session_name": "deepcms",
+        "session_name": "{$config->system->session_name}",
 
         // member groups priority range number
-        "max_group_priority_number": 10
+        "max_group_priority_number": {$config->system->max_group_priority_number}
 
 
     },
@@ -228,7 +728,7 @@ function saveConfigIntoFile($config) {
 
     "cached_pages": [
 
-        /*"/\\\/sitemap\\\.xml/"*/
+        "/\\\/dir\\\/page\\\.html\\\?param1=value1&param2=value2/"
 
     ],
 
@@ -292,7 +792,7 @@ function saveConfigIntoFile($config) {
         "password": "{$config->db->password}",
 
         // client connection charset
-        "connection_charset": "utf8"
+        "connection_charset": "{$config->db->connection_charset}"
 
     }
 
@@ -302,11 +802,7 @@ function saveConfigIntoFile($config) {
 
 CONFIGSTRING;
 
-
-    /**
-     * write content of configuration file
-     */
-
+    // write content of configuration file
     $configFile = APPLICATION . 'config/main.json';
     file_put_contents($configFile, $configString, LOCK_EX);
 
@@ -314,706 +810,131 @@ CONFIGSTRING;
 
 
 /**
- * get full installation query string
- */
-
-function getInstallationQueryString($prefix = "") {
-
-    return <<<INSTALLATIONSTRING
-
-        DROP TABLE IF EXISTS {$prefix}users;
-        CREATE TABLE {$prefix}users (
-
-            id                  BIGINT(20) NOT NULL AUTO_INCREMENT,
-            group_id            BIGINT(20) DEFAULT NULL,
-            status              TINYINT(1) NOT NULL DEFAULT '0',
-            language            CHAR(16)   CHARACTER SET utf8 COLLATE utf8_bin,
-            timezone            CHAR(8)    CHARACTER SET utf8 COLLATE utf8_bin,
-            avatar              CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin,
-            login               CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            password            CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            email               CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            hash                CHAR(128)  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            last_ip             CHAR(15)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0.0.0.0',
-            registration_date   DATETIME   NOT NULL,
-            last_visit          DATETIME   NOT NULL,
-            about               TEXT       CHARACTER SET utf8 COLLATE utf8_general_ci,
-            working_cache       LONGTEXT   CHARACTER SET utf8 COLLATE utf8_bin,
-
-            PRIMARY KEY (id),
-
-            KEY group_id     (group_id),
-            KEY status       (status),
-            KEY hash         (hash)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-        INSERT INTO {$prefix}users
-        (id, group_id, status, login, password, email, hash, last_ip, registration_date, last_visit, about)
-        VALUES
-        (1, 1, 0, '', '', 'support@deep-cms.ru', '', '127.0.0.1', NOW(), NOW(), '');
-
-
-        DROP TABLE IF EXISTS {$prefix}permissions;
-        CREATE TABLE {$prefix}permissions (
-
-            id     BIGINT(20) NOT NULL AUTO_INCREMENT,
-            name   CHAR(255)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-
-            PRIMARY KEY (id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-        DROP TABLE IF EXISTS {$prefix}group_permissions;
-        CREATE TABLE {$prefix}group_permissions (
-
-            group_id        BIGINT(20) NOT NULL,
-            permission_id   BIGINT(20) NOT NULL
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-        DROP TABLE IF EXISTS {$prefix}groups;
-        CREATE TABLE {$prefix}groups (
-
-            id            BIGINT(20) NOT NULL AUTO_INCREMENT,
-            is_protected  TINYINT(1) NOT NULL DEFAULT '0',
-            priority      BIGINT(20) NOT NULL,
-            name          CHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-
-            PRIMARY KEY (id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-        INSERT INTO {$prefix}groups (id, is_protected, priority, name) VALUES (1, 1, 0, 'root');
-
-
-        DROP TABLE IF EXISTS {$prefix}images;
-        CREATE TABLE {$prefix}images (
-
-            id         BIGINT(20)  NOT NULL AUTO_INCREMENT,
-            node_id    BIGINT(20)  NOT NULL,
-            is_master  TINYINT(1)  NOT NULL DEFAULT '0',
-            name       CHAR(255)     CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-
-            PRIMARY KEY (id),
-
-            KEY node_id   (node_id),
-            KEY is_master (is_master)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-
-        DROP TABLE IF EXISTS {$prefix}tree;
-        CREATE TABLE {$prefix}tree (
-
-            id                  BIGINT(20)  NOT NULL AUTO_INCREMENT,
-            parent_id           BIGINT(20)  NOT NULL,
-            lvl                 TINYINT(3)  NOT NULL,
-            lk                  BIGINT(20)  NOT NULL,
-            rk                  BIGINT(20)  NOT NULL,
-            prototype           CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            children_prototype  CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            author              BIGINT(20)  NOT NULL,
-            modified_author     BIGINT(20)  NOT NULL,
-            last_modified       DATETIME    NOT NULL,
-            creation_date       DATETIME    NOT NULL,
-            is_publish          TINYINT(1)  NOT NULL,
-            node_name           MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            in_sitemap          TINYINT(1)  NOT NULL,
-            in_sitemap_xml      TINYINT(1)  NOT NULL,
-            in_search           TINYINT(1)  NOT NULL,
-
-            layout              CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            page_alias          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            permanent_redirect  MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            change_freq         CHAR(7)     CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            searchers_priority  DOUBLE      DEFAULT NULL,
-            module_name         CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            page_title          MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
-            page_h1             MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
-            meta_keywords       MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
-            meta_description    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci,
-            page_text           LONGTEXT    CHARACTER SET utf8 COLLATE utf8_general_ci,
-
-            PRIMARY KEY (id),
-
-            KEY parent_id       (parent_id),
-            KEY lvl             (lvl),
-            KEY lk              (lk),
-            KEY rk              (rk),
-            KEY author          (author),
-            KEY modified_author (modified_author),
-            KEY prototype       (prototype),
-            KEY is_publish      (is_publish),
-            KEY in_sitemap      (in_sitemap),
-            KEY in_sitemap_xml  (in_sitemap_xml),
-            KEY in_search       (in_search)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-
-        DROP TABLE IF EXISTS {$prefix}tree_features;
-        CREATE TABLE {$prefix}tree_features (
-
-            node_id        BIGINT(20) NOT NULL,
-            feature_id     BIGINT(20) NOT NULL,
-            feature_value  MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-
-            KEY node_id    (node_id),
-            KEY feature_id (feature_id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-
-        DROP TABLE IF EXISTS {$prefix}features;
-        CREATE TABLE {$prefix}features (
-
-            id    BIGINT(20) NOT NULL AUTO_INCREMENT,
-            name  CHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-
-            PRIMARY KEY (id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-
-        DROP TABLE IF EXISTS {$prefix}menu;
-        CREATE TABLE {$prefix}menu (
-
-            id          BIGINT(20) NOT NULL AUTO_INCREMENT,
-            mirror_id   BIGINT(20) NOT NULL,
-            parent_id   BIGINT(20) NOT NULL DEFAULT '0',
-            name        CHAR(255)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-
-            PRIMARY KEY (id),
-
-            KEY mirror_id (mirror_id),
-            KEY parent_id (parent_id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-
-        DROP TABLE IF EXISTS {$prefix}menu_items;
-        CREATE TABLE {$prefix}menu_items (
-
-            menu_id        BIGINT(20) NOT NULL,
-            node_id        BIGINT(20) NOT NULL,
-
-            KEY menu_id (menu_id),
-            KEY node_id (node_id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-
-
-
-        /*DROP TABLE IF EXISTS {$prefix}comments;
-        CREATE TABLE {$prefix}comments (
-
-            id             BIGINT(20)  NOT NULL AUTO_INCREMENT,
-            reply_id       BIGINT(20)  NOT NULL,
-            node_id        BIGINT(20)  NOT NULL,
-            creation_date  DATETIME    NOT NULL,
-            author_ip      CHAR(15)    CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            author_id      BIGINT(20)  DEFAULT NULL,
-            author_name    MEDIUMTEXT  CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-            author_email   char(255)   CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-            comment_text   TEXT        CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-
-            PRIMARY KEY (id),
-
-            KEY reply_id     (reply_id),
-            KEY node_id      (node_id),
-            KEY author_id    (author_id),
-            KEY author_email (author_email)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;*/
-
-
-
-        /*DROP TABLE IF EXISTS {$prefix}downloads;
-        CREATE TABLE {$prefix}downloads (
-
-            id    BIGINT(20)  NOT NULL AUTO_INCREMENT,
-            name  CHAR(255)   CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            cnt   BIGINT(20)  NOT NULL,
-
-            PRIMARY KEY (id),
-            KEY name (name)
-
-        ) ENGINE = InnoDB  DEFAULT CHARSET = utf8;*/
-
-
-
-        /*DROP TABLE IF EXISTS {$prefix}online_guests;
-        CREATE TABLE {$prefix}online_guests (
-
-            session_id  CHAR(32)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            last_visit  DATETIME  NOT NULL,
-
-            UNIQUE KEY session_id (session_id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;*/
-
-
-
-        /*DROP TABLE IF EXISTS {$prefix}view_count;
-        CREATE TABLE {$prefix}view_count (
-
-            session_id  CHAR(32)    CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-            node_id     BIGINT(20)  NOT NULL,
-            CONSTRAINT  uc_nodesess UNIQUE (session_id, node_id)
-
-        ) ENGINE = InnoDB DEFAULT CHARSET = utf8;*/
-
-
-INSTALLATIONSTRING;
-
-}
-
-
-/**
- * get extended data installation query string
- */
-
-function getExtendedQueryString($prefix = '') {
-
-    return <<<EXTENDEDINSTALLATIONSTRING
-
-
-        INSERT INTO {$prefix}menu (id, mirror_id, parent_id, name) VALUES (1, 1, 0, 'Левое меню'), (2, 2, 0, 'Нижнее меню');
-        INSERT INTO {$prefix}menu_items (menu_id, node_id) VALUES (1, 1), (2, 1), (1, 2), (1, 5), (2, 5), (1, 9), (1, 10), (1, 11), (2, 11), (1, 12), (1, 13), (2, 13);
-
-        INSERT INTO {$prefix}tree (id, parent_id, lvl, lk, rk, prototype, children_prototype, author, modified_author, last_modified, creation_date, is_publish, node_name, in_sitemap, in_sitemap_xml, in_search, layout, page_alias, permanent_redirect, change_freq, searchers_priority, module_name, page_title, page_h1, meta_keywords, meta_description, page_announce, page_text) VALUES
-        (1, 0, 1, 1, 2, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:25:46', '2013-12-04 01:56:04', 1, 'Главная', 1, 1, 1, 'page-with-comments.html', '/', '', 'always', 1, NULL, 'Добро пожаловать на демонстрационный сайт Deep-CMS!', 'Добро пожаловать, друзья!', '', '', NULL, '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec dui in&nbsp;lorem fermentum varius sit amet ac&nbsp;quam. Fusce eu&nbsp;porta nibh. Phasellus elementum vehicula est eget sollicitudin. Integer eros arcu, lacinia non vulputate sed, bibendum et&nbsp;orci. Maecenas ante felis, feugiat vitae lacus ut, faucibus pretium nisl. Aliquam non cursus mauris. Class aptent taciti sociosqu ad&nbsp;litora torquent per conubia nostra, per inceptos himenaeos. Proin bibendum convallis nisi ut&nbsp;vestibulum. Quisque dignissim libero viverra metus auctor aliquam. Sed imperdiet justo ac&nbsp;sem dapibus tincidunt ut&nbsp;at&nbsp;ligula. Mauris sagittis nec nibh non tristique. Morbi ut&nbsp;leo mollis, cursus dolor eu, rutrum lorem. Etiam cursus pellentesque velit non ultricies.</p>\r\n\r\n<p>Integer porttitor vulputate mi, non euismod nunc posuere pretium. Duis congue id&nbsp;massa eget pellentesque. In&nbsp;in&nbsp;orci elit. Nulla a&nbsp;lacinia tortor. In&nbsp;vel mollis nunc, nec tempus enim. Morbi semper sem ac&nbsp;ligula laoreet, sit amet sodales nulla ullamcorper. Mauris et&nbsp;dolor et&nbsp;odio ullamcorper condimentum. Donec purus purus, vehicula id&nbsp;interdum ut, mollis sit amet augue. Nam ultrices lobortis dapibus. In&nbsp;risus diam, interdum id&nbsp;metus ut, sollicitudin lobortis ante.</p>'),
-        (2, 0, 1, 3, 8, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:26:00', '2013-12-04 01:57:10', 1, 'Новости', 1, 1, 1, 'children-list.html', '/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8', '', 'daily', 0.7, NULL, '', '', '', '', NULL, ''),
-        (3, 2, 2, 4, 5, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:23:59', '2013-12-04 02:00:48', 1, 'Владимир Путин ушел с поста президента', 1, 1, 1, 'page-with-comments.html', '/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80-%D0%9F%D1%83%D1%82%D0%B8%D0%BD-%D1%83%D1%88%D0%B5%D0%BB-%D1%81-%D0%BF%D0%BE%D1%81%D1%82%D0%B0-%D0%BF%D1%80%D0%B5%D0%B7%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B0', '', NULL, NULL, NULL, 'Сенсация! Владимир Путин ушел с поста президента!', 'Сенсация! Владимир Путин ушел с поста президента!', '', '', NULL, '<p>Integer ipsum elit, rutrum sed ullamcorper non, dapibus ut&nbsp;leo. Vestibulum in&nbsp;lorem fringilla, fermentum elit eu, vehicula mi. Ut&nbsp;lobortis tincidunt mattis. Nullam placerat magna vitae odio imperdiet, ac&nbsp;mattis elit tincidunt. Fusce porttitor non leo a&nbsp;aliquet. Sed vel quam ut&nbsp;mi&nbsp;mattis tincidunt. Maecenas vehicula nibh non elit condimentum, sed malesuada lectus dapibus. Suspendisse sed est eget massa auctor laoreet. Nulla eu&nbsp;eleifend velit. Integer eget magna enim. Class aptent taciti sociosqu ad&nbsp;litora torquent per conubia nostra, per inceptos himenaeos. Nunc vitae tortor at&nbsp;augue volutpat auctor et&nbsp;eget arcu. Ut&nbsp;rutrum orci ac&nbsp;est bibendum aliquam. Aliquam risus purus, rutrum at&nbsp;commodo in, posuere quis neque. Proin mattis libero id&nbsp;justo sodales fringilla. Nam elementum augue ut&nbsp;mauris feugiat, ut&nbsp;elementum augue mollis.</p>\r\n\r\n<p>Integer sollicitudin, tortor a&nbsp;posuere aliquet, dolor diam dignissim magna, ac&nbsp;molestie neque eros a&nbsp;eros. Curabitur pulvinar, leo non venenatis consequat, ipsum leo suscipit sem, ut&nbsp;posuere augue nunc sed lacus. Suspendisse dictum orci vel consectetur gravida. Nullam vitae sodales libero. Duis non mauris a&nbsp;leo rutrum sagittis. Donec purus orci, suscipit a&nbsp;ante in, bibendum dapibus diam. Nam dictum ipsum quis felis tempus, ut&nbsp;lacinia orci fringilla. Morbi eget ligula justo. Phasellus semper est est, vel semper justo semper ut. Nullam varius cursus velit ut&nbsp;egestas. Nunc leo nulla, vehicula at&nbsp;commodo at, molestie nec magna. Cras non aliquet velit, id&nbsp;vehicula diam.</p>'),
-        (4, 2, 2, 6, 7, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:24:22', '2013-12-04 02:02:36', 1, 'Российская сборная по футболу выиграла мировой чемпионат', 1, 1, 1, 'page-with-comments.html', '/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8/%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D0%B9%D1%81%D0%BA%D0%B0%D1%8F-%D1%81%D0%B1%D0%BE%D1%80%D0%BD%D0%B0%D1%8F-%D0%BF%D0%BE-%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D1%83-%D0%B2%D1%8B%D0%B8%D0%B3%D1%80%D0%B0%D0%BB%D0%B0-%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%BE%D0%B9-%D1%87%D0%B5%D0%BC%D0%BF%D0%B8%D0%BE%D0%BD%D0%B0%D1%82', '', NULL, NULL, NULL, '', '', '', '', NULL, '<p>Integer porttitor vulputate mi, non euismod nunc posuere pretium. Duis congue id&nbsp;massa eget pellentesque. In&nbsp;in&nbsp;orci elit. Nulla a&nbsp;lacinia tortor. In&nbsp;vel mollis nunc, nec tempus enim. Morbi semper sem ac&nbsp;ligula laoreet, sit amet sodales nulla ullamcorper. Mauris et&nbsp;dolor et&nbsp;odio ullamcorper condimentum. Donec purus purus, vehicula id&nbsp;interdum ut, mollis sit amet augue. Nam ultrices lobortis dapibus. In&nbsp;risus diam, interdum id&nbsp;metus ut, sollicitudin lobortis ante.</p>\r\n\r\n<p>Duis bibendum lectus a&nbsp;volutpat posuere. Praesent rhoncus ultrices nunc, ut&nbsp;bibendum odio aliquet interdum. Nulla condimentum augue eu&nbsp;convallis suscipit. Duis tincidunt nibh at&nbsp;eros dictum, eu&nbsp;volutpat urna pellentesque. Integer et&nbsp;quam a&nbsp;tortor mattis lobortis ut&nbsp;in&nbsp;tellus. Duis facilisis, velit vitae iaculis tempor, ligula est posuere odio, non tristique neque mi&nbsp;sed erat. Fusce in&nbsp;sodales turpis. Duis porttitor nulla vel facilisis egestas.</p>\r\n\r\n<p>Integer ipsum elit, rutrum sed ullamcorper non, dapibus ut&nbsp;leo. Vestibulum in&nbsp;lorem fringilla, fermentum elit eu, vehicula mi. Ut&nbsp;lobortis tincidunt mattis. Nullam placerat magna vitae odio imperdiet, ac&nbsp;mattis elit tincidunt. Fusce porttitor non leo a&nbsp;aliquet. Sed vel quam ut&nbsp;mi&nbsp;mattis tincidunt. Maecenas vehicula nibh non elit condimentum, sed malesuada lectus dapibus. Suspendisse sed est eget massa auctor laoreet. Nulla eu&nbsp;eleifend velit. Integer eget magna enim. Class aptent taciti sociosqu ad&nbsp;litora torquent per conubia nostra, per inceptos himenaeos. Nunc vitae tortor at&nbsp;augue volutpat auctor et&nbsp;eget arcu. Ut&nbsp;rutrum orci ac&nbsp;est bibendum aliquam. Aliquam risus purus, rutrum at&nbsp;commodo in, posuere quis neque. Proin mattis libero id&nbsp;justo sodales fringilla. Nam elementum augue ut&nbsp;mauris feugiat, ut&nbsp;elementum augue mollis.</p>'),
-        (5, 0, 1, 9, 16, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:26:12', '2013-12-04 02:03:52', 1, 'Статьи', 1, 1, 1, 'children-list.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8', '', NULL, NULL, NULL, '', '', '', '', NULL, ''),
-        (6, 5, 2, 10, 11, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:05:01', '2013-12-04 02:05:01', 1, 'Как трудно быть бурлаком', 1, 1, 1, 'page-with-comments.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8/%D0%9A%D0%B0%D0%BA-%D1%82%D1%80%D1%83%D0%B4%D0%BD%D0%BE-%D0%B1%D1%8B%D1%82%D1%8C-%D0%B1%D1%83%D1%80%D0%BB%D0%B0%D0%BA%D0%BE%D0%BC', '', NULL, NULL, NULL, '', '', '', '', NULL, '<p>Cum sociis natoque penatibus et&nbsp;magnis dis parturient montes, nascetur ridiculus mus. Aliquam nec tempor ipsum, ut&nbsp;posuere lectus. Aliquam pretium gravida dolor eu&nbsp;aliquet. Pellentesque nec justo nunc. Sed tempus metus quis dolor blandit, eget tempor nisl ultricies. Integer varius porta laoreet. Etiam a&nbsp;placerat eros. Pellentesque pharetra, sem placerat pharetra laoreet, odio nibh facilisis eros, ut&nbsp;venenatis mauris enim ut&nbsp;tortor. Proin dictum ipsum mi, a&nbsp;luctus justo hendrerit a.</p>\r\n\r\n<p>Donec lacinia, eros et&nbsp;auctor placerat, tortor velit mollis metus, eu&nbsp;suscipit nibh felis nec massa. Integer lorem diam, auctor sit amet lorem at, varius scelerisque lectus. Proin porta enim at&nbsp;sem vehicula dignissim. Aliquam lobortis tincidunt venenatis. Duis eu&nbsp;tortor ac&nbsp;est sodales laoreet. Suspendisse sodales nulla facilisis, volutpat sapien ut, dictum enim. Sed tincidunt suscipit libero nec ultrices. Phasellus aliquam, lorem in&nbsp;convallis scelerisque, quam ante consectetur magna, at&nbsp;cursus orci nunc ac&nbsp;est. Fusce euismod erat a&nbsp;imperdiet viverra. Fusce lacinia porttitor laoreet. Aliquam placerat, dui ut&nbsp;bibendum adipiscing, mi&nbsp;turpis aliquet lorem, in&nbsp;tincidunt tortor mi&nbsp;et&nbsp;lorem. Vivamus sed condimentum justo. Nullam consequat tortor vel est tincidunt tincidunt. Nulla facilisi. Mauris ac&nbsp;ornare magna, vel elementum mauris.</p>\r\n\r\n<p>Fusce at&nbsp;egestas felis. Duis a&nbsp;urna vehicula sem imperdiet pellentesque. Mauris nibh metus, dictum a&nbsp;tellus eu, pretium ornare est. Fusce a&nbsp;erat vitae dui ultrices elementum eget non mi. Quisque vitae nulla dignissim, lobortis purus at, fermentum turpis. Praesent eget erat at&nbsp;mauris pharetra sodales. Cras a&nbsp;orci elementum, blandit velit eu, aliquet tellus. Phasellus tincidunt id&nbsp;risus ut&nbsp;malesuada. Nulla eget placerat augue. Donec velit purus, porta ac&nbsp;nulla sed, blandit accumsan metus. Cras tincidunt sollicitudin consequat. Donec sagittis faucibus dui, ac&nbsp;mollis dolor malesuada id. Aliquam imperdiet tellus et&nbsp;dictum ullamcorper. Curabitur ac&nbsp;convallis mauris. Vivamus sit amet ante sit amet tellus auctor molestie sed id&nbsp;nisl.</p>'),
-        (7, 5, 2, 12, 13, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:06:05', '2013-12-04 02:06:05', 1, 'Методология раскрашивания листа бумаги', 1, 1, 1, 'page-with-comments.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D0%BA%D1%80%D0%B0%D1%88%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BB%D0%B8%D1%81%D1%82%D0%B0-%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B8', '', NULL, NULL, NULL, '', '', '', '', NULL, '<p>Fusce at&nbsp;egestas felis. Duis a&nbsp;urna vehicula sem imperdiet pellentesque. Mauris nibh metus, dictum a&nbsp;tellus eu, pretium ornare est. Fusce a&nbsp;erat vitae dui ultrices elementum eget non mi. Quisque vitae nulla dignissim, lobortis purus at, fermentum turpis. Praesent eget erat at&nbsp;mauris pharetra sodales. Cras a&nbsp;orci elementum, blandit velit eu, aliquet tellus. Phasellus tincidunt id&nbsp;risus ut&nbsp;malesuada. Nulla eget placerat augue. Donec velit purus, porta ac&nbsp;nulla sed, blandit accumsan metus. Cras tincidunt sollicitudin consequat. Donec sagittis faucibus dui, ac&nbsp;mollis dolor malesuada id. Aliquam imperdiet tellus et&nbsp;dictum ullamcorper. Curabitur ac&nbsp;convallis mauris. Vivamus sit amet ante sit amet tellus auctor molestie sed id&nbsp;nisl.</p>\r\n\r\n<p>Duis at&nbsp;dictum quam. Cras tempus tincidunt neque eget feugiat. Donec molestie tortor dui, ut&nbsp;porta orci rutrum a.&nbsp;Praesent convallis ante et&nbsp;magna molestie accumsan. Integer nec dui at&nbsp;mauris ultrices aliquet. Etiam rhoncus laoreet augue eu&nbsp;commodo. Aliquam id&nbsp;sodales mi, vitae cursus elit. Curabitur porttitor commodo semper. Duis porttitor venenatis libero, eu&nbsp;volutpat purus vulputate sed. Quisque ut&nbsp;neque purus. Quisque ut&nbsp;libero a&nbsp;leo egestas porttitor nec sed purus. Nulla ac&nbsp;ligula volutpat, imperdiet libero non, gravida libero.</p>'),
-        (8, 5, 2, 14, 15, 'simplePage', 'simplePage', 1, 1, '2013-12-04 02:06:54', '2013-12-04 02:06:54', 1, 'Куда катится мир?', 1, 1, 1, 'page-with-comments.html', '/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D0%B8/%D0%9A%D1%83%D0%B4%D0%B0-%D0%BA%D0%B0%D1%82%D0%B8%D1%82%D1%81%D1%8F-%D0%BC%D0%B8%D1%80', '', NULL, NULL, NULL, '', '', '', '', NULL, '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean adipiscing turpis ac&nbsp;eros dictum, sit amet mollis orci porttitor. Mauris a&nbsp;neque eget erat ultrices feugiat non sed ante. Nunc metus magna, luctus eget leo sed, sodales convallis dui. Etiam molestie, nisi in&nbsp;vulputate cursus, quam tellus tempus ipsum, ac&nbsp;elementum orci magna sit amet massa. Aenean a&nbsp;leo ligula. Integer augue sem, lacinia eget urna sed, fermentum condimentum turpis. Nunc ultricies, dolor quis pellentesque tempus, justo leo facilisis turpis, congue commodo erat velit vestibulum dui. Maecenas eleifend, nulla sed eleifend laoreet, tortor velit rhoncus velit, sit amet imperdiet elit orci non sem. Morbi non nisl neque. Phasellus a&nbsp;risus eu&nbsp;justo lacinia adipiscing. Phasellus nec scelerisque mauris, in&nbsp;tristique risus. Donec nec leo imperdiet, rhoncus mauris non, pellentesque velit. Phasellus auctor egestas mi&nbsp;a&nbsp;ullamcorper. Ut&nbsp;eleifend, nisl vitae ultrices congue, metus mi&nbsp;commodo libero, et&nbsp;lobortis libero enim a&nbsp;odio.</p>\r\n\r\n<p>Cum sociis natoque penatibus et&nbsp;magnis dis parturient montes, nascetur ridiculus mus. Aliquam nec tempor ipsum, ut&nbsp;posuere lectus. Aliquam pretium gravida dolor eu&nbsp;aliquet. Pellentesque nec justo nunc. Sed tempus metus quis dolor blandit, eget tempor nisl ultricies. Integer varius porta laoreet. Etiam a&nbsp;placerat eros. Pellentesque pharetra, sem placerat pharetra laoreet, odio nibh facilisis eros, ut&nbsp;venenatis mauris enim ut&nbsp;tortor. Proin dictum ipsum mi, a&nbsp;luctus justo hendrerit a.</p>'),
-        (9, 0, 1, 17, 18, 'mainModule', 'simplePage', 1, 1, '2013-12-04 02:26:23', '2013-12-04 02:08:46', 1, 'Обратная связь', 1, 1, 0, NULL, '/%D0%9E%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%B0%D1%8F-%D1%81%D0%B2%D1%8F%D0%B7%D1%8C', NULL, NULL, NULL, 'feedback', NULL, NULL, NULL, NULL, NULL, NULL),
-        (10, 0, 1, 19, 20, 'mainModule', 'simplePage', 1, 1, '2013-12-04 02:26:32', '2013-12-04 02:09:24', 1, 'Поиск по сайту', 0, 1, 0, NULL, '/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE-%D1%81%D0%B0%D0%B9%D1%82%D1%83', NULL, NULL, NULL, 'search', NULL, NULL, NULL, NULL, NULL, NULL),
-        (11, 0, 1, 21, 22, 'mainModule', 'simplePage', 1, 1, '2013-12-04 02:26:52', '2013-12-04 02:10:07', 1, 'Карта сайта', 0, 1, 0, NULL, '/%D0%9A%D0%B0%D1%80%D1%82%D0%B0-%D1%81%D0%B0%D0%B9%D1%82%D0%B0', NULL, NULL, NULL, 'sitemap', NULL, NULL, NULL, NULL, NULL, NULL),
-        (12, 0, 1, 23, 24, 'simpleLink', 'simplePage', 1, 1, '2013-12-04 02:27:04', '2013-12-04 02:11:02', 1, 'Карта сайта XML', 0, 1, 0, NULL, '/sitemap.xml', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-        (13, 0, 1, 25, 26, 'simpleLink', 'simplePage', 1, 1, '2013-12-04 02:27:14', '2013-12-04 02:14:59', 1, 'RSS', 1, 1, 1, NULL, '/rss.xml', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
-
-EXTENDEDINSTALLATIONSTRING;
-
-}
-
-
-/**
- * get localozation object
- */
-
-function getLanguage($name) {
-
-    $lf = APPLICATION . 'languages/' . $name . '/install.php';
-    if (!file_exists($lf)) {
-        throw new installException(
-            'Language error', 'Language file $lf is not exists'
-        );
-    }
-    return (object) require $lf;
-
-}
-
-
-/**
- * chech php version
- */
-
-function checkPhpVersion() {
-    return !((float) phpversion() < 5.2);
-}
-
-
-/**
- * check writable permission for target path
- */
-
-function checkPath($path, $isDir = true) {
-    return (($isDir ? is_dir($path) : file_exists($path)) and is_writable($path));
-}
-
-
-/**
- * installation exception object
- */
-
-class installException extends Exception {
-
-
-    private $report = array(
-        'title' => 'Untitled exception',
-        'message' => ''
-    );
-
-    public function __construct($title, $message) {
-        $this->report['title'] = $title;
-        $this->report['message'] = $message;
-    }
-
-    public function getReport() {
-        return $this->report;
-    }
-
-
-}
-
-
-/**
- * view and language imitation for controllers
- */
-
-class pseudoLanguage {
-
-    public function __get($key) {
-        return '';
-    }
-
-}
-
-abstract class view {
-    public static $language = null;
-    public static function init() {
-        self::$language = new pseudoLanguage();
-    }
-}
-
-view::init();
-
-
-/**
- * node class for controllers
- */
-
-abstract class node {
-
-
-    protected static $objects = array();
-
-    public static function load($class) {
-
-        if (!class_exists($class)) {
-            throw new installException(
-                'Node initialization class error',
-                'Class ' . $class . ' not found'
-            );
-        }
-
-        if (!isset(self::$objects[$class])) {
-            self::$objects[$class] = new $class;
-        }
-
-    }
-
-    public static function call($key) {
-
-        if (!isset(self::$objects[$key])) {
-            throw new installException(
-                'Node call to object error',
-                'Object ' . $key . ' not found inside'
-            );
-        }
-
-        return self::$objects[$key];
-
-    }
-
-    public static function loadClass($path, $className) {
-
-        if (isset(self::$objects[$className])) {
-            return;
-        }
-
-        if (!file_exists($path)) {
-            throw new installException(
-                'Node load file error', 'File ' . $path . ' not exists'
-            );
-        }
-
-        if (is_dir($path)) {
-            throw new installException(
-                'Node load file error', 'File ' . $path . ' is directory'
-            );
-        }
-
-        require_once $path;
-        self::load($className);
-
-    }
-
-    public static function loadController($path, $controllerName) {
-
-        self::loadClass($path, $controllerName);
-        if (!(self::call($controllerName) instanceof baseController)) {
-            throw new installException(
-                'Node load controller error',
-                'Class ' . $controllerName . ' not instance of baseController'
-            );
-        }
-
-        $controller = self::call($controllerName);
-        $controller->setPermissions();
-
-    }
-
-
-}
-
-
-/**
- * database wrapper
- */
-
-abstract class db {
-
-
-    private static $mysqli = null;
-
-    public static function connect($host, $user, $password, $name, $port) {
-
-        self::$mysqli = new mysqli(
-            $host, $user, $password, $name, (int) $port
-        );
-
-        if (self::$mysqli->connect_errno) {
-            $_SESSION['ins']['errors'] = true;
-            $_SESSION['ins']['report'][] = self::$mysqli->connect_errno
-                . ': ' . self::$mysqli->connect_error;
-        }
-
-    }
-
-
-    public static function setCharset($charset) {
-
-        if (self::$mysqli === null) {
-            return;
-        }
-
-        self::$mysqli->set_charset($charset);
-        if (self::$mysqli->errno) {
-            $_SESSION['ins']['errors'] = true;
-            $_SESSION['ins']['report'][] = self::$mysqli->errno
-                . ': ' . self::$mysqli->error;
-        }
-
-    }
-
-
-    public static function query($queryString) {
-
-        if (self::$mysqli === null) {
-            return;
-        }
-
-        self::$mysqli->multi_query($queryString);
-        if (self::$mysqli->errno) {
-
-            $_SESSION['ins']['errors'] = true;
-            $_SESSION['ins']['report'][] = self::$mysqli->errno
-                . ': ' . self::$mysqli->error;
-
-        } else {
-
-            do {
-                if ($res = self::$mysqli->store_result()) {
-                    while ($row = $res->fetch_assoc()) {
-                        unset($row);
-                    }
-                    $res->free();
-                }
-            } while (
-                self::$mysqli->more_results() && self::$mysqli->next_result()
-            );
-
-        }
-
-    }
-
-
-}
-
-
-/**
- * WARNING! origin PHP function glob() maybe returned FALSE value!
- * but i'm always expected array!
- */
-
-function mainGlob($pattern, $flags = 0) {
-
-    if (!$result = glob($pattern, $flags)) {
-        $result = array();
-    }
-    return $result;
-
-}
-
-
-/**
- * recursive find targets with pattern mask
- */
-
-function globRecursive($path, $mask = '*') {
-
-    $items = mainGlob($path . $mask);
-    $dirs  = mainGlob($path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
-    foreach ($dirs as $dir) {
-        $items = array_merge($items, globRecursive($dir . '/', $mask));
-    }
-    return $items;
-
-}
-
-
-/**
- * recursive find all controllers
- */
-
-function getAllControllers() {
-
-    $controllers = array();
-    $existsTargets = array();
-    $existsTargets = globRecursive(APPLICATION . 'modules/', '*.php');
-    $existsTargets = array_merge(
-        $existsTargets,
-        array(APPLICATION . 'admin/admin.php'),
-        glob(APPLICATION . 'admin/controllers/*.php')
-    );
-
-    require_once APPLICATION . 'core/baseController.php';
-    foreach ($existsTargets as $item) {
-        $name = basename($item, '.php');
-        node::loadController($item, $name);
-        array_push($controllers, node::call($name));
-    }
-
-    return $controllers;
-
-}
-
-
-/**
- * refresh reset redirection function
- */
-
-function refresh() {
-
-    header('HTTP/1.1 301 Moved Permanently');
-    header('Location: /');
-    exit();
-
-}
-
-
-/**
- * back pre routing
- */
-
-if (array_key_exists('errors', $_SESSION['ins'])
-        and isset($_POST['prev']) and $_SESSION['ins']['step'] > 1) {
-
-    $_SESSION['ins']['report'] = array();
-    $_SESSION['ins']['step'] -= 1;
-    refresh();
-
-}
-
-
-/**
- * installation process of Deep-CMS
+ * run installation process
  */
 
 try {
 
 
-    require_once APPLICATION . 'core/filter.php';
+    $filterClass = APPLICATION . 'core/filter.php';
+    if (!is_file($filterClass)) {
+        throw new installException(
+            'Installation error', 'Filter class is not exists'
+        );
+    }
+    require_once $filterClass;
 
-    $_config  = getConfig();
-    $language = getLanguage($_config->site->default_language);
-    $layout   = 'install.html';
 
-    switch ($_SESSION['ins']['step']) {
+    storage::init();
+    view::init();
+    reporter::init();
 
-        case 4:
+    $_config = getConfig();
+    $layout  = 'install.html';
 
+
+    // get language environment
+    $langFile = storage::read('langfile');
+    if (!$langFile) {
+        $clientLangs = getClientLanguages();
+        foreach ($clientLangs as $k => $v) {
+            $findedLang = APPLICATION . 'languages/' . $k . '/install.php';
+            if (is_file($findedLang)) {
+                $langFile = $findedLang;
+                break;
+            }
+        }
+    }
+    if (!$langFile) {
+        throw new installException(
+            'Language error', 'Language support is not exists'
+        );
+    }
+    $language = (object) (require $langFile);
+
+    // available language directories
+    $langsPath = APPLICATION . 'languages/';
+    $existsLangs = installGlob($langsPath . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+
+    // step by step
+    $step = storage::read('step');
+    $step = !$step ? 1 : $step;
+    if (request::isPost() and request::getPostParam('prev')) {
+        $step -= $step > 1 ? 1 : 0;
+        storage::write('step', $step);
+        request::refresh();
+    }
+
+    switch ($step) {
+
+
+        // step 7 final
+        case 7:
             saveConfigIntoFile($_config);
-            $_SESSION['ins']['report'] = array();
-            $_SESSION['ins']['step'] = 4;
-            $_SESSION['ins']['errors'] = false;
-
         break;
 
 
-        case 3:
+        // step 6 begin
+        case 6:
 
-            if (isset($_POST['next'])) {
+            if (!$settings = storage::read('settings')) {
 
-                $_SESSION['ins']['report'] = array();
+                $port = $_SERVER['SERVER_PORT'];
+                $port = ($port != 80 and $port != 443) ? ':' . $port : '';
+                $protocol = stristr($_SERVER['SERVER_PROTOCOL'], 'https') ? 'https' : 'http';
 
-                $_config->site->protocol = $_SESSION['ins']['settings']['protocol'];
-                $_config->site->domain   = $_SESSION['ins']['settings']['domain'];
+                $settings = array(
+                    'protocol'     => $protocol,
+                    'domain'       => $_SERVER['SERVER_NAME'] . $port,
+                    'rootlogin'    => 'root',
+                    'rootemail'    => '',
+                    'rootpassword' => '',
+                    'debugmode'    => true
+                );
 
-                $_SESSION['ins']['settings']['debugmode']
-                    = array_key_exists('debugmode', $_POST);
+                storage::write('settings', $settings);
 
-                $_config->system->debug_mode
-                    = $_SESSION['ins']['settings']['debugmode'];
+            }
 
-                setConfig($_config);
+            if (request::isPost() and request::getPostParam('next')) {
+
+                $settings['debugmode'] = !!request::getPostParam('debugmode');
+                $_config->system->debug_mode = $settings['debugmode'];
+                $_config->site->protocol = $settings['protocol'];
+                $_config->site->domain   = $settings['domain'];
+                storage::write('config', $_config);
 
                 $required = array('rootlogin', 'rootemail', 'rootpassword');
                 foreach ($required as $key) {
-                    if (!array_key_exists($key, $_POST)) {
+                    $item = request::getPostParam($key);
+                    if ($item === null) {
                         throw new installException(
-                            $language->error, $language->data_not_enough
+                            $language->install_error,
+                            $language->install_data_not_enough
                         );
                     }
+                    $settings[$key] = $item;
                 }
 
-                $rootlogin = filter::input($_POST['rootlogin'])
-                        ->htmlSpecialChars()->getData();
+                $settings['rootlogin'] = filter::input(
+                    $settings['rootlogin'])->htmlSpecialChars()->getData();
 
-                if (!$rootlogin) {
-                    $_SESSION['ins']['report'][] = $language->install_root_login_invalid;
-                    $_SESSION['ins']['errors'] = true;
-                } else {
-                    $_SESSION['ins']['settings']['rootlogin'] = $rootlogin;
+                if (!$settings['rootlogin']) {
+                    reporter::setErrorStatus();
+                    reporter::addReportMessage($language->install_root_login_invalid);
                 }
 
-                $rootemail = filter::input($_POST['rootemail'])->getData();
-                if (!filter_var($rootemail, FILTER_VALIDATE_EMAIL)) {
-                    $_SESSION['ins']['report'][] = $language->install_email_invalid;
-                    $_SESSION['ins']['errors'] = true;
-                } else {
-                    $_SESSION['ins']['settings']['rootemail'] = $rootemail;
+                $settings['rootemail'] = filter::input($settings['rootemail'])->getData();
+                if (!filter_var($settings['rootemail'], FILTER_VALIDATE_EMAIL)) {
+                    reporter::setErrorStatus();
+                    reporter::addReportMessage($language->install_email_invalid);
                 }
 
-                $rootpassword = trim((string) $_POST['rootpassword']);
-                if (!$rootpassword) {
-                    $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][]
-                        = $language->install_root_password_is_empty;
-                } else {
-                    $_SESSION['ins']['settings']['rootpassword'] = $rootpassword;
-                }
+                $settings['rootpassword'] = (string) $settings['rootpassword'];
+                storage::write('settings', $settings);
 
-                $rootpassword = md5(md5(md5($rootpassword)));
-                $roothash = md5(md5(md5(
-                    '1' . $rootlogin . $rootpassword . '10' . $rootemail
-                )));
-
-                if (!$_SESSION['ins']['errors']) {
+                // try connect to database
+                if (!reporter::isError()) {
                     db::connect(
                         $_config->db->host,
                         $_config->db->user,
@@ -1022,426 +943,435 @@ try {
                         $_config->db->port
                     );
                 }
-
-                if (!$_SESSION['ins']['errors']) {
+                if (!reporter::isError()) {
                     db::setCharset($_config->db->connection_charset);
                 }
+                if (!reporter::isError()) {
+                    db::query("SET time_zone = '{$_config->site->default_timezone}'");
+                }
 
-                if (!$_SESSION['ins']['errors']) {
+                // create root
+                if (!reporter::isError()) {
+
+                    $rootpassword = md5($settings['rootpassword']);
+                    $roothash = md5(
+                        '1'
+                        . $settings['rootlogin']
+                        . $rootpassword
+                        . '1'
+                        . '0'
+                        . $settings['rootemail']
+                    );
+
+                    $rootlogin = db::escapeString($settings['rootlogin']);
+                    $rootemail = db::escapeString($settings['rootemail']);
+
                     db::query(
                         "UPDATE {$_config->db->prefix}users SET
-                            login = '{$rootlogin}',
-                            email = '{$rootemail}',
-                            password = '{$rootpassword}',
-                            hash = '{$roothash}'
+                            login = '{$rootlogin}', email = '{$rootemail}',
+                            password = '{$rootpassword}', hash = '{$roothash}'
                         WHERE id = 1"
                     );
                 }
 
-                if (!$_SESSION['ins']['errors']) {
-
+                // find permission
+                if (!reporter::isError()) {
                     $controllersPermissions = array();
                     $controllers = getAllControllers();
-
                     foreach ($controllers as $controller) {
                         foreach ($controller->getPermissions() as $current) {
-
-                            $check = in_array(
-                                $current['permission'], $controllersPermissions
-                            );
-
+                            $current = db::escapeString($current['permission']);
+                            $check = in_array($current, $controllersPermissions);
                             if (!$check) {
-                                array_push(
-                                    $controllersPermissions, $current['permission']
-                                );
+                                $controllersPermissions[] = $current;
                             }
-
                         }
                     }
-
                 }
 
-                if (!$_SESSION['ins']['errors']) {
+                // clear all permissions
+                if (!reporter::isError()) {
+                    db::query("TRUNCATE TABLE {$_config->db->prefix}group_permissions");
+                }
+                if (!reporter::isError()) {
+                    db::query("TRUNCATE TABLE {$_config->db->prefix}permissions");
+                }
+
+                // insert new permissions
+                if (!reporter::isError()) {
+                    $permissionValues = "('" . join("'), ('", $controllersPermissions) . "')";
                     db::query(
-                        'TRUNCATE TABLE ' . $_config->db->prefix . 'group_permissions'
+                        "INSERT INTO {$_config->db->prefix}permissions (name)
+                            VALUES {$permissionValues}"
                     );
                 }
-
-                if (!$_SESSION['ins']['errors']) {
+                if (!reporter::isError()) {
                     db::query(
-                        'TRUNCATE TABLE ' . $_config->db->prefix . 'permissions'
-                    );
-                }
-
-                if (!$_SESSION['ins']['errors']) {
-
-                    $permissionValues = "('"
-                        . join("'), ('", $controllersPermissions) . "')";
-
-                    db::query(
-                        'INSERT INTO ' . $_config->db->prefix
-                            . 'permissions (name) VALUES ' . $permissionValues
-                    );
-
-                }
-
-                if (!$_SESSION['ins']['errors']) {
-                    db::query(
-                        'INSERT INTO ' . $_config->db->prefix . 'group_permissions
+                        "INSERT INTO {$_config->db->prefix}group_permissions
                             (group_id, permission_id)
                             SELECT (1) group_id, id
-                                FROM ' . $_config->db->prefix . 'permissions'
+                            FROM {$_config->db->prefix}permissions"
                     );
                 }
 
-                if (!$_SESSION['ins']['errors']) {
-                    $_SESSION['ins']['report'] = array();
-                    $_SESSION['ins']['step'] += 1;
+                if (!reporter::isError()) {
+                    storage::write('step', 7);
                 }
-
-                refresh();
-
-            }
-
-            $_SESSION['ins']['errors'] = false;
-            $_SESSION['ins']['step'] = 3;
-
-            if (!array_key_exists('settings', $_SESSION['ins'])) {
-
-                $port = $_SERVER['SERVER_PORT'];
-                $port = ($port != 80 and $port != 443) ? ':' . $port : '';
-
-                $_SESSION['ins']['settings'] = array(
-
-                    'protocol' => stristr(
-                        $_SERVER['SERVER_PROTOCOL'], 'https'
-                    ) ? 'https' : 'http',
-
-                    'domain'        => $_SERVER['SERVER_NAME'] . $port,
-                    'rootlogin'     => 'root',
-                    'rootemail'     => '',
-                    'rootpassword'  => '',
-                    'debugmode'     => false
-
-                );
+                request::refresh();
 
             }
 
+        // step 6 end
         break;
 
-        case 2:
 
-            if (isset($_POST['next'])) {
+        // step 5 begin
+        case 5:
 
-                $_SESSION['ins']['report'] = array();
+            if (!$db = storage::read('db')) {
+
+                $db = array(
+                    'host'        => 'localhost',
+                    'port'        => '3306',
+                    'prefix'      => '',
+                    'name'        => '',
+                    'user'        => '',
+                    'password'    => '',
+                    'addextended' => true
+                );
+                storage::write('db', $db);
+
+            }
+
+            if (request::isPost() and request::getPostParam('next')) {
+
                 $required = array(
-                    'host', 'port', /*'prefix',*/ 'name', 'user', 'password'
+                    'host', 
+                    'port',
+                 // 'prefix',
+                    'name',
+                    'user',
+                    'password'
                 );
 
+                $db = array();
                 foreach ($required as $key) {
-                    if (!array_key_exists($key, $_POST)) {
+                    $item = request::getPostParam($key);
+                    if ($item === null) {
                         throw new installException(
-                            $language->error, $language->data_not_enough
+                            $language->install_error,
+                            $language->install_data_not_enough
                         );
+                    }
+                    if ($key == 'password') {
+                        $db[$key] = trim((string) $item);
+                    } else {
+                        $db[$key] = trim(strip_tags((string) $item));
                     }
                 }
 
-                $host   = trim(strip_tags((string) $_POST['host']));
-                $port   = trim(strip_tags((string) $_POST['port']));
-                $prefix = ''; //preg_replace('/[^_0-9a-z]+/i', '', (string) $_POST['prefix']);
-                $name   = trim(strip_tags((string) $_POST['name']));
-                $user   = trim(strip_tags((string) $_POST['user']));
-                $pass   = (string) $_POST['password'];
+                $db['prefix'] = '';
+                $db['addextended'] = !!request::getPostParam('addextended');
+                storage::write('db', $db);
 
-                $_SESSION['ins']['db']['host'] = $host;
-                if (!$host) {
-                    $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][] = $language->install_db_host_is_empty;
+                // check form data
+                if (!$db['host']) {
+                    reporter::setErrorStatus();
+                    reporter::addReportMessage($language->install_db_host_is_empty);
+                }
+                if (!$db['port'] or !preg_match('/^[0-9]+$/', $db['port']) or $db['port'] > 65535) {
+                    reporter::setErrorStatus();
+                    reporter::addReportMessage($language->install_db_port_is_broken);
+                }
+                if (!$db['name']) {
+                    reporter::setErrorStatus();
+                    reporter::addReportMessage($language->install_db_name_is_empty);
+                }
+                if (!$db['user']) {
+                    reporter::setErrorStatus();
+                    reporter::addReportMessage($language->install_db_user_is_empty);
                 }
 
-                $_SESSION['ins']['db']['port'] = $port;
-                if (!$port or !preg_match('/^[0-9]+$/', $port)
-                        or $port > 65535) {
-
-                    $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][] = $language->install_db_port_is_broken;
-
+                // try connect to database
+                if (!reporter::isError()) {
+                    db::connect(
+                        $db['host'],
+                        $db['user'],
+                        $db['password'],
+                        $db['name'],
+                        $db['port']
+                    );
                 }
-
-                $_SESSION['ins']['db']['name'] = $name;
-                if (!$name) {
-                    $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][] = $language->install_db_name_is_empty;
-                }
-
-                $_SESSION['ins']['db']['user'] = $user;
-                if (!$user) {
-                    $_SESSION['ins']['errors'] = true;
-                    $_SESSION['ins']['report'][] = $language->install_db_user_is_empty;
-                }
-
-                $_SESSION['ins']['db']['password'] = $pass;
-                $_SESSION['ins']['db']['prefix'] = $prefix;
-                $_SESSION['ins']['db']['addextended']
-                    = array_key_exists("addextended", $_POST);
-
-                if (!$_SESSION['ins']['errors']) {
-                    db::connect($host, $user, $pass, $name, $port);
-                }
-
-                if (!$_SESSION['ins']['errors']) {
+                if (!reporter::isError()) {
                     db::setCharset($_config->db->connection_charset);
                 }
-
-                if (!$_SESSION['ins']['errors']) {
-                    db::query(getInstallationQueryString($prefix));
+                if (!reporter::isError()) {
+                    db::query("SET time_zone = '{$_config->site->default_timezone}'");
                 }
 
-                if (!$_SESSION['ins']['errors'] and $_SESSION['ins']['db']['addextended']) {
-                    db::query(getExtendedQueryString($prefix));
+                // create main tables
+                if (!reporter::isError()) {
+                    db::query(getInstallationQueryString($db['prefix']));
                 }
 
-                $_config->db->host     = $_SESSION['ins']['db']['host'];
-                $_config->db->port     = $_SESSION['ins']['db']['port'];
-                $_config->db->name     = $_SESSION['ins']['db']['name'];
-                $_config->db->user     = $_SESSION['ins']['db']['user'];
-                $_config->db->password = $_SESSION['ins']['db']['password'];
-                $_config->db->prefix   = $_SESSION['ins']['db']['prefix'];
-
-                setConfig($_config);
-
-                if (!$_SESSION['ins']['errors']) {
-                    $_SESSION['ins']['report'] = array();
-                    $_SESSION['ins']['step'] += 1;
+                if (!reporter::isError() and $db['addextended']) {
+                    db::query(getExtendedQueryString($db['prefix']));
                 }
 
-                refresh();
+                if (!reporter::isError()) {
+
+                    $_config->db->host     = $db['host'];
+                    $_config->db->port     = $db['port'];
+                    $_config->db->name     = $db['name'];
+                    $_config->db->user     = $db['user'];
+                    $_config->db->password = $db['password'];
+                    $_config->db->prefix   = $db['prefix'];
+
+                    storage::write('config', $_config);
+                    storage::write('step', 6);
+
+                }
+
+                request::refresh();
 
             }
 
-            $_SESSION['ins']['errors'] = false;
-            $_SESSION['ins']['step'] = 2;
-
-            if (!array_key_exists('db', $_SESSION['ins'])) {
-
-                $_SESSION['ins']['db'] = array(
-                    'host' => 'localhost',
-                    'port' => '3306',
-                    'prefix' => '',
-                    'name' => '',
-                    'user' => '',
-                    'password' => '',
-                    'addextended' => true
-                );
-
-            }
-
+        // step 5 end
         break;
 
-        default:
 
-            if (isset($_POST['next'])) {
+        // step 4 begin
+        case 4:
 
-                if (!$_SESSION['ins']['errors']) {
-                    $_SESSION['ins']['report'] = array();
-                    $_SESSION['ins']['step'] += 1;
-                }
-
-                refresh();
-
+            // writable permissions for directories
+            $adminControllersDir = APPLICATION . 'admin/controllers';
+            if (!$checkAdminControllersDir = checkPath($adminControllersDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
-            $_SESSION['ins']['errors'] = false;
-            $_SESSION['ins']['step'] = 1;
-
-            $currentPhpVersion = round((float) phpversion(), 2);
-            if (!$checkPhpVersion = checkPhpVersion()) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            $myValue  = 8388608; // 8M
-            $phpValue = ini_get('memory_limit');
-            $currentMemoryLimit = $phpValue;
-            $measures = substr($phpValue, 0 -1);
-            switch ($measures) {
-                case 'G':
-                    $up = pow(1024, 3);
-                break;
-                case 'M':
-                    $up = pow(1024, 2);
-                break;
-                case 'K':
-                    $up = 1024;
-                break;
-                default:
-                    $up = 0;
-                break;
-            }
-
-            if ($phpValue > 0) {
-
-                if ($up > 0) {
-                    $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
-                }
-                if (!$checkMemoryLimit = $myValue <= ($phpValue * $up)) {
-                    $_SESSION['ins']['errors'] = true;
-                }
-
-            } else {
-                $checkMemoryLimit   = true;
-                $currentMemoryLimit = 'unlimited';
-            }
-
-            if (!$fileUploads = !!ini_get('file_uploads')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            $myValue  = 8388608; // 8M
-            $phpValue = ini_get('upload_max_filesize');
-            $currentUploadMaxFileSize = $phpValue;
-            $measures = substr($phpValue, 0 -1);
-            switch ($measures) {
-                case 'G':
-                    $up = pow(1024, 3);
-                break;
-                case 'M':
-                    $up = pow(1024, 2);
-                break;
-                case 'K':
-                    $up = 1024;
-                break;
-                default:
-                    $up = 0;
-                break;
-            }
-
-            if ($phpValue > 0) {
-
-                if ($up > 0) {
-                    $phpValue = substr($phpValue, 0, strlen($phpValue) - 1);
-                }
-                if (!$uploadMaxFileSize = $myValue <= ($phpValue * $up)) {
-                    $_SESSION['ins']['errors'] = true;
-                }
-
-            } else {
-                $uploadMaxFileSize        = true;
-                $currentUploadMaxFileSize = 'unlimited';
-            }
-
-            $mqgpc = ini_get('magic_quotes_gpc');
-            $checkMQGPCEnabled = (stristr($mqgpc, 'On')
-                or $mqgpc == 1 or $mqgpc === true);
-
-            if ($checkMQGPCEnabled) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-
-            /**
-             * check php extensions and available classes
-             */
-
-            if (!$checkMysqli = class_exists('mysqli')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            if (!$checkDOMImpl = class_exists('DOMImplementation')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            if (!$checkDOMDoc = class_exists('DOMDocument')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            if (!$checkGD = function_exists('imagecreatefromjpeg')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            if (!$checkFilterVar = function_exists('filter_var')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-            if (!$checkLibCurl = extension_loaded('curl')) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
-
-            /**
-             * check writable permissions
-             */
-
             $adminInMenuDir = APPLICATION . 'admin/in-menu';
-            if (!$checkAdminInMenuDir = checkPath($adminInMenuDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkAdminInMenuDir = checkPath($adminInMenuDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $autorunAfterDir = APPLICATION . 'autorun/after';
-            if (!$checkAutorunAfterDir = checkPath($autorunAfterDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkAutorunAfterDir = checkPath($autorunAfterDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $autorunBeforeDir = APPLICATION . 'autorun/before';
-            if (!$checkAutorunBeforeDir = checkPath($autorunBeforeDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkAutorunBeforeDir = checkPath($autorunBeforeDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $cacheDir = APPLICATION . 'cache';
-            if (!$checkCacheDir = checkPath($cacheDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkCacheDir = checkPath($cacheDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $configDir = APPLICATION . 'config';
-            if (!$checkConfigDir = checkPath($configDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkConfigDir = checkPath($configDir, true, true)) {
+                reporter::setErrorStatus();
             }
 
             $languagesDir = APPLICATION . 'languages';
-            if (!$checkLanguagesDir = checkPath($languagesDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkLanguagesDir = checkPath($languagesDir, true, true)) {
+                reporter::setErrorStatus();
+            }
+            foreach ($existsLangs as $item) {
+                if (!checkPath($item, true, true)) {
+                    reporter::setErrorStatus();
+                    break;
+                }
+            }
+
+            $layoutsAdminPartsDir = APPLICATION . 'layouts/admin/parts';
+            if (!$checkLayoutsAdminPartsDir = checkPath($layoutsAdminPartsDir, true, true)) {
+                reporter::setErrorStatus();
+            }
+            $layoutsAdminProtectedDir = APPLICATION . 'layouts/admin/protected';
+            if (!$checkLayoutsAdminProtectedDir = checkPath($layoutsAdminProtectedDir, true, true)) {
+                reporter::setErrorStatus();
+            }
+
+            $themesPath = APPLICATION . 'layouts/themes/*';
+            $themeDirs = array('parts', 'protected', 'public');
+            $existsThemes = installGlob($themesPath, GLOB_ONLYDIR | GLOB_NOSORT);
+            foreach ($existsThemes as $item) {
+                foreach ($themeDirs as $dir) {
+                    if (!checkPath($item . '/' . $dir, true, true)) {
+                        reporter::setErrorStatus();
+                        break;
+                    }
+                }
             }
 
             $libraryDir = APPLICATION . 'library';
-            if (!$checkLibraryDir = checkPath($libraryDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkLibraryDir = checkPath($libraryDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $logsDir = APPLICATION . 'logs';
-            if (!$checkLogsDir = checkPath($logsDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkLogsDir = checkPath($logsDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $metadataDir = APPLICATION . 'metadata';
-            if (!$checkMetadataDir = checkPath($metadataDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkMetadataDir = checkPath($metadataDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $modulesDir = APPLICATION . 'modules';
-            if (!$checkModulesDir = checkPath($modulesDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkModulesDir = checkPath($modulesDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $prototypesDir = APPLICATION . 'prototypes';
-            if (!$checkPrototypesDir = checkPath($prototypesDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkPrototypesDir = checkPath($prototypesDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
             $resourcesDir = APPLICATION . 'resources';
-            if (!$checkResourcesDir = checkPath($resourcesDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkResourcesDir = checkPath($resourcesDir, true, true)) {
+                reporter::setErrorStatus();
             }
-
-            $tmpDir = APPLICATION . 'tmp';
-            if (!$checkTmpDir = checkPath($tmpDir)) {
-                $_SESSION['ins']['errors'] = true;
-            }
-
             $uploadDir = PUBLIC_HTML . 'upload';
-            if (!$checkUploadDir = checkPath($uploadDir)) {
-                $_SESSION['ins']['errors'] = true;
+            if (!$checkUploadDir = checkPath($uploadDir, true, true)) {
+                reporter::setErrorStatus();
             }
 
+            if (request::isPost() and request::getPostParam('next')) {
+                if (!reporter::isError()) {
+                    storage::write('step', 5);
+                }
+                request::refresh();
+            }
+
+        // step 4 end
         break;
+
+
+        // step 3 begin
+        case 3:
+
+            // check php extensions and available classes
+            if (!$checkMysqli = class_exists('mysqli')) {
+                reporter::setErrorStatus();
+            }
+            if (!$checkDOMImpl = class_exists('DOMImplementation')) {
+                reporter::setErrorStatus();
+            }
+            if (!$checkDOMDoc = class_exists('DOMDocument')) {
+                reporter::setErrorStatus();
+            }
+            if (!$checkGD = function_exists('imagecreatefromjpeg')) {
+                reporter::setErrorStatus();
+            }
+            if (!$checkFilterVar = function_exists('filter_var')) {
+                reporter::setErrorStatus();
+            }
+            if (!$checkLibCurl = extension_loaded('curl')) {
+                reporter::setErrorStatus();
+            }
+
+            if (request::isPost() and request::getPostParam('next')) {
+                if (!reporter::isError()) {
+                    storage::write('step', 4);
+                }
+                request::refresh();
+            }
+
+        // step 3 end
+        break;
+
+
+        // step 2 begin
+        case 2:
+
+            // check php version
+            $currentPhpVersion = round((float) phpversion(), 2);
+            if (!$checkPhpVersion = ($currentPhpVersion > 5.2)) {
+                reporter::setErrorStatus();
+            }
+
+            // memory limit
+            $myMemoryLimit = '8M';
+            $currentMemoryLimit = ini_get('memory_limit');
+            $normalizeValue = normalizeIniValue($currentMemoryLimit);
+            $checkMemoryLimit = (
+                $normalizeValue == 'unlimited' or
+                $normalizeValue >= normalizeIniValue($myMemoryLimit)
+            );
+            if (!$checkMemoryLimit) {
+                reporter::setErrorStatus();
+            }
+
+            // file uploads enabled
+            if (!$fileUploads = !!ini_get('file_uploads')) {
+                reporter::setErrorStatus();
+            }
+
+            // upload max filesize
+            $myUploadMaxFileSize = '4M';
+            $currentUploadMaxFileSize = ini_get('memory_limit');
+            $normalizeValue = normalizeIniValue($currentUploadMaxFileSize);
+            $checkUploadMaxFileSize = (
+                $normalizeValue == 'unlimited' or
+                $normalizeValue >= normalizeIniValue($myUploadMaxFileSize)
+            );
+            if (!$checkUploadMaxFileSize) {
+                reporter::setErrorStatus();
+            }
+
+            // magic qoutes
+            $mqgpc = ini_get('magic_quotes_gpc');
+            $checkMQGPCEnabled = (stristr($mqgpc, 'On') or $mqgpc);
+            if ($checkMQGPCEnabled) {
+                reporter::setErrorStatus();
+            }
+
+            if (request::isPost() and request::getPostParam('next')) {
+                if (!reporter::isError()) {
+                    storage::write('step', 3);
+                }
+                request::refresh();
+            }
+
+        // step 2 end
+        break;
+
+
+        // step 1 begin
+        default:
+
+            $avLangs = array();
+            foreach ($existsLangs as $item) {
+                $avLangs[] = basename($item);
+            }
+
+            if (request::isPost()) {
+
+                $choosedLang = (string) request::getPostParam('language');
+                if (!in_array($choosedLang, $avLangs)) {
+                    reporter::setErrorStatus();
+                }
+
+                $timezone = (string) request::getPostParam('timezone');
+                if (!preg_match('/^(\+|-)[0-1][0-9]:[0-5][0-9]$/', $timezone)) {
+                    reporter::setErrorStatus();
+                }
+
+                if (!reporter::isError()) {
+
+                    $langFile = $langsPath . $choosedLang . '/install.php';
+                    storage::write('langfile', $langFile);
+
+                    $_config->site->default_language = $choosedLang;
+                    $_config->site->default_timezone = $timezone;
+                    storage::write('config', $_config);
+                    storage::write('step', 2);
+
+                }
+
+                request::refresh();
+
+            }
+
+            storage::write('step', 1);
+
+        // step 1 end
+        break;
+
 
     }
 
@@ -1459,10 +1389,10 @@ try {
  */
 
 header('Content-Type: text/html; charset=utf-8');
-require $layout;
+require APPLICATION . 'layouts/admin/protected/' . $layout;
 
-if ($_SESSION['ins']['step'] == 4) {
-    $_SESSION = array();
+if ($step == 7) {
+    storage::clear();
 }
 
 
