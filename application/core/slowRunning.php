@@ -124,6 +124,7 @@ $requiredFiles = array(
     'core/paginator.php',
     'core/permissionUtils.php',
     'core/protoUtils.php',
+    'core/recalculatePermissions.php',
     'core/request.php',
     'core/simpleImage.php',
     //'core/slowRunning.php', - It's me, where is magic?

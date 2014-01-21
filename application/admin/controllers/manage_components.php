@@ -296,6 +296,7 @@ class manage_components extends baseController {
             db::silentSet($sql);
         }
 
+        recalculatePermissions::run();
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
             view::$language->manage_components_success,
@@ -348,6 +349,7 @@ class manage_components extends baseController {
             db::silentSet($sql);
         }
 
+        recalculatePermissions::run();
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
             view::$language->manage_components_success,
@@ -642,6 +644,8 @@ class manage_components extends baseController {
         foreach (array_reverse($this->dcmDirectories) as $directory) {
             @ rmdir(APPLICATION . $directory);
         }
+        // refresh permissins
+        recalculatePermissions::run();
 
     }
 
