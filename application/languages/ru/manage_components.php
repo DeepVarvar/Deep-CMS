@@ -13,7 +13,7 @@ return array(
     'manage_components_av_new_version'      => 'Доступна новая версия',
     'manage_components_curl_not_av'         => 'Библиотека libcurl не доступна',
     'manage_components_delete'              => 'Удалить',
-    'manage_components_dependency_exists'   => 'Невозможно установить компонент, требуется установить зависимости',
+    'manage_components_dependency_exists'   => 'Невозможно установить компонент, требуются зависимости',
     'manage_components_component_not_found' => 'Компонент не найден',
     'manage_components_curl_error'          => 'Ошибка запроса удаленного сервера, повторите попытку',
     'manage_components_data_not_enough'     => 'Не достаточно данных',

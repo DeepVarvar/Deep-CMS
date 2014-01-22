@@ -95,7 +95,7 @@ $requiredFiles = array(
     'admin/in-menu/modules.php',
     'admin/in-menu/tree.php',
     'admin/in-menu/users.php',
-    'autorun/before/Aaa_globalMemberLoginAttempt.php',
+    'autorun/before/queue100_globalMemberLoginAttempt.php',
     'core/adminHelper.php',
     'core/app.php',
     'core/arrayUtils.php',
@@ -285,6 +285,7 @@ $expectedKeys = array(
     'main_directories'      => true,
     'main_files'            => true,
     'language_files'        => true,
+    'template_files'        => true,
     'create_db_tables'      => true,
     'drop_db_tables'        => true,
     'alter_db_tables'       => true,
@@ -348,6 +349,17 @@ foreach ($dcmFiles as $dcmFile) {
             foreach ($languageDirectories as $lang) {
                 foreach ($dcmData[$key] as $file) {
                     checkPath($lang . '/' . $file, IS_FILE, IS_WRITABLE);
+                }
+            }
+        }
+
+        // check template files
+        if ($key == 'template_files') {
+            foreach ($existsThemes as $theme) {
+                if (is_dir($theme)) {
+                    foreach ($dcmData[$key] as $file) {
+                        checkPath($theme . '/' . $file, IS_FILE, IS_WRITABLE);
+                    }
                 }
             }
         }

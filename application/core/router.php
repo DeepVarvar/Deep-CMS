@@ -212,7 +212,15 @@ abstract class router {
             );
         }
 
-        node::loadController($path . $module . '.php', $module);
+        $modulePath = $path . $module . '.php';
+        if (!is_file($modulePath)) {
+            throw new systemErrorException(
+                view::$language->app_error,
+                view::$language->app_module_not_found
+            );
+        }
+
+        node::loadController($modulePath, $module);
         permissionUtils::checkPermissionAccess($module, null);
 
         if (self::getParamsCount() > 0) {

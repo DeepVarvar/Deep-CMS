@@ -1,0 +1,99 @@
+
+
+{
+
+
+    /**
+     * general information, type and system name
+     */
+
+    "type"        : "helper",
+    "system_name" : "viewCounter",
+
+
+    /**
+     * version, author, email, url and support information
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
+
+
+    /**
+     * dependency of component
+     */
+
+    "dependency_components": [],
+
+
+    /**
+     * main directories
+     */
+
+    "main_directories": [],
+
+
+    /**
+     * main files
+     */
+
+    "main_files" : [
+        "autorun/after/queue200_viewCounter.php",
+        "library/viewCounter.php"
+    ],
+
+
+    /**
+     * main language files
+     */
+
+    "language_files" : [
+        "viewCounter.php"
+    ],
+
+
+    /**
+     * main template files
+     */
+
+    "template_files" : [],
+
+
+    /**
+     * create tables installation queries
+     */
+
+    "create_db_tables" : [
+        "CREATE TABLE IF NOT EXISTS view_count (session_id CHAR(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, node_id BIGINT(20) NOT NULL, CONSTRAINT uc_nodesess UNIQUE (session_id, node_id)) ENGINE = InnoDB DEFAULT CHARSET = utf8"
+    ],
+
+
+    /**
+     * drop tables deinstallation queries
+     */
+
+    "drop_db_tables" : [
+        "DROP TABLE IF EXISTS view_count"
+    ],
+
+
+    /**
+     * alter tables installation queries
+     */
+
+    "alter_db_tables" : [],
+
+
+    /**
+     * dealter tables installation queries
+     */
+
+    "dealter_db_tables" : []
+
+
+}
+
+

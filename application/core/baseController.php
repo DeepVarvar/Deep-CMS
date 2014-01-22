@@ -115,8 +115,7 @@ class baseController {
      * store member before redirection data
      */
 
-    protected function redirectMessage(
-                $type, $title, $message, $refresh_location = null) {
+    protected function redirectMessage($type, $title, $message, $refresh_location = null) {
 
         member::storeData();
         if (view::getOutputContext() == 'html') {

@@ -42,6 +42,7 @@ class manage_components extends baseController {
      * dcm data of current component,
      * dcm files map,
      * dcm language files map,
+     * dcm template files map,
      * dcm directories map,
      * dcm create tables map,
      * dcm drop tables map,
@@ -53,6 +54,7 @@ class manage_components extends baseController {
     private $dcmData          = array();
     private $dcmFiles         = array();
     private $dcmLanguages     = array();
+    private $dcmTemplates     = array();
     private $dcmDirectories   = array();
     private $dcmCreateTables  = array();
     private $dcmDropTables    = array();
@@ -81,11 +83,13 @@ class manage_components extends baseController {
 
 
     /**
+     * installed components,
      * available languages and themes
      */
 
-    private $availableLanguages = array();
-    private $availableThemes    = array();
+    private $installedComponents = array();
+    private $availableLanguages  = array();
+    private $availableThemes     = array();
 
 
     /**
@@ -215,11 +219,23 @@ class manage_components extends baseController {
          */
 
         if ($this->dcmData['dependency_components']) {
-            $depends = join(', ', $this->dcmData['dependency_components']);
-            $this->componentErrorException(
-                view::$language->manage_components_error,
-                view::$language->manage_components_dependency_exists . ': ' . $depends
-            );
+
+            $installed = $this->getInstalledComponents();
+            $notInstalled = array();
+            foreach ($this->dcmData['dependency_components'] as $depend) {
+                if (!in_array($depend, $installed)) {
+                    $notInstalled[] = $depend;
+                }
+            }
+
+            if ($notInstalled) {
+                $list = join(', ', $notInstalled);
+                $this->componentErrorException(
+                    view::$language->manage_components_error,
+                    view::$language->manage_components_dependency_exists . ': ' . $list
+                );
+            }
+
         }
 
 
@@ -231,12 +247,10 @@ class manage_components extends baseController {
 
             $directory = APPLICATION . $directory;
             if (is_file($directory)) {
-
                 $this->componentErrorException(
                     view::$language->manage_components_error,
                     view::$language->manage_components_undefined_type
                 );
-
             } else if (!is_dir($directory)) {
                 mkdir($directory);
             }
@@ -249,23 +263,9 @@ class manage_components extends baseController {
          */
 
         foreach ($this->dcmData['main_files'] as $file) {
-
             $this->remoteAction = 'download';
             $this->remoteTarget = $file;
             $this->saveRemoteFile();
-
-            if (preg_match('/^layouts\/themes\/default\//', $file)) {
-
-                foreach ($this->getAvailableThemes() as $theme) {
-                    $themeFile = preg_replace(
-                        '/^(layouts\/themes\/)default(\/.+)/',
-                            '$1' . $theme . '$2', $file
-                    );
-                    copy(APPLICATION . $file, APPLICATION . $themeFile);
-                }
-
-            }
-
         }
 
 
@@ -273,12 +273,31 @@ class manage_components extends baseController {
          * create/rewrite component language files
          */
 
-        foreach ($this->getAvailableLanguages() as $language) {
+        foreach ($this->getAvailableLanguages() as $lang) {
             foreach ($this->dcmData['language_files'] as $file) {
                 $this->remoteAction = 'download';
-                $this->remoteTarget = $language . '/' . $file;
+                $this->remoteTarget = $lang . '/' . $file;
                 $this->saveRemoteFile();
             }
+        }
+
+
+        /**
+         * create/rewrite component template files
+         */
+
+        foreach ($this->dcmData['template_files'] as $file) {
+
+            $this->remoteAction = 'download';
+            $this->remoteTarget = 'layouts/themes/default/' . $file;
+            $this->saveRemoteFile();
+
+            foreach ($this->getAvailableThemes() as $theme) {
+                if (basename($theme) != 'default') {
+                    copy($this->uploadedFilePath, $theme . '/' . $file);
+                }
+            }
+
         }
 
 
@@ -291,7 +310,6 @@ class manage_components extends baseController {
         foreach ($this->dcmCreateTables as $sql) {
             db::silentSet($sql);
         }
-
         foreach ($this->dcmAlterTables as $sql) {
             db::silentSet($sql);
         }
@@ -340,16 +358,14 @@ class manage_components extends baseController {
             );
         }
 
-        $this->deleteAllDcmItems();
         foreach ($this->dcmDealterTables as $sql) {
             db::silentSet($sql);
         }
-
         foreach ($this->dcmDropTables as $sql) {
             db::silentSet($sql);
         }
 
-        recalculatePermissions::run();
+        $this->deleteAllDcmItems();
         $this->redirectMessage(
             SUCCESS_EXCEPTION,
             view::$language->manage_components_success,
@@ -401,6 +417,7 @@ class manage_components extends baseController {
             'main_directories'      => true,
             'main_files'            => true,
             'language_files'        => true,
+            'template_files'        => true,
             'create_db_tables'      => true,
             'drop_db_tables'        => true,
             'alter_db_tables'       => true,
@@ -447,6 +464,13 @@ class manage_components extends baseController {
             if ($key == 'language_files') {
                 foreach ($this->dcmData[$key] as $file) {
                     $this->dcmLanguages[] = $file;
+                }
+            }
+
+            // template files mapping
+            if ($key == 'template_files') {
+                foreach ($this->dcmData[$key] as $file) {
+                    $this->dcmTemplates[] = $file;
                 }
             }
 
@@ -580,44 +604,53 @@ class manage_components extends baseController {
 
 
     /**
-     * get path's of all available writabled directories of themes
+     * get path's of all available language directories
+     */
+
+    private function getAvailableLanguages() {
+
+        if (!$this->availableLanguages) {
+            $path = APPLICATION . 'languages/*';
+            $dirs = fsUtils::glob($path, GLOB_ONLYDIR | GLOB_NOSORT);
+            foreach ($dirs as $lang) {
+                $this->availableLanguages[] = 'languages/' . basename($lang);
+            }
+        }
+        return $this->availableLanguages;
+
+    }
+
+
+    /**
+     * get path's of all available themes directories
      */
 
     private function getAvailableThemes() {
 
         if (!$this->availableThemes) {
-            $themesPath = APPLICATION . 'layouts/themes/*';
-            $themesDirs = fsUtils::glob($themesPath, GLOB_ONLYDIR | GLOB_NOSORT);
-            foreach ($themesDirs as $theme) {
-                $themeName = basename($theme);
-                if (is_writable($theme) and $themeName != 'default') {
-                    $this->availableThemes[] = $themeName;
-                }
-            }
+            $this->availableThemes = fsUtils::glob(
+                APPLICATION . 'layouts/themes/*', GLOB_ONLYDIR | GLOB_NOSORT
+            );
         }
-
         return $this->availableThemes;
 
     }
 
 
     /**
-     * get path's of all available writabled language directories
+     * get list of installed components
      */
 
-    private function getAvailableLanguages() {
+    private function getInstalledComponents() {
 
-        if (!$this->availableLanguages) {
-            $langPath = APPLICATION . 'languages/*';
-            $langDirs = fsUtils::glob($langPath, GLOB_ONLYDIR | GLOB_NOSORT);
-            foreach ($langDirs as $language) {
-                if (is_writable($language)) {
-                    $this->availableLanguages[] = 'languages/' . basename($language);
+        if (!$this->installedComponents) {
+            foreach (fsUtils::glob(APPLICATION . 'metadata/*.dcm') as $dcm) {
+                if (is_file($dcm)) {
+                    $this->installedComponents[] = basename($dcm, '.dcm');
                 }
             }
         }
-
-        return $this->availableLanguages;
+        return $this->installedComponents;
 
     }
 
@@ -639,6 +672,10 @@ class manage_components extends baseController {
             foreach ($this->dcmLanguages as $file) {
                 @ unlink(APPLICATION . $language . '/' . $file);
             }
+        }
+        // delete template files
+        foreach ($this->dcmTemplates as $file) {
+            @ unlink(APPLICATION . 'layouts/themes/default/' . $file);
         }
         // delete directories
         foreach (array_reverse($this->dcmDirectories) as $directory) {

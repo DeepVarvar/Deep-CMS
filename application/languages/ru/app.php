@@ -14,6 +14,7 @@ return array(
     'app_guest'                   => 'Гость',
     'app_login_or_pass_bad'       => 'Неверный логин или пароль',
     'app_module_not_enabled'      => 'Модуль не подключен',
+    'app_module_not_found'        => 'Модуль не найден',
     'app_page_not_found'          => 'Страница не найдена',
     'app_redirection'             => 'перенаправление',
     'app_referer_invalid_or_csrf' => 'Недопустимый реферер, возможная попытка CSRF-атаки',
