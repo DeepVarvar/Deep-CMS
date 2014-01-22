@@ -48,7 +48,6 @@ $requiredDirectories = array(
     'languages',
     'layouts/admin/parts',
     'layouts/admin/protected',
-    'layouts/themes',
     'library',
     'logs',
     'metadata',
