@@ -285,7 +285,7 @@ function getConfig() {
             },
             "application":{
                 "name":"Deep-CMS",
-                "version":"2.114.395",
+                "version":"2.203.108",
                 "support_email":"support@deep-cms.ru",
                 "sources_domain":"sources.deep-cms.ru"
             },
