@@ -32,7 +32,12 @@ class sitemap_xml extends baseController {
 
         $config  = app::config();
         $sitemap = db::query(
-            "SELECT CONCAT('%s', page_alias) loc,
+            "SELECT 
+                    IF(
+                        page_alias LIKE '%%tp://%%',
+                        page_alias,
+                        CONCAT('%s', page_alias)
+                    ) loc,
                     DATE_FORMAT(last_modified,'%%Y-%%m-%%d') lastmod,
                     change_freq changefreq,
                     ROUND(searchers_priority,1) priority FROM tree
