@@ -2,6 +2,7 @@
 
 application/cache/*.cache
 application/config/*.json
+application/config/*.generated
 application/logs/*.log
 
 
