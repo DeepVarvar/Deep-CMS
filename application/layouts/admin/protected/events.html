@@ -4,6 +4,18 @@
     <h1><?=$page_h1?></h1>
 
 
+    <form id="loglistform" action="<?=$_config->site->admin_tools_link?>/events" method="get">
+        <div class="h-20"></div>
+        <div class="form">
+            <div class="longelem">
+                <select name="log" onchange="$('#loglistform').submit();"><?=$logs?></select>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="h-20"></div>
+    </form>
+
+
     <table class="list events" cellspacing="2" cellpadding="0">
 
         <tr class="caption">
@@ -16,17 +28,13 @@
 
         <?php foreach ($events as $event) { ?>
 
-            <?php if (member::isProtected() or member::getPriority() >= $event['initiator_group_priority']) { ?>
-
-                <tr<?=$event['type']=="error"?' class="error"':""?>>
-                    <td><?=$event['datetime']?></td>
-                    <td><?=$event['message']?></td>
-                    <td><?=$event['initiator']?></td>
-                    <td><?=$event['ip']?></td>
-                    <td><i><?=$event['url']?></i></td>
-                </tr>
-
-            <?php } ?>
+            <tr<?=$event['type']=="error"?' class="error"':""?>>
+                <td><?=$event['datetime']?></td>
+                <td><?=$event['message']?></td>
+                <td><?=$event['initiator']?></td>
+                <td><?=$event['ip']?></td>
+                <td><i><?=$event['url']?></i></td>
+            </tr>
 
         <?php } ?>
 
