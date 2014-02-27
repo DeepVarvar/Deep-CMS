@@ -24,7 +24,7 @@ return array(
     'simple_page_prototype_publish'                    => 'Опубликовать',
     'simple_page_prototype_searchers_priority'         => 'Приоритет для поисковиков',
     'simple_page_prototype_searchers_priority_invalid' => 'Некорректно указан приоритет для поисковиков',
-    'simple_page_prototype_show_in_search'             => 'Индекстировать в поиск',
+    'simple_page_prototype_show_in_search'             => 'Индексировать в поиск',
     'simple_page_prototype_show_in_sitemap'            => 'Показывать в карте сайта'
 
 );
