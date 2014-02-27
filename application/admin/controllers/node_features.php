@@ -391,10 +391,9 @@ class node_features extends baseController {
     private function saveFeatureIntoStorage($data) {
 
         $features = member::getStorageData($this->storageDataKey);
-        $key = helper::getHash($data['name']);
+        $key = md5($data['name']);
         $features[$key] = array(
-            'name'  => $data['name'],
-            'value' => $data['value']
+            'name' => $data['name'], 'value' => $data['value']
         );
 
         member::setStorageData($this->storageDataKey, $features);

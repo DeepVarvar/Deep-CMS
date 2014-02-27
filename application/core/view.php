@@ -527,7 +527,7 @@ abstract class view {
             }
 
             if ($match) {
-                $f = APPLICATION . 'cache/' . $outputContext . '---' . md5($URL);
+                $f = APPLICATION . 'cache/' . $outputContext . '---' . md5($URL) . '.cache';
                 file_put_contents($f, $layoutContent, LOCK_EX);
             }
 

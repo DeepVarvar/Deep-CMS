@@ -1,0 +1,7 @@
+
+
+application/cache/*.cache
+application/config/*.json
+application/logs/*.log
+
+

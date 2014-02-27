@@ -319,14 +319,9 @@ class node_images extends baseController {
                     view::$language->node_images_data_invalid
                 );
             }
-            db::set(
-                'UPDATE images SET is_master = 0
-                    WHERE node_id = %u', $targetNode
-            );
-            db::set(
-                'UPDATE images SET is_master = 1
-                    WHERE id = %u', $targetImage
-            );
+
+            db::set('UPDATE images SET is_master = 0 WHERE node_id = %u', $targetNode);
+            db::set('UPDATE images SET is_master = 1 WHERE id = %u', $targetImage);
 
         }
 
@@ -433,14 +428,12 @@ class node_images extends baseController {
     private function saveImage() {
 
         $filePath  = PUBLIC_HTML . 'upload/';
-        $fileName  = md5(mt_rand() . microtime(true)) . "." . $this->imgExt;
+        $fileName  = md5(mt_rand() . microtime(true)) . '.' . $this->imgExt;
         $original  = $filePath . $fileName;
         $middle    = $filePath . 'middle_' . $fileName;
         $thumbnail = $filePath . 'thumb_' . $fileName;
 
-        move_uploaded_file(
-            $_FILES['uploadfile']['tmp_name'], $original
-        );
+        move_uploaded_file($_FILES['uploadfile']['tmp_name'], $original);
 
         $originalImage = new simpleImage($original);
         if ($this->addWaterMark) {
@@ -530,26 +523,15 @@ class node_images extends baseController {
                         = $storedImages[$this->targetImage]['is_master'];
 
                     unset($storedImages[$this->targetImage]);
-
                     @ unlink(PUBLIC_HTML . 'upload/' . $this->targetImage);
-
-                    @ unlink(
-                        PUBLIC_HTML . 'upload/thumb_' . $this->targetImage
-                    );
-
-                    @ unlink(
-                        PUBLIC_HTML . 'upload/middle_' . $this->targetImage
-                    );
-
-                    member::setStorageData(
-                        $this->storageDataKey, $storedImages
-                    );
+                    @ unlink(PUBLIC_HTML . 'upload/thumb_' . $this->targetImage);
+                    @ unlink(PUBLIC_HTML . 'upload/middle_' . $this->targetImage);
+                    member::setStorageData($this->storageDataKey, $storedImages);
 
                 } else {
 
                     $oldFileName = db::normalizeQuery(
-                        'SELECT name FROM images
-                            WHERE id = %u', $this->targetImage
+                        'SELECT name FROM images WHERE id = %u', $this->targetImage
                     );
 
                     if ($oldFileName) {
@@ -578,32 +560,32 @@ class node_images extends baseController {
 
     private function validateFile() {
 
-        if (is_array($_FILES['uploadfile']['tmp_name'])) {
-            $this->exceptionExit(
-                'error',
-                view::$language->node_images_error,
-                view::$language->node_images_upload_single_only
-            );
-        }
-
-        if ($_FILES['uploadfile']['error']) {
+        if (!isset($_FILES['uploadfile'])) {
             $this->exceptionExit(
                 'error',
                 view::$language->node_images_error,
                 view::$language->node_images_upload_file_error
             );
-        }
-
-        if (!$info = getimagesize($_FILES['uploadfile']['tmp_name'])) {
+        } else if (is_array($_FILES['uploadfile']['tmp_name'])) {
+            $this->exceptionExit(
+                'error',
+                view::$language->node_images_error,
+                view::$language->node_images_upload_single_only
+            );
+        } else if ($_FILES['uploadfile']['error']) {
+            $this->exceptionExit(
+                'error',
+                view::$language->node_images_error,
+                view::$language->node_images_upload_file_error
+            );
+        } else if (!$info = getimagesize($_FILES['uploadfile']['tmp_name'])) {
             @ unlink($_FILES['uploadfile']['tmp_name']);
             $this->exceptionExit(
                 'error',
                 view::$language->node_images_error,
                 view::$language->node_images_upload_broken_mime
             );
-        }
-
-        if (!$this->imgExt = simpleImage::typeToExtension($info[2])) {
+        } else if (!$this->imgExt = simpleImage::typeToExtension($info[2])) {
             @ unlink($_FILES['uploadfile']['tmp_name']);
             $this->exceptionExit(
                 'error',
@@ -622,8 +604,7 @@ class node_images extends baseController {
     private function setUploadEnvironment() {
 
         request::validateReferer(
-            app::config()->site->admin_tools_link
-                . '/node-images\?target=.+', true
+            app::config()->site->admin_tools_link . '/node-images\?target=.+', true
         );
 
         $required = array(

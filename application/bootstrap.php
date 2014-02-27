@@ -195,7 +195,7 @@ try {
 
         $cachedPage = md5(request::getOriginURL());
         $outputContexts = join(',', $outputContexts);
-        $cf = APPLICATION . 'cache/{' . $outputContexts . '}---' . $cachedPage;
+        $cf = APPLICATION . 'cache/{' . $outputContexts . '}---' . $cachedPage . '.cache';
         $items = fsUtils::glob($cf, GLOB_BRACE);
         if ($items) {
             $cachedPage  = basename($items[0]);
