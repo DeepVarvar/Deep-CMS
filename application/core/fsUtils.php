@@ -47,7 +47,7 @@ abstract class fsUtils {
 
     public static function clearMainCache() {
 
-        foreach (self::glob(APPLICATION . 'cache/*') as $item) {
+        foreach (self::glob(APPLICATION . 'cache/*.cache') as $item) {
             if (is_file($item)) {
                 unlink($item);
             }
