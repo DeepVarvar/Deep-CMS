@@ -8,7 +8,7 @@
 return array(
 
     'app_action_denied'           => 'Access denied',
-    'app_cookie_exp_is_long'      => 'The COOKIE expires time is too long',
+    'app_cookie_exp_is_long'      => 'Time the COOKIE expires is too long',
     'app_data_not_enough'         => 'Not enough data',
     'app_error'                   => 'Error',
     'app_guest'                   => 'Guest',
