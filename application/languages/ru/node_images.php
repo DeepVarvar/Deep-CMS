@@ -9,7 +9,7 @@ return array(
 
     'node_images_add_watermark'          => 'Добавить водяной знак',
     'node_images_all_delete_confirm'     => 'Вы уверены, что хотите удалить все изображения?',
-    'node_images_browse'                 => 'Обзор...',
+    'node_images_browse'                 => 'Обзор',
     'node_images_changes_has_been_saved' => 'Изменения сохранены',
     'node_images_data_invalid'           => 'Недопустимый формат данных',
     'node_images_data_not_enough'        => 'Недостаточно данных',

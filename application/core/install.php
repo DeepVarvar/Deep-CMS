@@ -842,19 +842,17 @@ try {
     // get language environment
     $langFile = storage::read('langfile');
     if (!$langFile) {
-        $clientLangs = getClientLanguages();
+        /*$clientLangs = getClientLanguages();
         foreach ($clientLangs as $k => $v) {
             $findedLang = APPLICATION . 'languages/' . $k . '/install.php';
             if (is_file($findedLang)) {
                 $langFile = $findedLang;
                 break;
             }
-        }
+        }*/
     }
     if (!$langFile) {
-        throw new installException(
-            'Language error', 'Language support is not exists'
-        );
+        $langFile = APPLICATION . 'languages/en/install.php';
     }
     $language = (object) (require $langFile);
 
