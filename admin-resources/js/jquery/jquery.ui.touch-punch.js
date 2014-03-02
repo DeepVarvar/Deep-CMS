@@ -71,7 +71,13 @@
     var self = this;
 
     // Ignore the event if another widget is already being handled
-    if (touchHandled || !self._mouseCapture(event.originalEvent.changedTouches[0])) {
+    if (touchHandled) {
+      return;
+    } else if (typeof event.originalEvent == 'undefined') {
+      return;
+    } else if (typeof event.originalEvent.changedTouches == 'undefined') {
+      return;
+    } else if (!self._mouseCapture(event.originalEvent.changedTouches[0])) {
       return;
     }
 
