@@ -63,6 +63,7 @@ foreach ($requiredDirectories as $item) {
 }
 
 $requiredUnwritabeDirectories = array(
+    'modules/deep_cms_info',
     'modules/search',
     'modules/sitemap',
     'modules/sitemap_xml',
@@ -166,6 +167,8 @@ $requiredFiles = array(
     'layouts/themes/default/protected/search.html',
     'layouts/themes/default/protected/sitemap.html',
     'library/languageSelect.php',
+    'modules/deep_cms_info/autoloaded',
+    'modules/deep_cms_info/deep_cms_info.php',
     'modules/search/search.php',
     'modules/sitemap/sitemap.php',
     'modules/sitemap_xml/autoloaded',

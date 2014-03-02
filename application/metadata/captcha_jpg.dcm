@@ -1,0 +1,120 @@
+
+
+{
+
+
+    /**
+     * general information, type and system name
+     */
+
+    "type"        : "module",
+    "system_name" : "captcha_jpg",
+
+
+    /**
+     * version, author, email, url and support information
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
+
+
+    /**
+     * dependency of component
+     */
+
+    "dependency_components": [],
+
+
+    /**
+     * main directories
+     */
+
+    "main_directories": [
+        "modules/captcha_jpg",
+        "resources/captcha"
+    ],
+
+
+    /**
+     * main files
+     */
+
+    "main_files" : [
+        "modules/captcha_jpg/autoloaded",
+        "modules/captcha_jpg/captcha_jpg.php",
+        "resources/captcha/antiqua.png",
+        "resources/captcha/baskerville.png",
+        "resources/captcha/batang.png",
+        "resources/captcha/bookman.png",
+        "resources/captcha/calisto.png",
+        "resources/captcha/cambria.png",
+        "resources/captcha/centaur.png",
+        "resources/captcha/century.png",
+        "resources/captcha/chaparral.png",
+        "resources/captcha/constantia.png",
+        "resources/captcha/footlight.png",
+        "resources/captcha/garamond.png",
+        "resources/captcha/georgia.png",
+        "resources/captcha/goudy_old.png",
+        "resources/captcha/kozuka.png",
+        "resources/captcha/lucida.png",
+        "resources/captcha/minion.png",
+        "resources/captcha/palatino.png",
+        "resources/captcha/perpetua.png",
+        "resources/captcha/rockwell.png",
+        "resources/captcha/times.png",
+        "resources/captcha/warnock.png"
+    ],
+
+
+    /**
+     * main language files
+     */
+
+    "language_files" : [
+        "captcha_jpg.php"
+    ],
+
+
+    /**
+     * main template files
+     */
+
+    "template_files" : [],
+
+
+    /**
+     * create tables installation queries
+     */
+
+    "create_db_tables" : [],
+
+
+    /**
+     * drop tables deinstallation queries
+     */
+
+    "drop_db_tables" : [],
+
+
+    /**
+     * alter tables installation queries
+     */
+
+    "alter_db_tables" : [],
+
+
+    /**
+     * dealter tables installation queries
+     */
+
+    "dealter_db_tables" : []
+
+
+}
+
+

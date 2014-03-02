@@ -1,0 +1,110 @@
+
+
+{
+
+
+    /**
+     * general information, type and system name
+     */
+
+    "type"        : "module",
+    "system_name" : "comments",
+
+
+    /**
+     * version, author, email, url and support information
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
+
+
+    /**
+     * dependency of component
+     */
+
+    "dependency_components": [
+        "captcha_jpg"
+    ],
+
+
+    /**
+     * main directories
+     */
+
+    "main_directories": [
+        "modules/comments"
+    ],
+
+
+    /**
+     * main files
+     */
+
+    "main_files" : [
+        "admin/controllers/manage_comments.php",
+        "admin/in-menu/manage_comments.php",
+        "layouts/admin/protected/comment-edit.html",
+        "layouts/admin/protected/manage-comments.html",
+        "modules/comments/autoloaded",
+        "modules/comments/comments.php"
+    ],
+
+
+    /**
+     * main language files
+     */
+
+    "language_files" : [
+        "comments.php",
+        "manage_comments.php"
+    ],
+
+
+    /**
+     * main template files
+     */
+
+    "template_files" : [
+        "parts/comments.html"
+    ],
+
+
+    /**
+     * create tables installation queries
+     */
+
+    "create_db_tables" : [
+        "CREATE TABLE IF NOT EXISTS comments (id BIGINT(20) NOT NULL AUTO_INCREMENT, reply_id BIGINT(20) NOT NULL, node_id BIGINT(20) NOT NULL, creation_date DATETIME NOT NULL, author_ip CHAR(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, author_id BIGINT(20) DEFAULT NULL, author_name MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL, author_email CHAR(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL, comment_text TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, PRIMARY KEY (id), KEY reply_id (reply_id), KEY node_id (node_id), KEY author_id (author_id), KEY author_email (author_email)) ENGINE = InnoDB DEFAULT CHARSET = utf8"
+    ],
+
+
+    /**
+     * drop tables deinstallation queries
+     */
+
+    "drop_db_tables" : [
+        "DROP TABLE IF EXISTS comments"
+    ],
+
+
+    /**
+     * alter tables installation queries
+     */
+
+    "alter_db_tables" : [],
+
+
+    /**
+     * dealter tables installation queries
+     */
+
+    "dealter_db_tables" : []
+
+
+}
+
+
