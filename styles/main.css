@@ -247,7 +247,7 @@ textarea {
 }
 
 #content a:hover {
-    color: #990000;
+    color: #909090;
 }
 
 .searchitem {
@@ -267,21 +267,11 @@ textarea {
 
 .pages a.current, .pages a:hover {
     color: #ffffff !important;
-    background: #990000;
+    background: #000099;
 }
 
 #board {
     padding: 20px 0;
-}
-
-#mule {
-    position: relative;
-}
-
-#mule img {
-    position: absolute;
-    left: 120px;
-    bottom: 300px;
 }
 
 #footer {
