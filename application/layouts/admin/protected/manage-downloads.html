@@ -1,0 +1,41 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+
+
+    <h3><a href="<?=$_config->site->admin_tools_link?>/manage-downloads/add"><?=view::$language->manage_downloads_add?></a></h3>
+
+
+    <table class="list" cellspacing="2" cellpadding="0">
+
+        <tr class="caption">
+            <td width="560"><?=view::$language->manage_downloads_filename?></td>
+            <td colspan="2"><?=view::$language->manage_downloads_actions?></td>
+        </tr>
+
+        <?php foreach ($downloads as $item) { ?>
+
+        <tr>
+            <td><b><?=$item['name']?></b></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/manage-downloads/edit?id=<?=$item['id']?>"><?=view::$language->manage_downloads_edit?></a></td>
+            <td class="action"><a href="<?=$_config->site->admin_tools_link?>/manage-downloads/delete?id=<?=$item['id']?>" onclick="return confirmation('<?=view::$language->manage_downloads_delete_confirm?>');"><?=view::$language->manage_downloads_delete?></a></td>
+        </tr>
+
+        <?php } ?>
+
+        <?php if (!$downloads) { ?>
+            <tr><td colspan="3" class="action"><h3>[<?=view::$language->manage_downloads_empty_data?>]</h3></td></tr>
+        <?php } ?>
+
+    </table>
+
+
+    <div class="paginator">
+        <?php foreach ($pages as $item) { ?>
+            <a<?=$item['current']?' class="current"':''?> href="<?=request::changeOriginURL(array('page' => $item['number']))?>"><?=$item['number']?></a>
+        <?php } ?>
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

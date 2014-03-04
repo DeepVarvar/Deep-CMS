@@ -1,0 +1,31 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_title?></h1>
+
+    <form action="<?=$_config->site->admin_tools_link?>/manage-downloads/edit?id=<?=$file['id']?>" method="post" enctype="multipart/form-data">
+        <div class="form">
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><h3><?=$file['name']?></h3></div>
+            <div class="label"><?=view::$language->manage_downloads_replace_file?>:</div>
+            <div class="elem">
+                <input class="required" type="file" name="file" />
+            </div>
+
+            <div class="label mt-20"><?=view::$language->manage_downloads_file_description?>:</div>
+            <div class="elem mt-20"><textarea rows="4" name="description"><?=$file['description']?></textarea></div>
+
+            <div class="label mt-20">&nbsp;</div>
+            <div class="elem mt-20"><span class="info"><?=view::$language->manage_downloads_red_is_required?></span></div>
+            <div class="label">&nbsp;</div>
+            <div class="elem">
+                <input type="submit" name="save" value=" <?=view::$language->manage_downloads_save_and_exit?> " />
+            </div>
+
+            <div class="clear"></div>
+        </div>
+    </form>
+
+
+<?php require $_config->layouts->footer; ?>

@@ -1,0 +1,30 @@
+<?php require $_config->layouts->header; ?>
+
+
+    <h1><?=$page_h1?></h1>
+
+
+    <?php foreach ($downloads as $item) { ?>
+
+        <div class="listitem">
+            <h3><?=$item['name']?> (<?=helper::humanityByteSize($item['filesize'])?>)</h3>
+            <div class="count">
+                <?=view::$language->downloads_download_count?>: <?=$item['cnt']?>
+            </div>
+            <div class="description"><?=$item['description']?></div>
+            <div class="link">
+                <a href="<?=$page_alias?>?target=<?=$item['name']?>"><?=view::$language->downloads_download_now?></a>
+            </div>
+        </div>
+
+    <?php } ?>
+
+    <div class="pages">
+        <?php foreach ($pages as $item) { ?>
+            <a<?=$item['current']?' class="current"':''?>
+                href="<?=request::changeOriginURL(array('page' => $item['number']))?>"><?=$item['number']?></a>
+        <?php } ?>
+    </div>
+
+
+<?php require $_config->layouts->footer; ?>

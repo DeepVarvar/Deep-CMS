@@ -1,0 +1,110 @@
+
+
+{
+
+
+    /**
+     * general information, type and system name
+     */
+
+    "type"        : "module",
+    "system_name" : "downloads",
+
+
+    /**
+     * version, author, email, url and support information
+     */
+
+    "version"       : "1.0.0",
+    "author"        : "Deep",
+    "support_email" : "support@deep-cms.ru",
+    "main_url"      : "http://www.deep-cms.ru/",
+    "description"   : "",
+
+
+    /**
+     * dependency of component
+     */
+
+    "dependency_components": [],
+
+
+    /**
+     * main directories
+     */
+
+    "main_directories": [
+        "modules/downloads",
+        "resources/downloads"
+    ],
+
+
+    /**
+     * main files
+     */
+
+    "main_files" : [
+        "admin/controllers/manage_downloads.php",
+        "admin/in-menu/manage_downloads.php",
+        "config/downloads.json",
+        "layouts/admin/protected/manage-downloads-add.html",
+        "layouts/admin/protected/manage-downloads-edit.html",
+        "layouts/admin/protected/manage-downloads.html",
+        "modules/downloads/downloads.php"
+    ],
+
+
+    /**
+     * main language files
+     */
+
+    "language_files" : [
+        "downloads.php",
+        "manage_downloads.php"
+    ],
+
+
+    /**
+     * main template files
+     */
+
+    "template_files" : [
+        "protected/downloads.html"
+    ],
+
+
+    /**
+     * create tables installation queries
+     */
+
+    "create_db_tables" : [
+        "CREATE TABLE IF NOT EXISTS downloads (id BIGINT(20) NOT NULL AUTO_INCREMENT, name CHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, description TEXT CHARACTER SET utf8 COLLATE utf8_general_ci, filesize BIGINT(20) NOT NULL, cnt BIGINT(20) NOT NULL, PRIMARY KEY (id), KEY name (name)) ENGINE = InnoDB DEFAULT CHARSET = utf8"
+    ],
+
+
+    /**
+     * drop tables deinstallation queries
+     */
+
+    "drop_db_tables" : [
+        "DROP TABLE IF EXISTS downloads"
+    ],
+
+
+    /**
+     * alter tables installation queries
+     */
+
+    "alter_db_tables" : [],
+
+
+    /**
+     * dealter tables installation queries
+     */
+
+    "dealter_db_tables" : []
+
+
+}
+
+
