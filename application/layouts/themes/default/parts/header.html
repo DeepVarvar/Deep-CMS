@@ -23,8 +23,8 @@
             <div class="h1"><a href="/">Deep-CMS</a></div>
             <div class="h2">call from layout</div>
             <div class="breadcrumbs">
-                <?php foreach (dataHelper::getBreadcrumbs($id, true) as $k => $item) { ?>
-                    <?php if (request::getURI() != "/") { ?>
+                <?php if (request::getURI() != '/') { ?>
+                    <?php foreach (dataHelper::getBreadcrumbs($id, true) as $k => $item) { ?>
                         <?=$k>0?' » ':''?><a href="<?=$item['page_alias']?>"><?=$item['node_name']?></a>
                     <?php } ?>
                 <?php } ?>
