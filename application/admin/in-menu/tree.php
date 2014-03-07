@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 0,
+    'lvl'        => 1,
     'sort'       => 100,
     'node_name'  => 'admin_documents_tree',
     'page_alias' => '/tree',

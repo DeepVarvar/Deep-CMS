@@ -13,11 +13,10 @@ abstract class htmlHelper {
      * by level without recursion
      */
 
-    public static function drawTreeLinksList(
-                    $arr, $currentURL = '', $noStrict = false) {
+    public static function drawTreeLinksList($arr, $currentURL = '', $noStrict = false) {
 
-        $output = '';
-        $lvl    = null;
+        $currLvl = null;
+        $output  = '';
 
         foreach ($arr as $k => $i) {
 
@@ -28,30 +27,29 @@ abstract class htmlHelper {
             $link = '<a' . ($current ? ' class="current"' : '') . ' href="'
                 . $i['page_alias'] . '">' . $i['node_name'] . '</a>';
 
-            if ($lvl === null) {
+            if ($currLvl === null) {
 
-                $output .= '<ul><li>' . $link;
-                $lvl     = $i['lvl'];
-                $first   = $lvl;
+                $output .= str_repeat('<ul><li>', $i['lvl']) . $link;
+                $currLvl = $i['lvl'];
 
-            } else if ($lvl < $i['lvl']) {
+            } else if ($currLvl < $i['lvl']) {
 
-                $lvl     = $i['lvl'];
-                $output .= '<ul><li>' . $link;
+                $diff    = $i['lvl'] - $currLvl;
+                $output .= str_repeat('<ul><li>', $diff) . $link;
+                $currLvl = $i['lvl'];
 
-            } else if ($lvl > $i['lvl']) {
+            } else if ($currLvl > $i['lvl']) {
 
-                $diff    = $lvl - $i['lvl'];
-                $lvl     = $i['lvl'];
-                $output .= '</li>' . str_repeat('</ul></li>', $diff);
-                $output .= '<li>' . $link;
+                $diff    = $currLvl - $i['lvl'];
+                $output .= str_repeat('</li></ul>', $diff) . '</li><li>' . $link;
+                $currLvl = $i['lvl'];
 
             } else {
                 $output .= '</li><li>' . $link;
             }
 
             if (!isset($arr[$k+1])) {
-                $output .= str_repeat('</li></ul>', $lvl - $first + 1);
+                $output .= str_repeat('</li></ul>', $currLvl);
             }
 
         }

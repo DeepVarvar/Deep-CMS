@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 0,
+    'lvl'        => 1,
     'sort'       => 600,
     'node_name'  => 'admin_manage_components',
     'page_alias' => '/manage-components',

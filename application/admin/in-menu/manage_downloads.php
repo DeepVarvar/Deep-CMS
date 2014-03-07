@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 1,
+    'lvl'        => 2,
     'sort'       => 520,
     'node_name'  => 'manage_downloads',
     'page_alias' => '/manage-downloads',

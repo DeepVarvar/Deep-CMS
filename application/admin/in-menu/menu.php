@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 0,
+    'lvl'        => 1,
     'sort'       => 200,
     'node_name'  => 'admin_menu_of_site',
     'page_alias' => '/menu',

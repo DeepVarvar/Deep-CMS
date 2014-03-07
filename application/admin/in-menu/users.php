@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 0,
+    'lvl'        => 1,
     'sort'       => 300,
     'node_name'  => 'admin_users',
     'page_alias' => '/users',

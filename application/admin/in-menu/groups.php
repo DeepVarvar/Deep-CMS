@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 0,
+    'lvl'        => 1,
     'sort'       => 400,
     'node_name'  => 'admin_groups',
     'page_alias' => '/groups',

@@ -7,7 +7,7 @@
 
 return array(
 
-    'lvl'        => 0,
+    'lvl'        => 1,
     'sort'       => 500,
     'node_name'  => 'admin_modules',
     'page_alias' => null,
