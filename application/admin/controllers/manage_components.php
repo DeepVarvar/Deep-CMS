@@ -587,9 +587,19 @@ class manage_components extends baseController {
 
 		curl_close($ch);
         if ($save) {
+
+            if (mb_strlen($content) < 24 and preg_match('/\{"status":0\}/u', $content)) {
+                $this->componentErrorException(
+                    view::$language->manage_components_error,
+                    view::$language->manage_components_remote_file_not_found
+                );
+            }
+
             $this->uploadedFilePath = APPLICATION . $this->remoteTarget;
             file_put_contents($this->uploadedFilePath, $content);
+
         } else {
+
             $content = @ json_decode($content, true);
             if (!$content or !$this->checkResponseFormat($content)) {
                 $this->componentErrorException(
@@ -597,7 +607,9 @@ class manage_components extends baseController {
                     view::$language->manage_components_invalid_response
                 );
             }
+
             return $content[$this->remoteAction];
+
         }
 
     }
