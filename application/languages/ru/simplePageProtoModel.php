@@ -19,8 +19,6 @@ return array(
     'simple_page_prototype_page_alias_invalid'         => 'Некорректно указан URL страницы',
     'simple_page_prototype_page_text'                  => 'Содержимое страницы',
     'simple_page_prototype_page_title'                 => 'Title страницы',
-    'simple_page_prototype_permanent_redirect'         => '301 редирект',
-    'simple_page_prototype_permanent_redirect_invalid' => 'Некорректно указан 301 редирект',
     'simple_page_prototype_publish'                    => 'Опубликовать',
     'simple_page_prototype_searchers_priority'         => 'Приоритет для поисковиков',
     'simple_page_prototype_searchers_priority_invalid' => 'Некорректно указан приоритет для поисковиков',

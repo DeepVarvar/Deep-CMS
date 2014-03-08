@@ -208,6 +208,7 @@ $requiredLanguageFiles = array(
     'node_features.php',
     'node_images.php',
     'nodeGroup.php',
+    'nodeGroupProtoModel.php',
     'preferences.php',
     'search.php',
     'simpleLink.php',

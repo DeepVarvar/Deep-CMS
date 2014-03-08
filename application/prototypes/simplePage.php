@@ -22,7 +22,6 @@ class simplePage extends baseTreeNode {
         // individual
         'layout',
         'page_alias',
-        'permanent_redirect',
 
         // SEO
         'page_title',

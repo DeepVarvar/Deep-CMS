@@ -19,8 +19,6 @@ return array(
     'simple_page_prototype_page_alias_invalid'         => 'Invalid URL alias of page',
     'simple_page_prototype_page_text'                  => 'Page content',
     'simple_page_prototype_page_title'                 => 'Title',
-    'simple_page_prototype_permanent_redirect'         => 'Permanent redirect',
-    'simple_page_prototype_permanent_redirect_invalid' => 'Invalid permanent redirect',
     'simple_page_prototype_publish'                    => 'Publish',
     'simple_page_prototype_searchers_priority'         => 'Priority for search engines',
     'simple_page_prototype_searchers_priority_invalid' => 'Invalid priority for search engines',

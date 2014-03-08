@@ -20,7 +20,8 @@ class simpleLink extends baseTreeNode {
         'node_name',
 
         // individual
-        'page_alias'
+        'page_alias',
+        'permanent_redirect'
 
     );
 

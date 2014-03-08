@@ -19,8 +19,6 @@ return array(
     'simple_page_prototype_page_alias_invalid'         => 'Некоректно вказаний URL сторінки',
     'simple_page_prototype_page_text'                  => 'Вміст сторінки',
     'simple_page_prototype_page_title'                 => 'Title сторінки',
-    'simple_page_prototype_permanent_redirect'         => '301 редірект',
-    'simple_page_prototype_permanent_redirect_invalid' => 'Некоректно вказаний 301 редірект',
     'simple_page_prototype_publish'                    => 'Опублікувати',
     'simple_page_prototype_searchers_priority'         => 'Пріоритет для пошукових систем',
     'simple_page_prototype_searchers_priority_invalid' => 'Некоректно вказаний пріоритет для пошукових систем',

@@ -11,23 +11,26 @@ class simplePageProtoModel extends basePrototypeModel {
     protected $nodeID = null;
     protected $returnedFields = array(
 
+        // editable
         'is_publish'         => 1,
         'in_sitemap'         => 0,
         'in_sitemap_xml'     => 1,
         'in_search'          => 1,
         'page_alias'         => '',
-        'permanent_redirect' => '',
         'layout'             => '',
-        'with_menu'          => 1,
-        'with_images'        => 1,
-        'with_features'      => 1,
         'page_h1'            => '',
         'page_title'         => '',
         'meta_keywords'      => '',
         'meta_description'   => '',
         'change_freq'        => '',
         'searchers_priority' => '',
-        'page_text'          => ''
+        'page_text'          => '',
+
+        // reseted
+        'permanent_redirect' => '',
+        'with_menu'          => 1,
+        'with_images'        => 1,
+        'with_features'      => 1
 
     );
 
@@ -36,6 +39,7 @@ class simplePageProtoModel extends basePrototypeModel {
      * data getters
      */
 
+    // editable
     protected function is_publishGetData( & $f) {
 
         $f['top'] = 20;
@@ -62,6 +66,17 @@ class simplePageProtoModel extends basePrototypeModel {
 
     }
 
+    protected function page_aliasGetData( & $f) {
+
+        $f['top'] = 20;
+        $f['selector'] = 'pagealias';
+        $f['required'] = true;
+        $f['value'] = rawurldecode($f['value']);
+        $f['type']  = 'longtext';
+        $f['description'] = view::$language->simple_page_prototype_page_alias;
+
+    }
+
     protected function layoutGetData( & $f) {
 
         $f['top']  = 20;
@@ -74,46 +89,32 @@ class simplePageProtoModel extends basePrototypeModel {
 
     }
 
-    protected function with_menuGetData( & $f) {
+    protected function page_h1GetData( & $f) {
 
-        $f['type'] = 'hidden';
-        $f['required'] = true;
-        $f['value'] = 1;
-
-    }
-
-    protected function with_imagesGetData( & $f) {
-
-        $f['type'] = 'hidden';
-        $f['required'] = true;
-        $f['value'] = 1;
+        $f['top']  = 20;
+        $f['type'] = 'longtext';
+        $f['description'] = view::$language->simple_page_prototype_h1;
 
     }
 
-    protected function with_featuresGetData( & $f) {
+    protected function page_titleGetData( & $f) {
 
-        $f['type'] = 'hidden';
-        $f['required'] = true;
-        $f['value'] = 1;
-
-    }
-
-    protected function page_aliasGetData( & $f) {
-
-        $f['top'] = 20;
-        $f['selector'] = 'pagealias';
-        $f['required'] = true;
-        $f['value'] = rawurldecode($f['value']);
-        $f['type']  = 'longtext';
-        $f['description'] = view::$language->simple_page_prototype_page_alias;
+        $f['type'] = 'longtext';
+        $f['description'] = view::$language->simple_page_prototype_page_title;
 
     }
 
-    protected function permanent_redirectGetData( & $f) {
+    protected function meta_keywordsGetData( & $f) {
 
-        $f['value'] = rawurldecode($f['value']);
-        $f['type']  = 'longtext';
-        $f['description'] = view::$language->simple_page_prototype_permanent_redirect;
+        $f['type'] = 'longtext';
+        $f['description'] = view::$language->simple_page_prototype_meta_keywords;
+
+    }
+
+    protected function meta_descriptionGetData( & $f) {
+
+        $f['type'] = 'longtext';
+        $f['description'] = view::$language->simple_page_prototype_meta_description;
 
     }
 
@@ -138,35 +139,6 @@ class simplePageProtoModel extends basePrototypeModel {
 
     }
 
-    protected function page_titleGetData( & $f) {
-
-        $f['type'] = 'longtext';
-        $f['description'] = view::$language->simple_page_prototype_page_title;
-
-    }
-
-    protected function page_h1GetData( & $f) {
-
-        $f['top']  = 20;
-        $f['type'] = 'longtext';
-        $f['description'] = view::$language->simple_page_prototype_h1;
-
-    }
-
-    protected function meta_keywordsGetData( & $f) {
-
-        $f['type'] = 'longtext';
-        $f['description'] = view::$language->simple_page_prototype_meta_keywords;
-
-    }
-
-    protected function meta_descriptionGetData( & $f) {
-
-        $f['type'] = 'longtext';
-        $f['description'] = view::$language->simple_page_prototype_meta_description;
-
-    }
-
     protected function page_textGetData( & $f) {
 
         $f['top'] = 20;
@@ -177,11 +149,30 @@ class simplePageProtoModel extends basePrototypeModel {
 
     }
 
+    // reseted
+    protected function permanent_redirectGetData( & $f) {
+        $f['type']  = 'hidden';
+        $f['value'] = '';
+    }
+    protected function with_menuGetData( & $f) {
+        $f['type']  = 'hidden';
+        $f['value'] = 1;
+    }
+    protected function with_imagesGetData( & $f) {
+        $f['type']  = 'hidden';
+        $f['value'] = 1;
+    }
+    protected function with_featuresGetData( & $f) {
+        $f['type']  = 'hidden';
+        $f['value'] = 1;
+    }
+
 
     /**
      * data preparation
      */
 
+    // editable
     protected function is_publishPrepare( & $data) {
         $data = !$data ? 0 : 1;
     }
@@ -214,17 +205,6 @@ class simplePageProtoModel extends basePrototypeModel {
 
     }
 
-    protected function permanent_redirectPrepare( & $data) {
-
-        $data = (string) $data;
-        if ($data) {
-            $data = protoUtils::normalizeInputUrl(
-                $data, view::$language->simple_page_prototype_permanent_redirect_invalid
-            );
-        }
-
-    }
-
     protected function layoutPrepare( & $data) {
 
         $data = (string) $data;
@@ -235,18 +215,6 @@ class simplePageProtoModel extends basePrototypeModel {
             );
         }
 
-    }
-
-    protected function with_menuPrepare( & $data) {
-        $data = 1;
-    }
-
-    protected function with_imagesPrepare( & $data) {
-        $data = 1;
-    }
-
-    protected function with_featuresPrepare( & $data) {
-        $data = 1;
     }
 
     protected function page_h1Prepare( & $data) {
@@ -295,6 +263,20 @@ class simplePageProtoModel extends basePrototypeModel {
 
     protected function page_textPrepare( & $data) {
         $data = filter::input($data)->cleanRichText()->typoGraph()->getData();
+    }
+
+    // reseted
+    protected function permanent_redirectPrepare( & $data) {
+        $data = 'NULL';
+    }
+    protected function with_menuPrepare( & $data) {
+        $data = 1;
+    }
+    protected function with_imagesPrepare( & $data) {
+        $data = 1;
+    }
+    protected function with_featuresPrepare( & $data) {
+        $data = 1;
     }
 
 

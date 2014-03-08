@@ -41,7 +41,7 @@ class sitemap_xml extends baseController {
                     DATE_FORMAT(last_modified,'%%Y-%%m-%%d') lastmod,
                     change_freq changefreq,
                     ROUND(searchers_priority,1) priority FROM tree
-                WHERE in_sitemap_xml = 1 AND is_publish = 1",
+                WHERE is_publish = 1 AND in_sitemap_xml = 1",
             $config->site->protocol . '://' . $config->site->domain
         );
 
