@@ -1138,6 +1138,10 @@ ul#root a.name:hover {
     background-color: #eaeaff;
 }
 
+ul#root a.off:hover {
+    background-color: #f3f3f3;
+}
+
 ul#root a.name div.blend {
     position: absolute;
     right: 0;
