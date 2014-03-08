@@ -6,7 +6,7 @@
  */
 
 return array(
-    'simple_page_prototype_name' => 'Обычная страница'
+    'page_with_announce_prototype_name' => 'Страница с кратким описанием'
 );
 
 
