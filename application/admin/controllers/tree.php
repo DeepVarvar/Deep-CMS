@@ -524,6 +524,8 @@ class tree extends baseController {
             );
         }
 
+        $this->setActualPublishStatus($nodeID);
+
         throw new memberSuccessException(
             view::$language->tree_success,
             view::$language->tree_node_is_moved
@@ -1138,95 +1140,30 @@ class tree extends baseController {
 
 
     /**
-     * update all nested set keys on database for edited node
+     * set actual is_publish status for target node and him descendants
      */
 
-    private function moveNestedSetKeys($nodeID, $newParentID) {
+    private function setActualPublishStatus($nodeID) {
 
-        $currentPos = db::normalizeQuery(
-            'SELECT lvl, lk, rk, parent_id
-                FROM tree WHERE id = %u', $nodeID
+        $unpubStatus = db::normalizeQuery(
+            'SELECT t.is_publish, t.lk, t.rk, p.lk plk, p.rk prk
+                FROM tree t
+                LEFT JOIN tree p ON (p.lk < t.lk AND p.is_publish = 0)
+                WHERE t.id = %u
+                ORDER BY p.lvl ASC
+                LIMIT 1', $nodeID
         );
 
-        if ($currentPos['parent_id'] == $newParentID) {
-            return true;
-        }
-
-        $newParentKeys = db::normalizeQuery(
-            'SELECT lvl, (rk - 1) rk
-                FROM tree WHERE id = %u', $newParentID
-        );
-
-        $newParentKeys['lvl'] = !isset($newParentKeys['lvl'])
-            ? 0 : ((int) $newParentKeys['lvl']);
-
-        $newParentKeys['rk'] = isset($newParentKeys['rk'])
-            ? ((int) $newParentKeys['rk'])
-            : db::normalizeQuery(
-                'SELECT rk FROM tree ORDER BY rk DESC LIMIT 1'
-            );
-
-        $skewLevel = $newParentKeys['lvl'] - $currentPos['lvl'] + 1;
-        $skewTree  = $currentPos['rk'] - $currentPos['lk'] + 1;
-
-        if ($newParentKeys['rk'] < $currentPos['rk']) {
-
-            $skewEdit = $newParentKeys['rk'] - $currentPos['lk'] + 1;
+        if ($unpubStatus['plk'] and $unpubStatus['prk']) {
             db::set(
-
-                'UPDATE tree SET
-
-                    rk = IF(lk >= %u, rk + (%s), IF(rk < %u, rk + (%s), rk)),
-                    lvl = IF(lk >= %u, lvl + (%s), lvl),
-                    lk = IF(lk >= %u, lk + (%s), IF(lk > %u, lk + (%s), lk))
-
-                WHERE rk > %u AND lk < %u',
-
-                $currentPos['lk'],
-                $skewEdit,
-                $currentPos['lk'],
-                $skewTree,
-                $currentPos['lk'],
-                $skewLevel,
-                $currentPos['lk'],
-                $skewEdit,
-                $newParentKeys['rk'],
-                $skewTree,
-                $newParentKeys['rk'],
-                $currentPos['rk']
-
+                'UPDATE tree SET is_publish = 0 WHERE lk > %u AND rk < %u',
+                $unpubStatus['plk'], $unpubStatus['prk']
             );
-
         } else {
-
-            $skewEdit = $newParentKeys['rk']
-                - $currentPos['lk'] + 1 - $skewTree;
-
             db::set(
-
-                'UPDATE tree SET
-
-                    lk=IF(rk <= %u, lk + (%s), IF(lk > %u, lk - (%s), lk)),
-                    lvl=IF(rk <= %u, lvl + (%s), lvl),
-                    rk=IF(rk <= %u, rk + (%s), IF(rk <= %u, rk - (%s), rk))
-
-                WHERE rk > %u AND lk <= %u',
-
-                $currentPos['rk'],
-                $skewEdit,
-                $currentPos['rk'],
-                $skewTree,
-                $currentPos['rk'],
-                $skewLevel,
-                $currentPos['rk'],
-                $skewEdit,
-                $newParentKeys['rk'],
-                $skewTree,
-                $currentPos['lk'],
-                $newParentKeys['rk']
-
+                'UPDATE tree SET is_publish = %u WHERE lk > %u AND rk < %u',
+                $unpubStatus['is_publish'], $unpubStatus['lk'], $unpubStatus['rk']
             );
-
         }
 
     }
@@ -1302,6 +1239,7 @@ class tree extends baseController {
          */
 
         $newNode['id'] = db::lastID();
+        $this->setActualPublishStatus($newNode['id']);
         $this->saveMenuItems($newNode['id'], $newNode['with_menu']);
 
         $attachedImages = array();
@@ -1452,6 +1390,7 @@ class tree extends baseController {
 
         $updateQuery .= join(',', $updatedValues) . ' WHERE id = ' . $nodeID;
         db::set($updateQuery);
+        $this->setActualPublishStatus($nodeID);
         $this->saveMenuItems($nodeID, $editedNode['with_menu']);
 
         $this->redirectMessage(

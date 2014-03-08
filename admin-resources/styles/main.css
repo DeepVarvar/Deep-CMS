@@ -1090,11 +1090,6 @@ ul#root a.loading {
     background: url(../images/loading.gif) no-repeat center center;
 }
 
-ul#root a.off {
-    text-decoration: line-through;
-    color: #a0a0a0;
-}
-
 ul#root a.name {
     position: relative;
     overflow: hidden;
@@ -1107,6 +1102,12 @@ ul#root a.name {
     -webkit-border-radius: 4px;
     -khtml-border-radius: 4px;
     border-radius: 4px;
+}
+
+ul#root a.off {
+    /*text-decoration: line-through;*/
+    color: #a0a0a0;
+    border: solid 2px #f5f5f5;
 }
 
 ul#root a.root {
