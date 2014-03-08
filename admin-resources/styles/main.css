@@ -1130,6 +1130,10 @@ ul#root a.simplepage {
     background: url(../images/simple-page.png) no-repeat 4px center #ffffff;
 }
 
+ul#root a.pagewithannounce {
+    background: url(../images/page-with-announce.png) no-repeat 4px center #ffffff;
+}
+
 ul#root a.name:hover {
     background-color: #eaeaff;
 }
