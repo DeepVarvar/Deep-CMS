@@ -144,7 +144,7 @@ abstract class helper {
         $inputString = strip_tags($inputString);
         $inputString = preg_replace('/\s+|&nbsp;/', ' ', $inputString);
         return preg_match('#^(.{' . $limit . ',}?)\s+#su', $inputString, $match)
-            ? $match[1] . '...' : $inputString;
+            ? rtrim($match[1], ',.!?') . '...' : $inputString;
 
     }
 
