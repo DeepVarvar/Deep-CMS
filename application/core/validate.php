@@ -35,6 +35,15 @@ abstract class validate {
     }
 
 
+    /**
+     * validate email address
+     */
+
+    public static function isValidEmail($str) {
+        return filter_var($str, FILTER_VALIDATE_EMAIL);
+    }
+
+
 }
 
 
