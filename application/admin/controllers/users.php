@@ -361,7 +361,7 @@ class users extends baseController {
             );
         }
 
-        if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
+        if (!validate::isValidEmail($userData['email'])) {
             throw new memberErrorException(
                 view::$language->users_error,
                 view::$language->users_email_invalid

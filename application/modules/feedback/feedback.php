@@ -61,7 +61,7 @@ class feedback extends baseController {
             );
         }
 
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        if (!validate::isValidEmail($data['email'])) {
              throw new memberErrorException(
                 view::$language->feedback_error,
                 view::$language->feedback_email_invalid

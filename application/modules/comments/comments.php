@@ -106,7 +106,7 @@ class comments extends baseController {
                     view::$language->comments_error,
                     view::$language->comments_email_is_empty
                 );
-            } else if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            } else if (!validate::isValidEmail($data['email'])) {
                 throw new memberErrorException(
                     view::$language->comments_error,
                     view::$language->comments_email_invalid
