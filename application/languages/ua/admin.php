@@ -11,6 +11,7 @@ return array(
     'admin_documents_tree'     => 'Дерево документів',
     'admin_events'             => 'Події',
     'admin_generation_time'    => 'Сторінка згенерована за',
+    'admin_go_to_site'         => 'Перейти на сайт',
     'admin_groups'             => 'Групи',
     'admin_help'               => 'Довідка',
     'admin_hello'              => 'Вітаємо',

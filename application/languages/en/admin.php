@@ -11,6 +11,7 @@ return array(
     'admin_documents_tree'     => 'Documents tree',
     'admin_events'             => 'Events',
     'admin_generation_time'    => 'Page generated in',
+    'admin_go_to_site'         => 'Go to site',
     'admin_groups'             => 'Groups',
     'admin_help'               => 'Help',
     'admin_hello'              => 'Hello',
