@@ -149,6 +149,27 @@ abstract class helper {
     }
 
 
+    /**
+     * normalize chain children collection level
+     */
+
+    public static function normalizeLevel($chainChildren) {
+
+        $minLvl = PHP_INT_MAX;
+        foreach ($chainChildren as $item) {
+            if ($minLvl > $item['lvl']) {
+                $minLvl = $item['lvl'];
+            }
+        }
+        $minLvl -= 1;
+        foreach ($chainChildren as $k => $item) {
+            $chainChildren[$k]['lvl'] -= $minLvl;
+        }
+        return $chainChildren;
+
+    }
+
+
 }
 
 
