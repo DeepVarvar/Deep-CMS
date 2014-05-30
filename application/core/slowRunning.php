@@ -91,6 +91,7 @@ $requiredFiles = array(
     'admin/controllers/tree.php',
     'admin/controllers/users.php',
     'admin/in-menu/groups.php',
+    'admin/in-menu/manage_components.php',
     'admin/in-menu/menu.php',
     'admin/in-menu/modules.php',
     'admin/in-menu/tree.php',
