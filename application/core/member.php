@@ -92,7 +92,7 @@ abstract class member {
     public static function isAttemptLogin() {
 
         $attempt = false;
-        if (isset($_POST['login'], $_POST['password'], $_POST['sign_in'])) {
+        if (request::getRequiredPostParams(array('login', 'password', 'sign_in'))) {
             self::logout();
             $attempt = true;
         }
@@ -108,8 +108,8 @@ abstract class member {
 
     public static function logged() {
 
-        $login = filter::input($_POST['login'])->htmlSpecialChars()->getData();
-        $password = md5((string) $_POST['password']);
+        $login = filter::input(request::getPostParam('login'))->htmlSpecialChars()->getData();
+        $password = md5((string) request::getPostParam('password'));
 
         if (!$member = db::normalizeQuery(
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,

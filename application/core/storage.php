@@ -21,16 +21,6 @@ abstract class storage {
 
     public static function init() {
 
-        $sessionName = app::config()->system->session_name;
-        session_name($sessionName);
-
-        /*if (array_key_exists($sessionName, $_POST)
-                and $sessionID == ((string) $_POST[$sessionName])) {
-
-            session_id($sessionID);
-
-        }*/
-
 
         /**
          * php.ini used to have session.gc_probability=0 with the comment:
@@ -47,7 +37,9 @@ abstract class storage {
          *
          */
 
+        session_name(app::config()->system->session_name);
         @ session_start();
+
         if (!isset($_SESSION[self::$storageKey])) {
             self::clear();
         }
