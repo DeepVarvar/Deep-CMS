@@ -20,9 +20,19 @@ abstract class htmlHelper {
 
         foreach ($arr as $k => $i) {
 
-            $current = $noStrict
-                ? (strstr($i['page_alias'], $currentURL))
-                : ($i['page_alias'] == $currentURL);
+            if ($noStrict) {
+                if ($i['page_alias'] == $currentURL) {
+                    $current = true;
+                } else if (strpos($currentURL, $i['page_alias']) !== false) {
+                    $alias   = preg_quote($i['page_alias'], '/');
+                    $suffix  = preg_replace('/^' . $alias . '/u', '', $currentURL);
+                    $current = preg_match('/\//', $suffix);
+                } else {
+                    $current = false;
+                }
+            } else {
+                $current = ($i['page_alias'] == $currentURL);
+            }
 
             $link = '<a' . ($current ? ' class="current"' : '') . ' href="'
                 . $i['page_alias'] . '">' . $i['node_name'] . '</a>';
