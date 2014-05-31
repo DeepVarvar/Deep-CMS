@@ -392,7 +392,7 @@ function getInstallationQueryString($prefix = '') {
 
         INSERT INTO {$prefix}users
         (id, group_id, status, login, password, email, hash, last_ip, registration_date, last_visit, about)
-            VALUES (1, 1, 0, '', '', '', '', '', NOW(), NOW(), '');
+            VALUES (1, 3, 0, '', '', '', '', '', NOW(), NOW(), '');
 
         DROP TABLE IF EXISTS {$prefix}permissions;
         CREATE TABLE {$prefix}permissions (
@@ -417,7 +417,13 @@ function getInstallationQueryString($prefix = '') {
         ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
         INSERT INTO {$prefix}groups (id, is_protected, priority, name)
-            VALUES (1, 1, 0, 'root');
+            VALUES (1, 1, 1001, 'Guest');
+
+        INSERT INTO {$prefix}groups (id, is_protected, priority, name)
+            VALUES (2, 1, 1001, 'Member');
+
+        INSERT INTO {$prefix}groups (id, is_protected, priority, name)
+            VALUES (3, 1, 0, 'Root');
 
         DROP TABLE IF EXISTS {$prefix}images;
         CREATE TABLE {$prefix}images (
@@ -960,7 +966,7 @@ try {
                         '1'
                         . $settings['rootlogin']
                         . $rootpassword
-                        . '1'
+                        . '3'
                         . '0'
                         . $settings['rootemail']
                     );
@@ -1011,7 +1017,7 @@ try {
                     db::query(
                         "INSERT INTO {$_config->db->prefix}group_permissions
                             (group_id, permission_id)
-                            SELECT (1) group_id, id
+                            SELECT (3) group_id, id
                             FROM {$_config->db->prefix}permissions"
                     );
                 }

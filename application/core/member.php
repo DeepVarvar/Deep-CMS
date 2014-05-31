@@ -37,7 +37,7 @@ abstract class member {
         'hash'           => null,
         'id'             => null,
         'is_protected'   => 0,
-        'group_id'       => null,
+        'group_id'       => 1,
         'group_priority' => 1001,
         'status'         => 0,
         'language'       => null,
@@ -366,11 +366,11 @@ abstract class member {
 
 
     /**
-     * return protected status of member
+     * return root status of member
      */
 
-    public static function isProtected() {
-        return !!self::$profile['is_protected'];
+    public static function isRoot() {
+        return (self::$profile['group_id'] == 3);
     }
 
 

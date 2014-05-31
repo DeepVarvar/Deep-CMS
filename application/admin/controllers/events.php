@@ -73,9 +73,7 @@ class events extends baseController {
 
     private function checkEventShowPermission( & $event) {
 
-        if (member::isProtected()) {
-            return true;
-        } else if ($event['initiator_group_priority'] === null) {
+        if (member::isRoot()) {
             return true;
         } else if (member::getPriority() <= $event['initiator_group_priority']) {
             return true;

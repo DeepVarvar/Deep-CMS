@@ -107,6 +107,11 @@ class groups extends baseController {
                 view::$language->groups_error,
                 view::$language->groups_data_invalid
             );
+        } else if ($groupID < 4) {
+            throw new memberErrorException(
+                view::$language->groups_error,
+                view::$language->groups_system_object
+            );
         }
 
         if ($groupID == member::getGroupID()) {
@@ -126,19 +131,11 @@ class groups extends baseController {
             );
         }
 
-        if (!member::isProtected()) {
-            if ($group['is_protected']) {
-                throw new memberErrorException(
-                    view::$language->groups_error,
-                    view::$language->groups_system_object
-                );
-            }
-            if (member::getPriority() >= $group['priority']) {
-                throw new memberErrorException(
-                    view::$language->groups_error,
-                    view::$language->groups_cant_delete_hoep_group
-                );
-            }
+        if (!member::isRoot() and member::getPriority() >= $group['priority']) {
+            throw new memberErrorException(
+                view::$language->groups_error,
+                view::$language->groups_cant_delete_hoep_group
+            );
         }
 
         db::set('DELETE FROM groups WHERE id = %u', $groupID);
@@ -169,7 +166,7 @@ class groups extends baseController {
             );
         }
 
-        if (!member::isProtected() and member::getGroupID() == $groupID) {
+        if (!member::isRoot() and member::getGroupID() == $groupID) {
             throw new memberErrorException(
                 view::$language->groups_error,
                 view::$language->groups_cant_edit_so_group
@@ -186,19 +183,11 @@ class groups extends baseController {
             );
         }
 
-        if (!member::isProtected()) {
-            if ($group['is_protected']) {
-                throw new memberErrorException(
-                    view::$language->groups_error,
-                    view::$language->groups_system_object
-                );
-            }
-            if (member::getPriority() >= $group['priority']) {
-                throw new memberErrorException(
-                    view::$language->groups_error,
-                    view::$language->groups_cant_edit_hoep_group
-                );
-            }
+        if (!member::isRoot() and member::getPriority() >= $group['priority']) {
+            throw new memberErrorException(
+                view::$language->groups_error,
+                view::$language->groups_cant_edit_hoep_group
+            );
         }
 
         if (request::isPost()) {
@@ -253,19 +242,14 @@ class groups extends baseController {
             );
         }
 
-        if (!member::isProtected()
-                and member::getPriority() >= $required['priority']) {
-
+        if (!member::isRoot() and member::getPriority() >= $required['priority']) {
             throw new memberErrorException(
                 view::$language->groups_error,
                 view::$language->groups_cant_set_hoe_priority
             );
-
         }
 
-        $required['name'] = filter::input(
-            $required['name'])->lettersOnly()->getData();
-
+        $required['name'] = filter::input($required['name'])->lettersOnly()->getData();
         if (!$required['name']) {
             throw new memberErrorException(
                 view::$language->groups_error,
@@ -290,9 +274,7 @@ class groups extends baseController {
             $permissions = array();
         }
 
-        $permissions = filter::input(array_keys($permissions))
-            ->lettersOnly()->getData();
-
+        $permissions = filter::input(array_keys($permissions))->lettersOnly()->getData();
         if ($permissions) {
 
             $inDbPermissions = db::normalizeQuery(
@@ -309,14 +291,11 @@ class groups extends baseController {
         }
 
         $groupID = $target === null ? db::lastID() : $target;
-        if ($inDbPermissions) {
+        if ($target !== null) {
+            db::set('DELETE FROM group_permissions WHERE group_id = %u', $target);
+        }
 
-            if ($target !== null) {
-                db::set(
-                    'DELETE FROM group_permissions
-                        WHERE group_id = %u', $target
-                );
-            }
+        if ($inDbPermissions) {
 
             $insertData = '(' . $groupID . ','
                 . join('), (' . $groupID . ',', $inDbPermissions) . ');';
@@ -355,7 +334,7 @@ class groups extends baseController {
         $maxPriority = app::config()->system->max_group_priority_number;
         foreach (range($maxPriority, 0) as $value) {
 
-            if (!member::isProtected() and member::getPriority() >= $value) {
+            if (!member::isRoot() and member::getPriority() >= $value) {
                 break;
             }
 

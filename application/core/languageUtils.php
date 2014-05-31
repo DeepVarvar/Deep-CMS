@@ -14,6 +14,7 @@ abstract class languageUtils {
 
     public static function getAvailableLanguages($current = null) {
 
+        $default = app::config()->site->default_language;
         $languages = array();
         foreach (self::getLanguagePaths() as $language) {
 
@@ -28,7 +29,7 @@ abstract class languageUtils {
             $option = array(
                 'description' => $language,
                 'value'       => $language,
-                'selected'    => ($current == $language)
+                'selected'    => ($current == $language or (!$current and $language == $default))
             );
 
             array_push($languages, $option);
