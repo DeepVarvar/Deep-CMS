@@ -13,10 +13,8 @@ abstract class queue100_globalMemberLoginAttempt {
         $URI = request::getURI();
         if ($URI == '/logout') {
             member::flushLogout();
-        } else if (
+        } else if ($URI != app::config()->site->admin_tools_link and member::isAttemptLogin()) {
 
-            $URI != app::config()->site->admin_tools_link
-            and request::isPost() and member::isAttemptLogin()) {
             if (!member::logged()) {
                 throw new memberErrorException(
                     view::$language->app_error,

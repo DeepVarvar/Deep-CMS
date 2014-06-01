@@ -58,7 +58,7 @@ class groups extends baseController {
 
         $sourceQuery = db::buildQueryString(
             'SELECT id, priority, name
-                FROM groups ' . $con . ' ORDER BY priority ASC'
+                FROM groups ' . $con . ' ORDER BY FIELD(id, 1, 2, 3) DESC, priority ASC'
         );
 
         $paginator = new paginator($sourceQuery);

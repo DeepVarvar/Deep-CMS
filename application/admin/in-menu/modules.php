@@ -11,7 +11,7 @@ return array(
     'sort'       => 500,
     'node_name'  => 'admin_modules',
     'page_alias' => null,
-    'permission' => null
+    'permission' => 'modules_manage'
 
 );
 
