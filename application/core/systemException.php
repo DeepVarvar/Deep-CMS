@@ -35,15 +35,13 @@ class systemException extends Exception {
             $this->report[$name] = $args[$k];
         }
 
-        if (!isset($this->report['title'])) {
+        if (!array_key_exists('title', $this->report)) {
             $this->report['title'] = 'Untitled exception';
         }
-
-        if (!isset($this->report['code'])) {
+        if (!array_key_exists('code', $this->report)) {
             $this->report['code'] = 0;
         }
-
-        if (!isset($this->report['message'])) {
+        if (!array_key_exists('message', $this->report)) {
             $this->report['message'] = '[empty exception message]';
         }
 

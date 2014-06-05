@@ -13,7 +13,7 @@ abstract class request {
      * full URL, with $_GET parameters
      */
 
-    protected static $rawURL = null;
+    protected static $rawURL = '/';
 
 
     /**
@@ -38,7 +38,7 @@ abstract class request {
 
 
     /**
-     * stack of responsed headers
+     * responsed headers
      */
 
     protected static $headers = array();
@@ -58,7 +58,7 @@ abstract class request {
     public static function init() {
 
         if (app::config()->system->block_prefetch_requests
-                and isset($_SERVER['HTTP_X_MOZ'])
+                and array_key_exists('HTTP_X_MOZ', $_SERVER)
                 and $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
 
             self::$headers = array();
@@ -72,54 +72,35 @@ abstract class request {
 
         }
 
+        if (array_key_exists('HTTP_X_REQUESTED_WITH', $_SERVER)) {
+            view::setOutputContext('json');
+        }
+
 
         /**
-         * maybe this need
+         * TODO maybe this need
          * Content-Length bug fix on php 5.4
          * see more information:
          * http://www.exploit-db.com/exploits/18665/
-         *
-         * long request
-         * i'm expected request string maximum of 2048 bytes length
          */
 
         if (strlen($_SERVER['REQUEST_URI']) > 2048) {
+            // long request, expected only maximum 2048 bytes length
             $_SERVER['REQUEST_URI'] = '';
             throw new systemErrorException(
                 'Request error', 'Request string too long'
             );
-        }
-
-        // base64
-        if (stristr($_SERVER['REQUEST_URI'], 'data:')) {
-            throw new systemErrorException(
-                'Request error', 'Base64 data found on request URI'
-            );
-        }
-
-        // double slash
-        if (strstr($_SERVER['REQUEST_URI'], '//')) {
+        } else if (strstr($_SERVER['REQUEST_URI'], '//')) {
+            // double slash
             throw new systemErrorException(
                 'Request error', 'Double slash found on request URI'
             );
-        }
-
-        // bad spaces
-        if (preg_match('/(%20)+$/', $_SERVER['REQUEST_URI'])) {
+        } else if (preg_match('/(%20)+$/', $_SERVER['REQUEST_URI'])) {
+            // bad spaces
             throw new systemErrorException(
-                'Request error', 'Bad spaces on request URI'
+                'Request error', 'Bad SEO spaces on request URI'
             );
         }
-
-
-        /**
-         * save request string,
-         * clear REQUEST_URI value and GET array
-         */
-
-        $source = $_SERVER['REQUEST_URI'];
-        $_SERVER['REQUEST_URI'] = '';
-        $_GET = array();
 
 
         /**
@@ -128,19 +109,52 @@ abstract class request {
          */
 
         $destination = rtrim(
-            preg_replace('/([^\/=\?&]+)\/(\?)/', '$1$2', $source), '/'
+            preg_replace('/([^\/=\?&]+)\/(\?)/', '$1$2', $_SERVER['REQUEST_URI']), '/'
         );
-
         if (!$destination) {
             $destination = '/';
         }
 
-        if ($destination != $source) {
+        if ($destination != $_SERVER['REQUEST_URI']) {
             self::redirect($destination);
         }
 
 
         /**
+         * store client information
+         * IP, useragent, referer, etc.
+         */
+
+        $keys = array(
+            'HTTP_USER_AGENT',
+            'HTTP_REFERER',
+            'HTTP_ACCEPT',
+            'HTTP_ACCEPT_LANGUAGE',
+            'HTTP_ACCEPT_ENCODING'
+        );
+
+        foreach ($keys as $v) {
+            self::$client[$v] = array_key_exists($v, $_SERVER)
+                ? strip_tags($_SERVER[$v]) : '[no match]';
+        }
+
+        $hcip = getenv('HTTP_CLIENT_IP');
+        $hxff = getenv('HTTP_X_FORWARDED_FOR');
+        $radd = getenv('REMOTE_ADDR');
+
+        if ($hcip) {
+            $ip = $hcip;
+        } else if ($hxff) {
+            $ip = $hxff;
+        } else {
+            $ip = false;
+        }
+
+        self::$client['IP'] = (!$ip or $ip == 'unknown') ? $radd : $ip;
+
+
+        /**
+         * clear REQUEST_URI value and GET array,
          * validate request string format,
          * get request parameters
          *
@@ -150,6 +164,9 @@ abstract class request {
          * $parts['mca'] example: module/controller/action
          * $parts['gp'] example: agr1=val1&arg2&argN=valN
          */
+
+        $_GET = array();
+        $_SERVER['REQUEST_URI'] = '';
 
         $parts = array();
         $mca   = '\/(?P<mca>[^\/=\?&]+(?:(?:\/[^\/=\?&]+)+)?)?';
@@ -185,10 +202,6 @@ abstract class request {
             self::storeGETParams($parts['gp']);
         }
 
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            view::setOutputContext('json');
-        }
-
     }
 
 
@@ -208,26 +221,23 @@ abstract class request {
 
         foreach ($params as $param) {
 
-            @ list($key, $value) = explode('=', $param);
-            if (!$key = rawurldecode($key)) {
+            $param = explode('=', $param);
+            if (!$param[0] = rawurldecode($param[0])) {
                 throw new systemErrorException(
                     'Request error', 'GET key is empty'
                 );
-            }
-
-            if (preg_match('/^(.+)\[(.*)\]$/u', $key)) {
+            } else if (preg_match('/^(.+)\[(.*)\]$/u', $param[0])) {
                 throw new systemErrorException(
                     'Request error', 'GET key is array'
                 );
-            }
-
-            if (isset(self::$params[$key])) {
+            } else if (array_key_exists($param[0], self::$params)) {
                 throw new systemErrorException(
                     'Request error', 'Duplicate GET keys'
                 );
             }
 
-            self::$params[$key] = isset($value) ? rawurldecode($value) : true;
+            self::$params[$param[0]] = isset($param[1])
+                ? rawurldecode($param[1]) : true;
 
         }
 
@@ -272,49 +282,12 @@ abstract class request {
 
 
     /**
-     * store client information
-     * IP, useragent, referer, etc.
-     */
-
-    public static function identifyClient() {
-
-        $keys = array(
-            'HTTP_USER_AGENT',
-            'HTTP_REFERER',
-            'HTTP_ACCEPT',
-            'HTTP_ACCEPT_LANGUAGE',
-            'HTTP_ACCEPT_ENCODING'
-        );
-
-        foreach ($keys as $v) {
-            self::$client[$v] = isset($_SERVER[$v])
-                ? $_SERVER[$v] : '[no match]';
-        }
-
-        $hcip = getenv('HTTP_CLIENT_IP');
-        $hxff = getenv('HTTP_X_FORWARDED_FOR');
-        $radd = getenv('REMOTE_ADDR');
-
-        if ($hcip) {
-            $ip = $hcip;
-        } else if ($hxff) {
-            $ip = $hxff;
-        } else {
-            $ip = false;
-        }
-
-        self::$client['IP'] = (!$ip or $ip == 'unknown') ? $radd : $ip;
-
-    }
-
-
-    /**
      * validate referer
      */
 
     public static function validateReferer($referer, $useExpression = false) {
 
-        $c = app::config();
+        $s = app::config()->site;
         $status = true;
 
         $currentReferer = isset($_SERVER['HTTP_REFERER'])
@@ -326,15 +299,14 @@ abstract class request {
          * even when it's there..
          */
 
-        $c->site->domain = preg_replace('/^www\./', '', $c->site->domain);
+        $s->domain = preg_replace('/^www\./', '', $s->domain);
         $currentReferer = preg_replace('/(\/\/)www\./', '$1', $currentReferer);
 
         if (!$useExpression) {
-            $ref = $c->site->protocol . '://' . $c->site->domain . $referer;
+            $ref = $s->protocol . '://' . $s->domain . $referer;
             $status = ($ref === $currentReferer);
         } else {
-            $ref = '#' . $c->site->protocol . '://'
-                . $c->site->domain . $referer . '#';
+            $ref = '#' . $s->protocol . '://' . $s->domain . $referer . '#';
             $status = (preg_match($ref, $currentReferer));
         }
 

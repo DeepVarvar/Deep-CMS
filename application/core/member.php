@@ -45,7 +45,7 @@ abstract class member {
         'login'          => null,
         'email'          => null,
         'password'       => null,
-        'avatar'         => null
+        'avatar'         => 'no-avatar.png'
 
     );
 
@@ -64,23 +64,33 @@ abstract class member {
 
     public static function init() {
 
-        $config = app::config();
+        $conf = app::config();
+        $cKey = $conf->system->session_name . 'member';
+        $URI  = request::getURI();
+
         if (!storage::exists(self::$storageKey)) {
             storage::write(self::$storageKey, array());
         }
 
-        self::$profile['timezone'] = $config->site->default_timezone;
-        self::$profile['language'] = $config->site->default_language;
+        self::$profile['timezone'] = $conf->site->default_timezone;
+        self::$profile['language'] = $conf->site->default_language;
         self::$profile['login']    = view::$language->app_guest;
-        self::$profile['avatar']   = 'no-avatar.png';
 
-        switch (true) {
+        if ($URI == '/logout') {
+            self::flushLogout();
+        } else if ($URI != $conf->site->admin_tools_link and self::isAttemptLogin()) {
 
-            case isset($_COOKIE[$config->system->session_name . 'member']):
-                self::cookieAuth();
-            break;
+            if (self::logged()) {
+                request::sameOriginRedirect();
+            } else {
+                request::redirect('/user/login');
+            }
 
+        } else if (array_key_exists($cKey, $_COOKIE)) {
+            self::cookieAuth((string) $_COOKIE[$cKey]);
         }
+
+        db::set("SET time_zone = '" . self::$profile['timezone'] . "'");
 
     }
 
@@ -92,7 +102,7 @@ abstract class member {
     public static function isAttemptLogin() {
 
         $attempt = false;
-        if (request::getRequiredPostParams(array('login', 'password', 'sign_in'))) {
+        if (request::getRequiredPostParams(array('login', 'password', 'log_in'))) {
             self::logout();
             $attempt = true;
         }
@@ -102,14 +112,15 @@ abstract class member {
 
 
     /**
-     * global member sign in action,
+     * global member login action,
      * return true or false
      */
 
     public static function logged() {
 
-        $login = filter::input(request::getPostParam('login'))->htmlSpecialChars()->getData();
-        $password = md5((string) request::getPostParam('password'));
+        $login = request::getPostParam('login');
+        $login = filter::input($login)->htmlSpecialChars()->getData();
+        $pass  = md5((string) request::getPostParam('password'));
 
         if (!$member = db::normalizeQuery(
             "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
@@ -127,6 +138,29 @@ abstract class member {
 
         self::setData($member);
         return true;
+
+    }
+
+
+    /**
+     * main cookie auth
+     */
+
+    private static function cookieAuth($cookieValue) {
+
+        if (!$member = db::normalizeQuery(
+            "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
+                    u.login, u.avatar, u.email, u.password, u.working_cache,
+                    g.is_protected, g.priority group_priority
+                FROM users u
+                LEFT JOIN groups g ON g.id = u.group_id
+                WHERE u.hash = '%s' AND u.status < 3
+                LIMIT 1", $cookieValue
+        )) {
+            self::flushLogout();
+        }
+
+        self::setData($member);
 
     }
 
@@ -215,40 +249,11 @@ abstract class member {
 
     private static function setPermissions() {
 
-        if (self::$profile['group_id'] !== null) {
-            self::$permissions = db::query(
-                'SELECT p.name
-                    FROM permissions p, group_permissions gp
-                    WHERE p.id = gp.permission_id AND gp.group_id = %u',
-                    self::$profile['group_id']
-            );
-        }
-
-    }
-
-
-    /**
-     * main cookie auth
-     */
-
-    private static function cookieAuth() {
-
-        $sessionName = app::config()->system->session_name . 'member';
-        if (!$member = db::normalizeQuery(
-            "SELECT u.id, u.group_id, u.status, u.timezone, u.language,
-                    u.login, u.avatar, u.email, u.password, u.working_cache,
-                    g.is_protected, g.priority group_priority
-                FROM users u
-                LEFT JOIN groups g
-                    ON g.id = u.group_id
-                WHERE u.hash = '%s'
-                    AND u.status < 3
-                LIMIT 1", htmlspecialchars((string) $_COOKIE[$sessionName])
-        )) {
-            self::flushLogout();
-        }
-
-        self::setData($member);
+        self::$permissions = db::query(
+            'SELECT p.name FROM permissions p, group_permissions gp
+                WHERE p.id = gp.permission_id AND gp.group_id = %u',
+                self::$profile['group_id']
+        );
 
     }
 

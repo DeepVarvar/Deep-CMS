@@ -42,7 +42,7 @@ function dump() {
  * install/reinstall mode
  */
 
-if (!file_exists(APPLICATION . 'config/main.json')) {
+if (!is_file(APPLICATION . 'config/main.json')) {
     require_once 'install.php';
     exit();
 }
@@ -73,7 +73,7 @@ function DeepCmsAutoload($className) {
 
 /**
  * preloading view before all etc items
- * because view need for doloading language files
+ * because view need for do loading language files
  */
 
 spl_autoload_register('DeepCmsAutoload', false);
@@ -146,49 +146,37 @@ try {
 
 
     /**
-     * get and stored client info - action need for member environment,
      * init session storage,
-     * init view
+     * init request environment,
+     * init view,
+     * connect to database,
+     * init member environment,
+     * autorun before components
      */
 
-    request::identifyClient();
     storage::init();
+    request::init();
     view::init($memory, $timestart);
 
-
-    /**
-     * connect to database
-     * working only for MySQL now
-     * use mysqli wrapper
-     */
-
-    define('DB_PREFIX', $config->db->prefix);
     db::connect(
-
         $config->db->host,
         $config->db->user,
         $config->db->password,
         $config->db->name,
         $config->db->port
-
     );
-
     db::setCharset($config->db->connection_charset);
+
+    member::init();
+    autorun::runBefore();
 
 
     /**
-     * current member environment,
-     * request initialization,
-     * parse and check request string, headers, etc
+     * maybe page exists on cache,
+     * run route process, execute module, controller, action,
+     * check exists layout,
+     * check for unused request parameters (SEO optimization)
      */
-
-    member::init();
-    request::init();
-
-    $timezone = member::getTimezone();
-    db::set("SET time_zone = '{$timezone}'");
-
-    autorun::runBefore();
 
     $pageOnCache = false;
     if ($config->system->cache_enabled) {
@@ -205,13 +193,6 @@ try {
     }
 
     if (!$pageOnCache) {
-
-
-        /**
-         * run route process, execute module, controller, action,
-         * check exists layout,
-         * SEO: check for unused request parameters
-         */
 
         router::init();
         view::checkLayout();

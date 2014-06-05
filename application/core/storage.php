@@ -12,7 +12,7 @@ abstract class storage {
      * storage key of session array
      */
 
-    protected static $storageKey = '__storage';
+    private static $storageKey = '__storage';
 
 
     /**
@@ -40,7 +40,7 @@ abstract class storage {
         session_name(app::config()->system->session_name);
         @ session_start();
 
-        if (!isset($_SESSION[self::$storageKey])) {
+        if (!array_key_exists(self::$storageKey, $_SESSION)) {
             self::clear();
         }
 
@@ -62,7 +62,7 @@ abstract class storage {
 
     public static function remove($key) {
 
-        if (isset($_SESSION[self::$storageKey][$key])) {
+        if (array_key_exists($key, $_SESSION[self::$storageKey])) {
             unset($_SESSION[self::$storageKey][$key]);
         }
 

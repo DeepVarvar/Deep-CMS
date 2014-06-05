@@ -98,7 +98,6 @@ $requiredFiles = array(
     'admin/in-menu/tree.php',
     'admin/in-menu/users.php',
     'autorun/before/queue50_languageTrigger.php',
-    'autorun/before/queue100_globalMemberLoginAttempt.php',
     'core/adminHelper.php',
     'core/app.php',
     'core/arrayUtils.php',
